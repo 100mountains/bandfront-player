@@ -629,44 +629,40 @@ The BandFront Player's MediaElement.js integration is **architecturally sound** 
 
 ## **Other Players**
 
-1. MP3-jPlayer is not available - It was closed for security reasons in 2022
-2. "Html5 Audio Player" by bPlugins (the one you're trying to integrate with) has changed so much it's basically incompatible
-3. CPMedia player looks crap.
+Current Status Summary:
+
+What Actually Works:
+•  ✅ MediaElement.js (current foundation) - architecturally sound, just needs modern skinning
+•  ✅ Compact Audio Player - works but "looks crap" (your assessment!)
+
+What Doesn't Work/Sucks:
+•  ❌ MP3-jPlayer - closed for security reasons (2022)
+•  ❌ Html5 Audio Player by bPlugins - too different now, incompatible
+•  ❌ CPMedia player - looks crap
+•  ❌ MP3 Audio Player by Sonaar - sucks (despite being popular)
+
+Potential New Options:
+•  🎯 WaveSurfer.js - for beautiful waveforms (backend JS library)
+•  🎯 Plyr.js - for clean, lightweight players (backend JS library)
 
 
-replacements ?
+Your Waveform Concern:
 
-MP3 Audio Player – Music Player, Podcast Player & Radio by Sonaar - sucks
+> "adding a waveform is going to be a right pain in the arse tho unless we can do it right over the top of the album cover or something"
 
+Actually, that's a brilliant idea! You could:
 
-WaveSurfer.js - Open Source Audio Waveform Library
+1. Album cover as background with semi-transparent waveform overlay
+2. Waveform replaces progress bar - sits exactly where current progress track is
+3. Toggleable - click album art to show/hide waveform
+4. Compact mode - small waveform strip below album art
 
-•  ✅ Fully Open Source (BSD 3-Clause License)
-•  ✅ 9,438 GitHub stars (very popular!)
-•  ✅ Active development (updated 2 days ago)
-•  ✅ Pure JavaScript (backend library)
-•  ✅ Audio waveform player 
-•  ✅ No bloat - just does waveforms really well
-•  ✅ TypeScript (modern and well-maintained)
+This would be much easier than a full player replacement and would look very professional.
 
-Website: https://wavesurfer.xyz
+Recommended Next Steps:
 
-
-Option 2: Plugin Integration  
-Integrate with existing WaveSurfer-based WordPress plugins like:
-•  WaveSurfer-WP (400+ installs, uses WaveSurfer.js directly)
-•  Easy Waveform Player (100+ installs, generates waveforms on the fly)
-
-Plyr.js is even more popular and mature:
-
-Plyr.js - Simple HTML5 Media Player
-
-•  ✅ Fully Open Source (MIT License) 
-•  ✅ 28,847 GitHub stars (massively popular!)
-•  ✅ Actively maintained (updated yesterday!)
-•  ✅ Pure JavaScript (backend library)
-•  ✅ Simple HTML5, YouTube and Vimeo player
-•  ✅ No bloat - clean and lightweight
-•  ✅ Proven and stable (9+ years old)
-
-Website: https://plyr.io
+1. Keep MediaElement.js as the solid foundation
+2. Modernize the CSS skinning (remove sprites/fonts, add responsive design)
+3. Replace the broken player addons with Plyr.js addon (lightweight, clean)
+4. Add optional WaveSurfer.js addon for waveform overlay effects
+5. Keep Compact Audio Player if it functions (even if it looks rough)
