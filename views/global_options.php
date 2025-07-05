@@ -406,6 +406,97 @@ remove_all_actions( 'bfp_general_settings', 10 );
 		</td>
 	</tr>
 </table>
+</table>
+<?php 
+// Cloud Storage Settings
+$bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
+$bfp_drive = isset($bfp_cloud_settings['_bfp_drive']) ? $bfp_cloud_settings['_bfp_drive'] : false;
+$bfp_drive_key = isset($bfp_cloud_settings['_bfp_drive_key']) ? $bfp_cloud_settings['_bfp_drive_key'] : '';
+$bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
+?>
+<table class="widefat" style="border:0;">
+	<tr>
+		<td>
+			<table class="widefat" style="border:1px solid #e1e1e1;">
+				<tr>
+					<td><h2>☁️ <?php esc_html_e( 'Cloud Storage', 'bandfront-player' ); ?></h2></td>
+				</tr>
+				<tr>
+					<td>
+						<p style="color: #666;"><?php esc_html_e( 'Automatically upload demo files to Google Drive to save server storage and bandwidth. Files are streamed directly from the cloud.', 'bandfront-player' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<td width="30%"><label for="_bfp_drive"><?php esc_html_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?></label></td>
+					<td><input aria-label="<?php esc_attr_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_drive" name="_bfp_drive" <?php print( ( $bfp_drive ) ? 'CHECKED' : '' ); ?> /></td>
+				</tr>
+				<tr>
+					<td width="30%">
+						<?php esc_html_e( 'Import OAuth Client JSON File', 'bandfront-player' ); ?><br>
+						(<?php esc_html_e( 'Required to upload demo files to Google Drive', 'bandfront-player' ); ?>)
+					</td>
+					<td>
+						<input aria-label="<?php esc_attr_e( 'OAuth Client JSON file', 'bandfront-player' ); ?>" type="file" name="_bfp_drive_key" />
+						<?php
+						if ( ! empty( $bfp_drive_key ) ) {
+							echo '<span style="font-weight:bold; color: green;">' . esc_html__( 'OAuth Client Available ✅', 'bandfront-player' ) . '</span>';
+						}
+						?>
+						<br /><br />
+						<div style="border:1px solid #4FC3F7;margin-bottom:10px;padding:5px;background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%); border-radius: 4px;">
+							<h3><?php esc_html_e( 'To create an OAuth 2.0 client ID:', 'bandfront-player' ); ?></h3>
+							<p>
+								<ol>
+									<li><?php esc_html_e( 'Go to the', 'bandfront-player' ); ?> <a href="https://console.cloud.google.com/" target="_blank"><?php esc_html_e( 'Google Cloud Platform Console', 'bandfront-player' ); ?></a>.</li>
+									<li><?php esc_html_e( 'From the projects list, select a project or create a new one.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'If the APIs & services page isn\'t already open, open the console left side menu and select APIs & services.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'On the left, click Credentials.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'Click + CREATE CREDENTIALS, then select OAuth client ID.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'Select the application type Web application.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'Enter BandFront Player in the Name field.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'Enter the URL below as the Authorized redirect URIs:', 'bandfront-player' ); ?>
+									<br><br><b><i><?php 
+									$callback_url = get_home_url( get_current_blog_id() );
+									$callback_url .= ( ( strpos( $callback_url, '?' ) === false ) ? '?' : '&' ) . 'bfp-drive-credential=1';
+									print esc_html( $callback_url ); 
+									?></i></b><br><br></li>
+									<li><?php esc_html_e( 'Press the Create button.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'In the OAuth client created dialog, press the DOWNLOAD JSON button and store it on your computer, and press the Ok button.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'Finally, select the downloaded file through the Import OAuth Client JSON File field above.', 'bandfront-player' ); ?></li>
+								</ol>
+							</p>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="30%">
+						<label for="_bfp_drive_api_key"><?php esc_html_e( 'API Key', 'bandfront-player' ); ?></label><br>
+						(<?php esc_html_e( 'Required to read audio files from players', 'bandfront-player' ); ?>)
+					</td>
+					<td>
+						<input aria-label="<?php esc_attr_e( 'API Key', 'bandfront-player' ); ?>" type="text" id="_bfp_drive_api_key" name="_bfp_drive_api_key" value="<?php print esc_attr( $bfp_drive_api_key ); ?>" style="width:100%;" />
+						<br /><br />
+						<div style="border:1px solid #4FC3F7;margin-bottom:10px;padding:5px;background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%); border-radius: 4px;">
+							<h3><?php esc_html_e( 'Get API Key:', 'bandfront-player' ); ?></h3>
+							<p>
+								<ol>
+									<li><?php esc_html_e( 'Go to the', 'bandfront-player' ); ?> <a href="https://console.cloud.google.com/" target="_blank"><?php esc_html_e( 'Google Cloud Platform Console', 'bandfront-player' ); ?></a>.</li>
+									<li><?php esc_html_e( 'From the projects list, select a project or create a new one.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'If the APIs & services page isn\'t already open, open the console left side menu and select APIs & services.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'On the left, click Credentials.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'Click + CREATE CREDENTIALS, then select API Key.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'Copy the API Key.', 'bandfront-player' ); ?></li>
+									<li><?php esc_html_e( 'Finally, paste it in the API Key field above.', 'bandfront-player' ); ?></li>
+								</ol>
+							</p>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+<table class="widefat" style="border:0;">
 <table class="widefat" style="border:0;">
 	<tr>
 		<td>
