@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide focuses specifically on modernizing the **MediaElement.js integration**, **player skinning**, and **audio player functionality** within the BandFront WordPress plugin. These updates will bring the player components up to 2025 web standards while maintaining all existing functionality.
+This guide focuses specifically on modernizing the bandfront players, **player skinning**, and **audio player functionality** within the BandFront WordPress plugin. These updates will bring the player components up to 2025 web standards while maintaining all existing functionality.
 
 **Key Finding:** The MediaElement.js integration is architecturally sound - this is about **modernizing the presentation layer** and **player enhancements**, not core replacements.
 
@@ -625,3 +625,48 @@ The BandFront Player's MediaElement.js integration is **architecturally sound** 
 4. **Enhancing player configuration** with modern MediaElement.js options
 
 **Bottom Line:** Keep the solid MediaElement.js foundation, modernize the presentation layer completely.
+
+
+## **Other Players**
+
+1. MP3-jPlayer is not available - It was closed for security reasons in 2022
+2. "Html5 Audio Player" by bPlugins (the one you're trying to integrate with) has changed so much it's basically incompatible
+3. CPMedia player looks crap.
+
+
+replacements ?
+
+MP3 Audio Player – Music Player, Podcast Player & Radio by Sonaar - sucks
+
+
+WaveSurfer.js - Open Source Audio Waveform Library
+
+•  ✅ Fully Open Source (BSD 3-Clause License)
+•  ✅ 9,438 GitHub stars (very popular!)
+•  ✅ Active development (updated 2 days ago)
+•  ✅ Pure JavaScript (backend library)
+•  ✅ Audio waveform player 
+•  ✅ No bloat - just does waveforms really well
+•  ✅ TypeScript (modern and well-maintained)
+
+Website: https://wavesurfer.xyz
+
+
+Option 2: Plugin Integration  
+Integrate with existing WaveSurfer-based WordPress plugins like:
+•  WaveSurfer-WP (400+ installs, uses WaveSurfer.js directly)
+•  Easy Waveform Player (100+ installs, generates waveforms on the fly)
+
+Plyr.js is even more popular and mature:
+
+Plyr.js - Simple HTML5 Media Player
+
+•  ✅ Fully Open Source (MIT License) 
+•  ✅ 28,847 GitHub stars (massively popular!)
+•  ✅ Actively maintained (updated yesterday!)
+•  ✅ Pure JavaScript (backend library)
+•  ✅ Simple HTML5, YouTube and Vimeo player
+•  ✅ No bloat - clean and lightweight
+•  ✅ Proven and stable (9+ years old)
+
+Website: https://plyr.io

@@ -97,19 +97,19 @@ if ( ! class_exists( 'BFP_CLOUD_DRIVE_ADDON' ) ) {
 				<td colspan="2"><hr /></td>
 			</tr>
 			<tr>
-				<td width="30%"><label for="_bfp_drive"><?php esc_html_e( 'Store demo files on Google Drive', 'music-player-for-woocommerce' ); ?></label></td>
-				<td><input aria-label="<?php esc_attr_e( 'Store demo files on Google Drive', 'music-player-for-woocommerce' ); ?>" type="checkbox" id="_bfp_drive" name="_bfp_drive" <?php print( ( $drive ) ? 'CHECKED' : '' ); ?> /></td>
+				<td width="30%"><label for="_bfp_drive"><?php esc_html_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?></label></td>
+				<td><input aria-label="<?php esc_attr_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_drive" name="_bfp_drive" <?php print( ( $drive ) ? 'CHECKED' : '' ); ?> /></td>
 			</tr>
 			<tr>
 				<td width="30%">
-					<?php esc_html_e( 'Import OAuth Client JSON File', 'music-player-for-woocommerce' ); ?><br>
-					(<?php esc_html_e( 'Required to upload demo files to Google Drive', 'music-player-for-woocommerce' ); ?>)
+					<?php esc_html_e( 'Import OAuth Client JSON File', 'bandfront-player' ); ?><br>
+					(<?php esc_html_e( 'Required to upload demo files to Google Drive', 'bandfront-player' ); ?>)
 				</td>
 				<td>
-					<input aria-label="<?php esc_attr_e( 'OAuth Client JSON file', 'music-player-for-woocommerce' ); ?>" type="file" name="_bfp_drive_key" />
+					<input aria-label="<?php esc_attr_e( 'OAuth Client JSON file', 'bandfront-player' ); ?>" type="file" name="_bfp_drive_key" />
 					<?php
 					if ( ! empty( $drive_key ) ) {
-						echo '<span style="font-weight:bold; color: green;">' . esc_html__( 'There is an OAuth Client Available', 'music-player-for-woocommerce' ) . '</span>';
+						echo '<span style="font-weight:bold; color: green;">' . esc_html__( 'There is an OAuth Client Available', 'bandfront-player' ) . '</span>';
 					}
 					?>
 					<br /><br />
@@ -136,11 +136,11 @@ if ( ! class_exists( 'BFP_CLOUD_DRIVE_ADDON' ) ) {
 			</tr>
 			<tr>
 				<td width="30%">
-					<label for="_bfp_drive_api_key"><?php esc_html_e( 'API Key', 'music-player-for-woocommerce' ); ?></label><br>
-					(<?php esc_html_e( 'Required to read audio files from players', 'music-player-for-woocommerce' ); ?>)
+					<label for="_bfp_drive_api_key"><?php esc_html_e( 'API Key', 'bandfront-player' ); ?></label><br>
+					(<?php esc_html_e( 'Required to read audio files from players', 'bandfront-player' ); ?>)
 				</td>
 				<td>
-					<input aria-label="<?php esc_attr_e( 'API Key', 'music-player-for-woocommerce' ); ?>" type="text" id="_bfp_drive_api_key" name="_bfp_drive_api_key" value="<?php print esc_attr( $drive_api_key ); ?>" style="width:100%;" />
+					<input aria-label="<?php esc_attr_e( 'API Key', 'bandfront-player' ); ?>" type="text" id="_bfp_drive_api_key" name="_bfp_drive_api_key" value="<?php print esc_attr( $drive_api_key ); ?>" style="width:100%;" />
 					<br /><br />
 					<div style="border:1px solid #E6DB55;margin-bottom:10px;padding:5px;background-color: #FFFFE0;">
 						<h3>Get API Key</h3>

@@ -27,8 +27,8 @@ However, since WordPress has evolved significantly since this plugin was built, 
     blocks.getCategories().push({slug: 'bfp', title: 'WooCommerce Music Player'});
 
     /* Sell Downloads Shortcode */
-    blocks.registerBlockType( 'bfp/woocommerce-music-player-playlist', {
-        title: 'WooCommerce Music Player Playlist',
+    blocks.registerBlockType( 'bfp/bandfront-player-playlist', {
+        title: 'Bandfront Player Playlist',
         icon: iconBFPP,
         category: 'bfp',
         customClassName: false,
