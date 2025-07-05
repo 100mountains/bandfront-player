@@ -28,6 +28,58 @@ The BandFront Player Cloud Storage system automatically uploads demo files to Go
 ### **Google Drive Integration**
 - **OAuth 2.0 Authentication**: Secure connection to Google Drive API
 - **API Key**: Required for reading files from players
+
+#### **File Structure**
+```
+addons/google-drive/
+├── BFP_CLOUD_DRIVE.clss.php          # Main Google Drive integration class
+│   ├── Authentication & OAuth handling
+│   ├── File upload/download operations
+│   ├── Folder creation & management
+│   └── Permission management
+│
+└── google-api-php-client/             # Official Google API PHP Client
+    ├── src/Google/                    # Core Google API classes
+    │   ├── Client.php                 # Main API client
+    │   ├── AccessToken/               # Token management
+    │   ├── AuthHandler/               # Authentication handlers
+    │   ├── Http/                      # HTTP request handling
+    │   └── Service/                   # API service wrappers
+    │
+    └── vendor/                        # Composer dependencies
+        ├── google/                    # Google-specific libraries
+        │   ├── apiclient/             # API client core
+        │   ├── apiclient-services/    # Service definitions
+        │   └── auth/                  # Authentication library
+        ├── guzzlehttp/                # HTTP client library
+        ├── monolog/                   # Logging library
+        ├── phpseclib/                 # Cryptography library
+        └── psr/                       # PSR standards
+```
+
+#### **Key Components**
+
+**BFP_CLOUD_DRIVE.clss.php** - The heart of the integration:
+- Handles OAuth 2.0 authentication flow
+- Manages file uploads to Google Drive
+- Creates and organizes folders
+- Sets file permissions and sharing
+- Provides download URL conversion
+- Integrates with BandFront's hook system
+
+**Google API PHP Client** - Official Google library:
+- Provides standardized API access
+- Handles authentication tokens
+- HTTP request/response management
+- Error handling and retries
+- Service-specific wrappers (Drive, OAuth2)
+
+**Third-party Dependencies**:
+- **Guzzle**: HTTP client for API requests
+- **Monolog**: Logging system for debugging
+- **PHPSecLib**: Cryptography for secure connections
+- **PSR Libraries**: PHP standards compliance
+
 - **File Upload**: Automated via Google Drive API v3
 - **Direct Streaming**: Convert share URLs to direct download URLs
 
