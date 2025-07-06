@@ -502,7 +502,7 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 		<td>
 			<table class="widefat" style="border:1px solid #e1e1e1;">
 				<tr>
-					<td colspan="2"><h2>🧩 <?php esc_html_e( 'Visualisation', 'bandfront-player' ); ?></h2></td>
+					<td colspan="2"><h2>🧩 <?php esc_html_e( 'Add-ons', 'bandfront-player' ); ?></h2></td>
 				</tr>
 				<?php do_action( 'bfp_addon_general_settings' ); ?>
 			</table>
