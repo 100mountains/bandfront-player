@@ -11,10 +11,7 @@
       "default": "[bfp-playlist products_ids=\"*\" controls=\"track\" download_links=\"1\"]"
     }
   },
-  "editorScript": {
-    "file": "./gutenberg.js",
-    "dependencies": [ "wp-blocks", "wp-element", "wp-editor", "wp-block-editor" ]
-  },
+  "editorScript": "file:./gutenberg.js",
   "editorStyle": "file:./gutenberg.css",
   "style": "file:./gutenberg.css"
 }

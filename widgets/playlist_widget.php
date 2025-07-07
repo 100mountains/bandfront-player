@@ -1,4 +1,17 @@
 <?php
+
+/**
+ * Bandfront Player - Playlist Widget
+ *
+ * @package BandfrontPlayer
+ * @since 1.0.0
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 if ( ! function_exists( 'bfp_register_playlist_widget' ) ) {
 	function bfp_register_playlist_widget() {
 		if ( ! class_exists( 'woocommerce' ) ) {

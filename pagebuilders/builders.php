@@ -1,7 +1,13 @@
 <?php
 /**
- * Main class to interace with the different Content Editors: BFP_BUILDERS class
+ * BFP_BUILDERS class
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 if ( ! class_exists( 'BFP_BUILDERS' ) ) {
 	class BFP_BUILDERS {
 
@@ -41,14 +47,32 @@ if ( ! class_exists( 'BFP_BUILDERS' ) ) {
 		} // End after_setup_theme
 
 		public function gutenberg_editor() {
-			// Removed previous wp_enqueue_script and wp_enqueue_style calls.
-			register_block_type( __DIR__ . '/gutenberg' );
+			// Register block with server-side rendering
+			register_block_type( __DIR__ . '/gutenberg', array(
+				'render_callback' => array( $this, 'render_bfp_playlist_block' )
+			) );
 		} // End gutenberg_editor
+
+		public function render_bfp_playlist_block( $attributes, $content ) {
+			// Extract shortcode from attributes
+			$shortcode = isset( $attributes['shortcode'] ) ? $attributes['shortcode'] : '[bfp-playlist products_ids="*"]';
+			
+			// Process the shortcode
+			if ( isset( $GLOBALS['BandfrontPlayer'] ) ) {
+				$output = do_shortcode( $shortcode );
+				// Ensure we return string, not false/0
+				return is_string( $output ) ? $output : '';
+			}
+			
+			return '';
+		} // End render_bfp_playlist_block
 
 		public function gutenberg_pre_render_block( $pre_render, $block ) {
 			// Process gutenberg blocks
 			if ( $block['blockName'] === 'bfp/bandfront-player-playlist' ) {
-				return BFP_RENDER::render_playlist( $block['attrs'] );
+				if ( isset( $GLOBALS['BandfrontPlayer'] ) ) {
+					return $GLOBALS['BandfrontPlayer']->replace_playlist_shortcode( $block['attrs'] );
+				}
 			}
 			return $pre_render;
 		} // End gutenberg_pre_render_block
@@ -68,11 +92,14 @@ if ( ! class_exists( 'BFP_BUILDERS' ) ) {
 		} // End elementor_editor_category
 
 		public function enqueue_block_editor_assets() {
+			global $wp_scripts;
+			error_log( print_r( array_keys( $wp_scripts->registered ), true ) );
+			// Use the actual handle as seen in the error log
 			wp_localize_script(
-				'bfp-bandfront-player-playlist-editor-script', // This is the handle WP generates from block.json "name"
+				'bfp-bandfront-player-playlist-editor-script', // <-- Replace with the correct handle if different
 				'bfp_gutenberg_editor_config',
 				array(
-					'url' => admin_url('admin-ajax.php'), // Example value, replace as needed
+					'url' => admin_url('admin-ajax.php'),
 					'ids_attr_description' => 'Comma-separated product IDs.',
 					'categories_attr_description' => 'Comma-separated product category slugs.',
 					'tags_attr_description' => 'Comma-separated product tag slugs.',

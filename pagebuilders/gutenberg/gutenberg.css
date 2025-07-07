@@ -1,7 +1,20 @@
 .bfp-iframe-container {
 	position: relative;
+	width: 100%;
+	max-width: 100%;
+	margin: 0 auto;
+	overflow: visible;
+	min-height: 400px;
 }
-.bfp-iframe-overlay {
-	position: absolute;
-	top: 0; right: 0; bottom: 0; left: 0;
+.bfp-iframe-container iframe {
+	width: 100%;
+	max-width: 100%;
+	display: block;
+	margin: 0 auto;
+	min-height: 400px;
+}
+.bfp-playlist-shortcode-input {
+	width: 100%;
+	min-height: 60px;
+	margin-bottom: 10px;
 }

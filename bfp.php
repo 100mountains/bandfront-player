@@ -378,6 +378,7 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 			if ( function_exists( 'is_product' ) && is_product() ) {
 				global $post;
 				$post_types = $this->_get_post_types();
+				$post_types = is_array($post_types) ? $post_types : array(); // <-- ADDED: ensure $post_types is always an array
 				if ( ! empty( $post ) && in_array( $post->post_type, $post_types ) ) {
 					$play_all = $GLOBALS['BandfrontPlayer']->get_product_attr(
 						$post->ID,
@@ -416,6 +417,7 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 		 * Used for accepting the <source> tags
 		 */
 		public function allowed_html_tags( $allowedposttags, $context ) {
+			$allowedposttags = is_array($allowedposttags) ? $allowedposttags : array(); // <-- ADDED: ensure $allowedposttags is always an array
 			if ( ! in_array( 'source', $allowedposttags ) ) {
 				$allowedposttags['source'] = array(
 					'src'  => true,
@@ -760,24 +762,26 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 						wp_enqueue_script( 'jquery' );
 						$output = do_shortcode( $preview );
 						if ( preg_match( '/^\s*$/', $output ) ) {
-							$output = '<div>' . $if_empty . '</div>';
+							$output = '<div style="padding:10px;background-color:#fee;border:1px solid #fcc;color:#c00;">' . $if_empty . '</div>';
 						}
 
 						// Deregister all scripts and styles for loading only the plugin styles.
 						global  $wp_styles, $wp_scripts;
 						if ( ! empty( $wp_scripts ) ) {
-							$wp_scripts->reset();
+							$wp_scripts->queue = array();
 						}
 						$this->enqueue_resources();
 						if ( ! empty( $wp_styles ) ) {
-							$wp_styles->do_items();
+							$wp_styles->queue = array();
 						}
 						if ( ! empty( $wp_scripts ) ) {
-							$wp_scripts->do_items();
+							$wp_scripts->queue = array( 'jquery', 'wp-mediaelement', 'bfp-script' );
 						}
 
 						print '<div class="bfp-preview-container">' . $output . '</div>';  // phpcs:ignore WordPress.Security.EscapeOutput
 						print '<script type="text/javascript">jQuery(window).on("load", function(){ var frameEl = window.frameElement; if(frameEl) frameEl.height = jQuery(".bfp-preview-container").outerHeight(true)+25; });</script>';
+						wp_print_styles();
+						wp_print_scripts();
 						exit;
 					}
 				}
