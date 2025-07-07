@@ -361,7 +361,7 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 			// Registering resources
 			wp_enqueue_style( 'wp-mediaelement' );
 			wp_enqueue_style( 'wp-mediaelement-skins', plugin_dir_url( __FILE__ ) . 'vendors/mejs-skins/mejs-skins.min.css', array(), BFP_VERSION );
-			wp_enqueue_style( 'wp-mediaelement-skins', plugin_dir_url( __FILE__ ) . 'vendors/mejs-skins/modern-bfp-skin.css', array(), BFP_VERSION );
+			wp_enqueue_style( 'wp-mediaelement-modern-bfp-skins', plugin_dir_url( __FILE__ ) . 'vendors/mejs-skins/modern-bfp-skin.css', array(), BFP_VERSION );
 			wp_enqueue_style( 'bfp-style', plugin_dir_url( __FILE__ ) . 'css/style.css', array(), BFP_VERSION );
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'wp-mediaelement' );

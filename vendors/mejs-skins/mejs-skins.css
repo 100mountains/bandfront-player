@@ -77,11 +77,12 @@
 }
 
 .mejs-ted .mejs-controls .mejs-playpause-button button {
-	width: 49px;
-	height: 28px;
-	background:transparent;
+	width: 20px;
+	height: 20px;
 	margin: 0;
-	padding: 0
+	padding: 0;
+    left: 22%;
+    top: 13%;
 }
 
 .mejs-ted .mejs-controls .mejs-playpause-button::before{
@@ -100,11 +101,11 @@
 }
 
 .mejs-ted .mejs-controls .mejs-playpause-button::before{
-	content: "1";
+	content: "";
 }
 
 .mejs-ted .mejs-controls .mejs-playpause-button.mejs-pause::before {
-	content: "2";
+	content: "";
 }
 
 .mejs-ted .mejs-controls .mejs-fullscreen-button {
