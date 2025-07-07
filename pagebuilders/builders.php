@@ -25,7 +25,8 @@ if ( ! class_exists( 'BFP_BUILDERS' ) ) {
 			$instance = self::instance();
 
 			// Gutenberg
-			add_action( 'enqueue_block_editor_assets', array( $instance, 'gutenberg_editor' ) );
+			$instance->gutenberg_editor();
+			add_action( 'enqueue_block_editor_assets', array( $instance, 'enqueue_block_editor_assets' ) );
 			add_filter( 'pre_render_block', array( $instance, 'gutenberg_pre_render_block' ), 10, 2 );
 
 			// Elementor
@@ -40,13 +41,13 @@ if ( ! class_exists( 'BFP_BUILDERS' ) ) {
 		} // End after_setup_theme
 
 		public function gutenberg_editor() {
-			wp_enqueue_script( 'bandfront-player-gutenberg', plugins_url( 'gutenberg/gutenberg.js', __FILE__ ), array( 'wp-blocks', 'wp-element', 'wp-editor' ) );
-			wp_enqueue_style( 'bandfront-player-gutenberg', plugins_url( 'gutenberg/gutenberg.css', __FILE__ ) );
+			// Removed previous wp_enqueue_script and wp_enqueue_style calls.
+			register_block_type( __DIR__ . '/gutenberg' );
 		} // End gutenberg_editor
 
 		public function gutenberg_pre_render_block( $pre_render, $block ) {
 			// Process gutenberg blocks
-			if ( $block['blockName'] === 'bandfront-player/bfp-playlist' ) {
+			if ( $block['blockName'] === 'bfp/bandfront-player-playlist' ) {
 				return BFP_RENDER::render_playlist( $block['attrs'] );
 			}
 			return $pre_render;
@@ -65,6 +66,20 @@ if ( ! class_exists( 'BFP_BUILDERS' ) ) {
 				)
 			);
 		} // End elementor_editor_category
+
+		public function enqueue_block_editor_assets() {
+			wp_localize_script(
+				'bfp-bandfront-player-playlist-editor-script', // This is the handle WP generates from block.json "name"
+				'bfp_gutenberg_editor_config',
+				array(
+					'url' => admin_url('admin-ajax.php'), // Example value, replace as needed
+					'ids_attr_description' => 'Comma-separated product IDs.',
+					'categories_attr_description' => 'Comma-separated product category slugs.',
+					'tags_attr_description' => 'Comma-separated product tag slugs.',
+					'more_details' => 'See documentation for more shortcode options.'
+				)
+			);
+		} // End enqueue_block_editor_assets
 
 	} // End class
 } // End if

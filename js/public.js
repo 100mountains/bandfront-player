@@ -78,6 +78,118 @@ $jscomp.polyfill(
     e = 0;
 
   window.generate_the_bfp = function(c) {
+
+		/**
+		 * Play next player
+		 */
+		function _playNext( playernumber, loop )
+		{
+			if( playernumber+1 < bfp_player_counter || loop)
+			{
+
+				var toPlay = playernumber+1;
+                if(
+                    loop &&
+                    (
+                        toPlay == bfp_player_counter ||
+                        $('[playernumber="'+toPlay+'"]').closest('[data-loop]').length == 0 ||
+                        $('[playernumber="'+toPlay+'"]').closest('[data-loop]')[0] != $('[playernumber="'+playernumber+'"]').closest('[data-loop]')[0]
+                    )
+                )
+                {
+                    toPlay = $('[playernumber="'+playernumber+'"]').closest('[data-loop]').find('[playernumber]:first').attr('playernumber');
+                }
+
+				if( bfp_players[ toPlay ] instanceof $ && bfp_players[ toPlay ].is( 'a' ) ) {
+					if(bfp_players[ toPlay ].closest('.bfp-single-player').length) {
+						_hideShowPlayersAndPositioning( bfp_players[ toPlay ].closest('.bfp-player-container') );
+					} else if(bfp_players[ toPlay ].is(':visible')) bfp_players[ toPlay ].trigger('click');
+					else _playNext(playernumber+1, loop);
+				} else {
+					if($(bfp_players[ toPlay ].domNode).closest('.bfp-single-player').length) {
+						_hideShowPlayersAndPositioning( $(bfp_players[ toPlay ].domNode).closest('.bfp-player-container') );
+					} else if($(bfp_players[ toPlay ].domNode).closest('.bfp-player-container').is(':visible')) bfp_players[ toPlay ].domNode.play();
+					else _playNext(playernumber+1, loop);
+				}
+			}
+		}
+
+    function _playPrev(playernumber, loop)
+    {
+      if (playernumber - 1 >= 0 || loop)
+      {
+        var toPlay = playernumber - 1;
+
+        if (
+          loop &&
+          (
+              toPlay < 0 ||
+              $('[playernumber="' + toPlay + '"]').closest('[data-loop]').length == 0 ||
+              $('[playernumber="' + toPlay + '"]').closest('[data-loop]')[0] != $('[playernumber="' + playernumber + '"]').closest('[data-loop]')[0]
+          )
+        )
+        {
+          toPlay = $('[playernumber="' + playernumber + '"]').closest('[data-loop]').find('[playernumber]:last').attr('playernumber');
+        }
+
+        if (bfp_players[toPlay] instanceof $ && bfp_players[toPlay].is('a'))
+        {
+          if (bfp_players[toPlay].closest('.bfp-single-player').length)
+          {
+              _hideShowPlayersAndPositioning(bfp_players[toPlay].closest('.bfp-player-container'));
+          }
+          else if (bfp_players[toPlay].is(':visible'))
+          {
+              bfp_players[toPlay].trigger('click');
+          }
+          else
+          {
+              _playPrev(playernumber - 1, loop);
+          }
+        }
+        else
+        {
+          if ($(bfp_players[toPlay].domNode).closest('.bfp-single-player').length)
+          {
+              _hideShowPlayersAndPositioning($(bfp_players[toPlay].domNode).closest('.bfp-player-container'));
+          }
+          else if ($(bfp_players[toPlay].domNode).closest('.bfp-player-container').is(':visible'))
+          {
+              bfp_players[toPlay].domNode.play();
+          }
+          else
+          {
+              _playPrev(playernumber - 1, loop);
+          }
+        }
+      }
+    }
+
+
+		function _setOverImage(p)
+		{
+			var i = p.data('product');
+			$('[data-product="'+i+'"]').each(function(){
+				var e = $(this),
+					p = e.closest('.product'),
+					t = p.find('img.product-'+i);
+				if(
+					t.length &&
+					p.closest('.bfp-player-list').length == 0 &&
+					p.find('.bfp-player-list').length == 0
+				)
+				{
+					var o = t.offset(),
+						c = p.find('div.bfp-player');
+
+					if(c.length){
+						c.css({'position': 'absolute', 'z-index': 999999})
+						 .offset({'left': o.left+(t.width()-c.width())/2, 'top': o.top+(t.height()-c.height())/2});
+					}
+				}
+			});
+		}
+
     function h(b) {
       var fContainer = b.closest(".bfp-single-player"),
         fPlayer = fContainer.find(".bfp-first-player");
