@@ -1,10 +1,3 @@
-@font-face {
-	font-family: 'Guifx v2 Transports';
-	font-style: normal;
-	font-weight: 400;
-	src: url('Guifx_v2_Transports.woff') format('woff');
-}
-
 .mejs-ted .mejs-controls {
 	background: #eee;
 	height: 65px
@@ -16,7 +9,6 @@
 	background: #ddd
 }
 
-.mejs-ted .mejs-controls .mejs-time-rail .mejs-time-loaded,
 .mejs-ted .mejs-controls .mejs-time-rail .mejs-time-total {
 	background: url(controls-ted.png) 0 -52px repeat-x;
 	height: 6px
@@ -72,10 +64,6 @@
 }
 
 .mejs-ted .mejs-controls .mejs-playpause-button {
-	top: 29px;
-	left: 9px;
-	width: 49px;
-	height: 28px;
 	border: 2px solid #ccc;
 	border-radius:5px;
 	background: linear-gradient(#f7f7f7, #e5e5e5);
@@ -98,7 +86,6 @@
 
 .mejs-ted .mejs-controls .mejs-playpause-button::before{
 	display: inline-block;
-	font-family: "Guifx v2 Transports";
 	width: 49px;
 	height: 28px;
 	text-align: center;
@@ -351,7 +338,6 @@
 .mejs-wmp .mejs-controls .mejs-playpause-button button::before {
 	display: inline-block;
 	content: "1";
-	font-family: "Guifx v2 Transports";
 	width: 36px;
 	height: 36px;
 	text-align: center;
