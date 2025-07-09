@@ -61,22 +61,22 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 );
 ?>
 <h2><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Product Music Player Settings', 'bandfront-player' ); ?></h2>
-<p style="font-style: italic; font-size: 12px; color: #666; margin-top: -10px;">customize essential player settings for this specific product</p>
+<p class="bfp-page-tagline">customize essential player settings for this specific product</p>
 <input type="hidden" name="bfp_nonce" value="<?php echo esc_attr( wp_create_nonce( 'bfp_updating_product' ) ); ?>" />
 <?php
 // Always show the player settings table (no vendor plugin checks)
 ?>
-<table class="widefat" style="border-left:0;border-right:0;border-bottom:0;padding-bottom:0;">
+<table class="widefat bfp-main-table">
 	<tr>
 		<td>
-			<div style="padding: 15px; background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-radius: 8px; border-left: 4px solid #2196F3; margin-bottom: 15px;">
-				<h3 style="color: #1565C0; margin-top: 0;">🎵 <?php esc_html_e( 'Smart Context-Aware Player', 'bandfront-player' ); ?></h3>
-				<p style="color: #333; margin-bottom: 10px;">
+			<div class="bfp-info-box">
+				<h3 class="bfp-info-box-title">🎵 <?php esc_html_e( 'Smart Context-Aware Player', 'bandfront-player' ); ?></h3>
+				<p class="bfp-info-box-text">
 				<?php
 				_e( 'This player automatically adapts to page context: <strong>minimal controls on shop pages</strong> for quick previews, and <strong>full controls on product pages</strong> for detailed listening. Player appearance and behavior are now controlled globally for consistency.', 'bandfront-player' ); // phpcs:ignore WordPress.Security.EscapeOutput
 				?>
 				</p>
-				<p style="color: #1565C0; font-weight: 600; margin-bottom: 0;">
+				<p class="bfp-info-box-highlight">
 				<?php
 				esc_html_e( '🛡️ File protection prevents malicious users from accessing original audio files without purchasing them.', 'bandfront-player' );
 				?>
@@ -86,7 +86,7 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 	</tr>
 	<tr>
 		<td>
-			<table class="widefat bfp-player-settings" style="border:1px solid #e1e1e1;">
+			<table class="widefat bfp-player-settings bfp-options-inner-table">
 				<tr>
 					<td colspan="2"><h2>🎵 <?php esc_html_e( 'Essential Player Settings', 'bandfront-player' ); ?></h2></td>
 				</tr>
@@ -96,14 +96,14 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 				</tr>
 				<tr>
 					<td><label for="_bfp_merge_in_grouped">📦 <?php esc_html_e( 'Merge grouped products', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_merge_in_grouped" name="_bfp_merge_in_grouped" <?php echo ( ( $merge_grouped ) ? 'checked' : '' ); ?> /><br /><em style="color: #666;"><?php esc_html_e( 'Show "Add to cart" buttons and quantity fields within player rows for grouped products', 'bandfront-player' ); ?></em></td>
+					<td><input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_merge_in_grouped" name="_bfp_merge_in_grouped" <?php echo ( ( $merge_grouped ) ? 'checked' : '' ); ?> /><br /><em class="bfp-em-text"><?php esc_html_e( 'Show "Add to cart" buttons and quantity fields within player rows for grouped products', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr>
 					<td valign="top">🎭 <?php esc_html_e( 'Player behavior', 'bandfront-player' ); ?></td>
 					<td>
-						<div style="padding: 10px; background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%); border-radius: 4px; border-left: 4px solid #9C27B0; margin-bottom: 10px;">
+						<div class="bfp-checkbox-box">
 							<label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php echo ( ( $single_player ) ? 'checked' : '' ); ?> />
-							<span style="padding-left:20px;">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
+							<span class="bfp-checkbox-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
 						</div>
 					</td>
 				</tr>
@@ -146,18 +146,18 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 				</tr>
 				<tr>
 					<td colspan="2">
-						<table class="widefat" style="border:1px solid #e1e1e1;">
+						<table class="widefat bfp-nested-protection-table">
 							<tr><td colspan="2"><h2>🔒 <?php esc_html_e( 'File Protection', 'bandfront-player' ); ?></h2></td></tr>
 							<tr>
 								<td width="30%"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Protect audio files', 'bandfront-player' ); ?></label></td>
 								<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php echo ( ( $secure_player ) ? 'checked' : '' ); ?> /><br>
-								<em style="color: #666;"><?php esc_html_e( 'Create demo versions to prevent unauthorized downloading', 'bandfront-player' ); ?></em></td>
+								<em class="bfp-em-text"><?php esc_html_e( 'Create demo versions to prevent unauthorized downloading', 'bandfront-player' ); ?></em></td>
 							</tr>
 							<tr valign="top">
 								<td width="30%"><label for="_bfp_file_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></td>
 								<td>
 									<input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_file_percent" name="_bfp_file_percent" value="<?php echo esc_attr( $file_percent ); ?>" /> % <br />
-									<em style="color: #666;"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></em>
+									<em class="bfp-em-text"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></em>
 								</td>
 							</tr>
 						</table>
@@ -167,25 +167,25 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 		</td>
 	</tr>
 </table>
-<table class="widefat" style="border:0;padding-bottom:20px;">
+<table class="widefat bfp-table-noborder" style="padding-bottom:20px;">
 	<tr>
 		<td>
-			<table class="widefat bfp-player-demos" style="border:1px solid #e1e1e1;">
+			<table class="widefat bfp-player-demos bfp-options-inner-table">
 				<tr>
 					<td colspan="2"><h2>🎼 <?php esc_html_e( 'Custom Demo Files', 'bandfront-player' ); ?></h2></td>
 				</tr>
 				<tr valign="top">
-					<td colspan="2" style="padding: 15px; background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); border-radius: 8px; border-left: 4px solid #FF9800;">
+					<td colspan="2" class="bfp-demo-checkbox-box">
 						<label><input aria-label="<?php esc_attr_e( 'Own demo files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_own_demos" <?php echo ( ( $own_demos ) ? 'checked' : '' ); ?> /> 
 						<strong>🎵 <?php esc_html_e( 'Use my own custom demo files', 'bandfront-player' ); ?></strong></label>
-						<p style="margin: 8px 0 0 0; color: #666; font-style: italic;">
+						<p class="bfp-demo-description">
 							<?php esc_html_e( 'Upload your own demo versions instead of auto-generating them from the original files', 'bandfront-player' ); ?>
 						</p>
 					</td>
 				</tr>
-				<tr valign="top" class="bfp-demo-files" style="display:<?php echo ( $own_demos ) ? 'block' : 'none'; ?>;">
+				<tr valign="top" class="bfp-demo-files <?php echo ( $own_demos ) ? 'bfp-demo-files-row' : 'bfp-demo-files-hidden'; ?>">
 					<td>
-						<div style="margin-bottom:15px;"><b><?php esc_html_e( 'Demo files', 'bandfront-player' ); ?></b></div>
+						<div class="bfp-demo-files-label"><b><?php esc_html_e( 'Demo files', 'bandfront-player' ); ?></b></div>
 						<table class="widefat">
 							<thead>
 								<tr>
@@ -227,10 +227,10 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 					</td>
 				</tr>
 				<tr valign="top">
-					<td colspan="2" style="padding: 15px; background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%); border-radius: 8px; border-left: 4px solid #4CAF50;">
+					<td colspan="2" class="bfp-direct-demo-box">
 						<label><input aria-label="<?php esc_attr_e( 'Load directly the original demo files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_direct_own_demos" <?php echo ( ( $direct_own_demos ) ? 'checked' : '' ); ?> /> 
 						<strong>⚡ <?php esc_html_e( 'Load demo files directly (no preprocessing)', 'bandfront-player' ); ?></strong></label>
-						<p style="margin: 8px 0 0 0; color: #666; font-style: italic;">
+						<p class="bfp-demo-description">
 							<?php esc_html_e( 'Skip processing and use your demo files exactly as uploaded', 'bandfront-player' ); ?>
 						</p>
 					</td>
