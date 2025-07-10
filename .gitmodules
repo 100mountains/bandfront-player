@@ -1,3 +1,0 @@
-[submodule "vendors/wavesurfer-source"]
-	path = vendors/wavesurfer-source
-	url = https://github.com/katspaugh/wavesurfer.js.git
