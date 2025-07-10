@@ -27,16 +27,29 @@ class BFP_Hooks_Manager {
      * Get the hooks array configuration
      */
     public function get_hooks_config() {
-        return array(
+        // FIXED: Context-aware hooks to prevent duplicate players
+        $hooks_config = array(
             'main_player' => array(),
-            'all_players' => array(
-                // 'woocommerce_before_single_product_summary' => 1,
-                'woocommerce_single_product_summary' 		=> 1,
-                'woocommerce_after_single_product_summary' 	=> 1,
-                'woocommerce_before_add_to_cart_form'		=> 1,
-                'woocommerce_after_add_to_cart_form'		=> 1,
-            )
+            'all_players' => array()
         );
+        
+        // Only add all_players hooks on single product pages
+        if (function_exists('is_product') && is_product()) {
+            $hooks_config['all_players'] = array(
+             //   'woocommerce_single_product_summary' => 1,
+                'woocommerce_after_single_product_summary' => 1,
+             //   'woocommerce_before_add_to_cart_form' => 1,
+              //  'woocommerce_after_add_to_cart_form' => 1,
+            );
+        } else {
+            // On shop/archive pages, only use main_player hooks
+            $hooks_config['main_player'] = array(
+                'woocommerce_shop_loop_item_title' => 1,
+                'woocommerce_after_shop_loop_item_title' => 1,
+            );
+        }
+        
+        return $hooks_config;
     }
     
     /**
@@ -48,6 +61,9 @@ class BFP_Hooks_Manager {
 
         add_action( 'plugins_loaded', array( &$this->main_plugin, 'plugins_loaded' ) );
         add_action( 'init', array( &$this->main_plugin, 'init' ) );
+
+        // FIXED: Dynamic hook registration based on context
+        add_action( 'wp', array( $this, 'register_dynamic_hooks' ) );
 
         // EXPORT / IMPORT PRODUCTS
         add_filter( 'woocommerce_product_export_meta_value', function( $value, $meta, $product, $row ){
@@ -122,5 +138,22 @@ class BFP_Hooks_Manager {
             $p[] = '/wavesurfer.js';
             return $p;
         } );
+    }
+    
+    /**
+     * Register hooks dynamically based on page context
+     */
+    public function register_dynamic_hooks() {
+        $hooks_config = $this->get_hooks_config();
+        
+        // Register main player hooks
+        foreach ($hooks_config['main_player'] as $hook => $priority) {
+            add_action($hook, array($this->main_plugin, 'include_main_player'), $priority);
+        }
+        
+        // Register all players hooks
+        foreach ($hooks_config['all_players'] as $hook => $priority) {
+            add_action($hook, array($this->main_plugin, 'include_all_players'), $priority);
+        }
     }
 }
