@@ -1,0 +1,1 @@
+vendors/wavesurfer-source/dist/wavesurfer.umd.min.js
