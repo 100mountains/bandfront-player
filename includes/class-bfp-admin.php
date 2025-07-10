@@ -247,8 +247,8 @@ class BFP_Admin {
         $this->main_plugin->get_config()->update_global_attrs($global_settings);
         do_action('bfp_save_setting');
 
-        // Purge Cache
-        include_once dirname(BFP_PLUGIN_PATH) . '/inc/cache.inc.php';
+        // Purge Cache using new cache manager
+        BFP_Cache_Manager::clear_all_caches();
     }
     
     /**

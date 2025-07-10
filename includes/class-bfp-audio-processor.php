@@ -508,4 +508,13 @@ class BFP_Audio_Processor {
               </BODY></HTML>
              ';
     }
+
+    // In any method that processes Google Drive URLs
+    private function process_cloud_url($url) {
+        // Use the new cloud tools class
+        if (strpos($url, 'drive.google.com') !== false) {
+            return BFP_Cloud_Tools::get_google_drive_download_url($url);
+        }
+        return $url;
+    }
 }

@@ -34,12 +34,17 @@ define( 'BFP_REMOTE_TIMEOUT', 300 );
 define( 'BFP_DEFAULT_PlAYER_TITLE', 1 );
 define( 'BFP_VERSION', '0.1' );
 
-require_once 'inc/auto_update.inc.php';
+// Load auto-updater
+require_once 'includes/class-bfp-auto-updater.php';
 
 // Load admin class if in admin
 if (is_admin()) {
     require_once 'includes/class-bfp-admin.php';
 }
+
+// Load utility classes
+require_once 'includes/class-bfp-cache-manager.php';
+require_once 'includes/class-bfp-cloud-tools.php';
 
 // Load config class
 require_once 'includes/class-bfp-config.php';
@@ -203,7 +208,7 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 			$this->_load_addons();
 
 			// Integration with the content editors
-			require_once dirname( __FILE__ ) . '/pagebuilders/builders.php';
+			require_once dirname( __FILE__ ) . '/builders/builders.php';
 			BFP_BUILDERS::run();
 		}
 
