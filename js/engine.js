@@ -1,5 +1,5 @@
 /**
- * Bandfront Player Public JavaScript
+ * Bandfront Player Engine
  * Handles audio player functionality on the frontend
  */
 

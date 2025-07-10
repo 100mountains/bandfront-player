@@ -480,14 +480,6 @@
   - Data Flow: Register block → enqueue scripts → localize config data
   - Patterns/Concerns: Uses legacy block registration instead of block.json
 
-- **BFP_BUILDERS::siteorigin()**
-  - Purpose: Registers SiteOrigin Page Builder widget
-  - Inputs: None
-  - Outputs: Widget configuration array
-  - WordPress Data: Filter on `siteorigin_panels_widgets`
-  - Data Flow: Add widget to SiteOrigin's widget list
-  - Patterns/Concerns: Simple filter-based integration
-
 - **BFP_BUILDERS::elementor()**
   - Purpose: Registers Elementor widget
   - Inputs: None
@@ -496,29 +488,6 @@
   - Data Flow: Check Elementor loaded → include widget → register widget
   - Patterns/Concerns: Requires separate widget class file
 
-- **BFP_BUILDERS::beaverbuilder()**
-  - Purpose: Registers Beaver Builder module
-  - Inputs: None
-  - Outputs: Includes module class file
-  - WordPress Data: Action on `fl_builder_init`
-  - Data Flow: Check if Beaver Builder active → include module
-  - Patterns/Concerns: Module registration via class inclusion
-
-- **BFP_BUILDERS::visualcomposer()**
-  - Purpose: Adds Visual Composer/WPBakery shortcode mapping
-  - Inputs: None
-  - Outputs: VC shortcode configuration
-  - WordPress Data: `vc_map()` function
-  - Data Flow: Check if VC active → map shortcode parameters
-  - Patterns/Concerns: Uses VC's proprietary mapping format
-
-- **BFP_BUILDERS::divi()**
-  - Purpose: Registers Divi Builder module
-  - Inputs: None
-  - Outputs: Includes Divi module extension
-  - WordPress Data: Action on `divi_extensions_init`
-  - Data Flow: Check Divi active → include extension class
-  - Patterns/Concerns: Requires Divi-specific extension structure
 
 ### **File:** `/pagebuilders/gutenberg/gutenberg.js`
 **Purpose:** JavaScript for Gutenberg block editor interface.

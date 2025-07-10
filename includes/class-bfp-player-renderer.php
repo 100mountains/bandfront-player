@@ -357,4 +357,34 @@ public function include_all_players($product = '') {
         }
         return $p_files;
     }
+    
+    /**
+     * Enqueue scripts and styles
+     */
+    public function enqueue_scripts() {
+        // Existing enqueue code...
+
+        // Add WaveSurfer
+        $wavesurfer_path = plugin_dir_path(dirname(__FILE__)) . 'vendors/wavesurfer/';
+        $wavesurfer_url = plugin_dir_url(dirname(__FILE__)) . 'vendors/wavesurfer/';
+        
+        if (file_exists($wavesurfer_path . 'wavesurfer.min.js')) {
+            wp_enqueue_script(
+                'wavesurfer',
+                $wavesurfer_url . 'wavesurfer.min.js',
+                array(),
+                '7.9.9',
+                true
+            );
+            
+            // Add your integration script
+            wp_enqueue_script(
+                'bfp-wavesurfer-integration',
+                plugin_dir_url(dirname(__FILE__)) . 'js/wavesurfer-integration.js',
+                array('jquery', 'wavesurfer'),
+                BFP_VERSION,
+                true
+            );
+        }
+    }
 }

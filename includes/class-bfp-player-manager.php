@@ -112,4 +112,52 @@ class BFP_Player_Manager {
     public function set_insert_all_players($value) {
         $this->_insert_all_players = $value;
     }
+    
+    /**
+     * Enqueue player resources
+     */
+    public function enqueue_resources() {
+        global $BandfrontPlayer;
+        
+        // Get audio engine setting
+        $audio_engine = $BandfrontPlayer->get_global_attr('_bfp_audio_engine', 'mediaelement');
+        
+        if ($audio_engine === 'wavesurfer') {
+            // Check if WaveSurfer is available locally
+            $wavesurfer_path = plugin_dir_path(dirname(__FILE__)) . 'vendors/wavesurfer/wavesurfer.min.js';
+            
+            if (file_exists($wavesurfer_path)) {
+                // Enqueue local WaveSurfer.js
+                wp_enqueue_script(
+                    'wavesurfer',
+                    plugin_dir_url(dirname(__FILE__)) . 'vendors/wavesurfer/wavesurfer.min.js',
+                    array(),
+                    '7.9.9',
+                    true
+                );
+            } else {
+                // Fallback to CDN if local file doesn't exist
+                wp_enqueue_script(
+                    'wavesurfer',
+                    'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js',
+                    array(),
+                    '7.9.9',
+                    true
+                );
+            }
+            
+            // Enqueue WaveSurfer integration (our custom file)
+            wp_enqueue_script(
+                'bfp-wavesurfer-integration',
+                plugin_dir_url(dirname(__FILE__)) . 'js/wavesurfer.js',
+                array('jquery', 'wavesurfer'),
+                BFP_VERSION,
+                true
+            );
+        } else {
+            // ...existing MediaElement.js code...
+        }
+        
+        // ...existing code...
+    }
 }
