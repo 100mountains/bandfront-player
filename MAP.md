@@ -238,6 +238,21 @@
 
 ---
 
+## Utility Files
+
+### **File:** `/inc/tools.inc.php`
+**Purpose:** Google Drive URL processing utilities
+**Key Functions:**
+- **get_google_drive_download_url()**: Converts various Google Drive URL formats to direct download URLs
+- **get_google_drive_file_name()**: Attempts to retrieve filename from Google Drive
+
+### **File:** `/inc/cache.inc.php`
+**Purpose:** Cache clearing utilities for various WordPress caching plugins
+**Supported Plugins:** WP Rocket, WP Super Cache, W3 Total Cache, LiteSpeed Cache, SiteGround Optimizer, WP Fastest Cache, Elementor, Cache Enabler
+
+### **File:** `/inc/auto_update.inc.php`
+**Purpose:** Auto-update functionality (currently disabled with empty update path)
+
 ## Add-ons
 
 ### **File:** `/addons/audio-engine.addon.php`
@@ -262,7 +277,7 @@
   - Patterns/Concerns: Follows global/product override pattern
 
 ### **File:** `/addons/google-drive.addon.php`
-**Purpose:** Manages Google Drive cloud storage integration for demo files
+**Purpose:** Google Drive integration for storing demo files
 **WordPress Integration Points:**
 - Actions: `bfp_save_setting`, `bfp_general_settings`, `bfp_delete_file`, `bfp_delete_post`, `bfp_play_file`, `bfp_truncated_file`
 
@@ -276,7 +291,7 @@
 
 ## JavaScript Files
 
-### **File:** `/js/engine.js` (renamed from public.js)
+### **File:** `/js/engine.js` 
 **Purpose:** Frontend player functionality, supports both MediaElement.js and WaveSurfer.js
 **WordPress Integration Points:**
 - AJAX: Direct URL requests to `?bfp-action=play`

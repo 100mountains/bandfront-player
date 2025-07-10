@@ -1,4 +1,4 @@
-tree 
+tree
 .
 ├── BandFront_Media_Players_Modernization_Guide.md
 ├── Bandfront_WordPress_Modernization_Report.md
@@ -6,8 +6,10 @@ tree
 ├── ERRORS.md
 ├── JOBz.md
 ├── MAP.md
+├── MAP_TREE.md
 ├── README.md
 ├── addons
+│   ├── audio-engine.addon.php
 │   ├── google-drive
 │   │   ├── BFP_CLOUD_DRIVE.clss.php
 │   │   └── google-api-php-client
@@ -527,8 +529,7 @@ tree
 │   │                   ├── composer.json
 │   │                   └── src
 │   │                       └── getallheaders.php
-│   ├── google-drive.addon.php
-│   └── visualizations.addon.php
+│   └── google-drive.addon.php
 ├── backup_plugin.sh
 ├── backup_plugin_make_downloadable.sh
 ├── bfp.php
@@ -559,7 +560,7 @@ tree
 │   └── class-bfp-woocommerce.php.backup-20250708-051619
 ├── js
 │   ├── admin.js
-│   └── public.js
+│   └── engine.js
 ├── languages
 │   ├── bandfront-player-en_US.mo
 │   ├── bandfront-player-en_US.po
@@ -783,4 +784,4 @@ tree
     │       └── public.js
     └── playlist_widget.php
 
-123 directories, 660 files
+123 directories, 661 files
