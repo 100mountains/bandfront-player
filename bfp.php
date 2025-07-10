@@ -165,26 +165,13 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 			$this->_hooks_manager = new BFP_Hooks_Manager($this);
 			$this->_hooks = $this->_hooks_manager->get_hooks_config();
 			
-			// Initialize config functionality
+			// Initialize components
 			$this->_config = new BFP_Config($this);
-			
-			// Initialize file handler
 			$this->_file_handler = new BFP_File_Handler($this);
-			
-			// Initialize file directory properties from file handler
-			$this->_files_directory_path = $this->_file_handler->get_files_directory_path();
-			$this->_files_directory_url = $this->_file_handler->get_files_directory_url();
-			
-			// Initialize player manager
 			$this->_player_manager = new BFP_Player_Manager($this);
-			
-			// Initialize audio processor
 			$this->_audio_processor = new BFP_Audio_Processor($this);
-			
-			// Initialize WooCommerce integration
 			$this->_woocommerce = new BFP_WooCommerce($this);
-			
-			// Initialize player renderer
+			$this->_hooks_manager = new BFP_Hooks_Manager($this);
 			$this->_player_renderer = new BFP_Player_Renderer($this);
 			
 			// Initialize admin functionality if in admin area

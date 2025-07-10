@@ -371,14 +371,22 @@ class BFP_WooCommerce {
                 $audio_files = array();
             }
 
-            if ($atts['cover']) {
-                $featured_image = get_the_post_thumbnail($product->ID, array(60, 60));
-            }
-
             $download_links = '';
             if ($atts['download_links']) {
                 $download_links = $this->woocommerce_user_download($product->ID);
             }
+
+            // Get purchased times for this product
+            $purchased_times = 0;
+            if ($atts['purchased_times']) {
+                foreach ($product_purchased_times as $pt) {
+                    if ($pt->product_id == $product->ID) {
+                        $purchased_times = $pt->times;
+                        break;
+                    }
+                }
+            }
+            $atts['purchased_times'] = $purchased_times;
 
             $output .= $this->render_single_product($product, $product_obj, $atts, $audio_files, $download_links, $row_class, $current_post_id, $preload, $counter);
         }
@@ -404,6 +412,12 @@ class BFP_WooCommerce {
      */
     private function render_single_product($product, $product_obj, $atts, $audio_files, $download_links, $row_class, $current_post_id, $preload, $counter) {
         $output = '';
+        
+        // Define featured_image if cover is enabled
+        $featured_image = '';
+        if ($atts['cover']) {
+            $featured_image = get_the_post_thumbnail($product->ID, array(60, 60));
+        }
         
         if ('new' == $atts['layout']) {
             $price = $product_obj->get_price();
@@ -438,41 +452,43 @@ class BFP_WooCommerce {
                                 ' . wc_price($product_obj->get_price(), '') . ' <a href="?add-to-cart=' . $product_id_for_add_to_cart . '"></a>
                             </div><!-- product purchase -->';
             }
-			$output .= '</div><div class="wcmp-widget-product-files">';
-            if ( ! empty( $featured_image ) ) {
-                $output .= '<img src="' . esc_attr( $featured_image ) . '" class="wcmp-widget-feature-image" /><div class="wcmp-widget-product-files-list">';
+            $output .= '</div><div class="bfp-widget-product-files">';
+            
+            if (!empty($featured_image)) {
+                $output .= '<img src="' . esc_attr($featured_image) . '" class="bfp-widget-feature-image" /><div class="bfp-widget-product-files-list">';
             }
 
-            foreach ( $audio_files as $index => $file ) {
-                $audio_url  = $this->main_plugin->generate_audio_url( $product->ID, $index, $file );
-                $duration   = $this->main_plugin->get_duration_by_url( $file['file'] );
+            foreach ($audio_files as $index => $file) {
+                $audio_url  = $this->main_plugin->generate_audio_url($product->ID, $index, $file);
+                $duration   = $this->main_plugin->get_duration_by_url($file['file']);
                 $audio_tag  = apply_filters(
-                    'wcmp_widget_audio_tag',
+                    'bfp_widget_audio_tag',
                     $this->main_plugin->get_player(
                         $audio_url,
                         array(
-                            'player_controls' => $controls,
-                            'player_style'    => $player_style,
+                            'product_id'      => $product->ID,
+                            'player_controls' => $atts['controls'],
+                            'player_style'    => $atts['player_style'],
                             'media_type'      => $file['media_type'],
                             'id'              => $index,
                             'duration'        => $duration,
                             'preload'         => $preload,
-                            'volume'          => $volume,
+                            'volume'          => $atts['volume'],
                         )
                     ),
                     $product->ID,
                     $index,
                     $audio_url
                 );
-                $file_title = esc_html( apply_filters( 'wcmp_widget_file_name', $file['name'], $product->ID, $index ) );
+                $file_title = esc_html(apply_filters('bfp_widget_file_name', $file['name'], $product->ID, $index));
                 $output    .= '
-                    <div class="wcmp-widget-product-file">
-                        ' . $audio_tag . '<span class="wcmp-file-name">' . $file_title . '</span>' . ( ! isset( $atts['duration'] ) || $atts['duration'] == 1 ? '<span class="wcmp-file-duration">' . esc_html( $duration ) . '</span>' : '' ) . '<div style="clear:both;"></div>
+                    <div class="bfp-widget-product-file">
+                        ' . $audio_tag . '<span class="bfp-file-name">' . $file_title . '</span>' . (!isset($atts['duration']) || $atts['duration'] == 1 ? '<span class="bfp-file-duration">' . esc_html($duration) . '</span>' : '') . '<div style="clear:both;"></div>
                     </div><!--product file -->
                 ';
             }
 
-            if ( ! empty( $featured_image ) ) {
+            if (!empty($featured_image)) {
                 $output .= '</div>';
             }
 
@@ -483,16 +499,13 @@ class BFP_WooCommerce {
         } else {
             $output .= '<ul class="bfp-widget-playlist bfp-classic-layout controls-' . esc_attr($atts['controls']) . ' ' . esc_attr($atts['class']) . ' ' . esc_attr($row_class) . ' ' . esc_attr(($product->ID == $current_post_id && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">';
 
-            if (!empty($atts['cover'])) {
-                $featured_image = get_the_post_thumbnail($product->ID, array(60, 60));
-                if (!empty($featured_image)) {
-                    $output .= '<li style="display:table-row;"><img src="' . esc_attr($featured_image) . '" class="bfp-widget-feature-image" /><div class="bfp-widget-product-files-list"><ul>';
-                }
+            if (!empty($featured_image)) {
+                $output .= '<li style="display:table-row;"><img src="' . esc_attr($featured_image) . '" class="bfp-widget-feature-image" /><div class="bfp-widget-product-files-list"><ul>';
             }
 
             foreach ($audio_files as $index => $file) {
                 $audio_url = $this->main_plugin->generate_audio_url($product->ID, $index, $file);
-                $duration = $this->main_plugin->_get_duration_by_url($file['file']);
+                $duration = $this->main_plugin->get_duration_by_url($file['file']);
                 $audio_tag = apply_filters(
                     'bfp_widget_audio_tag',
                     $this->main_plugin->get_player(
@@ -519,11 +532,11 @@ class BFP_WooCommerce {
                     </div><!--product file -->';
             }
 
-            if (!empty($atts['cover']) && !empty($featured_image)) {
-                $output .= '</div>';
+            if (!empty($featured_image)) {
+                $output .= '</ul></div></li>';
             }
 
-            $output .= '</div><!-- product-files --></div><!-- product -->';
+            $output .= '</ul><!-- product-files -->';
         }
         
         return $output;
