@@ -110,7 +110,7 @@ class BFP_Admin {
         }
 
         echo '<div class="wrap">';
-        include_once dirname(BFP_PLUGIN_PATH) . '/views/global_options.php';
+        include_once dirname(BFP_PLUGIN_PATH) . '/views/global-admin-options.php';
         echo '</div>';
     }
     
@@ -344,16 +344,14 @@ class BFP_Admin {
         add_post_meta($post_id, '_bfp_secure_player', $secure_player, true);
         add_post_meta($post_id, '_bfp_file_percent', $file_percent, true);
 
-        // --- ADDED: Product-specific audio engine override
+        // --- Product-specific audio engine override
         $product_audio_engine = '';
         if (isset($_DATA['_bfp_audio_engine']) && 
-            in_array($_DATA['_bfp_audio_engine'], array('global', 'mediaelement', 'wavesurfer'))) {
+            in_array($_DATA['_bfp_audio_engine'], array('mediaelement', 'wavesurfer'))) {
             $product_audio_engine = sanitize_text_field(wp_unslash($_DATA['_bfp_audio_engine']));
+            update_post_meta($post_id, '_bfp_audio_engine', $product_audio_engine);
         }
-        
-        if (!empty($product_audio_engine) && $product_audio_engine !== 'global') {
-            add_post_meta($post_id, '_bfp_audio_engine', $product_audio_engine, true);
-        }
+        // --- END: Product-specific audio engine override
 
         // --- KEEP DEMO LOGIC ---
         $this->save_demo_files($post_id, $_DATA);
@@ -397,6 +395,6 @@ class BFP_Admin {
      */
     public function woocommerce_player_settings() {
         global $post;
-        include_once dirname(BFP_PLUGIN_PATH) . '/views/player_options.php';
+        include_once dirname(BFP_PLUGIN_PATH) . '/views/product-options.php';
     }
 }

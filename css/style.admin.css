@@ -251,6 +251,105 @@
     border-radius: 4px;
 }
 
+/* Cloud Storage Collapsible */
+.bfp-cloud-arrow {
+    float: right;
+    transition: transform 0.3s ease;
+    font-size: 16px;
+}
+
+.bfp-cloud-arrow-open {
+    transform: rotate(90deg);
+}
+
+.bfp-cloud-content {
+    transition: all 0.3s ease;
+}
+
+/* Cloud Storage Tabs */
+.bfp-cloud-tabs {
+    margin-top: 15px;
+}
+
+.bfp-cloud-tab-buttons {
+    display: flex;
+    border-bottom: 2px solid #e1e1e1;
+    margin-bottom: 20px;
+}
+
+.bfp-cloud-tab-btn {
+    background: #f1f1f1;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin-right: 2px;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.bfp-cloud-tab-btn:hover {
+    background: #e1e1e1;
+    color: #333;
+}
+
+.bfp-cloud-tab-active {
+    background: #2196F3 !important;
+    color: white !important;
+    border-bottom: 2px solid #2196F3;
+}
+
+.bfp-cloud-tab-content {
+    min-height: 200px;
+}
+
+.bfp-cloud-tab-panel {
+    display: none;
+}
+
+.bfp-cloud-tab-panel-active {
+    display: block;
+}
+
+.bfp-cloud-placeholder {
+    padding: 20px;
+    background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+    border-radius: 8px;
+    border-left: 4px solid #6C757D;
+}
+
+.bfp-cloud-placeholder h3 {
+    margin-top: 0;
+    color: #495057;
+}
+
+.bfp-cloud-placeholder p {
+    color: #6C757D;
+    line-height: 1.6;
+}
+
+.bfp-cloud-features {
+    margin-top: 15px;
+}
+
+.bfp-cloud-features h4 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.bfp-cloud-features ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.bfp-cloud-features li {
+    padding: 5px 0;
+    color: #6C757D;
+}
+
 /* Troubleshooting Section */
 .bfp-troubleshoot-item {
     padding: 15px;

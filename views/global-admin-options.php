@@ -310,9 +310,9 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				<tr>
 					<td colspan="2">
 						<table class="widefat bfp-settings-table">
-							<tr><td colspan="2"><h2>🔒 <?php esc_html_e( 'File Protection', 'bandfront-player' ); ?></h2></td></tr>
+							<tr><td colspan="2"><h2>🔒 <?php esc_html_e( 'File Truncation', 'bandfront-player' ); ?></h2></td></tr>
 							<tr>
-								<td class="bfp-column-30"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Protect audio files', 'bandfront-player' ); ?></label></td>
+								<td class="bfp-column-30"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Truncate audio files', 'bandfront-player' ); ?></label></td>
 								<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php echo ( ( $secure_player ) ? 'checked' : '' ); ?> /><br>
 								<em class="bfp-em-text"><?php esc_html_e( 'Create demo versions to prevent unauthorized downloading', 'bandfront-player' ); ?></em></td>
 							</tr>
@@ -355,15 +355,6 @@ remove_all_actions( 'bfp_general_settings', 10 );
 								<td>
 									<input aria-label="<?php esc_attr_e( 'Watermark audio', 'bandfront-player' ); ?>" type="text" id="_bfp_ffmpeg_watermark" name="_bfp_ffmpeg_watermark" value="<?php print esc_attr( $ffmpeg_watermark ); ?>" class="bfp-watermark-input bfp-file-url" /><input type="button" class="button-secondary bfp-select-file bfp-watermark-button" value="<?php esc_attr_e( 'Select', 'bandfront-player' ); ?>" /><br />
 									<i class="bfp-em-text"><?php esc_html_e( 'Optional audio file to overlay on demos (experimental feature)', 'bandfront-player' ); ?></i>
-								</td>
-							</tr>
-						</table>
-
-						<table class="widefat bfp-scope-table">
-							<tr>
-								<td>
-									<div><h2>🎯 <?php esc_html_e( 'Scope', 'bandfront-player' ); ?></h2></div>
-									<div><label><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Apply these settings to all products, even those with custom player settings', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Apply the previous settings to all products', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_apply_to_all_players" <?php print $apply_to_all_players == 1 ? 'CHECKED' : ''; ?> /></div> <?php esc_html_e( 'Override individual product settings with these global settings', 'bandfront-player' ); ?></label></div>
 								</td>
 							</tr>
 						</table>
@@ -415,7 +406,6 @@ remove_all_actions( 'bfp_general_settings', 10 );
 		</td>
 	</tr>
 </table>
-</table>
 <?php 
 // Cloud Storage Settings
 $bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
@@ -428,76 +418,157 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 		<td>
 			<table class="widefat bfp-settings-table">
 				<tr>
-					<td><h2>☁️ <?php esc_html_e( 'Cloud Storage', 'bandfront-player' ); ?></h2></td>
-				</tr>
-				<tr>
 					<td>
-						<p class="bfp-cloud-info"><?php esc_html_e( 'Automatically upload demo files to Google Drive to save server storage and bandwidth. Files are streamed directly from the cloud.', 'bandfront-player' ); ?></p>
+						<h2 onclick="jQuery('.bfp-cloud-content').toggle(); jQuery('.bfp-cloud-arrow').toggleClass('bfp-cloud-arrow-open');" style="cursor: pointer;">
+							☁️ <?php esc_html_e( 'Cloud Storage', 'bandfront-player' ); ?> 
+							<span class="bfp-cloud-arrow">▶</span>
+						</h2>
 					</td>
 				</tr>
-				<tr>
-					<td class="bfp-column-30"><label for="_bfp_drive"><?php esc_html_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_drive" name="_bfp_drive" <?php print( ( $bfp_drive ) ? 'CHECKED' : '' ); ?> /></td>
-				</tr>
-				<tr>
-					<td class="bfp-column-30">
-						<?php esc_html_e( 'Import OAuth Client JSON File', 'bandfront-player' ); ?><br>
-						(<?php esc_html_e( 'Required to upload demo files to Google Drive', 'bandfront-player' ); ?>)
-					</td>
+				<tr class="bfp-cloud-content" style="display: none;">
 					<td>
-						<input aria-label="<?php esc_attr_e( 'OAuth Client JSON file', 'bandfront-player' ); ?>" type="file" name="_bfp_drive_key" />
-						<?php
-						if ( ! empty( $bfp_drive_key ) ) {
-							echo '<span class="bfp-oauth-success">' . esc_html__( 'OAuth Client Available ✅', 'bandfront-player' ) . '</span>';
-						}
-						?>
-						<br /><br />
-						<div class="bfp-cloud-instructions">
-							<h3><?php esc_html_e( 'To create an OAuth 2.0 client ID:', 'bandfront-player' ); ?></h3>
-							<p>
-								<ol>
-									<li><?php esc_html_e( 'Go to the', 'bandfront-player' ); ?> <a href="https://console.cloud.google.com/" target="_blank"><?php esc_html_e( 'Google Cloud Platform Console', 'bandfront-player' ); ?></a>.</li>
-									<li><?php esc_html_e( 'From the projects list, select a project or create a new one.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'If the APIs & services page isn\'t already open, open the console left side menu and select APIs & services.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'On the left, click Credentials.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'Click + CREATE CREDENTIALS, then select OAuth client ID.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'Select the application type Web application.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'Enter BandFront Player in the Name field.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'Enter the URL below as the Authorized redirect URIs:', 'bandfront-player' ); ?>
-									<br><br><b><i><?php 
-									$callback_url = get_home_url( get_current_blog_id() );
-									$callback_url .= ( ( strpos( $callback_url, '?' ) === false ) ? '?' : '&' ) . 'bfp-drive-credential=1';
-									print esc_html( $callback_url ); 
-									?></i></b><br><br></li>
-									<li><?php esc_html_e( 'Press the Create button.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'In the OAuth client created dialog, press the DOWNLOAD JSON button and store it on your computer, and press the Ok button.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'Finally, select the downloaded file through the Import OAuth Client JSON File field above.', 'bandfront-player' ); ?></li>
-								</ol>
-							</p>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td class="bfp-column-30">
-						<label for="_bfp_drive_api_key"><?php esc_html_e( 'API Key', 'bandfront-player' ); ?></label><br>
-						(<?php esc_html_e( 'Required to read audio files from players', 'bandfront-player' ); ?>)
-					</td>
-					<td>
-						<input aria-label="<?php esc_attr_e( 'API Key', 'bandfront-player' ); ?>" type="text" id="_bfp_drive_api_key" name="_bfp_drive_api_key" value="<?php print esc_attr( $bfp_drive_api_key ); ?>" class="bfp-input-full" />
-						<br /><br />
-						<div class="bfp-cloud-instructions">
-							<h3><?php esc_html_e( 'Get API Key:', 'bandfront-player' ); ?></h3>
-							<p>
-								<ol>
-									<li><?php esc_html_e( 'Go to the', 'bandfront-player' ); ?> <a href="https://console.cloud.google.com/" target="_blank"><?php esc_html_e( 'Google Cloud Platform Console', 'bandfront-player' ); ?></a>.</li>
-									<li><?php esc_html_e( 'From the projects list, select a project or create a new one.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'If the APIs & services page isn\'t already open, open the console left side menu and select APIs & services.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'On the left, click Credentials.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'Click + CREATE CREDENTIALS, then select API Key.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'Copy the API Key.', 'bandfront-player' ); ?></li>
-									<li><?php esc_html_e( 'Finally, paste it in the API Key field above.', 'bandfront-player' ); ?></li>
-								</ol>
-							</p>
+						<p class="bfp-cloud-info"><?php esc_html_e( 'Automatically upload demo files to cloud storage to save server storage and bandwidth. Files are streamed directly from the cloud.', 'bandfront-player' ); ?></p>
+						
+						<div class="bfp-cloud-tabs">
+							<div class="bfp-cloud-tab-buttons">
+								<button type="button" class="bfp-cloud-tab-btn bfp-cloud-tab-active" data-tab="google-drive">
+									🗂️ <?php esc_html_e( 'Google Drive', 'bandfront-player' ); ?>
+								</button>
+								<button type="button" class="bfp-cloud-tab-btn" data-tab="dropbox">
+									📦 <?php esc_html_e( 'Dropbox', 'bandfront-player' ); ?>
+								</button>
+								<button type="button" class="bfp-cloud-tab-btn" data-tab="aws-s3">
+									🛡️ <?php esc_html_e( 'AWS S3', 'bandfront-player' ); ?>
+								</button>
+								<button type="button" class="bfp-cloud-tab-btn" data-tab="azure">
+									☁️ <?php esc_html_e( 'Azure Blob', 'bandfront-player' ); ?>
+								</button>
+							</div>
+							
+							<div class="bfp-cloud-tab-content">
+								<!-- Google Drive Tab -->
+								<div class="bfp-cloud-tab-panel bfp-cloud-tab-panel-active" data-panel="google-drive">
+									<table class="widefat">
+										<tr>
+											<td class="bfp-column-30"><label for="_bfp_drive"><?php esc_html_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?></label></td>
+											<td><input aria-label="<?php esc_attr_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_drive" name="_bfp_drive" <?php print( ( $bfp_drive ) ? 'CHECKED' : '' ); ?> /></td>
+										</tr>
+										<tr>
+											<td class="bfp-column-30">
+												<?php esc_html_e( 'Import OAuth Client JSON File', 'bandfront-player' ); ?><br>
+												(<?php esc_html_e( 'Required to upload demo files to Google Drive', 'bandfront-player' ); ?>)
+											</td>
+											<td>
+												<input aria-label="<?php esc_attr_e( 'OAuth Client JSON file', 'bandfront-player' ); ?>" type="file" name="_bfp_drive_key" />
+												<?php
+												if ( ! empty( $bfp_drive_key ) ) {
+													echo '<span class="bfp-oauth-success">' . esc_html__( 'OAuth Client Available ✅', 'bandfront-player' ) . '</span>';
+												}
+												?>
+												<br /><br />
+												<div class="bfp-cloud-instructions">
+													<h3><?php esc_html_e( 'To create an OAuth 2.0 client ID:', 'bandfront-player' ); ?></h3>
+													<p>
+														<ol>
+															<li><?php esc_html_e( 'Go to the', 'bandfront-player' ); ?> <a href="https://console.cloud.google.com/" target="_blank"><?php esc_html_e( 'Google Cloud Platform Console', 'bandfront-player' ); ?></a>.</li>
+															<li><?php esc_html_e( 'From the projects list, select a project or create a new one.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'If the APIs & services page isn\'t already open, open the console left side menu and select APIs & services.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'On the left, click Credentials.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'Click + CREATE CREDENTIALS, then select OAuth client ID.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'Select the application type Web application.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'Enter BandFront Player in the Name field.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'Enter the URL below as the Authorized redirect URIs:', 'bandfront-player' ); ?>
+															<br><br><b><i><?php 
+															$callback_url = get_home_url( get_current_blog_id() );
+															$callback_url .= ( ( strpos( $callback_url, '?' ) === false ) ? '?' : '&' ) . 'bfp-drive-credential=1';
+															print esc_html( $callback_url ); 
+															?></i></b><br><br></li>
+															<li><?php esc_html_e( 'Press the Create button.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'In the OAuth client created dialog, press the DOWNLOAD JSON button and store it on your computer, and press the Ok button.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'Finally, select the downloaded file through the Import OAuth Client JSON File field above.', 'bandfront-player' ); ?></li>
+														</ol>
+													</p>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td class="bfp-column-30">
+												<label for="_bfp_drive_api_key"><?php esc_html_e( 'API Key', 'bandfront-player' ); ?></label><br>
+												(<?php esc_html_e( 'Required to read audio files from players', 'bandfront-player' ); ?>)
+											</td>
+											<td>
+												<input aria-label="<?php esc_attr_e( 'API Key', 'bandfront-player' ); ?>" type="text" id="_bfp_drive_api_key" name="_bfp_drive_api_key" value="<?php print esc_attr( $bfp_drive_api_key ); ?>" class="bfp-input-full" />
+												<br /><br />
+												<div class="bfp-cloud-instructions">
+													<h3><?php esc_html_e( 'Get API Key:', 'bandfront-player' ); ?></h3>
+													<p>
+														<ol>
+															<li><?php esc_html_e( 'Go to the', 'bandfront-player' ); ?> <a href="https://console.cloud.google.com/" target="_blank"><?php esc_html_e( 'Google Cloud Platform Console', 'bandfront-player' ); ?></a>.</li>
+															<li><?php esc_html_e( 'From the projects list, select a project or create a new one.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'If the APIs & services page isn\'t already open, open the console left side menu and select APIs & services.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'On the left, click Credentials.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'Click + CREATE CREDENTIALS, then select API Key.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'Copy the API Key.', 'bandfront-player' ); ?></li>
+															<li><?php esc_html_e( 'Finally, paste it in the API Key field above.', 'bandfront-player' ); ?></li>
+														</ol>
+													</p>
+												</div>
+											</td>
+										</tr>
+									</table>
+								</div>
+								
+								<!-- Dropbox Tab -->
+								<div class="bfp-cloud-tab-panel" data-panel="dropbox">
+									<div class="bfp-cloud-placeholder">
+										<h3>📦 <?php esc_html_e( 'Dropbox Integration', 'bandfront-player' ); ?></h3>
+										<p><?php esc_html_e( 'Coming soon! Dropbox integration will allow you to store your demo files on Dropbox with automatic syncing and bandwidth optimization.', 'bandfront-player' ); ?></p>
+										<div class="bfp-cloud-features">
+											<h4><?php esc_html_e( 'Planned Features:', 'bandfront-player' ); ?></h4>
+											<ul>
+												<li>✨ <?php esc_html_e( 'Automatic file upload to Dropbox', 'bandfront-player' ); ?></li>
+												<li>🔄 <?php esc_html_e( 'Real-time synchronization', 'bandfront-player' ); ?></li>
+												<li>📊 <?php esc_html_e( 'Bandwidth usage analytics', 'bandfront-player' ); ?></li>
+												<li>🛡️ <?php esc_html_e( 'Advanced security controls', 'bandfront-player' ); ?></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								
+								<!-- AWS S3 Tab -->
+								<div class="bfp-cloud-tab-panel" data-panel="aws-s3">
+									<div class="bfp-cloud-placeholder">
+										<h3>🛡️ <?php esc_html_e( 'Amazon S3 Storage', 'bandfront-player' ); ?></h3>
+										<p><?php esc_html_e( 'Enterprise-grade cloud storage with AWS S3. Perfect for high-traffic websites requiring maximum reliability and global CDN distribution.', 'bandfront-player' ); ?></p>
+										<div class="bfp-cloud-features">
+											<h4><?php esc_html_e( 'Planned Features:', 'bandfront-player' ); ?></h4>
+											<ul>
+												<li>🌍 <?php esc_html_e( 'Global CDN with CloudFront integration', 'bandfront-player' ); ?></li>
+												<li>⚡ <?php esc_html_e( 'Lightning-fast file delivery', 'bandfront-player' ); ?></li>
+												<li>💰 <?php esc_html_e( 'Cost-effective storage pricing', 'bandfront-player' ); ?></li>
+												<li>🔐 <?php esc_html_e( 'Enterprise security and encryption', 'bandfront-player' ); ?></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								
+								<!-- Azure Tab -->
+								<div class="bfp-cloud-tab-panel" data-panel="azure">
+									<div class="bfp-cloud-placeholder">
+										<h3>☁️ <?php esc_html_e( 'Microsoft Azure Blob Storage', 'bandfront-player' ); ?></h3>
+										<p><?php esc_html_e( 'Microsoft Azure Blob Storage integration for seamless file management and global distribution with enterprise-level security.', 'bandfront-player' ); ?></p>
+										<div class="bfp-cloud-features">
+											<h4><?php esc_html_e( 'Planned Features:', 'bandfront-player' ); ?></h4>
+											<ul>
+												<li>🏢 <?php esc_html_e( 'Enterprise Active Directory integration', 'bandfront-player' ); ?></li>
+												<li>🌐 <?php esc_html_e( 'Global edge locations', 'bandfront-player' ); ?></li>
+												<li>📈 <?php esc_html_e( 'Advanced analytics and monitoring', 'bandfront-player' ); ?></li>
+												<li>🔒 <?php esc_html_e( 'Compliance-ready security features', 'bandfront-player' ); ?></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</td>
 				</tr>
@@ -506,7 +577,7 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 	</tr>
 </table>
 <table class="widefat bfp-table-noborder">
-<table class="widefat bfp-table-noborder">
+
 	<tr>
 		<td>
 			<table class="widefat bfp-settings-table">
@@ -611,25 +682,40 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 </table>
 <div class="bfp-submit-wrapper"><input type="submit" value="<?php esc_attr_e( 'Save settings', 'bandfront-player' ); ?>" class="button-primary" /></div>
 </form>
-<script>jQuery(window).on('load', function(){
-	var $ = jQuery;
-	function coverSection()
-	{
-		var v = $('[name="_bfp_player_controls"]:checked').val(),
-			c = $('.bfp-on-cover');
-		if(v == 'default' || v == 'button') c.show();
-		else c.hide();
-	};
-	$(document).on('change', '[name="_bfp_player_controls"]', function(){
-		coverSection();
-	});
-	$(document).on('change', '[name="_bfp_analytics_integration"]', function(){
-		var v = $('[name="_bfp_analytics_integration"]:checked').val();
-		$('.bfp-analytics-g4').css('display', v == 'g' ? 'table-row' : 'none');
-		$('[name="_bfp_analytics_property"]').attr('placeholder', v == 'g' ? 'G-XXXXXXXX' : 'UA-XXXXX-Y');
-	});
-	$('[name="_bfp_analytics_integration"]:eq(0)').change();
-	coverSection();
-});</script>
+<script>
+jQuery(window).on('load', function(){
+    var $ = jQuery;
+    function coverSection()
+    {
+        var v = $('[name="_bfp_player_controls"]:checked').val(),
+            c = $('.bfp-on-cover');
+        if(v == 'default' || v == 'button') c.show();
+        else c.hide();
+    };
+    $(document).on('change', '[name="_bfp_player_controls"]', function(){
+        coverSection();
+    });
+    $(document).on('change', '[name="_bfp_analytics_integration"]', function(){
+        var v = $('[name="_bfp_analytics_integration"]:checked').val();
+        $('.bfp-analytics-g4').css('display', v == 'g' ? 'table-row' : 'none');
+        $('[name="_bfp_analytics_property"]').attr('placeholder', v == 'g' ? 'G-XXXXXXXX' : 'UA-XXXXX-Y');
+    });
+    
+    // Cloud Storage Tab Functionality
+    $(document).on('click', '.bfp-cloud-tab-btn', function(){
+        var tab = $(this).data('tab');
+        
+        // Update tab buttons
+        $('.bfp-cloud-tab-btn').removeClass('bfp-cloud-tab-active');
+        $(this).addClass('bfp-cloud-tab-active');
+        
+        // Update tab panels
+        $('.bfp-cloud-tab-panel').removeClass('bfp-cloud-tab-panel-active');
+        $('.bfp-cloud-tab-panel[data-panel="' + tab + '"]').addClass('bfp-cloud-tab-panel-active');
+    });
+    
+    $('[name="_bfp_analytics_integration"]:eq(0)').change();
+    coverSection();
+});
+</script>
 <style>.bfp-player-settings tr td:first-child{width:225px;}</style>
-

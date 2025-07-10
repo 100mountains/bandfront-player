@@ -1,7 +1,20 @@
 <?php
-if ( ! defined( 'BFP_PLUGIN_URL' ) ) {
-	echo 'Direct access not allowed.';
-	exit; }
+/**
+ * Product Options View for Bandfront Player
+ *
+ * @package BandfrontPlayer
+ * @since 0.1
+ */
+
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
+/**
+ * Bandfront Player Product Options
+ * Handles display and management of product-specific player settings
+ */
+
 
 // include resources
 wp_enqueue_style( 'bfp-admin-style', plugin_dir_url( __FILE__ ) . '../css/style.admin.css', array(), '5.0.181' );
@@ -37,16 +50,11 @@ $merge_grouped    = intval( $GLOBALS['BandfrontPlayer']->get_product_attr( $post
 $own_demos        = intval( $GLOBALS['BandfrontPlayer']->get_product_attr( $post->ID, '_bfp_own_demos', 0 ) );
 $direct_own_demos = intval( $GLOBALS['BandfrontPlayer']->get_product_attr( $post->ID, '_bfp_direct_own_demos', 0 ) );
 $demos_list       = $GLOBALS['BandfrontPlayer']->get_product_attr( $post->ID, '_bfp_demos_list', array() );
-$play_all         = intval(
+$play_all = intval(
 	$GLOBALS['BandfrontPlayer']->get_product_attr(
 		$post->ID,
 		'_bfp_play_all',
-		// This option is only for compatibility with versions previous to 1.0.28
-						$GLOBALS['BandfrontPlayer']->get_product_attr(
-							$post->ID,
-							'play_all',
-							0
-						)
+		0
 	)
 );
 $loop     = intval( $GLOBALS['BandfrontPlayer']->get_product_attr( $post->ID, '_bfp_loop', 0 ) );
@@ -69,27 +77,7 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 <table class="widefat bfp-main-table">
 	<tr>
 		<td>
-			<div class="bfp-info-box">
-				<h3 class="bfp-info-box-title">🎵 <?php esc_html_e( 'Smart Context-Aware Player', 'bandfront-player' ); ?></h3>
-				<p class="bfp-info-box-text">
-				<?php
-				_e( 'This player automatically adapts to page context: <strong>minimal controls on shop pages</strong> for quick previews, and <strong>full controls on product pages</strong> for detailed listening. Player appearance and behavior are now controlled globally for consistency.', 'bandfront-player' ); // phpcs:ignore WordPress.Security.EscapeOutput
-				?>
-				</p>
-				<p class="bfp-info-box-highlight">
-				<?php
-				esc_html_e( '🛡️ File protection prevents malicious users from accessing original audio files without purchasing them.', 'bandfront-player' );
-				?>
-				</p>
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<table class="widefat bfp-player-settings bfp-options-inner-table">
-				<tr>
-					<td colspan="2"><h2>🎵 <?php esc_html_e( 'Essential Player Settings', 'bandfront-player' ); ?></h2></td>
-				</tr>
+			<table class="widefat bfp-player-settings bfp-settings-table">
 				<tr>
 					<td><label for="_bfp_enable_player">🎧 <?php esc_html_e( 'Include music player', 'bandfront-player' ); ?></label></td>
 					<td><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Player shows only if product is downloadable with audio files, or you\'ve selected custom audio files', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Enable player', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_enable_player" name="_bfp_enable_player" <?php echo ( ( $enable_player ) ? 'checked' : '' ); ?> /></div></td>
@@ -146,10 +134,10 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 				</tr>
 				<tr>
 					<td colspan="2">
-						<table class="widefat bfp-nested-protection-table">
-							<tr><td colspan="2"><h2>🔒 <?php esc_html_e( 'File Protection', 'bandfront-player' ); ?></h2></td></tr>
+						<table class="widefat bfp-settings-table">
+							<tr><td colspan="2"><h2>🔒 <?php esc_html_e( 'File Truncation', 'bandfront-player' ); ?></h2></td></tr>
 							<tr>
-								<td width="30%"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Protect audio files', 'bandfront-player' ); ?></label></td>
+								<td width="30%"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Truncate audio files', 'bandfront-player' ); ?></label></td>
 								<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php echo ( ( $secure_player ) ? 'checked' : '' ); ?> /><br>
 								<em class="bfp-em-text"><?php esc_html_e( 'Create demo versions to prevent unauthorized downloading', 'bandfront-player' ); ?></em></td>
 							</tr>
@@ -170,7 +158,7 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 <table class="widefat bfp-table-noborder" style="padding-bottom:20px;">
 	<tr>
 		<td>
-			<table class="widefat bfp-player-demos bfp-options-inner-table">
+			<table class="widefat bfp-player-demos bfp-settings-table">
 				<tr>
 					<td colspan="2"><h2>🎼 <?php esc_html_e( 'Custom Demo Files', 'bandfront-player' ); ?></h2></td>
 				</tr>
