@@ -129,6 +129,26 @@ fi
 
 echo ""
 
+# Task 4: Generate Tree Map
+echo "================================================"
+echo "Task 4: Directory Tree Map"
+echo "================================================"
+
+if command_exists "tree"; then
+    print_status "info" "Generating directory tree map..."
+    
+    # Generate tree map excluding .git, node_modules, *.log, *.tmp, and modules/google-drive directories
+    if tree -a -I '.git|node_modules|modules/google-drive|*.log|*.tmp' > "$PLUGIN_DIR/md-files/MAP_TREE.md" 2>/dev/null; then
+        print_status "success" "Tree map generated at MAP_TREE.md"
+    else
+        print_status "info" "Tree map generation failed (non-critical)"
+    fi
+else
+    print_status "info" "tree command not found (skipping directory map)"
+fi
+
+echo ""
+
 # Summary
 echo "================================================"
 echo "Build Summary"
@@ -147,6 +167,13 @@ if [ -f "$PLUGIN_DIR/languages/bandfront-player.pot" ]; then
     print_status "success" "Translation template (POT) present"
 else
     print_status "info" "Translation template not generated (non-critical)"
+fi
+
+# Check if tree map was generated
+if [ -f "$PLUGIN_DIR/MAP_TREE.md" ]; then
+    print_status "success" "Directory tree map present"
+else
+    print_status "info" "Directory tree map not generated (non-critical)"
 fi
 
 # Count translation files
