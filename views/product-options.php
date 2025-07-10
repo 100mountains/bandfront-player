@@ -227,4 +227,10 @@ $preload  = $GLOBALS['BandfrontPlayer']->get_product_attr(
 		</td>
 	</tr>
 </table>
+<?php
+	/**
+	 * Module options
+	 */
+	do_action( 'bfp_module_product_settings', $post->ID );
+	?>
 <style>.bfp-player-settings tr td:first-child{width:225px;}</style>

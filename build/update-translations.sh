@@ -3,14 +3,16 @@
 # Translation update script for Bandfront Player
 # Generates POT files and updates translations
 
-PLUGIN_DIR="/var/www/html/wp-content/plugins/bandfront-player"
+# Get the plugin root directory (parent of build/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
 LANGUAGES_DIR="$PLUGIN_DIR/languages"
 
-# Check if we're in the right directory
-if [ "$(pwd)" != "$PLUGIN_DIR" ]; then
-    echo "❌ Error: Must be run from $PLUGIN_DIR"
+# Change to plugin directory for WP-CLI to work correctly
+cd "$PLUGIN_DIR" || {
+    echo "❌ Error: Failed to change to plugin directory"
     exit 1
-fi
+}
 
 # Check if WP-CLI is available
 if ! command -v wp &> /dev/null; then
@@ -64,3 +66,6 @@ echo "📊 Summary:"
 echo "   - POT file: $LANGUAGES_DIR/bandfront-player.pot"
 echo "   - PO files updated: $(ls -1 "$LANGUAGES_DIR"/*.po 2>/dev/null | wc -l)"
 echo "   - MO files generated: $(ls -1 "$LANGUAGES_DIR"/*.mo 2>/dev/null | wc -l)"
+
+# Return to original directory
+cd "$SCRIPT_DIR" || exit 0

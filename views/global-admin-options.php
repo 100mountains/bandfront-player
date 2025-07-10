@@ -584,7 +584,7 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 				<tr>
 					<td colspan="2"><h2>⚙️ <?php esc_html_e( 'Audio Engine', 'bandfront-player' ); ?></h2></td>
 				</tr>
-				<?php do_action( 'bfp_addon_general_settings' ); ?>
+				<?php do_action( 'bfp_module_general_settings' ); ?>
 			</table>
 		</td>
 	</tr>

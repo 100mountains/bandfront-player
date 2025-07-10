@@ -1,6 +1,6 @@
 <?php
 /**
- * Audio Engine Add-on for Bandfront Player
+ * Audio Engine Module for Bandfront Player
  * Handles MediaElement.js vs WaveSurfer.js selection
  */
 
@@ -9,8 +9,8 @@ if (!defined('ABSPATH')) {
 }
 
 // Hook into the global settings to display audio engine options
-add_action('bfp_addon_general_settings', 'bfp_audio_engine_settings');
-add_action('bfp_addon_product_settings', 'bfp_audio_engine_product_settings');
+add_action('bfp_module_general_settings', 'bfp_audio_engine_settings');
+add_action('bfp_module_product_settings', 'bfp_audio_engine_product_settings');
 
 function bfp_audio_engine_settings() {
     global $BandfrontPlayer;

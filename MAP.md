@@ -258,7 +258,7 @@
 ### **File:** `/addons/audio-engine.addon.php`
 **Purpose:** Provides audio engine selection between MediaElement.js and WaveSurfer.js
 **WordPress Integration Points:**
-- Actions: `bfp_addon_general_settings`, `bfp_addon_product_settings`
+- Actions: `bfp_module_general_settings`, `bfp_addon_product_settings`
 
 - **bfp_audio_engine_settings()**
   - Purpose: Renders audio engine selection UI in global settings
@@ -416,7 +416,7 @@
 **Changes:**
 - Removed duplicate Audio Engine HTML sections
 - Cloud Storage settings now inline instead of via add-on hook
-- Add-ons section using `do_action('bfp_addon_general_settings')`
+- Add-ons section using `do_action('bfp_module_general_settings')`
 
 **Form Structure:**
 - Uses WordPress nonces for security

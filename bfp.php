@@ -713,15 +713,15 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 		} // End _get_post_types
 
 		private function _load_addons() {
-			$path = __DIR__ . '/addons';
-			$path = __DIR__ . "/addons";
+			$path = __DIR__ . '/modules';
+			$path = __DIR__ . "/modules";
 			$bfp = $this;
 
 			if ( file_exists( $path ) ) {
-				$addons = dir( $path );
-				while ( false !== ( $entry = $addons->read() ) ) {
+				$modules = dir( $path );
+				while ( false !== ( $entry = $modules->read() ) ) {
 					if ( strlen( $entry ) > 3 && strtolower( pathinfo( $entry, PATHINFO_EXTENSION ) ) == "php" ) {
-						include_once $addons->path . "/" . $entry;
+						include_once $modules->path . "/" . $entry;
 					}
 				}
 			}
