@@ -71,7 +71,7 @@ cd "$PLUGIN_DIR" || {
     exit 1
 }
 
-# Task 1: Update WaveSurfer.js
+# Task 1: Update WaveSurfer.js (Critical)
 echo "================================================"
 echo "Task 1: Updating WaveSurfer.js"
 echo "================================================"
@@ -91,7 +91,7 @@ fi
 
 echo ""
 
-# Task 2: Update Translations
+# Task 2: Update Translations (Non-critical)
 echo "================================================"
 echo "Task 2: Updating Translations"
 echo "================================================"
@@ -101,12 +101,11 @@ if [ -f "$SCRIPT_DIR/update-translations.sh" ]; then
     if bash "$SCRIPT_DIR/update-translations.sh"; then
         print_status "success" "Translations updated successfully!"
     else
-        print_status "error" "Failed to update translations"
-        exit 1
+        print_status "info" "Translation update failed (non-critical, continuing...)"
+        # Don't exit - translations are non-critical
     fi
 else
-    print_status "error" "update-translations.sh not found in build directory"
-    exit 1
+    print_status "info" "update-translations.sh not found (skipping)"
 fi
 
 echo ""
@@ -138,14 +137,16 @@ echo "================================================"
 # Check results
 if [ -d "$PLUGIN_DIR/vendors/wavesurfer" ]; then
     print_status "success" "WaveSurfer.js files present"
+    BUILD_SUCCESS=true
 else
     print_status "error" "WaveSurfer.js files missing"
+    BUILD_SUCCESS=false
 fi
 
 if [ -f "$PLUGIN_DIR/languages/bandfront-player.pot" ]; then
     print_status "success" "Translation template (POT) present"
 else
-    print_status "error" "Translation template missing"
+    print_status "info" "Translation template not generated (non-critical)"
 fi
 
 # Count translation files
@@ -157,5 +158,9 @@ print_status "info" "Translation files: $PO_COUNT PO files, $MO_COUNT MO files"
 print_status "info" "Build completed at: $(date)"
 
 echo ""
-print_status "success" "Build process completed!"
+if [ "$BUILD_SUCCESS" = true ]; then
+    print_status "success" "Build process completed!"
+else
+    print_status "error" "Build process failed - critical components missing"
+fi
 echo "================================================"
