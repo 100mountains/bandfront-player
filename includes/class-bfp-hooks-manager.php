@@ -37,7 +37,7 @@ class BFP_Hooks_Manager {
         if (function_exists('is_product') && is_product()) {
             $hooks_config['all_players'] = array(
              //   'woocommerce_single_product_summary' => 1,
-                'woocommerce_after_single_product_summary' => 1,
+               'woocommerce_after_single_product_summary' => 1,
              //   'woocommerce_before_add_to_cart_form' => 1,
               //  'woocommerce_after_add_to_cart_form' => 1,
             );

@@ -1,4 +1,9 @@
 <?php
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 if ( ! class_exists( 'BFP_CLOUD_DRIVE_ADDON' ) ) {
 	class BFP_CLOUD_DRIVE_ADDON {
 
