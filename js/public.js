@@ -1,498 +1,517 @@
-var $jscomp = $jscomp || {};
-$jscomp.scope = {};
+/**
+ * Bandfront Player Public JavaScript
+ * Handles audio player functionality on the frontend
+ */
 
-$jscomp.findInternal = function(a, e, c) {
-  a instanceof String && (a = String(a));
-  var h = a.length;
-  for (var k = 0; k < h; k++) {
-    var m = a[k];
-    if (e.call(c, m, k, a)) {
-      return {
-        i: k,
-        v: m
-      };
-    }
-  }
-  return {
-    i: -1,
-    v: void 0
-  };
-};
-$jscomp.ASSUME_ES5 = !1;
-$jscomp.ASSUME_NO_NATIVE_MAP = !1;
-$jscomp.ASSUME_NO_NATIVE_SET = !1;
-$jscomp.SIMPLE_FROUND_POLYFILL = !1;
+// Polyfill for Array.prototype.find (for older browsers)
+if (!Array.prototype.find) {
+    Array.prototype.find = function(predicate) {
+        if (this == null) {
+            throw new TypeError('Array.prototype.find called on null or undefined');
+        }
+        if (typeof predicate !== 'function') {
+            throw new TypeError('predicate must be a function');
+        }
+        var list = Object(this);
+        var length = list.length >>> 0;
+        var thisArg = arguments[1];
+        var value;
 
-$jscomp.defineProperty = $jscomp.ASSUME_ES5 ||
-  "function" == typeof Object.defineProperties ?
-  Object.defineProperty :
-  function(a, e, c) {
-    a != Array.prototype && a != Object.prototype && (a[e] = c.value);
-  };
-
-$jscomp.getGlobal = function(a) {
-  return "undefined" != typeof window && window === a ?
-    a :
-    "undefined" != typeof global && null != global ?
-      global :
-      a;
-};
-
-$jscomp.global = $jscomp.getGlobal(this);
-
-$jscomp.polyfill = function(a, e, c, h) {
-  if (e) {
-    c = $jscomp.global;
-    a = a.split(".");
-    for (h = 0; h < a.length - 1; h++) {
-      var k = a[h];
-      k in c || (c[k] = {});
-      c = c[k];
-    }
-    a = a[a.length - 1];
-    h = c[a];
-    e = e(h);
-    e != h && null != e && $jscomp.defineProperty(c, a, {
-      configurable: !0,
-      writable: !0,
-      value: e
-    });
-  }
-};
-
-$jscomp.polyfill(
-  "Array.prototype.find",
-  function(a) {
-    return a
-      ? a
-      : function(a, c) {
-          return $jscomp.findInternal(this, a, c).v;
-        };
-  },
-  "es6",
-  "es3"
-);
+        for (var i = 0; i < length; i++) {
+            value = list[i];
+            if (predicate.call(thisArg, value, i, list)) {
+                return value;
+            }
+        }
+        return undefined;
+    };
+}
 
 (function() {
-  var a = [],
-    e = 0;
+    // Global variables
+    var bfp_players = [];
+    var bfp_player_counter = 0;
 
-  window.generate_the_bfp = function(c) {
+    /**
+     * Main initialization function for BFP players
+     */
+    window.generate_the_bfp = function(forceInit) {
+        /**
+         * Hide/show players and handle positioning for single player mode
+         */
+        function _hideShowPlayersAndPositioning(playerContainer) {
+            var singlePlayerContainer = playerContainer.closest(".bfp-single-player");
+            var firstPlayer = singlePlayerContainer.find(".bfp-first-player");
+            
+            // Pause all audio elements
+            jQuery("audio").each(function() {
+                this.pause();
+                this.currentTime = 0;
+            });
+            
+            // Hide all player containers except the first
+            singlePlayerContainer
+                .find(".bfp-player-container:not(.bfp-first-player)")
+                .hide();
+                
+            // If not the first player, show and position it
+            if (!playerContainer.hasClass(".bfp-first-player")) {
+                playerContainer
+                    .show()
+                    .offset(firstPlayer.offset())
+                    .outerWidth(firstPlayer.outerWidth());
+                playerContainer.find("audio")[0].play();
+            }
+        }
 
-		/**
-		 * Play next player
-		 */
-		function _playNext( playernumber, loop )
-		{
-			if( playernumber+1 < bfp_player_counter || loop)
-			{
-
-				var toPlay = playernumber+1;
-                if(
-                    loop &&
-                    (
-                        toPlay == bfp_player_counter ||
-                        $('[playernumber="'+toPlay+'"]').closest('[data-loop]').length == 0 ||
-                        $('[playernumber="'+toPlay+'"]').closest('[data-loop]')[0] != $('[playernumber="'+playernumber+'"]').closest('[data-loop]')[0]
-                    )
-                )
-                {
-                    toPlay = $('[playernumber="'+playernumber+'"]').closest('[data-loop]').find('[playernumber]:first').attr('playernumber');
+        /**
+         * Play next player in sequence
+         */
+        function _playNext(playernumber, loop) {
+            if (playernumber + 1 < bfp_player_counter || loop) {
+                var toPlay = playernumber + 1;
+                
+                // Handle looping
+                if (loop && (
+                    toPlay == bfp_player_counter ||
+                    jQuery('[playernumber="' + toPlay + '"]').closest("[data-loop]").length == 0 ||
+                    jQuery('[playernumber="' + toPlay + '"]').closest("[data-loop]")[0] != 
+                    jQuery('[playernumber="' + playernumber + '"]').closest("[data-loop]")[0]
+                )) {
+                    toPlay = jQuery('[playernumber="' + playernumber + '"]')
+                        .closest("[data-loop]")
+                        .find("[playernumber]:first")
+                        .attr("playernumber");
                 }
 
-				if( bfp_players[ toPlay ] instanceof $ && bfp_players[ toPlay ].is( 'a' ) ) {
-					if(bfp_players[ toPlay ].closest('.bfp-single-player').length) {
-						_hideShowPlayersAndPositioning( bfp_players[ toPlay ].closest('.bfp-player-container') );
-					} else if(bfp_players[ toPlay ].is(':visible')) bfp_players[ toPlay ].trigger('click');
-					else _playNext(playernumber+1, loop);
-				} else {
-					if($(bfp_players[ toPlay ].domNode).closest('.bfp-single-player').length) {
-						_hideShowPlayersAndPositioning( $(bfp_players[ toPlay ].domNode).closest('.bfp-player-container') );
-					} else if($(bfp_players[ toPlay ].domNode).closest('.bfp-player-container').is(':visible')) bfp_players[ toPlay ].domNode.play();
-					else _playNext(playernumber+1, loop);
-				}
-			}
-		}
-
-    function _playPrev(playernumber, loop)
-    {
-      if (playernumber - 1 >= 0 || loop)
-      {
-        var toPlay = playernumber - 1;
-
-        if (
-          loop &&
-          (
-              toPlay < 0 ||
-              $('[playernumber="' + toPlay + '"]').closest('[data-loop]').length == 0 ||
-              $('[playernumber="' + toPlay + '"]').closest('[data-loop]')[0] != $('[playernumber="' + playernumber + '"]').closest('[data-loop]')[0]
-          )
-        )
-        {
-          toPlay = $('[playernumber="' + playernumber + '"]').closest('[data-loop]').find('[playernumber]:last').attr('playernumber');
-        }
-
-        if (bfp_players[toPlay] instanceof $ && bfp_players[toPlay].is('a'))
-        {
-          if (bfp_players[toPlay].closest('.bfp-single-player').length)
-          {
-              _hideShowPlayersAndPositioning(bfp_players[toPlay].closest('.bfp-player-container'));
-          }
-          else if (bfp_players[toPlay].is(':visible'))
-          {
-              bfp_players[toPlay].trigger('click');
-          }
-          else
-          {
-              _playPrev(playernumber - 1, loop);
-          }
-        }
-        else
-        {
-          if ($(bfp_players[toPlay].domNode).closest('.bfp-single-player').length)
-          {
-              _hideShowPlayersAndPositioning($(bfp_players[toPlay].domNode).closest('.bfp-player-container'));
-          }
-          else if ($(bfp_players[toPlay].domNode).closest('.bfp-player-container').is(':visible'))
-          {
-              bfp_players[toPlay].domNode.play();
-          }
-          else
-          {
-              _playPrev(playernumber - 1, loop);
-          }
-        }
-      }
-    }
-
-
-		function _setOverImage(p)
-		{
-			var i = p.data('product');
-			$('[data-product="'+i+'"]').each(function(){
-				var e = $(this),
-					p = e.closest('.product'),
-					t = p.find('img.product-'+i);
-				if(
-					t.length &&
-					p.closest('.bfp-player-list').length == 0 &&
-					p.find('.bfp-player-list').length == 0
-				)
-				{
-					var o = t.offset(),
-						c = p.find('div.bfp-player');
-
-					if(c.length){
-						c.css({'position': 'absolute', 'z-index': 999999})
-						 .offset({'left': o.left+(t.width()-c.width())/2, 'top': o.top+(t.height()-c.height())/2});
-					}
-				}
-			});
-		}
-
-    function h(b) {
-      var fContainer = b.closest(".bfp-single-player"),
-        fPlayer = fContainer.find(".bfp-first-player");
-      d("audio").each(function() {
-        this.pause();
-        this.currentTime = 0;
-      });
-      fContainer
-        .find(".bfp-player-container:not(.bfp-first-player)")
-        .hide();
-      if (!b.hasClass(".bfp-first-player")) {
-        b
-          .show()
-          .offset(fPlayer.offset())
-          .outerWidth(fPlayer.outerWidth());
-        b.find("audio")[0].play();
-      }
-    }
-
-    function k(b, g) {
-      if (b + 1 < e || g) {
-        var f = b + 1;
-        if (
-          g &&
-          (f == e ||
-            0 == d('[playernumber="' + f + '"]')
-              .closest("[data-loop]")
-              .length ||
-            d('[playernumber="' + f + '"]')
-              .closest("[data-loop]")[0] !=
-              d('[playernumber="' + b + '"]')
-                .closest("[data-loop]")[0])
-        ) {
-          f = d('[playernumber="' + b + '"]')
-            .closest("[data-loop]")
-            .find("[playernumber]:first")
-            .attr("playernumber");
-        }
-        if (a[f] instanceof d && a[f].is("a")) {
-          if (a[f].closest(".bfp-single-player").length) {
-            h(a[f].closest(".bfp-player-container"));
-          } else if (a[f].is(":visible")) {
-            a[f].trigger("click");
-          } else {
-            k(b + 1, g);
-          }
-        } else {
-          if (
-            d(a[f].domNode)
-              .closest(".bfp-single-player")
-              .length
-          ) {
-            h(
-              d(a[f].domNode).closest(".bfp-player-container")
-            );
-          } else if (
-            d(a[f].domNode)
-              .closest(".bfp-player-container")
-              .is(":visible")
-          ) {
-            a[f].domNode.play();
-          } else {
-            k(b + 1, g);
-          }
-        }
-      }
-    }
-
-    function m(b) {
-      var prodData = b.data("product");
-      d('[data-product="' + prodData + '"]').each(function() {
-        var prodEl = d(this).closest(".product"),
-          imgEl = prodEl.find("img.product-" + prodData);
-        if (
-          imgEl.length &&
-          0 == prodEl.closest(".bfp-player-list").length &&
-          0 == prodEl.find(".bfp-player-list").length
-        ) {
-          var imgOffset = imgEl.offset(),
-            bfpEl = prodEl.find("div.bfp-player");
-          if (bfpEl.length) {
-            bfpEl.css({
-              position: "absolute",
-              "z-index": 999999
-            }).offset({
-              left:
-                imgOffset.left + (imgEl.width() - bfpEl.width()) / 2,
-              top:
-                imgOffset.top + (imgEl.height() - bfpEl.height()) / 2
-            });
-          }
-        }
-      });
-    }
-
-    if (
-      !(
-        "boolean" !== typeof c &&
-        "undefined" != typeof bfp_global_settings &&
-        1 * bfp_global_settings.onload
-      ) &&
-      "undefined" === typeof generated_the_bfp
-    ) {
-      generated_the_bfp = !0;
-      var d = jQuery;
-      d(".bfp-player-container")
-        .on("click", "*", function(b) {
-          b.preventDefault();
-          b.stopPropagation();
-          return !1;
-        })
-        .parent()
-        .removeAttr("title");
-      d.expr.pseudos.regex = function(b, a, f) {
-        a = f[3].split(",");
-        var c = /^(data|css):/,
-          propTest = a[0].match(c) ? a[0].split(":")[0] : "attr";
-        c = a.shift().replace(c, "");
-        return new RegExp(
-          a.join("").replace(/^\s+|\s+$/g, ""),
-          "ig"
-        ).test(d(b)[propTest](c));
-      };
-      var r =
-          "undefined" != typeof bfp_global_settings
-            ? bfp_global_settings.play_all
-            : !0,
-        l =
-          "undefined" != typeof bfp_global_settings
-            ? !(1 * bfp_global_settings.play_simultaneously)
-            : !0,
-        p =
-          "undefined" != typeof bfp_global_settings
-            ? 1 * bfp_global_settings.fade_out
-            : !0,
-        q =
-          "undefined" != typeof bfp_global_settings &&
-          "ios_controls" in bfp_global_settings &&
-          1 * bfp_global_settings.ios_controls
-            ? !0
-            : !1;
-      c = d("audio.bfp-player:not(.track):not([playernumber])");
-      var t = d("audio.bfp-player.track:not([playernumber])"),
-        n = {
-          pauseOtherPlayers: l,
-          iPadUseNativeControls: q,
-          iPhoneUseNativeControls: q,
-          success: function(b, c) {
-            var f = d(c).data("duration"),
-              eDur = d(c).data("estimated_duration"),
-              gAttr = d(c).attr("playernumber");
-            if ("undefined" != typeof eDur) {
-              b.getDuration = function() {
-                return eDur;
-              };
-            }
-            if ("undefined" != typeof f) {
-              setTimeout(
-                (function(b, c) {
-                  return function() {
-                    a[b].updateDuration = function() {
-                      d(this.media)
-                        .closest(".bfp-player")
-                        .find(".mejs-duration")
-                        .html(c);
-                    };
-                    a[b].updateDuration();
-                  };
-                })(gAttr, f),
-                50
-              );
-            }
-            if (d(c).attr("volume")) {
-              b.setVolume(parseFloat(d(c).attr("volume")));
-              0 == b.volume && b.setMuted(!0);
-            }
-            b.addEventListener("playing", function(aEvt) {
-              var cPlayer = d(b),
-                sp = cPlayer.closest(".bfp-single-player");
-              try {
-                var eProd = d(aEvt.detail.target).attr("data-product");
-                if ("undefined" != typeof eProd) {
-                  var trackUrl =
-                    window.location.protocol +
-                    "//" +
-                    window.location.host +
-                    "/" +
-                    window.location.pathname
-                      .replace(/^\//g, "")
-                      .replace(/\/$/g, "") +
-                    "?bfp-action=play&bfp-product=" +
-                    eProd;
-                  d.get(trackUrl);
-                }
-              } catch (v) {}
-              if (sp.length) {
-                var aPId = cPlayer
-                  .closest(".bfp-player-container")
-                  .attr("data-player-id");
-                sp
-                  .find('.bfp-player-title[data-player-id="' + aPId + '"]')
-                  .addClass("bfp-playing");
-              }
-            });
-            b.addEventListener("timeupdate", function() {
-              var currDuration = b.getDuration();
-              if (!isNaN(b.currentTime) && !isNaN(currDuration)) {
-                if (p && 4 > currDuration - b.currentTime) {
-                  b.setVolume(b.volume - b.volume / 3);
-                } else {
-                  if (b.currentTime) {
-                    if ("undefined" == typeof b.bkVolume) {
-                      b.bkVolume = parseFloat(
-                        d(b)
-                          .find("audio,video")
-                          .attr("volume") || b.volume
-                      );
+                // Handle button players (track controls)
+                if (bfp_players[toPlay] instanceof jQuery && bfp_players[toPlay].is("a")) {
+                    if (bfp_players[toPlay].closest(".bfp-single-player").length) {
+                        _hideShowPlayersAndPositioning(bfp_players[toPlay].closest(".bfp-player-container"));
+                    } else if (bfp_players[toPlay].is(":visible")) {
+                        bfp_players[toPlay].trigger("click");
+                    } else {
+                        _playNext(playernumber + 1, loop);
                     }
-                    b.setVolume(b.bkVolume);
-                    0 == b.bkVolume && b.setMuted(!0);
-                  }
+                } 
+                // Handle full players
+                else {
+                    if (jQuery(bfp_players[toPlay].domNode).closest(".bfp-single-player").length) {
+                        _hideShowPlayersAndPositioning(jQuery(bfp_players[toPlay].domNode).closest(".bfp-player-container"));
+                    } else if (jQuery(bfp_players[toPlay].domNode).closest(".bfp-player-container").is(":visible")) {
+                        bfp_players[toPlay].domNode.play();
+                    } else {
+                        _playNext(playernumber + 1, loop);
+                    }
                 }
-              }
-            });
-            b.addEventListener("volumechange", function() {
-              var currDuration = b.getDuration();
-              if (
-                !isNaN(b.currentTime) &&
-                !isNaN(currDuration) &&
-                (4 < currDuration - b.currentTime || !p) &&
-                b.currentTime
-              ) {
-                b.bkVolume = b.volume;
-              }
-            });
-            b.addEventListener("ended", function() {
-              var cEnd = d(b),
-                loopElm = cEnd.closest('[data-loop="1"]');
-              cEnd[0].currentTime = 0;
-              if (cEnd.closest(".bfp-single-player").length) {
-                cEnd
-                  .closest(".bfp-single-player")
-                  .find(".bfp-playing")
-                  .removeClass("bfp-playing");
-              }
-              if (1 * r || loopElm.length) {
-                var fAttr = 1 * cEnd.attr("playernumber");
-                isNaN(fAttr) &&
-                  (fAttr = 1 * cEnd.find("[playernumber]").attr("playernumber"));
-                k(fAttr, loopElm.length);
-              }
-            });
-          }
-        };
-      l = '.product-type-grouped :regex(name,quantity\\[\\d+\\])';
-      c.each(function() {
-        var b = d(this);
-        b.find("source").attr("src");
-        b.attr("playernumber", e);
-        n.audioVolume = "vertical";
-        try {
-          a[e] = new MediaElementPlayer(b[0], n);
-        } catch (g) {
-          "console" in window && console.log(g);
+            }
         }
-        e++;
-      });
-      t.each(function() {
-        var b = d(this);
-        b.find("source").attr("src");
-        b.attr("playernumber", e);
-        n.features = ["playpause"];
-        try {
-          a[e] = new MediaElementPlayer(b[0], n);
-        } catch (g) {
-          "console" in window && console.log(g);
+
+        /**
+         * Play previous player in sequence
+         */
+        function _playPrev(playernumber, loop) {
+            if (playernumber - 1 >= 0 || loop) {
+                var toPlay = playernumber - 1;
+
+                // Handle looping
+                if (loop && (
+                    toPlay < 0 ||
+                    jQuery('[playernumber="' + toPlay + '"]').closest('[data-loop]').length == 0 ||
+                    jQuery('[playernumber="' + toPlay + '"]').closest('[data-loop]')[0] != 
+                    jQuery('[playernumber="' + playernumber + '"]').closest('[data-loop]')[0]
+                )) {
+                    toPlay = jQuery('[playernumber="' + playernumber + '"]')
+                        .closest('[data-loop]')
+                        .find('[playernumber]:last')
+                        .attr('playernumber');
+                }
+
+                // Handle button players
+                if (bfp_players[toPlay] instanceof jQuery && bfp_players[toPlay].is('a')) {
+                    if (bfp_players[toPlay].closest('.bfp-single-player').length) {
+                        _hideShowPlayersAndPositioning(bfp_players[toPlay].closest('.bfp-player-container'));
+                    } else if (bfp_players[toPlay].is(':visible')) {
+                        bfp_players[toPlay].trigger('click');
+                    } else {
+                        _playPrev(playernumber - 1, loop);
+                    }
+                }
+                // Handle full players
+                else {
+                    if (jQuery(bfp_players[toPlay].domNode).closest('.bfp-single-player').length) {
+                        _hideShowPlayersAndPositioning(jQuery(bfp_players[toPlay].domNode).closest('.bfp-player-container'));
+                    } else if (jQuery(bfp_players[toPlay].domNode).closest('.bfp-player-container').is(':visible')) {
+                        bfp_players[toPlay].domNode.play();
+                    } else {
+                        _playPrev(playernumber - 1, loop);
+                    }
+                }
+            }
         }
-        e++;
-        m(b);
-        d(window).on("resize", function() {
-          m(b);
-        });
-      });
-      d(l).length || (l = ".product-type-grouped [data-product_id]");
-      d(l).length || (l = ".woocommerce-grouped-product-list [data-product_id]");
-      d(l).length || (l = '.woocommerce-grouped-product-list [id*="product-"]');
-      d(l).each(function() {
-        try {
-          var b =
-            d(this), a = (b.data("product_id") || b.attr("name") || b.attr("id")).replace(/[^\d]/g, ""), c = d(".bfp-player-list.merge_in_grouped_products .product-" + a + ":first .bfp-player-title"), e = d("<table></table>"); c.length && !c.closest(".bfp-first-in-product").length && (c.closest("tr").addClass("bfp-first-in-product"), 0 == c.closest("form").length && c.closest(".bfp-player-list").prependTo(b.closest("form")), e.append(b.closest("tr").prepend("<td>" + c.html() + "</td>")), c.html("").append(e))
-        } catch (u) { }
-      });
-      d(document).on("click",
-        "[data-player-id]", function () { var b = d(this), a = b.closest(".bfp-single-player"); if (a.length) { d(".bfp-player-title").removeClass("bfp-playing"); var c = b.attr("data-player-id"); b.addClass("bfp-playing"); h(a.find('.bfp-player-container[data-player-id="' + c + '"]')) } })
+
+        /**
+         * Position player over product image
+         */
+        function _setOverImage(player) {
+            var productId = player.data('product');
+            jQuery('[data-product="' + productId + '"]').each(function() {
+                var element = jQuery(this);
+                var product = element.closest('.product');
+                var productImage = product.find('img.product-' + productId);
+                
+                if (productImage.length && 
+                    product.closest('.bfp-player-list').length == 0 &&
+                    product.find('.bfp-player-list').length == 0) {
+                    
+                    var imageOffset = productImage.offset();
+                    var playerDiv = product.find('div.bfp-player');
+
+                    if (playerDiv.length) {
+                        playerDiv.css({
+                            'position': 'absolute', 
+                            'z-index': 999999
+                        }).offset({
+                            'left': imageOffset.left + (productImage.width() - playerDiv.width()) / 2, 
+                            'top': imageOffset.top + (productImage.height() - playerDiv.height()) / 2
+                        });
+                    }
+                }
+            });
+        }
+
+        // Check if already initialized or if we should skip initialization
+        if (!(typeof forceInit !== 'boolean' && 
+            typeof bfp_global_settings !== 'undefined' && 
+            1 * bfp_global_settings.onload) && 
+            typeof generated_the_bfp === 'undefined') {
+            
+            generated_the_bfp = true;
+            var $ = jQuery;
+            
+            // Prevent clicks from bubbling up from player container
+            $(".bfp-player-container")
+                .on("click", "*", function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                })
+                .parent()
+                .removeAttr("title");
+                
+            // Add regex pseudo selector for jQuery
+            $.expr.pseudos.regex = function(elem, index, match) {
+                var matchParams = match[3].split(',');
+                var validLabels = /^(data|css):/;
+                var attr = matchParams[0].match(validLabels) ? 
+                    matchParams[0].split(':')[0] : 'attr';
+                var property = matchParams.shift().replace(validLabels, '');
+                var regexFlags = matchParams.join('').replace(/^\s+|\s+$/g, '');
+                var regex = new RegExp(matchParams.join('').replace(/^\s+|\s+$/g, ''), 'ig');
+                return regex.test($(elem)[attr](property));
+            };
+
+            // Configuration from global settings
+            var playAll = (typeof bfp_global_settings !== 'undefined') ? 
+                bfp_global_settings.play_all : true;
+            var pauseOthers = (typeof bfp_global_settings !== 'undefined') ? 
+                !(1 * bfp_global_settings.play_simultaneously) : true;
+            var fadeOut = (typeof bfp_global_settings !== 'undefined') ? 
+                (1 * bfp_global_settings.fade_out) : true;
+            var iosNativeControls = (typeof bfp_global_settings !== 'undefined' && 
+                'ios_controls' in bfp_global_settings && 
+                1 * bfp_global_settings.ios_controls) ? true : false;
+
+            // Select players
+            var fullPlayers = $("audio.bfp-player:not(.track):not([playernumber])");
+            var buttonPlayers = $("audio.bfp-player.track:not([playernumber])");
+            
+            // MediaElement options
+            var mejsOptions = {
+                pauseOtherPlayers: pauseOthers,
+                iPadUseNativeControls: iosNativeControls,
+                iPhoneUseNativeControls: iosNativeControls,
+                success: function(mediaElement, originalNode) {
+                    var $node = $(originalNode);
+                    var duration = $node.data("duration");
+                    var estimatedDuration = $node.data("estimated_duration");
+                    var playerNumber = $node.attr("playernumber");
+                    
+                    // Handle estimated duration
+                    if (typeof estimatedDuration !== 'undefined') {
+                        mediaElement.getDuration = function() {
+                            return estimatedDuration;
+                        };
+                    }
+                    
+                    // Handle fixed duration display
+                    if (typeof duration !== 'undefined') {
+                        setTimeout((function(playerNum, dur) {
+                            return function() {
+                                bfp_players[playerNum].updateDuration = function() {
+                                    $(this.media)
+                                        .closest(".bfp-player")
+                                        .find(".mejs-duration")
+                                        .html(dur);
+                                };
+                                bfp_players[playerNum].updateDuration();
+                            };
+                        })(playerNumber, duration), 50);
+                    }
+                    
+                    // Set initial volume
+                    if ($node.attr("volume")) {
+                        mediaElement.setVolume(parseFloat($node.attr("volume")));
+                        if (mediaElement.volume == 0) {
+                            mediaElement.setMuted(true);
+                        }
+                    }
+                    
+                    // Playing event handler
+                    mediaElement.addEventListener("playing", function(event) {
+                        var $player = $(mediaElement);
+                        var $singlePlayer = $player.closest(".bfp-single-player");
+                        
+                        // Track play event
+                        try {
+                            var productId = $(event.detail.target).attr("data-product");
+                            if (typeof productId !== 'undefined') {
+                                var trackUrl = window.location.protocol + "//" + 
+                                    window.location.host + "/" +
+                                    window.location.pathname.replace(/^\//g, '').replace(/\/$/g, '') +
+                                    "?bfp-action=play&bfp-product=" + productId;
+                                $.get(trackUrl);
+                            }
+                        } catch (e) {}
+                        
+                        // Update playing state in UI
+                        if ($singlePlayer.length) {
+                            var playerId = $player
+                                .closest(".bfp-player-container")
+                                .attr("data-player-id");
+                            $singlePlayer
+                                .find('.bfp-player-title[data-player-id="' + playerId + '"]')
+                                .addClass("bfp-playing");
+                        }
+                    });
+                    
+                    // Time update handler for fade out
+                    mediaElement.addEventListener("timeupdate", function() {
+                        var currentDuration = mediaElement.getDuration();
+                        if (!isNaN(mediaElement.currentTime) && !isNaN(currentDuration)) {
+                            // Fade out near end
+                            if (fadeOut && (currentDuration - mediaElement.currentTime) < 4) {
+                                mediaElement.setVolume(mediaElement.volume - mediaElement.volume / 3);
+                            } else {
+                                // Restore volume
+                                if (mediaElement.currentTime) {
+                                    if (typeof mediaElement.bkVolume === 'undefined') {
+                                        mediaElement.bkVolume = parseFloat(
+                                            $(mediaElement).find("audio,video").attr("volume") || mediaElement.volume
+                                        );
+                                    }
+                                    mediaElement.setVolume(mediaElement.bkVolume);
+                                    if (mediaElement.bkVolume == 0) {
+                                        mediaElement.setMuted(true);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Volume change handler
+                    mediaElement.addEventListener("volumechange", function() {
+                        var currentDuration = mediaElement.getDuration();
+                        if (!isNaN(mediaElement.currentTime) && 
+                            !isNaN(currentDuration) && 
+                            ((currentDuration - mediaElement.currentTime) > 4 || !fadeOut) && 
+                            mediaElement.currentTime) {
+                            mediaElement.bkVolume = mediaElement.volume;
+                        }
+                    });
+                    
+                    // Ended event handler
+                    mediaElement.addEventListener("ended", function() {
+                        var $element = $(mediaElement);
+                        var $loopElement = $element.closest('[data-loop="1"]');
+                        
+                        // Reset to beginning
+                        $element[0].currentTime = 0;
+                        
+                        // Remove playing class
+                        if ($element.closest(".bfp-single-player").length) {
+                            $element
+                                .closest(".bfp-single-player")
+                                .find(".bfp-playing")
+                                .removeClass("bfp-playing");
+                        }
+                        
+                        // Play next if enabled
+                        if (playAll * 1 || $loopElement.length) {
+                            var currentPlayerNumber = parseInt($element.attr("playernumber"));
+                            if (isNaN(currentPlayerNumber)) {
+                                currentPlayerNumber = parseInt($element.find("[playernumber]").attr("playernumber"));
+                            }
+                            _playNext(currentPlayerNumber, $loopElement.length > 0);
+                        }
+                    });
+                }
+            };
+
+            // Grouped products selector variations
+            var groupedSelector = '.product-type-grouped :regex(name,quantity\\[\\d+\\])';
+            
+            // Initialize full players
+            fullPlayers.each(function() {
+                var $player = $(this);
+                $player.find("source").attr("src");
+                $player.attr("playernumber", bfp_player_counter);
+                mejsOptions.audioVolume = "vertical";
+                
+                try {
+                    bfp_players[bfp_player_counter] = new MediaElementPlayer($player[0], mejsOptions);
+                } catch (error) {
+                    if ('console' in window) {
+                        console.log(error);
+                    }
+                }
+                bfp_player_counter++;
+            });
+            
+            // Initialize button players
+            buttonPlayers.each(function() {
+                var $player = $(this);
+                $player.find("source").attr("src");
+                $player.attr("playernumber", bfp_player_counter);
+                mejsOptions.features = ["playpause"];
+                
+                try {
+                    bfp_players[bfp_player_counter] = new MediaElementPlayer($player[0], mejsOptions);
+                } catch (error) {
+                    if ('console' in window) {
+                        console.log(error);
+                    }
+                }
+                bfp_player_counter++;
+                
+                // Position over image
+                _setOverImage($player);
+                $(window).on("resize", function() {
+                    _setOverImage($player);
+                });
+            });
+            
+            // Handle grouped products - try different selectors
+            if (!$(groupedSelector).length) {
+                groupedSelector = ".product-type-grouped [data-product_id]";
+            }
+            if (!$(groupedSelector).length) {
+                groupedSelector = ".woocommerce-grouped-product-list [data-product_id]";
+            }
+            if (!$(groupedSelector).length) {
+                groupedSelector = '.woocommerce-grouped-product-list [id*="product-"]';
+            }
+            
+            // Process grouped products
+            $(groupedSelector).each(function() {
+                try {
+                    var $element = $(this);
+                    var productId = ($element.data("product_id") || 
+                                    $element.attr("name") || 
+                                    $element.attr("id")).replace(/[^\d]/g, "");
+                    var $playerTitle = $(".bfp-player-list.merge_in_grouped_products .product-" + 
+                                       productId + ":first .bfp-player-title");
+                    var $table = $("<table></table>");
+                    
+                    if ($playerTitle.length && !$playerTitle.closest(".bfp-first-in-product").length) {
+                        $playerTitle.closest("tr").addClass("bfp-first-in-product");
+                        
+                        if ($playerTitle.closest("form").length == 0) {
+                            $playerTitle.closest(".bfp-player-list").prependTo($element.closest("form"));
+                        }
+                        
+                        $table.append($element.closest("tr").prepend("<td>" + $playerTitle.html() + "</td>"));
+                        $playerTitle.html("").append($table);
+                    }
+                } catch (error) {}
+            });
+            
+            // Handle click on player titles in single player mode
+            $(document).on("click", "[data-player-id]", function() {
+                var $element = $(this);
+                var $singlePlayer = $element.closest(".bfp-single-player");
+                
+                if ($singlePlayer.length) {
+                    $(".bfp-player-title").removeClass("bfp-playing");
+                    var playerId = $element.attr("data-player-id");
+                    $element.addClass("bfp-playing");
+                    _hideShowPlayersAndPositioning($singlePlayer.find('.bfp-player-container[data-player-id="' + playerId + '"]'));
+                }
+            });
         }
     };
-    window.bfp_force_init = function () { delete window.generated_the_bfp; generate_the_bfp(!0) }; jQuery(generate_the_bfp); jQuery(window).on("load", function () {
-        generate_the_bfp(!0); var a = jQuery, e = window.navigator.userAgent; a("[data-lazyloading]").each(function () {
-            var c =
-                a(this); c.attr("preload", c.data("lazyloading"))
-        }); if (e.match(/iPad/i) || e.match(/iPhone/i)) if ("undefined" != typeof bfp_global_settings ? bfp_global_settings.play_all : 1) a(".bfp-player .mejs-play button").one("click", function () { if ("undefined" == typeof bfp_preprocessed_players) { bfp_preprocessed_players = !0; var c = a(this); a(".bfp-player audio").each(function () { this.play(); this.pause() }); setTimeout(function () { c.trigger("click") }, 500) } })
-    }).on("popstate", function () {
-        jQuery("audio[data-product]:not([playernumber])").length &&
-        bfp_force_init()
-    }); jQuery(document).on("scroll wpfAjaxSuccess woof_ajax_done yith-wcan-ajax-filtered wpf_ajax_success berocket_ajax_products_loaded berocket_ajax_products_infinite_loaded lazyload.wcpt", bfp_force_init)
+
+    /**
+     * Force re-initialization of players
+     */
+    window.bfp_force_init = function() {
+        delete window.generated_the_bfp;
+        generate_the_bfp(true);
+    };
+
+    // Initialize on document ready
+    jQuery(generate_the_bfp);
+    
+    // Initialize on window load and handle iOS
+    jQuery(window).on("load", function() {
+        generate_the_bfp(true);
+        
+        var $ = jQuery;
+        var userAgent = window.navigator.userAgent;
+        
+        // Handle lazy loading
+        $("[data-lazyloading]").each(function() {
+            var $element = $(this);
+            $element.attr("preload", $element.data("lazyloading"));
+        });
+        
+        // iOS specific handling
+        if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
+            var shouldPlayAll = (typeof bfp_global_settings !== 'undefined') ? 
+                bfp_global_settings.play_all : 1;
+                
+            if (shouldPlayAll) {
+                $(".bfp-player .mejs-play button").one("click", function() {
+                    if (typeof bfp_preprocessed_players === 'undefined') {
+                        bfp_preprocessed_players = true;
+                        var $button = $(this);
+                        
+                        // Pre-process all audio elements
+                        $(".bfp-player audio").each(function() {
+                            this.play();
+                            this.pause();
+                        });
+                        
+                        // Re-trigger the click after preprocessing
+                        setTimeout(function() {
+                            $button.trigger("click");
+                        }, 500);
+                    }
+                });
+            }
+        }
+    }).on("popstate", function() {
+        // Re-initialize if there are unprocessed players
+        if (jQuery("audio[data-product]:not([playernumber])").length) {
+            bfp_force_init();
+        }
+    });
+    
+    // Re-initialize on various AJAX events from other plugins
+    jQuery(document).on(
+        "scroll wpfAjaxSuccess woof_ajax_done yith-wcan-ajax-filtered " +
+        "wpf_ajax_success berocket_ajax_products_loaded " + 
+        "berocket_ajax_products_infinite_loaded lazyload.wcpt", 
+        bfp_force_init
+    );
 })();

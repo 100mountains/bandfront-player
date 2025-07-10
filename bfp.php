@@ -533,6 +533,10 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 			 return $this->_audio_processor->generate_audio_url( $product_id, $file_id, $file_data );
 		}
 
+		public function get_duration_by_url( $url ) {
+			return $this->_audio_processor->get_duration_by_url($url);
+		} // End _get_duration_by_url
+
 		public function include_main_player_filter( $value, $id ) {
 			global $wp;
 			if (

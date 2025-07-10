@@ -29,3 +29,8 @@ package-lock.json
 # Temporary files
 *.tmp
 *.temp
+
+# Bash scripts
+backup_plugin.sh
+backup_plugin_make_downloadable.sh
+clear_opcache.sh

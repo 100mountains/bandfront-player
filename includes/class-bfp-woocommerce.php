@@ -438,7 +438,48 @@ class BFP_WooCommerce {
                                 ' . wc_price($product_obj->get_price(), '') . ' <a href="?add-to-cart=' . $product_id_for_add_to_cart . '"></a>
                             </div><!-- product purchase -->';
             }
-            $output .= '</div></div>';
+			$output .= '</div><div class="wcmp-widget-product-files">';
+            if ( ! empty( $featured_image ) ) {
+                $output .= '<img src="' . esc_attr( $featured_image ) . '" class="wcmp-widget-feature-image" /><div class="wcmp-widget-product-files-list">';
+            }
+
+            foreach ( $audio_files as $index => $file ) {
+                $audio_url  = $this->main_plugin->generate_audio_url( $product->ID, $index, $file );
+                $duration   = $this->main_plugin->get_duration_by_url( $file['file'] );
+                $audio_tag  = apply_filters(
+                    'wcmp_widget_audio_tag',
+                    $this->main_plugin->get_player(
+                        $audio_url,
+                        array(
+                            'player_controls' => $controls,
+                            'player_style'    => $player_style,
+                            'media_type'      => $file['media_type'],
+                            'id'              => $index,
+                            'duration'        => $duration,
+                            'preload'         => $preload,
+                            'volume'          => $volume,
+                        )
+                    ),
+                    $product->ID,
+                    $index,
+                    $audio_url
+                );
+                $file_title = esc_html( apply_filters( 'wcmp_widget_file_name', $file['name'], $product->ID, $index ) );
+                $output    .= '
+                    <div class="wcmp-widget-product-file">
+                        ' . $audio_tag . '<span class="wcmp-file-name">' . $file_title . '</span>' . ( ! isset( $atts['duration'] ) || $atts['duration'] == 1 ? '<span class="wcmp-file-duration">' . esc_html( $duration ) . '</span>' : '' ) . '<div style="clear:both;"></div>
+                    </div><!--product file -->
+                ';
+            }
+
+            if ( ! empty( $featured_image ) ) {
+                $output .= '</div>';
+            }
+
+            $output .= '
+                    </div><!-- product-files -->
+                </div><!-- product -->
+            ';
         } else {
             $output .= '<ul class="bfp-widget-playlist bfp-classic-layout controls-' . esc_attr($atts['controls']) . ' ' . esc_attr($atts['class']) . ' ' . esc_attr($row_class) . ' ' . esc_attr(($product->ID == $current_post_id && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">';
 
