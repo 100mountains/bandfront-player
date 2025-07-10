@@ -182,6 +182,19 @@ class BFP_Admin {
         $message = isset($_REQUEST['_bfp_message']) ? wp_kses_post(wp_unslash($_REQUEST['_bfp_message'])) : '';
         $apply_to_all_players = isset($_REQUEST['_bfp_apply_to_all_players']) ? 1 : 0;
 
+        // FIXED: Audio engine handling
+        $audio_engine = 'mediaelement'; // Default fallback
+        if (isset($_REQUEST['_bfp_audio_engine']) && 
+            in_array($_REQUEST['_bfp_audio_engine'], array('mediaelement', 'wavesurfer'))) {
+            $audio_engine = sanitize_text_field(wp_unslash($_REQUEST['_bfp_audio_engine']));
+        }
+        
+        $enable_visualizations = 0;
+        if (isset($_REQUEST['_bfp_enable_visualizations']) && 
+            $_REQUEST['_bfp_audio_engine'] === 'wavesurfer') {
+            $enable_visualizations = 1;
+        }
+
         $global_settings = array(
             '_bfp_registered_only' => $registered_only,
             '_bfp_purchased' => $purchased,
@@ -218,6 +231,8 @@ class BFP_Admin {
             '_bfp_analytics_property' => isset($_REQUEST['_bfp_analytics_property']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_analytics_property'])) : '',
             '_bfp_analytics_api_secret' => isset($_REQUEST['_bfp_analytics_api_secret']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_analytics_api_secret'])) : '',
             '_bfp_apply_to_all_players' => $apply_to_all_players,
+            '_bfp_audio_engine' => $audio_engine,
+            '_bfp_enable_visualizations' => $enable_visualizations,
         );
 
         if ($apply_to_all_players || isset($_REQUEST['_bfp_delete_demos'])) {
@@ -328,6 +343,17 @@ class BFP_Admin {
         add_post_meta($post_id, '_bfp_player_volume', $volume, true);
         add_post_meta($post_id, '_bfp_secure_player', $secure_player, true);
         add_post_meta($post_id, '_bfp_file_percent', $file_percent, true);
+
+        // --- ADDED: Product-specific audio engine override
+        $product_audio_engine = '';
+        if (isset($_DATA['_bfp_audio_engine']) && 
+            in_array($_DATA['_bfp_audio_engine'], array('global', 'mediaelement', 'wavesurfer'))) {
+            $product_audio_engine = sanitize_text_field(wp_unslash($_DATA['_bfp_audio_engine']));
+        }
+        
+        if (!empty($product_audio_engine) && $product_audio_engine !== 'global') {
+            add_post_meta($post_id, '_bfp_audio_engine', $product_audio_engine, true);
+        }
 
         // --- KEEP DEMO LOGIC ---
         $this->save_demo_files($post_id, $_DATA);

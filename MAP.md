@@ -37,12 +37,12 @@
   - Patterns/Concerns: **Direct $_REQUEST access**, URL-based AJAX instead of proper endpoints
 
 - **enqueue_resources()**
-  - Purpose: Loads CSS/JS assets for player functionality
+  - Purpose: Loads CSS/JS assets for player functionality, now includes audio engine selection
   - Inputs: None
-  - Outputs: Enqueued scripts and styles
-  - WordPress Data: `wp_enqueue_script()`, `wp_localize_script()`
-  - Data Flow: Check if already enqueued → load MediaElement.js → load custom scripts
-  - Patterns/Concerns: Good use of WP enqueue system
+  - Outputs: Enqueued scripts and styles (MediaElement.js OR WaveSurfer.js based on settings)
+  - WordPress Data: `wp_enqueue_script()`, `wp_localize_script()`, `$this->get_global_attr('_bfp_audio_engine')`
+  - Data Flow: Check if already enqueued → determine audio engine → load appropriate scripts → load custom scripts
+  - Patterns/Concerns: Good use of WP enqueue system, conditional script loading based on audio engine
 
 ---
 
@@ -112,20 +112,28 @@
   - Patterns/Concerns: **Direct $_POST access**, proper nonce verification
 
 - **save_global_settings()**
-  - Purpose: Processes and saves plugin global settings
+  - Purpose: Processes and saves plugin global settings including audio engine
   - Inputs: `$_REQUEST` data
   - Outputs: Updates options, clears cache
   - WordPress Data: `update_option()`, `$_REQUEST`
-  - Data Flow: Sanitize input → build settings array → save → clear cache
-  - Patterns/Concerns: **Direct $_REQUEST access**, manual form processing instead of Settings API
+  - Data Flow: Sanitize input → build settings array (including audio engine) → save → clear cache
+  - Patterns/Concerns: **Direct $_REQUEST access**, manual form processing instead of Settings API, now includes audio engine settings
 
 - **apply_settings_to_all_products()**
   - Purpose: Propagates global settings to all products
   - Inputs: `$global_settings` array
-  - Outputs: Updates meta for all products
+  - Outputs: Deletes obsolete meta keys, updates essential settings
   - WordPress Data: `get_posts()`, `delete_post_meta()`, `update_post_meta()`
   - Data Flow: Get all products → delete obsolete meta → update with global values
   - Patterns/Concerns: **Potential performance issue with -1 numberposts**
+
+- **save_product_options()**
+  - Purpose: Saves product-specific player settings including audio engine override
+  - Inputs: `$post_id`, `$_DATA`
+  - Outputs: Updates post meta
+  - WordPress Data: `add_post_meta()`
+  - Data Flow: Sanitize → save essential settings → save audio engine override if not global
+  - Patterns/Concerns: Now includes product-specific audio engine selection
 
 ### **File:** `/includes/class-bfp-player-renderer.php`
 **Purpose:** Renders audio players in various contexts (main, all, grouped products).
@@ -230,23 +238,68 @@
 
 ---
 
-## JavaScript Files
+## Add-ons
 
-### **File:** `/js/public.js`
-**Purpose:** Frontend player functionality, MediaElement.js initialization, play tracking.
+### **File:** `/addons/audio-engine.addon.php`
+**Purpose:** Provides audio engine selection between MediaElement.js and WaveSurfer.js
 **WordPress Integration Points:**
-- AJAX: Direct URL requests to `?bfp-action=play`
+- Actions: `bfp_addon_general_settings`, `bfp_addon_product_settings`
+
+- **bfp_audio_engine_settings()**
+  - Purpose: Renders audio engine selection UI in global settings
+  - Inputs: None (uses global $BandfrontPlayer)
+  - Outputs: HTML form elements for audio engine selection
+  - WordPress Data: `$BandfrontPlayer->get_global_attr()` for current settings
+  - Data Flow: Get settings → render radio buttons → conditional visualization options
+  - Patterns/Concerns: Clean integration with settings page via action hook
+
+- **bfp_audio_engine_product_settings()**
+  - Purpose: Renders product-specific audio engine override dropdown
+  - Inputs: `$product_id`
+  - Outputs: HTML select element for per-product engine selection
+  - WordPress Data: `get_post_meta()` for product override
+  - Data Flow: Check product meta → get global default → render dropdown
+  - Patterns/Concerns: Follows global/product override pattern
+
+### **File:** `/addons/google-drive.addon.php`
+**Purpose:** Manages Google Drive cloud storage integration for demo files
+**WordPress Integration Points:**
+- Actions: `bfp_save_setting`, `bfp_general_settings`, `bfp_delete_file`, `bfp_delete_post`, `bfp_play_file`, `bfp_truncated_file`
 
 **Key Functions:**
-- Player initialization with MediaElement.js
-- Volume fade effects
+- OAuth 2.0 integration for Google Drive access
+- Automatic demo file upload to cloud storage
+- Bandwidth saving through direct streaming from Google Drive
+- Secure credential management
+
+---
+
+## JavaScript Files
+
+### **File:** `/js/engine.js` (renamed from public.js)
+**Purpose:** Frontend player functionality, supports both MediaElement.js and WaveSurfer.js
+**WordPress Integration Points:**
+- AJAX: Direct URL requests to `?bfp-action=play`
+- Receives settings via `bfp_global_settings` localized object
+
+**Key Functions:**
+- Dual audio engine support (MediaElement.js / WaveSurfer.js)
+- Player initialization based on selected engine
+- Volume fade effects for both engines
 - Play tracking via URL parameters
 - Mobile/iOS specific handling
+- Graceful fallback if WaveSurfer.js unavailable
+
+**New Features:**
+- `initWaveSurferPlayer()` - Initializes WaveSurfer players
+- `smoothFadeOut()` - Works with both audio engines
+- Engine detection and conditional initialization
 
 **Patterns/Concerns:** 
 - **URL-based AJAX instead of wp.ajax**
 - **Direct URL construction**
 - Complex fade logic
+- Good error handling for engine fallbacks
 
 ### **File:** `/js/admin.js`
 **Purpose:** Admin UI functionality for settings and product pages.
@@ -341,8 +394,14 @@
 - Player configuration options (layout, controls, behavior)
 - Security settings (registered only, purchased only)
 - Analytics integration (Google Analytics UA/GA4)
+- Cloud Storage settings (moved from add-on)
+- Add-ons section for extensible features
 - Troubleshooting options
-- Apply to all products functionality
+
+**Changes:**
+- Removed duplicate Audio Engine HTML sections
+- Cloud Storage settings now inline instead of via add-on hook
+- Add-ons section using `do_action('bfp_addon_general_settings')`
 
 **Form Structure:**
 - Uses WordPress nonces for security
@@ -481,8 +540,8 @@
 - Script and style references
 
 **Patterns/Concerns:** 
-- ✅ **Modern block.json format**
-- ⚠️ **Not currently used** - builders.php uses legacy registration
+- **Modern block.json format**
+- **Not currently used** - builders.php uses legacy registration
 
 ### **File:** `/pagebuilders/gutenberg/wcblocks.js`
 **Purpose:** Integration with WooCommerce Blocks to handle dynamic content loading.
@@ -505,6 +564,28 @@
 - Hides product titles initially (revealed by JS)
 
 **Patterns/Concerns:** Hacky workaround for WC Blocks compatibility
+
+---
+
+## CSS Files
+
+### **File:** `/css/style.css`
+**Purpose:** Main frontend styles including WaveSurfer.js support
+
+**New Additions:**
+- `.bfp-waveform` - WaveSurfer container styling
+- `.bfp-play-button` - Simple play buttons for WaveSurfer
+- Responsive waveform styles
+- Loading state indicators
+
+### **File:** `/css/style.admin.css`
+**Purpose:** Admin interface styling with enhanced visual organization
+
+**Key Features:**
+- Tips section with gradient backgrounds
+- Color-coded troubleshooting cards
+- Add-on section styling
+- Cloud storage instructions styling
 
 ---
 

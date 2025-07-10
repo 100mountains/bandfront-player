@@ -348,63 +348,56 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 			return $safe_text;
 		} // End esc_html
 
-		public function enqueue_resources() {
-			if ( $this->get_enqueued_resources() ) {
-				return;
-			}
-			$this->set_enqueued_resources(true);
+		/**
+		 * FIXED: Enhanced script enqueuing based on audio engine
+		 */
+    public function enqueue_resources() {
+        if ($this->get_enqueued_resources()) {
+            return;
+        }
+        $this->set_enqueued_resources(true);
 
-			if ( function_exists( 'wp_add_inline_script' ) ) {
-				wp_add_inline_script( 'wp-mediaelement', 'try{if(mejs && mejs.i18n && "undefined" == typeof mejs.i18n.locale) mejs.i18n.locale={};}catch(mejs_err){if(console) console.log(mejs_err);};' );
-			}
+        // Get current audio engine
+        $audio_engine = $this->get_global_attr('_bfp_audio_engine', 'mediaelement');
+        $enable_visualizations = $this->get_global_attr('_bfp_enable_visualizations', 0);
 
-			// Registering resources
-			wp_enqueue_style( 'wp-mediaelement' );
-			wp_enqueue_style( 'wp-mediaelement-skins', plugin_dir_url( __FILE__ ) . 'vendors/mejs-skins/mejs-skins.min.css', array(), BFP_VERSION );
-			wp_enqueue_style( 'wp-mediaelement-modern-bfp-skins', plugin_dir_url( __FILE__ ) . 'vendors/mejs-skins/modern-bfp-skin.css', array(), BFP_VERSION );
-			wp_enqueue_style( 'bfp-style', plugin_dir_url( __FILE__ ) . 'css/style.css', array(), BFP_VERSION );
-			wp_enqueue_script( 'jquery' );
-			wp_enqueue_script( 'wp-mediaelement' );
-			wp_enqueue_script( 'bfp-script', plugin_dir_url( __FILE__ ) . 'js/public.js', array( 'jquery', 'wp-mediaelement' ), BFP_VERSION );
+        // Always enqueue core styles
+        wp_enqueue_style('bfp-style', plugin_dir_url(__FILE__) . 'css/style.css', array(), BFP_VERSION);
 
-			$play_all = $GLOBALS['BandfrontPlayer']->get_global_attr(
-				'_bfp_play_all',
-				// This option is only for compatibility with versions previous to 1.0.28
-				$GLOBALS['BandfrontPlayer']->get_global_attr( 'play_all', 0 )
-			);
+        // Enqueue engine-specific resources
+        if ($audio_engine === 'wavesurfer') {
+            // WaveSurfer.js
+            wp_enqueue_script('wavesurfer-js', 'https://unpkg.com/wavesurfer.js@6/dist/wavesurfer.min.js', array(), '6.6.4', true);
+            
+            if ($enable_visualizations) {
+                // Additional WaveSurfer plugins if needed
+                wp_enqueue_script('wavesurfer-timeline', 'https://unpkg.com/wavesurfer.js@6/dist/plugin/wavesurfer.timeline.min.js', array('wavesurfer-js'), '6.6.4', true);
+            }
+        } else {
+            // MediaElement.js (default)
+            wp_enqueue_script('wp-mediaelement');
+            wp_enqueue_style('wp-mediaelement');
+            
+            // Custom skins
+            wp_enqueue_style('bfp-mejs-skins', plugin_dir_url(__FILE__) . 'css/mejs-skins/mejs-skins.css', array('wp-mediaelement'), BFP_VERSION);
+        }
 
-			$play_simultaneously = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_play_simultaneously', 0 );
+        // Always enqueue main engine script
+        wp_enqueue_script('bfp-engine', plugin_dir_url(__FILE__) . 'js/engine.js', array('jquery'), BFP_VERSION, true);
 
-			if ( function_exists( 'is_product' ) && is_product() ) {
-				global $post;
-				$post_types = $this->_get_post_types();
-				$post_types = is_array($post_types) ? $post_types : array(); // <-- ADDED: ensure $post_types is always an array
-				if ( ! empty( $post ) && in_array( $post->post_type, $post_types ) ) {
-					$play_all = $GLOBALS['BandfrontPlayer']->get_product_attr(
-						$post->ID,
-						'_bfp_play_all',
-						// This option is only for compatibility with versions previous to 1.0.28
-						$GLOBALS['BandfrontPlayer']->get_product_attr(
-							$post->ID,
-							'play_all',
-							$play_all
-						)
-					);
-				}
-			}
+        // Pass settings to JavaScript
+        $js_settings = array(
+            'audio_engine' => $audio_engine,
+            'fade_out' => $this->get_global_attr('_bfp_fade_out', 1),
+            'play_all' => $this->get_global_attr('_bfp_play_all', 0),
+            'play_simultaneously' => $this->get_global_attr('_bfp_play_simultaneously', 0),
+            'ios_controls' => $this->get_global_attr('_bfp_ios_controls', false),
+            'onload' => $this->get_global_attr('_bfp_onload', false),
+            'enable_visualizations' => $enable_visualizations,
+        );
 
-			wp_localize_script(
-				'bfp-script',
-				'bfp_global_settings',
-				array(
-					'fade_out'            => $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_fade_out', 1 ),
-					'play_all'            => intval( $play_all ),
-					'play_simultaneously' => intval( $play_simultaneously ),
-					'ios_controls'        => $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_ios_controls', false ),
-					'onload'              => $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_onload', false ),
-				)
-			);
-		} // End enqueue_resources
+        wp_localize_script('bfp-engine', 'bfp_global_settings', $js_settings);
+    }
 
 		/**
 		 * Replace the shortcode to display a playlist with all songs.
@@ -779,7 +772,7 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 							$wp_styles->queue = array();
 						}
 						if ( ! empty( $wp_scripts ) ) {
-							$wp_scripts->queue = array( 'jquery', 'wp-mediaelement', 'bfp-script' );
+							$wp_scripts->queue = array( 'jquery', 'wp-mediaelement', 'bfp-engine' );
 						}
 
 						print '<div class="bfp-preview-container">' . $output . '</div>';  // phpcs:ignore WordPress.Security.EscapeOutput

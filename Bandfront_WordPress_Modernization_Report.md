@@ -157,7 +157,7 @@ if (empty($_POST['bfp_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslas
 // In bfp.php - Proper WordPress enqueuing
 wp_enqueue_style( 'wp-mediaelement' );
 wp_enqueue_script( 'wp-mediaelement' );
-wp_enqueue_script( 'bfp-script', plugin_dir_url( __FILE__ ) . 'js/public.js', 
+wp_enqueue_script( 'bfp-engine', plugin_dir_url( __FILE__ ) . 'js/public.js', 
     array( 'jquery', 'wp-mediaelement' ), BFP_VERSION );
 ```
 
@@ -228,7 +228,7 @@ $scripts->add( 'wp-mediaelement', "/wp-includes/js/mediaelement/wp-mediaelement$
 // In bfp.php - Proper WordPress enqueuing
 wp_enqueue_style( 'wp-mediaelement' );                    // Loads WordPress MediaElement.js CSS
 wp_enqueue_script( 'wp-mediaelement' );                   // Loads full MediaElement.js + WordPress wrapper
-wp_enqueue_script( 'bfp-script', plugin_dir_url( __FILE__ ) . 'js/public.js', 
+wp_enqueue_script( 'bfp-engine', plugin_dir_url( __FILE__ ) . 'js/public.js', 
     array( 'jquery', 'wp-mediaelement' ), BFP_VERSION );  // BandFront's custom layer
 ```
 
@@ -437,7 +437,7 @@ function bfp_conditional_scripts() {
     
     if ($load_scripts) {
         wp_enqueue_script('wp-mediaelement');
-        wp_enqueue_script('bfp-script');
+        wp_enqueue_script('bfp-engine');
     }
 }
 ```
@@ -677,7 +677,7 @@ CREATE TABLE {$wpdb->prefix}bfp_play_stats (
 
 **Current State:** All scripts loaded on every page
 ```php
-wp_enqueue_script('bfp-script'); // Loads everywhere
+wp_enqueue_script('bfp-engine'); // Loads everywhere
 ```
 
 **Performance Optimization:**

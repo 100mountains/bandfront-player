@@ -87,3 +87,74 @@
 .bfp-single-player.merge_in_grouped_products .bfp-column-player-title>table{margin:0 !important;}
 
 .bfp-download-link{font-weight:700;}
+
+/* WaveSurfer.js Integration */
+.bfp-waveform {
+    width: 100%;
+    margin: 10px 0;
+    cursor: pointer;
+    position: relative;
+    background: #f5f5f5;
+    border-radius: 3px;
+}
+
+.bfp-waveform wave {
+    overflow: hidden !important;
+    display: block !important;
+}
+
+.bfp-waveform canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+.bfp-player-container.wavesurfer-ready audio {
+    display: none;
+}
+
+.bfp-player-container .bfp-play-button {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.bfp-player-container .bfp-play-button:hover {
+    background: #555;
+}
+
+/* Ensure WaveSurfer works with existing skins */
+.mejs-classic .bfp-waveform,
+.mejs-ted .bfp-waveform,
+.mejs-wmp .bfp-waveform {
+    margin-top: 10px;
+    padding: 5px;
+    background: rgba(0,0,0,0.05);
+}
+
+/* Loading state */
+.bfp-waveform:empty::before {
+    content: "Loading waveform...";
+    display: block;
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-style: italic;
+}
+
+/* Responsive waveform */
+@media (max-width: 768px) {
+    .bfp-waveform {
+        height: 40px !important;
+    }
+}
+
+/* Audio Engine section styling to match existing admin styles */
+.bfp-engine-info {
+    margin-bottom: 15px;
+    color: #666;
+}

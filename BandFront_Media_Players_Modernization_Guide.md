@@ -21,7 +21,7 @@ This guide focuses specifically on modernizing the bandfront players, **player s
 // In bfp.php - Proper WordPress enqueuing
 wp_enqueue_style( 'wp-mediaelement' );
 wp_enqueue_script( 'wp-mediaelement' );
-wp_enqueue_script( 'bfp-script', plugin_dir_url( __FILE__ ) . 'js/public.js', 
+wp_enqueue_script( 'bfp-engine', plugin_dir_url( __FILE__ ) . 'js/public.js', 
     array( 'jquery', 'wp-mediaelement' ), BFP_VERSION );
 ```
 

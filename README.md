@@ -6,7 +6,7 @@
 [![WooCommerce](https://img.shields.io/badge/WooCommerce-Compatible-purple.svg)](https://woocommerce.com)
 [![License](https://img.shields.io/badge/License-ANARCHY%20LICENCE-red.svg)](LICENSE)
 
-## 🚀 Features
+## 🚀 Features yo
 
 ### 🎧 Core Player Features
 - **Context-Aware Controls**: Smart player behavior - minimal controls on shop pages for quick previews, full controls on product pages for detailed listening

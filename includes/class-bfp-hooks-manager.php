@@ -110,14 +110,16 @@ class BFP_Hooks_Manager {
             $p[] = 'jquery.js';
             $p[] = 'jquery.min.js';
             $p[] = '/mediaelement/';
-            $p[] = plugin_dir_url( BFP_PLUGIN_PATH ) . 'js/public.js';
+            $p[] = plugin_dir_url( BFP_PLUGIN_PATH ) . 'js/engine.js';
+            $p[] = '/wavesurfer.js';
             return $p;
         } );
         add_filter( 'litespeed_optm_js_defer_exc', function( $p ){
             $p[] = 'jquery.js';
             $p[] = 'jquery.min.js';
             $p[] = '/mediaelement/';
-            $p[] = plugin_dir_url( BFP_PLUGIN_PATH ) . 'js/public.js';
+            $p[] = plugin_dir_url( BFP_PLUGIN_PATH ) . 'js/engine.js';
+            $p[] = '/wavesurfer.js';
             return $p;
         } );
     }

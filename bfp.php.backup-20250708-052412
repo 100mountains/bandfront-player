@@ -365,7 +365,7 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 			wp_enqueue_style( 'bfp-style', plugin_dir_url( __FILE__ ) . 'css/style.css', array(), BFP_VERSION );
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'wp-mediaelement' );
-			wp_enqueue_script( 'bfp-script', plugin_dir_url( __FILE__ ) . 'js/public.js', array( 'jquery', 'wp-mediaelement' ), BFP_VERSION );
+			wp_enqueue_script( 'bfp-engine', plugin_dir_url( __FILE__ ) . 'js/public.js', array( 'jquery', 'wp-mediaelement' ), BFP_VERSION );
 
 			$play_all = $GLOBALS['BandfrontPlayer']->get_global_attr(
 				'_bfp_play_all',
@@ -394,7 +394,7 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 			}
 
 			wp_localize_script(
-				'bfp-script',
+				'bfp-engine',
 				'bfp_global_settings',
 				array(
 					'fade_out'            => $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_fade_out', 1 ),
@@ -775,7 +775,7 @@ if ( ! class_exists( 'BandfrontPlayer' ) ) {
 							$wp_styles->queue = array();
 						}
 						if ( ! empty( $wp_scripts ) ) {
-							$wp_scripts->queue = array( 'jquery', 'wp-mediaelement', 'bfp-script' );
+							$wp_scripts->queue = array( 'jquery', 'wp-mediaelement', 'bfp-engine' );
 						}
 
 						print '<div class="bfp-preview-container">' . $output . '</div>';  // phpcs:ignore WordPress.Security.EscapeOutput
