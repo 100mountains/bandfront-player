@@ -95,14 +95,14 @@ if ( ! class_exists( 'BFP_BUILDERS' ) ) {
 			global $wp_scripts;
 			error_log( print_r( array_keys( $wp_scripts->registered ), true ) );
 			// Use the actual handle as seen in the error log
-			$url  = BFP_WEBSITE_URL;
-			$url .= ( ( strpos( $url, '?' ) === false ) ? '?' : '&' );
+			//$url  = BFP_WEBSITE_URL;
+			//$url .= ( ( strpos( $url, '?' ) === false ) ? '?' : '&' );
 			wp_localize_script(
 				'bfp-bandfront-player-playlist-editor-script', // <-- Replace with the correct handle if different
 				'bfp_gutenberg_editor_config',
 				array(
-					//'url' => admin_url('admin-ajax.php'),
-					'url' => $url,
+					'url' => admin_url('admin-ajax.php'),
+					//'url' => $url,
 					'ids_attr_description' => 'Comma-separated product IDs.',
 					'categories_attr_description' => 'Comma-separated product category slugs.',
 					'tags_attr_description' => 'Comma-separated product tag slugs.',
