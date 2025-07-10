@@ -262,12 +262,120 @@
 ## Widget Files
 
 ### **File:** `/widgets/playlist_widget.php`
-**Purpose:** WordPress widget for displaying audio playlists.
+**Purpose:** WordPress widget for displaying audio playlists with multiple layout options.
 **WordPress Integration Points:**
 - Widget registration: `widgets_init`
-- Widget class: `BFP_PLAYLIST_WIDGET`
+- Widget class: `BFP_PLAYLIST_WIDGET extends WP_Widget`
 
-**Status:** Incomplete implementation (class definition cut off)
+- **BFP_PLAYLIST_WIDGET::__construct()**
+  - Purpose: Initializes widget with title and description
+  - Inputs: None
+  - Outputs: Widget configuration
+  - WordPress Data: Widget base ID and name
+  - Data Flow: Parent constructor → widget setup
+  - Patterns/Concerns: Standard WP_Widget implementation
+
+- **BFP_PLAYLIST_WIDGET::widget()**
+  - Purpose: Frontend widget output with two layout modes (classic/new)
+  - Inputs: `$args` (widget wrapper), `$instance` (widget settings)
+  - Outputs: HTML playlist output
+  - WordPress Data: `do_shortcode()`, widget instance data
+  - Data Flow: Extract settings → build shortcode → render output
+  - Patterns/Concerns: **Direct HTML building**, complex layout logic
+
+- **BFP_PLAYLIST_WIDGET::form()**
+  - Purpose: Admin widget configuration form
+  - Inputs: `$instance` (current settings)
+  - Outputs: Form HTML
+  - WordPress Data: Widget field names and IDs
+  - Data Flow: Load settings → generate form fields
+  - Patterns/Concerns: Manual form building
+
+- **BFP_PLAYLIST_WIDGET::update()**
+  - Purpose: Sanitizes and saves widget settings
+  - Inputs: `$new_instance`, `$old_instance`
+  - Outputs: Sanitized settings array
+  - WordPress Data: Widget instance data
+  - Data Flow: Sanitize input → merge settings → return
+  - Patterns/Concerns: Good input sanitization
+
+### **File:** `/widgets/playlist_widget/js/public.js`
+**Purpose:** Frontend JavaScript for playlist widget functionality.
+**WordPress Integration Points:** Frontend widget behavior
+
+**Key Functions:**
+- Cookie-based continue playing functionality
+- Tracks current playing position between page loads
+- Multi-file download handling with delay
+- Product highlight management
+
+**Patterns/Concerns:** 
+- **Direct cookie manipulation** (could use localStorage)
+- **Hardcoded 1-second delay** for downloads
+- Good event handling structure
+
+### **File:** `/widgets/playlist_widget/css/style.css`
+**Purpose:** Styling for playlist widget layouts.
+
+**Key Styles:**
+- `.bfp-widget-playlist` - Main playlist container
+- `.bfp-widget-product` - Product item styling
+- Responsive layout with flexbox
+- Hover states and current item highlighting
+
+**Patterns/Concerns:** 
+- **Inline SVG in CSS** for purchase button icon
+- Good responsive design
+- Well-structured CSS with clear naming
+
+---
+
+## View Files
+
+### **File:** `/views/global_options.php`
+**Purpose:** Admin settings page template for global plugin configuration.
+**WordPress Integration Points:** Admin page output
+
+**Key Features:**
+- Comprehensive settings form with multiple tabs
+- Player configuration options (layout, controls, behavior)
+- Security settings (registered only, purchased only)
+- Analytics integration (Google Analytics UA/GA4)
+- Troubleshooting options
+- Apply to all products functionality
+
+**Form Structure:**
+- Uses WordPress nonces for security
+- Manual form handling (not Settings API)
+- Organized in logical sections with descriptions
+- Help text and tooltips for complex options
+
+**Patterns/Concerns:** 
+- **Manual form building** instead of Settings API
+- **Inline styles and JavaScript**
+- Good organization but could be broken into components
+
+### **File:** `/views/player_options.php`
+**Purpose:** Product-level player settings metabox template.
+**WordPress Integration Points:** Product edit page metabox
+
+**Key Features:**
+- Product-specific player overrides
+- Demo file management interface
+- Player enable/disable per product
+- Volume, preload, and behavior settings
+- JavaScript for dynamic demo file addition
+
+**JavaScript Functionality:**
+- Add/remove demo files dynamically
+- Google Drive URL detection and conversion
+- File upload handling
+- UI state management
+
+**Patterns/Concerns:** 
+- **Inline JavaScript** for functionality
+- **Direct $_POST handling** in form
+- Good separation of global vs product settings
 
 ---
 
