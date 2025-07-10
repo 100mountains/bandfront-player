@@ -202,20 +202,29 @@ remove_all_actions( 'bfp_general_settings', 10 );
 					<td>
 						<table class="bfp-player-skin-table">
 							<tr>
-								<td><input aria-label="<?php esc_attr_e( 'Skin 1', 'bandfront-player' ); ?>" id="skin1" name="_bfp_player_layout" type="radio" value="mejs-classic" <?php echo ( ( 'mejs-classic' == $player_style ) ? 'checked' : '' ); ?> /></td>
-								<td class="bfp-player-skin-cell"><label for="skin1"><img alt="<?php esc_attr_e( 'Skin 1', 'bandfront-player' ); ?>" src="<?php print esc_url( BFP_PLUGIN_URL ); ?>/views/assets/skin1.png" /></label></td>
+								<td>
+									<input aria-label="<?php esc_attr_e( 'Dark Mode', 'bandfront-player' ); ?>" id="skin1" name="_bfp_player_layout" type="radio" value="mejs-classic" <?php echo ( ( 'mejs-classic' == $player_style ) ? 'checked' : '' ); ?> />
+								</td>
+								<td class="bfp-player-skin-cell">
+									<label for="skin1"><?php esc_html_e( 'Dark Mode', 'bandfront-player' ); ?></label>
+								</td>
 							</tr>
-
 							<tr>
-								<td><input aria-label="<?php esc_attr_e( 'Skin 2', 'bandfront-player' ); ?>" id="skin2" name="_bfp_player_layout" type="radio" value="mejs-ted" <?php echo ( ( 'mejs-ted' == $player_style ) ? 'checked' : '' ); ?> /></td>
-								<td class="bfp-player-skin-cell"><label for="skin2"><img alt="<?php esc_attr_e( 'Skin 2', 'bandfront-player' ); ?>" src="<?php print esc_url( BFP_PLUGIN_URL ); ?>/views/assets/skin2.png" /></label></td>
+								<td>
+									<input aria-label="<?php esc_attr_e( 'Light Mode', 'bandfront-player' ); ?>" id="skin2" name="_bfp_player_layout" type="radio" value="mejs-ted" <?php echo ( ( 'mejs-ted' == $player_style ) ? 'checked' : '' ); ?> />
+								</td>
+								<td class="bfp-player-skin-cell">
+									<label for="skin2"><?php esc_html_e( 'Light Mode', 'bandfront-player' ); ?></label>
+								</td>
 							</tr>
-
 							<tr>
-								<td><input aria-label="<?php esc_attr_e( 'Skin 3', 'bandfront-player' ); ?>" id="skin3" name="_bfp_player_layout" type="radio" value="mejs-wmp" <?php echo ( ( 'mejs-wmp' == $player_style ) ? 'checked' : '' ); ?> /></td>
-								<td class="bfp-player-skin-cell"><label for="skin3"><img alt="<?php esc_attr_e( 'Skin 3', 'bandfront-player' ); ?>" src="<?php print esc_url( BFP_PLUGIN_URL ); ?>/views/assets/skin3.png" /></label></td>
+								<td>
+									<input aria-label="<?php esc_attr_e( 'Custom', 'bandfront-player' ); ?>" id="skin3" name="_bfp_player_layout" type="radio" value="mejs-wmp" <?php echo ( ( 'mejs-wmp' == $player_style ) ? 'checked' : '' ); ?> />
+								</td>
+								<td class="bfp-player-skin-cell">
+									<label for="skin3"><?php esc_html_e( 'Custom', 'bandfront-player' ); ?></label>
+								</td>
 							</tr>
-
 							<tr>
 								<td colspan="2" class="bfp-single-player-row"><label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php echo ( ( $single_player ) ? 'checked' : '' ); ?> />
 								<span class="bfp-single-player-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></label>
@@ -502,7 +511,7 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 		<td>
 			<table class="widefat bfp-settings-table">
 				<tr>
-					<td colspan="2"><h2>🧩 <?php esc_html_e( 'Add-ons', 'bandfront-player' ); ?></h2></td>
+					<td colspan="2"><h2>⚙️ <?php esc_html_e( 'Audio Engine', 'bandfront-player' ); ?></h2></td>
 				</tr>
 				<?php do_action( 'bfp_addon_general_settings' ); ?>
 			</table>

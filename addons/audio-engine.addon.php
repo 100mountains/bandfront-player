@@ -20,9 +20,6 @@ function bfp_audio_engine_settings() {
     $enable_visualizations = $BandfrontPlayer->get_global_attr('_bfp_enable_visualizations', 0);
     ?>
     <tr>
-        <td colspan="2"><h3>🎚️ <?php esc_html_e('Audio Engine', 'bandfront-player'); ?></h3></td>
-    </tr>
-    <tr>
         <td colspan="2">
             <p class="bfp-engine-info"><?php esc_html_e('Choose the audio processing engine for your players. WaveSurfer.js provides enhanced features like waveforms and smoother fades.', 'bandfront-player'); ?></p>
         </td>
