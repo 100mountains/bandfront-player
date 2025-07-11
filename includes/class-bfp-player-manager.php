@@ -31,8 +31,44 @@ class BFP_Player_Manager {
      * Generate player HTML
      */
     public function get_player($audio_url, $args = array()) {
-        // Player generation logic will be moved here
-        return $this->main_plugin->get_player_original($audio_url, $args);
+        if (!is_array($args)) $args = array();
+        
+        $product_id = isset($args['product_id']) ? $args['product_id'] : 0;
+        $player_controls = isset($args['player_controls']) ? $args['player_controls'] : '';
+        $player_style = isset($args['player_style']) ? $args['player_style'] : BFP_DEFAULT_PLAYER_LAYOUT;
+        $media_type = isset($args['media_type']) ? $args['media_type'] : 'mp3';
+        $id = isset($args['id']) ? $args['id'] : 0;
+        $duration = isset($args['duration']) ? $args['duration'] : false;
+        $preload = isset($args['preload']) ? $args['preload'] : 'none';
+        $volume = isset($args['volume']) ? $args['volume'] : 1;
+        
+        // Apply filters
+        $preload = apply_filters('bfp_preload', $preload, $audio_url);
+        
+        // Generate unique player ID
+        $player_id = 'bfp-player-' . $product_id . '-' . $id . '-' . uniqid();
+        
+        // Build player HTML
+        $player_html = '<audio id="' . esc_attr($player_id) . '" ';
+        $player_html .= 'class="bfp-player ' . esc_attr($player_style) . '" ';
+        $player_html .= 'data-product-id="' . esc_attr($product_id) . '" ';
+        $player_html .= 'data-file-index="' . esc_attr($id) . '" ';
+        $player_html .= 'preload="' . esc_attr($preload) . '" ';
+        $player_html .= 'data-volume="' . esc_attr($volume) . '" ';
+        
+        if ($player_controls) {
+            $player_html .= 'data-controls="' . esc_attr($player_controls) . '" ';
+        }
+        
+        if ($duration) {
+            $player_html .= 'data-duration="' . esc_attr($duration) . '" ';
+        }
+        
+        $player_html .= '>';
+        $player_html .= '<source src="' . esc_url($audio_url) . '" type="audio/' . esc_attr($media_type) . '" />';
+        $player_html .= '</audio>';
+        
+        return apply_filters('bfp_player_html', $player_html, $audio_url, $args);
     }
     
     /**
@@ -117,10 +153,25 @@ class BFP_Player_Manager {
      * Enqueue player resources
      */
     public function enqueue_resources() {
+        if ($this->_enqueued_resources) {
+            return;
+        }
+        
         global $BandfrontPlayer;
         
         // Get audio engine setting
         $audio_engine = $BandfrontPlayer->get_global_attr('_bfp_audio_engine', 'mediaelement');
+        
+        // Enqueue base styles
+        wp_enqueue_style(
+            'bfp-style', 
+            plugin_dir_url(dirname(__FILE__)) . 'css/style.css', 
+            array(), 
+            BFP_VERSION
+        );
+        
+        // Enqueue jQuery
+        wp_enqueue_script('jquery');
         
         if ($audio_engine === 'wavesurfer') {
             // Check if WaveSurfer is available locally
@@ -155,9 +206,41 @@ class BFP_Player_Manager {
                 true
             );
         } else {
-            // ...existing MediaElement.js code...
+            // Enqueue MediaElement.js
+            wp_enqueue_style('wp-mediaelement');
+            wp_enqueue_script('wp-mediaelement');
+            
+            // Enqueue MediaElement skins
+            wp_enqueue_style(
+                'bfp-mejs-skins',
+                plugin_dir_url(dirname(__FILE__)) . 'css/mejs-skins/mejs-skins.min.css',
+                array('wp-mediaelement'),
+                BFP_VERSION
+            );
         }
         
-        // ...existing code...
+        // Enqueue main engine script
+        wp_enqueue_script(
+            'bfp-engine',
+            plugin_dir_url(dirname(__FILE__)) . 'js/engine.js',
+            array('jquery'),
+            BFP_VERSION,
+            true
+        );
+        
+        // Localize script with settings
+        $js_settings = array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'audio_engine' => $audio_engine,
+            'play_simultaneously' => $BandfrontPlayer->get_global_attr('_bfp_play_simultaneously', 0),
+            'ios_controls' => $BandfrontPlayer->get_global_attr('_bfp_ios_controls', false),
+            'fade_out' => $BandfrontPlayer->get_global_attr('_bfp_fade_out', 0),
+            'on_cover' => $BandfrontPlayer->get_global_attr('_bfp_on_cover', 0),
+            'visualizations' => $BandfrontPlayer->get_global_attr('_bfp_enable_visualizations', 0)
+        );
+        
+        wp_localize_script('bfp-engine', 'bfp_global_settings', $js_settings);
+        
+        $this->_enqueued_resources = true;
     }
 }

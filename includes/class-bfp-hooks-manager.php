@@ -64,6 +64,12 @@ class BFP_Hooks_Manager {
 
         // FIXED: Dynamic hook registration based on context
         add_action( 'wp', array( $this, 'register_dynamic_hooks' ) );
+        
+        // Add WooCommerce product title filter
+        add_filter( 'woocommerce_product_title', array( $this->main_plugin->get_woocommerce(), 'woocommerce_product_title' ), 10, 2 );
+        
+        // Add filter for analytics preload
+        add_filter( 'bfp_preload', array( $this->main_plugin->get_audio_processor(), 'preload' ), 10, 2 );
 
         // EXPORT / IMPORT PRODUCTS
         add_filter( 'woocommerce_product_export_meta_value', function( $value, $meta, $product, $row ){

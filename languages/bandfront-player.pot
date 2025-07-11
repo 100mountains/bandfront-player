@@ -1,3 +1,5 @@
+# Copyright (C) 2025 Bleep
+# This file is distributed under the same license as the Bandfront Player plugin.
 msgid ""
 msgstr ""
 "Project-Id-Version: Bandfront Player 0.1\n"
@@ -7,9 +9,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-04T13:03:38+00:00\n"
+"POT-Creation-Date: 2025-07-10T23:36:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Language: \n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: bandfront-player\n"
 
@@ -42,14 +43,6 @@ msgstr ""
 msgid "There are no products that satisfy the block's settings"
 msgstr ""
 
-#: includes/class-bfp-admin.php:71
-msgid "Playback Counter"
-msgstr ""
-
-#: includes/class-bfp-woocommerce.php:82
-msgid "download"
-msgstr ""
-
 #: builders/elementor/elementor.pb.php:46
 msgid "To include specific products in the playlist enter their IDs in the products_ids attributes, separated by comma symbols (,)"
 msgstr ""
@@ -64,6 +57,80 @@ msgstr ""
 
 #: builders/elementor/elementor.pb.php:46
 msgid "CLICK HERE"
+msgstr ""
+
+#: includes/class-bfp-admin.php:71
+msgid "Playback Counter"
+msgstr ""
+
+#: includes/class-bfp-woocommerce.php:82
+msgid "download"
+msgstr ""
+
+#: modules/audio-engine.php:24
+msgid "Choose the audio processing engine for your players. WaveSurfer.js provides enhanced features like waveforms and smoother fades."
+msgstr ""
+
+#: modules/audio-engine.php:29
+#: views/global-admin-options.php:585
+msgid "Audio Engine"
+msgstr ""
+
+#: modules/audio-engine.php:33
+msgid "Audio Engine Selection"
+msgstr ""
+
+#: modules/audio-engine.php:41
+msgid "MediaElement.js (Default)"
+msgstr ""
+
+#: modules/audio-engine.php:44
+msgid "Reliable HTML5 audio with broad browser compatibility"
+msgstr ""
+
+#: modules/audio-engine.php:53
+msgid "WaveSurfer.js (Experimental)"
+msgstr ""
+
+#: modules/audio-engine.php:56
+msgid "Web Audio API with waveforms and enhanced effects"
+msgstr ""
+
+#: modules/audio-engine.php:65
+msgid "Enable waveform visualizations"
+msgstr ""
+
+#: modules/audio-engine.php:68
+msgid "Show visual waveforms for audio tracks (may impact performance)"
+msgstr ""
+
+#: modules/audio-engine.php:98
+msgid "Audio Engine Override"
+msgstr ""
+
+#: modules/audio-engine.php:102
+msgid "Audio Engine for this Product"
+msgstr ""
+
+#: modules/audio-engine.php:105
+msgid "Audio engine for this product"
+msgstr ""
+
+#: modules/audio-engine.php:107
+#, php-format
+msgid "Use Global Setting (%s)"
+msgstr ""
+
+#: modules/audio-engine.php:110
+msgid "MediaElement.js"
+msgstr ""
+
+#: modules/audio-engine.php:113
+msgid "WaveSurfer.js"
+msgstr ""
+
+#: modules/audio-engine.php:116
+msgid "Override the global audio engine setting for this specific product"
 msgstr ""
 
 #: views/global-admin-options.php:11
@@ -283,6 +350,21 @@ msgstr ""
 msgid "Player appearance"
 msgstr ""
 
+#: views/global-admin-options.php:206
+#: views/global-admin-options.php:209
+msgid "Dark Mode"
+msgstr ""
+
+#: views/global-admin-options.php:214
+#: views/global-admin-options.php:217
+msgid "Light Mode"
+msgstr ""
+
+#: views/global-admin-options.php:222
+#: views/global-admin-options.php:225
+msgid "Custom"
+msgstr ""
+
 #: views/global-admin-options.php:229
 #: views/product-options.php:93
 msgid "Show a single player instead of one player per audio file."
@@ -398,6 +480,16 @@ msgstr ""
 
 #: views/global-admin-options.php:307
 msgid "Display the player title"
+msgstr ""
+
+#: views/global-admin-options.php:313
+#: views/product-options.php:138
+msgid "File Truncation"
+msgstr ""
+
+#: views/global-admin-options.php:315
+#: views/product-options.php:140
+msgid "Truncate audio files"
 msgstr ""
 
 #: views/global-admin-options.php:316
@@ -520,302 +612,6 @@ msgstr ""
 #: views/global-admin-options.php:401
 #: views/global-admin-options.php:402
 msgid "API Secret"
-msgstr ""
-
-#: views/global-admin-options.php:597
-msgid "Troubleshooting"
-msgstr ""
-
-#: views/global-admin-options.php:603
-msgid "Players not working on iPads or iPhones?"
-msgstr ""
-
-#: views/global-admin-options.php:606
-msgid "On iPads and iPhones, use native controls"
-msgstr ""
-
-#: views/global-admin-options.php:608
-msgid "Use native iOS controls for better compatibility"
-msgstr ""
-
-#: views/global-admin-options.php:616
-msgid "Cache or optimizer plugins causing problems?"
-msgstr ""
-
-#: views/global-admin-options.php:619
-msgid "Loading players in the onload event"
-msgstr ""
-
-#: views/global-admin-options.php:621
-msgid "Load players after page fully loads"
-msgstr ""
-
-#: views/global-admin-options.php:629
-msgid "Files missing extensions or stored in cloud?"
-msgstr ""
-
-#: views/global-admin-options.php:632
-msgid "For files whose extensions cannot be determined handle them as mp3 files"
-msgstr ""
-
-#: views/global-admin-options.php:634
-msgid "Treat unrecognized files as MP3 audio"
-msgstr ""
-
-#: views/global-admin-options.php:642
-msgid "Gutenberg blocks hiding your players?"
-msgstr ""
-
-#: views/global-admin-options.php:645
-msgid "For the WooCommerce Gutenberg Blocks, include the main player in the products titles"
-msgstr ""
-
-#: views/global-admin-options.php:647
-msgid "Force players to appear in product titles"
-msgstr ""
-
-#: views/global-admin-options.php:655
-msgid "Players visible but not working?"
-msgstr ""
-
-#: views/global-admin-options.php:658
-msgid "Disable 302 redirection"
-msgstr ""
-
-#: views/global-admin-options.php:660
-msgid "Load files directly instead of using redirects"
-msgstr ""
-
-#: views/global-admin-options.php:667
-msgid "Demo files corrupted or outdated?"
-msgstr ""
-
-#: views/global-admin-options.php:669
-msgid "Delete the demo files generated previously"
-msgstr ""
-
-#: views/global-admin-options.php:670
-msgid "Delete old demo files (local files only)"
-msgstr ""
-
-#: views/global-admin-options.php:676
-msgid "Pro Tip!"
-msgstr ""
-
-#: views/global-admin-options.php:676
-msgid "After changing troubleshooting settings, clear your website and browser caches for best results."
-msgstr ""
-
-#: views/global-admin-options.php:683
-msgid "Save settings"
-msgstr ""
-
-#: views/product-options.php:71
-msgid "Product Music Player Settings"
-msgstr ""
-
-#: views/product-options.php:82
-msgid "Include music player"
-msgstr ""
-
-#: views/product-options.php:83
-msgid "Player shows only if product is downloadable with audio files, or you've selected custom audio files"
-msgstr ""
-
-#: views/product-options.php:90
-msgid "Player behavior"
-msgstr ""
-
-#: views/product-options.php:163
-msgid "Custom Demo Files"
-msgstr ""
-
-#: views/product-options.php:167
-msgid "Own demo files"
-msgstr ""
-
-#: views/product-options.php:168
-msgid "Use my own custom demo files"
-msgstr ""
-
-#: views/product-options.php:170
-msgid "Upload your own demo versions instead of auto-generating them from the original files"
-msgstr ""
-
-#: views/product-options.php:176
-msgid "Demo files"
-msgstr ""
-
-#: views/product-options.php:180
-msgid "Name"
-msgstr ""
-
-#: views/product-options.php:181
-#: views/product-options.php:194
-msgid "File URL"
-msgstr ""
-
-#: views/product-options.php:191
-msgid "File name"
-msgstr ""
-
-#: views/product-options.php:210
-msgid "Add File"
-msgstr ""
-
-#: views/product-options.php:219
-msgid "Load directly the original demo files"
-msgstr ""
-
-#: views/product-options.php:220
-msgid "Load demo files directly (no preprocessing)"
-msgstr ""
-
-#: views/product-options.php:222
-msgid "Skip processing and use your demo files exactly as uploaded"
-msgstr ""
-
-#: widgets/playlist_widget.php:80
-msgid "Title"
-msgstr ""
-
-#: widgets/playlist_widget.php:83
-msgid "Products IDs"
-msgstr ""
-
-#: widgets/playlist_widget.php:83
-msgid "Products IDs separated by comma, or a * for all"
-msgstr ""
-
-#: widgets/playlist_widget.php:87
-msgid "Enter the ID of products separated by comma, or a * symbol to includes all products in the playlist."
-msgstr ""
-
-#: widgets/playlist_widget.php:91
-msgid "Volume (enter a number between 0 and 1)"
-msgstr ""
-
-#: widgets/playlist_widget.php:94
-msgid "Playlist layout"
-msgstr ""
-
-#: widgets/playlist_widget.php:97
-msgid "New layout"
-msgstr ""
-
-#: widgets/playlist_widget.php:100
-msgid "Original layout"
-msgstr ""
-
-#: widgets/playlist_widget.php:103
-msgid "Player layout"
-msgstr ""
-
-#: widgets/playlist_widget.php:119
-msgid "Preload"
-msgstr ""
-
-#: widgets/playlist_widget.php:125
-msgid "Highlight the current product"
-msgstr ""
-
-#: widgets/playlist_widget.php:128
-msgid "Continue playing after navigate"
-msgstr ""
-
-#: widgets/playlist_widget.php:132
-msgid "Continue playing the same song at same position after navigate. You can experiment some delay because the music player should to load the audio file again, and in some mobiles devices, where the action of the user is required, the player cannot starting playing automatically."
-msgstr ""
-
-#: modules/audio-engine.php:24
-msgid "Choose the audio processing engine for your players. WaveSurfer.js provides enhanced features like waveforms and smoother fades."
-msgstr ""
-
-#: modules/audio-engine.php:29
-#: views/global-admin-options.php:585
-msgid "Audio Engine"
-msgstr ""
-
-#: modules/audio-engine.php:33
-msgid "Audio Engine Selection"
-msgstr ""
-
-#: modules/audio-engine.php:41
-msgid "MediaElement.js (Default)"
-msgstr ""
-
-#: modules/audio-engine.php:44
-msgid "Reliable HTML5 audio with broad browser compatibility"
-msgstr ""
-
-#: modules/audio-engine.php:53
-msgid "WaveSurfer.js (Experimental)"
-msgstr ""
-
-#: modules/audio-engine.php:56
-msgid "Web Audio API with waveforms and enhanced effects"
-msgstr ""
-
-#: modules/audio-engine.php:65
-msgid "Enable waveform visualizations"
-msgstr ""
-
-#: modules/audio-engine.php:68
-msgid "Show visual waveforms for audio tracks (may impact performance)"
-msgstr ""
-
-#: modules/audio-engine.php:98
-msgid "Audio Engine Override"
-msgstr ""
-
-#: modules/audio-engine.php:102
-msgid "Audio Engine for this Product"
-msgstr ""
-
-#: modules/audio-engine.php:105
-msgid "Audio engine for this product"
-msgstr ""
-
-#: modules/audio-engine.php:107
-#, php-format
-msgid "Use Global Setting (%s)"
-msgstr ""
-
-#: modules/audio-engine.php:110
-msgid "MediaElement.js"
-msgstr ""
-
-#: modules/audio-engine.php:113
-msgid "WaveSurfer.js"
-msgstr ""
-
-#: modules/audio-engine.php:116
-msgid "Override the global audio engine setting for this specific product"
-msgstr ""
-
-#: views/global-admin-options.php:206
-#: views/global-admin-options.php:209
-msgid "Dark Mode"
-msgstr ""
-
-#: views/global-admin-options.php:214
-#: views/global-admin-options.php:217
-msgid "Light Mode"
-msgstr ""
-
-#: views/global-admin-options.php:222
-#: views/global-admin-options.php:225
-msgid "Custom"
-msgstr ""
-
-#: views/global-admin-options.php:313
-#: views/product-options.php:138
-msgid "File Truncation"
-msgstr ""
-
-#: views/global-admin-options.php:315
-#: views/product-options.php:140
-msgid "Truncate audio files"
 msgstr ""
 
 #: views/global-admin-options.php:423
@@ -1021,6 +817,211 @@ msgstr ""
 
 #: views/global-admin-options.php:566
 msgid "Compliance-ready security features"
+msgstr ""
+
+#: views/global-admin-options.php:597
+msgid "Troubleshooting"
+msgstr ""
+
+#: views/global-admin-options.php:603
+msgid "Players not working on iPads or iPhones?"
+msgstr ""
+
+#: views/global-admin-options.php:606
+msgid "On iPads and iPhones, use native controls"
+msgstr ""
+
+#: views/global-admin-options.php:608
+msgid "Use native iOS controls for better compatibility"
+msgstr ""
+
+#: views/global-admin-options.php:616
+msgid "Cache or optimizer plugins causing problems?"
+msgstr ""
+
+#: views/global-admin-options.php:619
+msgid "Loading players in the onload event"
+msgstr ""
+
+#: views/global-admin-options.php:621
+msgid "Load players after page fully loads"
+msgstr ""
+
+#: views/global-admin-options.php:629
+msgid "Files missing extensions or stored in cloud?"
+msgstr ""
+
+#: views/global-admin-options.php:632
+msgid "For files whose extensions cannot be determined handle them as mp3 files"
+msgstr ""
+
+#: views/global-admin-options.php:634
+msgid "Treat unrecognized files as MP3 audio"
+msgstr ""
+
+#: views/global-admin-options.php:642
+msgid "Gutenberg blocks hiding your players?"
+msgstr ""
+
+#: views/global-admin-options.php:645
+msgid "For the WooCommerce Gutenberg Blocks, include the main player in the products titles"
+msgstr ""
+
+#: views/global-admin-options.php:647
+msgid "Force players to appear in product titles"
+msgstr ""
+
+#: views/global-admin-options.php:655
+msgid "Players visible but not working?"
+msgstr ""
+
+#: views/global-admin-options.php:658
+msgid "Disable 302 redirection"
+msgstr ""
+
+#: views/global-admin-options.php:660
+msgid "Load files directly instead of using redirects"
+msgstr ""
+
+#: views/global-admin-options.php:667
+msgid "Demo files corrupted or outdated?"
+msgstr ""
+
+#: views/global-admin-options.php:669
+msgid "Delete the demo files generated previously"
+msgstr ""
+
+#: views/global-admin-options.php:670
+msgid "Delete old demo files (local files only)"
+msgstr ""
+
+#: views/global-admin-options.php:676
+msgid "Pro Tip!"
+msgstr ""
+
+#: views/global-admin-options.php:676
+msgid "After changing troubleshooting settings, clear your website and browser caches for best results."
+msgstr ""
+
+#: views/global-admin-options.php:683
+msgid "Save settings"
+msgstr ""
+
+#: views/product-options.php:71
+msgid "Product Music Player Settings"
+msgstr ""
+
+#: views/product-options.php:82
+msgid "Include music player"
+msgstr ""
+
+#: views/product-options.php:83
+msgid "Player shows only if product is downloadable with audio files, or you've selected custom audio files"
+msgstr ""
+
+#: views/product-options.php:90
+msgid "Player behavior"
+msgstr ""
+
+#: views/product-options.php:163
+msgid "Custom Demo Files"
+msgstr ""
+
+#: views/product-options.php:167
+msgid "Own demo files"
+msgstr ""
+
+#: views/product-options.php:168
+msgid "Use my own custom demo files"
+msgstr ""
+
+#: views/product-options.php:170
+msgid "Upload your own demo versions instead of auto-generating them from the original files"
+msgstr ""
+
+#: views/product-options.php:176
+msgid "Demo files"
+msgstr ""
+
+#: views/product-options.php:180
+msgid "Name"
+msgstr ""
+
+#: views/product-options.php:181
+#: views/product-options.php:194
+msgid "File URL"
+msgstr ""
+
+#: views/product-options.php:191
+msgid "File name"
+msgstr ""
+
+#: views/product-options.php:210
+msgid "Add File"
+msgstr ""
+
+#: views/product-options.php:219
+msgid "Load directly the original demo files"
+msgstr ""
+
+#: views/product-options.php:220
+msgid "Load demo files directly (no preprocessing)"
+msgstr ""
+
+#: views/product-options.php:222
+msgid "Skip processing and use your demo files exactly as uploaded"
+msgstr ""
+
+#: widgets/playlist_widget.php:80
+msgid "Title"
+msgstr ""
+
+#: widgets/playlist_widget.php:83
+msgid "Products IDs"
+msgstr ""
+
+#: widgets/playlist_widget.php:83
+msgid "Products IDs separated by comma, or a * for all"
+msgstr ""
+
+#: widgets/playlist_widget.php:87
+msgid "Enter the ID of products separated by comma, or a * symbol to includes all products in the playlist."
+msgstr ""
+
+#: widgets/playlist_widget.php:91
+msgid "Volume (enter a number between 0 and 1)"
+msgstr ""
+
+#: widgets/playlist_widget.php:94
+msgid "Playlist layout"
+msgstr ""
+
+#: widgets/playlist_widget.php:97
+msgid "New layout"
+msgstr ""
+
+#: widgets/playlist_widget.php:100
+msgid "Original layout"
+msgstr ""
+
+#: widgets/playlist_widget.php:103
+msgid "Player layout"
+msgstr ""
+
+#: widgets/playlist_widget.php:119
+msgid "Preload"
+msgstr ""
+
+#: widgets/playlist_widget.php:125
+msgid "Highlight the current product"
+msgstr ""
+
+#: widgets/playlist_widget.php:128
+msgid "Continue playing after navigate"
+msgstr ""
+
+#: widgets/playlist_widget.php:132
+msgid "Continue playing the same song at same position after navigate. You can experiment some delay because the music player should to load the audio file again, and in some mobiles devices, where the action of the user is required, the player cannot starting playing automatically."
 msgstr ""
 
 #: builders/gutenberg/block.json
