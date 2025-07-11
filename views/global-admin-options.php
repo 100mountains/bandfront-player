@@ -202,37 +202,11 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				<tr>
 					<td valign="top" class="bfp-column-30">🎨 <?php esc_html_e( 'Player appearance', 'bandfront-player' ); ?></td>
 					<td>
-						<table class="bfp-player-skin-table">
-							<tr>
-								<td>
-									<input aria-label="<?php esc_attr_e( 'Dark Mode', 'bandfront-player' ); ?>" id="skin1" name="_bfp_player_layout" type="radio" value="mejs-classic" <?php echo ( ( 'mejs-classic' == $player_style ) ? 'checked' : '' ); ?> />
-								</td>
-								<td class="bfp-player-skin-cell">
-									<label for="skin1"><?php esc_html_e( 'Dark Mode', 'bandfront-player' ); ?></label>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<input aria-label="<?php esc_attr_e( 'Light Mode', 'bandfront-player' ); ?>" id="skin2" name="_bfp_player_layout" type="radio" value="mejs-ted" <?php echo ( ( 'mejs-ted' == $player_style ) ? 'checked' : '' ); ?> />
-								</td>
-								<td class="bfp-player-skin-cell">
-									<label for="skin2"><?php esc_html_e( 'Light Mode', 'bandfront-player' ); ?></label>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<input aria-label="<?php esc_attr_e( 'Custom', 'bandfront-player' ); ?>" id="skin3" name="_bfp_player_layout" type="radio" value="mejs-wmp" <?php echo ( ( 'mejs-wmp' == $player_style ) ? 'checked' : '' ); ?> />
-								</td>
-								<td class="bfp-player-skin-cell">
-									<label for="skin3"><?php esc_html_e( 'Custom', 'bandfront-player' ); ?></label>
-								</td>
-							</tr>
-							<tr>
-								<td colspan="2" class="bfp-single-player-row"><label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php echo ( ( $single_player ) ? 'checked' : '' ); ?> />
-								<span class="bfp-single-player-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></label>
-								</td>
-							</tr>
-						</table>
+						<label><input type="radio" name="_bfp_player_layout" value="dark" <?php checked($player_style, 'dark'); ?>> 🌙 <?php esc_html_e('Dark', 'bandfront-player'); ?></label><br>
+						<label><input type="radio" name="_bfp_player_layout" value="light" <?php checked($player_style, 'light'); ?>> ☀️ <?php esc_html_e('Light', 'bandfront-player'); ?></label><br>
+						<label><input type="radio" name="_bfp_player_layout" value="custom" <?php checked($player_style, 'custom'); ?>> 🎨 <?php esc_html_e('Custom', 'bandfront-player'); ?></label><br><br>
+						<label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php echo ( ( $single_player ) ? 'checked' : '' ); ?> />
+						<span class="bfp-single-player-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
 					</td>
 				</tr>
 				<tr>

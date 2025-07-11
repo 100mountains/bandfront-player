@@ -103,13 +103,13 @@ if ( ! class_exists( 'BFP_PLAYLIST_WIDGET' ) ) {
 				<label for="<?php echo esc_attr( $this->get_field_id( 'player_style' ) ); ?>"><?php esc_html_e( 'Player layout', 'bandfront-player' ); ?>: </label>
 			</p>
 			<p>
-				<label><input name="<?php echo esc_attr( $this->get_field_name( 'player_style' ) ); ?>" type="radio" value="mejs-classic" <?php echo ( ( 'mejs-classic' == $player_style ) ? 'checked' : '' ); ?> style="float:left; margin-top:8px;" /><img src="<?php print esc_url( BFP_PLUGIN_URL ); ?>/views/assets/skin1_btn.png" /></label>
+				<label><input name="<?php echo esc_attr( $this->get_field_name( 'player_style' ) ); ?>" type="radio" value="dark" <?php echo ( ( 'dark' == $player_style ) ? 'checked' : '' ); ?> style="float:left; margin-top:8px;" /><img src="<?php print esc_url( BFP_PLUGIN_URL ); ?>/views/assets/skin1_btn.png" /></label>
 			</p>
 			<p>
-				<label><input name="<?php echo esc_attr( $this->get_field_name( 'player_style' ) ); ?>" type="radio" value="mejs-ted" <?php echo ( ( 'mejs-ted' == $player_style ) ? 'checked' : '' ); ?> style="float:left; margin-top:8px;" /><img src="<?php print esc_url( BFP_PLUGIN_URL ); ?>/views/assets/skin2_btn.png" /></label>
+				<label><input name="<?php echo esc_attr( $this->get_field_name( 'player_style' ) ); ?>" type="radio" value="light" <?php echo ( ( 'light' == $player_style ) ? 'checked' : '' ); ?> style="float:left; margin-top:8px;" /><img src="<?php print esc_url( BFP_PLUGIN_URL ); ?>/views/assets/skin2_btn.png" /></label>
 			</p>
 			<p>
-				<label><input name="<?php echo esc_attr( $this->get_field_name( 'player_style' ) ); ?>" type="radio" value="mejs-wmp" <?php echo ( ( 'mejs-wmp' == $player_style ) ? 'checked' : '' ); ?> style="float:left; margin-top:16px;" /><img src="<?php print esc_url( BFP_PLUGIN_URL ); ?>/views/assets/skin3_btn.png" /></label>
+				<label><input name="<?php echo esc_attr( $this->get_field_name( 'player_style' ) ); ?>" type="radio" value="custom" <?php echo ( ( 'custom' == $player_style ) ? 'checked' : '' ); ?> style="float:left; margin-top:16px;" /><img src="<?php print esc_url( BFP_PLUGIN_URL ); ?>/views/assets/skin3_btn.png" /></label>
 			</p>
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'play_all' ) ); ?>"><?php esc_html_e( 'Play all', 'bandfront-player' ); ?>: <input id="<?php echo esc_attr( $this->get_field_id( 'play_all' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'play_all' ) ); ?>" type="checkbox" <?php echo ( ( $play_all ) ? 'CHECKED' : '' );

@@ -20,7 +20,7 @@ define('BFP_PLUGIN_PATH', __FILE__);
 define('BFP_PLUGIN_BASE_NAME', plugin_basename(__FILE__));
 define('BFP_WEBSITE_URL', get_home_url(get_current_blog_id(), '', is_ssl() ? 'https' : 'http'));
 define('BFP_PLUGIN_URL', plugins_url('', __FILE__));
-define('BFP_DEFAULT_PLAYER_LAYOUT', 'mejs-classic');
+define('BFP_DEFAULT_PLAYER_LAYOUT', 'dark');
 define('BFP_DEFAULT_SINGLE_PLAYER', 0);
 define('BFP_DEFAULT_PLAYER_VOLUME', 1);
 define('BFP_DEFAULT_PLAYER_CONTROLS', 'default');

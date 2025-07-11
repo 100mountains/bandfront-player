@@ -18,7 +18,7 @@ class BFP_Config {
     private $main_plugin;
     private $_products_attrs = array();
     private $_global_attrs = array();
-    private $_player_layouts = array('mejs-classic', 'mejs-ted', 'mejs-wmp');
+    private $_player_layouts = array('dark', 'light', 'custom');
     private $_player_controls = array('button', 'all', 'default');
     
     public function __construct($main_plugin) {

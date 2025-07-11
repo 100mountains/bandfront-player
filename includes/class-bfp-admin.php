@@ -157,6 +157,17 @@ class BFP_Admin {
         $player_style = (isset($_REQUEST['_bfp_player_layout']) && in_array($_REQUEST['_bfp_player_layout'], $player_layouts)) ? 
                         sanitize_text_field(wp_unslash($_REQUEST['_bfp_player_layout'])) : BFP_DEFAULT_PLAYER_LAYOUT;
         
+        // Handle backward compatibility - map old names to new names
+        $skin_mapping = array(
+            'mejs-classic' => 'dark',
+            'mejs-ted' => 'light',
+            'mejs-wmp' => 'custom'
+        );
+        
+        if (isset($skin_mapping[$player_style])) {
+            $player_style = $skin_mapping[$player_style];
+        }
+        
         $single_player = isset($_REQUEST['_bfp_single_player']) ? 1 : 0;
         $secure_player = isset($_REQUEST['_bfp_secure_player']) ? 1 : 0;
         $file_percent = (isset($_REQUEST['_bfp_file_percent']) && is_numeric($_REQUEST['_bfp_file_percent'])) ? 

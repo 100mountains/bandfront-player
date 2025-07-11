@@ -99,7 +99,7 @@ Each product can override global settings:
 
 ### Custom Styling
 ```shortcode
-[bfp-playlist products_ids="123,456,789" layout="new" player_style="mejs-wmp" cover="1"]
+[bfp-playlist products_ids="123,456,789" layout="new" player_style="custom" cover="1"]
 ```
 
 ### Purchased Products Only

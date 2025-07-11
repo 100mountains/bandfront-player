@@ -210,10 +210,29 @@ class BFP_Player_Manager {
             wp_enqueue_style('wp-mediaelement');
             wp_enqueue_script('wp-mediaelement');
             
-            // Enqueue MediaElement skins
+            // Get selected player skin
+            $selected_skin = $BandfrontPlayer->get_global_attr('_bfp_player_layout', 'dark');
+            
+            // Handle backward compatibility - map old names to new names
+            $skin_mapping = array(
+                'mejs-classic' => 'dark',
+                'mejs-ted' => 'light',
+                'mejs-wmp' => 'custom'
+            );
+            
+            if (isset($skin_mapping[$selected_skin])) {
+                $selected_skin = $skin_mapping[$selected_skin];
+            }
+            
+            // Validate skin selection
+            if (!in_array($selected_skin, array('dark', 'light', 'custom'))) {
+                $selected_skin = 'dark';
+            }
+            
+            // Enqueue selected skin CSS file
             wp_enqueue_style(
-                'bfp-mejs-skins',
-                plugin_dir_url(dirname(__FILE__)) . 'css/mejs-skins/mejs-skins.min.css',
+                'bfp-skin-' . $selected_skin,
+                plugin_dir_url(dirname(__FILE__)) . 'css/skins/' . $selected_skin . '.css',
                 array('wp-mediaelement'),
                 BFP_VERSION
             );
@@ -236,7 +255,8 @@ class BFP_Player_Manager {
             'ios_controls' => $BandfrontPlayer->get_global_attr('_bfp_ios_controls', false),
             'fade_out' => $BandfrontPlayer->get_global_attr('_bfp_fade_out', 0),
             'on_cover' => $BandfrontPlayer->get_global_attr('_bfp_on_cover', 0),
-            'visualizations' => $BandfrontPlayer->get_global_attr('_bfp_enable_visualizations', 0)
+            'visualizations' => $BandfrontPlayer->get_global_attr('_bfp_enable_visualizations', 0),
+            'player_skin' => $selected_skin
         );
         
         wp_localize_script('bfp-engine', 'bfp_global_settings', $js_settings);

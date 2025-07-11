@@ -41,7 +41,7 @@ bfp_players[ bfp_player_counter ] = new MediaElementPlayer(e[0], c);
 #### **1. Sprite-Based Icons (2010s Era)**
 ```css
 /* vendors/mejs-skins/mejs-skins.css - OLD APPROACH */
-.mejs-ted .mejs-controls .mejs-time-rail .mejs-time-loaded {
+.light .mejs-controls .mejs-time-rail .mejs-time-loaded {
     background: url(controls-ted.png) 0 -52px repeat-x;
     height: 6px
 }
@@ -61,7 +61,7 @@ bfp_players[ bfp_player_counter ] = new MediaElementPlayer(e[0], c);
     src: url('Guifx_v2_Transports.woff') format('woff');
 }
 
-.mejs-ted .mejs-controls .mejs-playpause-button::before{
+.light .mejs-controls .mejs-playpause-button::before{
     content: "1"; /* Play icon */
     font-family: "Guifx v2 Transports";
 }
@@ -76,7 +76,7 @@ bfp_players[ bfp_player_counter ] = new MediaElementPlayer(e[0], c);
 #### **3. Hardcoded Absolute Positioning (Responsive Nightmare)**
 ```css
 /* Absolute positioning everywhere - breaks mobile */
-.mejs-ted .mejs-controls .mejs-playpause-button {
+.light .mejs-controls .mejs-playpause-button {
     top: 29px;
     left: 9px;
     width: 49px;

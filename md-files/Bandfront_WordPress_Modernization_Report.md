@@ -10,6 +10,13 @@ However, since WordPress has evolved significantly since this plugin was built, 
 
 ---
 
+/css/skins/images/
+├── controls-dark.png
+├── controls-light.png
+└── controls-custom.png
+
+
+
 This hook structure in WooCommerce single product pages is:
 
 woocommerce_single_product_summary priority 5: Title
@@ -493,7 +500,7 @@ The plugin's core architecture is solid - these improvements will modernize it t
 #### **1. Sprite-Based Icons (Obsolete)**
 ```css
 /* Old sprite approach - hard to maintain */
-.mejs-ted .mejs-controls .mejs-time-rail .mejs-time-loaded {
+.light .mejs-controls .mejs-time-rail .mejs-time-loaded {
     background: url(controls-ted.png) 0 -52px repeat-x;
     height: 6px
 }
@@ -507,7 +514,7 @@ The plugin's core architecture is solid - these improvements will modernize it t
     src: url('Guifx_v2_Transports.woff') format('woff');
 }
 
-.mejs-ted .mejs-controls .mejs-playpause-button::before{
+.light .mejs-controls .mejs-playpause-button::before{
     content: "1"; /* Play icon */
     font-family: "Guifx v2 Transports";
 }
@@ -516,7 +523,7 @@ The plugin's core architecture is solid - these improvements will modernize it t
 #### **3. Hardcoded Absolute Positioning (Nightmare)**
 ```css
 /* Absolute positioning everywhere - breaks responsive design */
-.mejs-ted .mejs-controls .mejs-playpause-button {
+.light .mejs-controls .mejs-playpause-button {
     top: 29px;
     left: 9px;
     width: 49px;
@@ -716,7 +723,7 @@ function bfp_maybe_enqueue_scripts() {
 **Current State:** Monolithic CSS files
 ```css
 /* 1000+ lines of CSS in single files */
-.mejs-ted .mejs-controls { /* ... */ }
+.light .mejs-controls { /* ... */ }
 ```
 
 **Modern CSS Architecture:**
