@@ -36,17 +36,17 @@ class BFP_Hooks_Manager {
         // Only add all_players hooks on single product pages
         if (function_exists('is_product') && is_product()) {
             $hooks_config['all_players'] = array(
-             //   'woocommerce_single_product_summary' => 1,
-               'woocommerce_after_single_product_summary' => 1,
-             //   'woocommerce_before_add_to_cart_form' => 1,
-              //  'woocommerce_after_add_to_cart_form' => 1,
+                // Changed from woocommerce_after_single_product_summary to place below price
+                'woocommerce_single_product_summary' => 25,  // Priority 25 is after price (price is at 10)
             );
         } else {
-            // On shop/archive pages, only use main_player hooks
-            $hooks_config['main_player'] = array(
-                'woocommerce_shop_loop_item_title' => 1,
-                'woocommerce_after_shop_loop_item_title' => 1,
-            );
+            // On shop/archive pages, remove the title hook if on_cover is enabled
+            $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+            if (!$on_cover) {
+                $hooks_config['main_player'] = array(
+                    'woocommerce_after_shop_loop_item_title' => 1,
+                );
+            }
         }
         
         return $hooks_config;
@@ -65,8 +65,12 @@ class BFP_Hooks_Manager {
         // FIXED: Dynamic hook registration based on context
         add_action( 'wp', array( $this, 'register_dynamic_hooks' ) );
         
-        // Add WooCommerce product title filter
-        add_filter( 'woocommerce_product_title', array( $this->main_plugin->get_woocommerce(), 'woocommerce_product_title' ), 10, 2 );
+        // Add filter for on_cover functionality
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_on_cover_assets' ) );
+        add_action( 'woocommerce_before_shop_loop_item_title', array( $this, 'add_play_button_on_cover' ), 20 );
+        
+        // Remove WooCommerce product title filter if on_cover is enabled
+        add_action( 'init', array( $this, 'conditionally_add_title_filter' ) );
         
         // Add filter for analytics preload
         add_filter( 'bfp_preload', array( $this->main_plugin->get_audio_processor(), 'preload' ), 10, 2 );
@@ -161,5 +165,109 @@ class BFP_Hooks_Manager {
         foreach ($hooks_config['all_players'] as $hook => $priority) {
             add_action($hook, array($this->main_plugin, 'include_all_players'), $priority);
         }
+    }
+
+    /**
+     * Conditionally add product title filter
+     */
+    public function conditionally_add_title_filter() {
+        $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+        if (!$on_cover) {
+            add_filter( 'woocommerce_product_title', array( $this->main_plugin->get_woocommerce(), 'woocommerce_product_title' ), 10, 2 );
+        }
+    }
+
+    /**
+     * Enqueue assets for on_cover functionality
+     */
+    public function enqueue_on_cover_assets() {
+        if (!is_shop() && !is_product_category() && !is_product_tag()) {
+            return;
+        }
+        
+        $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+        if ($on_cover) {
+            wp_add_inline_style('bfp-style', '
+                .woocommerce ul.products li.product .bfp-play-on-cover {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    z-index: 10;
+                    background: rgba(255,255,255,0.9);
+                    border-radius: 50%;
+                    width: 60px;
+                    height: 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                }
+                .woocommerce ul.products li.product .bfp-play-on-cover:hover {
+                    transform: translate(-50%, -50%) scale(1.1);
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+                }
+                .woocommerce ul.products li.product .bfp-play-on-cover svg {
+                    width: 24px;
+                    height: 24px;
+                    margin-left: 3px;
+                }
+                .woocommerce ul.products li.product a img {
+                    position: relative;
+                }
+                .woocommerce ul.products li.product {
+                    position: relative;
+                }
+            ');
+        }
+    }
+
+    /**
+     * Add play button on product cover image
+     */
+    public function add_play_button_on_cover() {
+        if (!is_shop() && !is_product_category() && !is_product_tag()) {
+            return;
+        }
+        
+        $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+        if (!$on_cover) {
+            return;
+        }
+        
+        global $product;
+        if (!$product) {
+            return;
+        }
+        
+        $product_id = $product->get_id();
+        $enable_player = $this->main_plugin->get_product_attr($product_id, '_bfp_enable_player', false);
+        
+        if (!$enable_player) {
+            return;
+        }
+        
+        // Get the first audio file
+        $files = $this->main_plugin->get_product_files($product_id);
+        if (empty($files)) {
+            return;
+        }
+        
+        // Enqueue player resources
+        $this->main_plugin->enqueue_resources();
+        
+        // Output the play button overlay
+        echo '<div class="bfp-play-on-cover" data-product-id="' . esc_attr($product_id) . '">';
+        echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">';
+        echo '<path d="M8 5v14l11-7z"/>';
+        echo '</svg>';
+        echo '</div>';
+        
+        // Add the hidden player container
+        echo '<div class="bfp-hidden-player-container" style="display:none;">';
+        $this->main_plugin->include_main_player($product, true);
+        echo '</div>';
     }
 }

@@ -158,3 +158,35 @@
     margin-bottom: 15px;
     color: #666;
 }
+
+/* Play button on cover styles */
+.bfp-play-on-cover.playing {
+    background: rgba(0,0,0,0.8);
+    color: white;
+}
+
+.bfp-play-on-cover.playing svg {
+    display: none;
+}
+
+.bfp-play-on-cover.playing::after {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border: 3px solid #ddd;
+    border-color: #ddd transparent transparent transparent;
+    border-radius: 50%;
+    animation: bfp-spin 1s linear infinite;
+}
+
+@keyframes bfp-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Hide player container on shop pages when on_cover is enabled */
+.woocommerce ul.products li.product .bfp-hidden-player-container {
+    position: absolute;
+    left: -9999px;
+    visibility: hidden;
+}

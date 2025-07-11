@@ -755,4 +755,44 @@ function initWaveSurferPlayer(container, audioUrl, options) {
         "berocket_ajax_products_infinite_loaded lazyload.wcpt", 
         bfp_force_init
     );
+    
+    jQuery(document).ready(function($) {
+        // Play button on cover functionality
+        if (bfp_global_settings.on_cover == '1') {
+            $(document).on('click', '.bfp-play-on-cover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var $button = $(this);
+                var productId = $button.data('product-id');
+                var $container = $button.siblings('.bfp-hidden-player-container');
+                var $audio = $container.find('audio').first();
+                
+                if ($audio.length) {
+                    // Pause all other audio elements
+                    $('audio').each(function() {
+                        if (this !== $audio[0]) {
+                            this.pause();
+                        }
+                    });
+                    
+                    // Toggle play/pause
+                    if ($audio[0].paused) {
+                        $audio[0].play();
+                        $button.addClass('playing');
+                    } else {
+                        $audio[0].pause();
+                        $button.removeClass('playing');
+                    }
+                    
+                    // Update button state based on audio events
+                    $audio.on('play', function() {
+                        $button.addClass('playing');
+                    }).on('pause ended', function() {
+                        $button.removeClass('playing');
+                    });
+                }
+            });
+        }
+    });
 })();

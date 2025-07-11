@@ -33,6 +33,7 @@ class BFP_Player_Renderer {
         if ( ! $this->main_plugin->get_insert_player() || ! $this->main_plugin->get_insert_main_player() ) {
             return $output;
         }
+        
         if ( is_numeric( $product ) ) {
             $product = wc_get_product( $product );
         }
@@ -41,6 +42,14 @@ class BFP_Player_Renderer {
         }
 
         if ( empty( $product ) ) {
+            return '';
+        }
+
+        // Check if on_cover is enabled for shop pages
+        $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+        if ($on_cover && (is_shop() || is_product_category() || is_product_tag())) {
+            // Don't render the regular player on shop pages when on_cover is enabled
+            // The play button will be handled by the hook manager
             return '';
         }
 

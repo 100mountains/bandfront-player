@@ -10,6 +10,20 @@ However, since WordPress has evolved significantly since this plugin was built, 
 
 ---
 
+This hook structure in WooCommerce single product pages is:
+
+woocommerce_single_product_summary priority 5: Title
+woocommerce_single_product_summary priority 10: Price
+woocommerce_single_product_summary priority 20: Excerpt
+woocommerce_single_product_summary priority 25: Your player will go here
+woocommerce_single_product_summary priority 30: Add to cart button
+woocommerce_single_product_summary priority 40: Meta info
+woocommerce_single_product_summary priority 50: Sharing buttons
+If you want it in a different position, you can adjust the priority:
+
+Use priority 15 to place it between price and excerpt
+Use priority 35 to place it between add to cart button and meta info
+
 ## 🎯 BandFront Custom Code → WordPress Core Modernization Opportunities
 
 ### **Legacy vs Modern WordPress Standards**
