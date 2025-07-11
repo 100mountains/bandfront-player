@@ -425,15 +425,7 @@ class BFP_WooCommerce {
                 <div class="bfp-new-layout bfp-widget-product controls-' . esc_attr($atts['controls']) . ' ' . esc_attr($atts['class']) . ' ' . esc_attr($row_class) . ' ' . esc_attr(($product->ID == $current_post_id && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">
                     <div class="bfp-widget-product-header">
                         <div class="bfp-widget-product-title">
-                            <a href="' . esc_url(get_permalink($product->ID)) . '">' . $product_obj->get_name() . '</a>' .
-                            (
-                                $atts['purchased_times'] ?
-                                '<span class="bfp-purchased-times">' .
-                                sprintf(
-                                    __($this->main_plugin->get_global_attr('_bfp_purchased_times_text', '- purchased %d time(s)'), 'bandfront-player'),
-                                    $atts['purchased_times']
-                                ) . '</span>' : ''
-                            ) .
+                            <a href="' . esc_url(get_permalink($product->ID)) . '">' . esc_html($product_obj->get_name()) . '</a>' .
                         $download_links . 
                         '</div><!-- product title -->';
 
@@ -469,7 +461,7 @@ class BFP_WooCommerce {
                             'product_id'      => $product->ID,
                             'player_controls' => $atts['controls'],
                             'player_style'    => $atts['player_style'],
-                            'media_type'      => $file['media_type'],
+                            'media_type'      => isset($file['media_type']) ? $file['media_type'] : 'mp3',
                             'id'              => $index,
                             'duration'        => $duration,
                             'preload'         => $preload,
@@ -514,7 +506,7 @@ class BFP_WooCommerce {
                             'product_id'      => $product->ID,
                             'player_controls' => $atts['controls'],
                             'player_style'    => $atts['player_style'],
-                            'media_type'      => $file['media_type'],
+                            'media_type'      => isset($file['media_type']) ? $file['media_type'] : 'mp3',
                             'id'              => $index,
                             'duration'        => $duration,
                             'preload'         => $preload,

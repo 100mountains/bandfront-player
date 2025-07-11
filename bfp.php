@@ -44,7 +44,6 @@ require_once 'includes/class-bfp-player-renderer.php';
 require_once 'includes/class-bfp-playlist-renderer.php';
 require_once 'includes/class-bfp-analytics.php';
 require_once 'includes/class-bfp-preview-manager.php';
-require_once 'includes/class-bfp-addons-loader.php';
 
 // Load widgets
 require_once 'widgets/playlist_widget.php';
@@ -69,9 +68,8 @@ if (!class_exists('BandfrontPlayer')) {
         private $_playlist_renderer;
         private $_analytics;
         private $_preview_manager;
-        private $_addons_loader;
         
-        // State flags
+        // State flags - these should be managed by the state handler
         private $_current_user_downloads = array();
         private $_force_purchased_flag = 0;
         private $_purchased_product_flag = false;
@@ -97,7 +95,6 @@ if (!class_exists('BandfrontPlayer')) {
             $this->_playlist_renderer = new BFP_Playlist_Renderer($this);
             $this->_analytics = new BFP_Analytics($this);
             $this->_preview_manager = new BFP_Preview_Manager($this);
-            $this->_addons_loader = new BFP_Addons_Loader($this);
             
             // Initialize admin if in admin area
             if (is_admin()) {
@@ -110,11 +107,9 @@ if (!class_exists('BandfrontPlayer')) {
             // Initialize components that need to hook into WordPress
             $this->_analytics->init();
             $this->_preview_manager->init();
-            $this->_addons_loader->init();
         }
         
         // Component getters
-        public function get_admin() { return $this->_admin; }
         public function get_config() { return $this->_config; }
         public function get_file_handler() { return $this->_file_handler; }
         public function get_player_manager() { return $this->_player_manager; }
@@ -125,9 +120,9 @@ if (!class_exists('BandfrontPlayer')) {
         public function get_playlist_renderer() { return $this->_playlist_renderer; }
         public function get_analytics() { return $this->_analytics; }
         public function get_preview_manager() { return $this->_preview_manager; }
-        public function get_addons_loader() { return $this->_addons_loader; }
+        public function get_admin() { return $this->_admin; }
         
-        // Delegate methods to appropriate components
+        // Delegate methods to appropriate components - for backward compatibility
         public function get_product_attr($product_id, $attr, $default = false) {
             return $this->_config->get_product_attr($product_id, $attr, $default);
         }
@@ -165,7 +160,6 @@ if (!class_exists('BandfrontPlayer')) {
         }
         
         public function get_product_files($product_id) {
-            // Fixed: Pass product object instead of just array
             $product = wc_get_product($product_id);
             return $this->_player_renderer->_get_product_files(array(
                 'product' => $product,
@@ -193,7 +187,7 @@ if (!class_exists('BandfrontPlayer')) {
             return $this->_file_handler->clear_expired_transients();
         }
         
-        // State management methods
+        // State management methods - TODO: Move these to state handler
         public function get_current_user_downloads() { return $this->_current_user_downloads; }
         public function set_current_user_downloads($value) { $this->_current_user_downloads = $value; }
         
@@ -219,6 +213,30 @@ if (!class_exists('BandfrontPlayer')) {
         public function get_enqueued_resources() { return $this->_player_manager->get_enqueued_resources(); }
         public function set_enqueued_resources($value) { return $this->_player_manager->set_enqueued_resources($value); }
         
+        /**
+         * Get state value with context-aware inheritance
+         * Convenience method that delegates to the config handler
+         * 
+         * @param string $key Setting key
+         * @param mixed $default Default value
+         * @param int|null $product_id Product ID for context
+         * @return mixed The resolved setting value
+         */
+        public function get_state($key, $default = null, $product_id = null) {
+            return $this->_config->get_state($key, $default, $product_id);
+        }
+        
+        /**
+         * Get multiple states efficiently
+         * 
+         * @param array $keys Array of setting keys
+         * @param int|null $product_id Product ID for context
+         * @return array Associative array of key => value
+         */
+        public function get_states($keys, $product_id = null) {
+            return $this->_config->get_states($keys, $product_id);
+        }
+        
         // Static utility methods
         public function _get_post_types($string = false) {
             return BFP_Utils::get_post_types($string);
@@ -243,7 +261,7 @@ if (!class_exists('BandfrontPlayer')) {
         }
         
         public function init() {
-            // Register shortcodes - this is already here but let's make sure it's not duplicated
+            // Register shortcodes
             add_shortcode('bfp-playlist', array($this->_woocommerce, 'replace_playlist_shortcode'));
             
             // Schedule cron events
@@ -251,17 +269,6 @@ if (!class_exists('BandfrontPlayer')) {
                 wp_schedule_event(time(), 'daily', 'bfp_schedule_delete_purchased_files');
             }
             add_action('bfp_schedule_delete_purchased_files', array($this->_file_handler, 'delete_purchased_files'));
-        }
-        
-        // Backward compatibility methods
-        public function get_player_original($audio_url, $args = array()) {
-            // This method will be implemented in player manager
-            return '';
-        }
-        
-        public function include_main_player_original($product = '', $_echo = true) {
-            // This method will be implemented in player renderer
-            return '';
         }
     }
 }

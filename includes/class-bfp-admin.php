@@ -16,12 +16,69 @@ if (!defined('ABSPATH')) {
 class BFP_Admin {
     
     private $main_plugin;
+    private $modules_path;
+    
+    /**
+     * Module definitions for admin sections
+     * Key: module identifier, Value: module file and metadata
+     */
+    private $admin_modules = array(
+        'audio-engine' => array(
+            'file' => 'audio-engine.php',
+            'name' => 'Audio Engine Selector',
+            'description' => 'Audio engine settings and options',
+        ),
+        'cloud-engine' => array(
+            'file' => 'cloud-engine.php',
+            'name' => 'Cloud Storage Integration',
+            'description' => 'Cloud storage settings and configuration',
+        ),
+    );
     
     public function __construct($main_plugin) {
         $this->main_plugin = $main_plugin;
+        $this->modules_path = plugin_dir_path(dirname(__FILE__)) . 'modules/';
         $this->init_hooks();
+        $this->load_admin_modules();
     }
     
+    /**
+     * Load admin modules (settings sections)
+     */
+    private function load_admin_modules() {
+        // Only load in admin area
+        if (!is_admin()) {
+            return;
+        }
+        
+        $config = $this->main_plugin->get_config();
+        
+        foreach ($this->admin_modules as $module_id => $module_info) {
+            // Check if module is enabled in state
+            if (!$config->is_module_enabled($module_id)) {
+                continue;
+            }
+            
+            $module_path = $this->modules_path . $module_info['file'];
+            if (file_exists($module_path)) {
+                require_once $module_path;
+                do_action('bfp_admin_module_loaded', $module_id);
+            }
+        }
+        
+        do_action('bfp_admin_modules_loaded');
+    }
+    
+    /**
+     * Get available admin modules
+     * Used by settings page to show module enable/disable options
+     * 
+     * @return array Module information
+     */
+    public function get_admin_modules() {
+        return $this->admin_modules;
+    }
+
     /**
      * Initialize WordPress hooks
      */
@@ -206,6 +263,19 @@ class BFP_Admin {
             $enable_visualizations = 1;
         }
 
+        // Handle module states
+        $modules_enabled = $this->main_plugin->get_config()->get_state('_bfp_modules_enabled');
+        if (isset($_REQUEST['_bfp_modules']) && is_array($_REQUEST['_bfp_modules'])) {
+            foreach ($modules_enabled as $module_id => $current_state) {
+                $modules_enabled[$module_id] = isset($_REQUEST['_bfp_modules'][$module_id]);
+            }
+        } else {
+            // If no modules are checked, disable all
+            foreach ($modules_enabled as $module_id => $current_state) {
+                $modules_enabled[$module_id] = false;
+            }
+        }
+
         $global_settings = array(
             '_bfp_registered_only' => $registered_only,
             '_bfp_purchased' => $purchased,
@@ -244,6 +314,7 @@ class BFP_Admin {
             '_bfp_apply_to_all_players' => $apply_to_all_players,
             '_bfp_audio_engine' => $audio_engine,
             '_bfp_enable_visualizations' => $enable_visualizations,
+            '_bfp_modules_enabled' => $modules_enabled,
         );
 
         if ($apply_to_all_players || isset($_REQUEST['_bfp_delete_demos'])) {

@@ -556,7 +556,7 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 					<td colspan="2"><hr class="bfp-protection-divider" /></td>
 				</tr>
 				<tr>
-					<td class="bfp-column-30"><label for="_bfp_ffmpeg">⚡ <?php esc_html_e( 'Use FFmpeg', 'bandfront-player' ); ?></label></td>
+					<td class="bfp-column-30"><label for="_bfp_ffmpeg">⚡ <?php esc_html_e( 'Use FFmpeg for demos', 'bandfront-player' ); ?></label></td>
 					<td><input aria-label="<?php esc_attr_e( 'Truncate the audio files for demo with ffmpeg', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_ffmpeg" name="_bfp_ffmpeg" <?php print( ( $ffmpeg ) ? 'CHECKED' : '' ); ?> /><br>
 					<em class="bfp-em-text"><?php esc_html_e( 'Requires FFmpeg to be installed on your server', 'bandfront-player' ); ?></em></td>
 				</tr>

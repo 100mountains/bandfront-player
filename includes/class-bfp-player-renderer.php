@@ -45,8 +45,8 @@ class BFP_Player_Renderer {
             return '';
         }
 
-        // Check if on_cover is enabled for shop pages
-        $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+        // Check if on_cover is enabled for shop pages using state handler
+        $on_cover = $this->main_plugin->get_state('_bfp_on_cover');
         if ($on_cover && (is_shop() || is_product_category() || is_product_tag())) {
             // Don't render the regular player on shop pages when on_cover is enabled
             // The play button will be handled by the hook manager
@@ -62,7 +62,8 @@ class BFP_Player_Renderer {
         if ( ! empty( $files ) ) {
             $id = $product->get_id();
 
-            $show_in = $this->main_plugin->get_product_attr( $id, '_bfp_show_in', 'all' );
+            // Use state handler for product-specific settings
+            $show_in = $this->main_plugin->get_state( '_bfp_show_in', null, $id );
             if (
                 ( 'single' == $show_in && ( ! function_exists( 'is_product' ) || ! is_product() ) ) ||
                 ( 'multiple' == $show_in && ( function_exists( 'is_product' ) && is_product() ) && get_queried_object_id() == $id )
@@ -79,11 +80,14 @@ class BFP_Player_Renderer {
                 $player_controls = 'track';  // 'track' means button controls
             }
             
-            $preload = $this->main_plugin->get_product_attr( $id, '_bfp_preload', '' );
+            // Get all player settings using bulk fetch
+            $settings = $this->main_plugin->get_states(array(
+                '_bfp_preload',
+                '_bfp_player_layout',
+                '_bfp_player_volume'
+            ), $id);
+            
             $this->main_plugin->enqueue_resources();
-
-            $player_style = $this->main_plugin->get_product_attr( $id, '_bfp_player_layout', BFP_DEFAULT_PLAYER_LAYOUT );
-            $volume = @floatval( $this->main_plugin->get_product_attr( $id, '_bfp_player_volume', BFP_DEFAULT_PLAYER_VOLUME ) );
 
             $file = reset( $files );
             $index = key( $files );
@@ -96,11 +100,11 @@ class BFP_Player_Renderer {
                     array(
                         'product_id'      => $id,
                         'player_controls' => $player_controls,  // Use context-aware controls
-                        'player_style'    => $player_style,
+                        'player_style'    => $settings['_bfp_player_layout'],
                         'media_type'      => $file['media_type'],
                         'duration'        => $duration,
-                        'preload'         => $preload,
-                        'volume'          => $volume,
+                        'preload'         => $settings['_bfp_preload'],
+                        'volume'          => $settings['_bfp_player_volume'],
                     )
                 ),
                 $id,
@@ -124,10 +128,7 @@ class BFP_Player_Renderer {
     /**
      * Include all players for a product
      */
- /**
- * Include all players for a product
- */
-public function include_all_players($product = '') {
+    public function include_all_players($product = '') {
     if ( ! $this->main_plugin->get_insert_player() || ! $this->main_plugin->get_insert_all_players() || is_admin() ) {
         return;
     }
@@ -149,17 +150,26 @@ public function include_all_players($product = '') {
     if ( ! empty( $files ) ) {
         $id = $product->get_id();
 
-        $show_in = $this->main_plugin->get_product_attr( $id, '_bfp_show_in', 'all' );
+        // Use state handler for settings
+        $show_in = $this->main_plugin->get_state( '_bfp_show_in', null, $id );
         if (
             ( 'single' == $show_in && ! is_singular() ) ||
             ( 'multiple' == $show_in && is_singular() )
         ) {
             return;
         }
-        $preload = $this->main_plugin->get_product_attr( $id, '_bfp_preload', '' );
+        
+        // Get all player settings using bulk fetch
+        $settings = $this->main_plugin->get_states(array(
+            '_bfp_preload',
+            '_bfp_player_layout',
+            '_bfp_player_volume',
+            '_bfp_player_title',
+            '_bfp_loop',
+            '_bfp_merge_in_grouped'
+        ), $id);
+        
         $this->main_plugin->enqueue_resources();
-        $player_style       = $this->main_plugin->get_product_attr( $id, '_bfp_player_layout', BFP_DEFAULT_PLAYER_LAYOUT );
-        $volume             = @floatval( $this->main_plugin->get_product_attr( $id, '_bfp_player_volume', BFP_DEFAULT_PLAYER_VOLUME ) );
         
         // CONTEXT-AWARE CONTROLS: Always use full controls on product pages
         if (function_exists('is_product') && is_product()) {
@@ -170,10 +180,7 @@ public function include_all_players($product = '') {
             $player_controls = 'button';
         }
         
-        $player_title       = intval( $this->main_plugin->get_product_attr( $id, '_bfp_player_title', BFP_DEFAULT_PlAYER_TITLE ) );
-        $loop               = intval( $this->main_plugin->get_product_attr( $id, '_bfp_loop', 0 ) );
-        $merge_grouped      = intval( $this->main_plugin->get_product_attr( $id, '_bfp_merge_in_grouped', 0 ) );
-        $merge_grouped_clss = ( $merge_grouped ) ? 'merge_in_grouped_products' : '';
+        $merge_grouped_clss = ( $settings['_bfp_merge_in_grouped'] ) ? 'merge_in_grouped_products' : '';
 
         $counter = count( $files );
 
@@ -191,24 +198,24 @@ public function include_all_players($product = '') {
                         array(
                             'product_id'      => $id,
                             'player_controls' => $player_controls,
-                            'player_style'    => $player_style,
+                            'player_style'    => $settings['_bfp_player_layout'],
                             'media_type'      => $file['media_type'],
                             'duration'        => $duration,
-                            'preload'         => $preload,
-                            'volume'          => $volume,
+                            'preload'         => $settings['_bfp_preload'],
+                            'volume'          => $settings['_bfp_player_volume'],
                         )
                     ),
                     $id,
                     $index,
                     $audio_url
                 );
-                $title           = esc_html( ( $player_title ) ? apply_filters( 'bfp_file_name', $file['name'], $id, $index ) : '' );
-                print '<div class="bfp-player-container ' . esc_attr( $merge_grouped_clss ) . ' product-' . esc_attr( $file['product'] ) . '" ' . ( $loop ? 'data-loop="1"' : '' ) . '>' . $audio_tag . '</div><div class="bfp-player-title" data-audio-url="' . esc_attr( $audio_url ) . '">' . wp_kses_post( $title ) . '</div><div style="clear:both;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
+                $title           = esc_html( ( $settings['_bfp_player_title'] ) ? apply_filters( 'bfp_file_name', $file['name'], $id, $index ) : '' );
+                print '<div class="bfp-player-container ' . esc_attr( $merge_grouped_clss ) . ' product-' . esc_attr( $file['product'] ) . '" ' . ( $settings['_bfp_loop'] ? 'data-loop="1"' : '' ) . '>' . $audio_tag . '</div><div class="bfp-player-title" data-audio-url="' . esc_attr( $audio_url ) . '">' . wp_kses_post( $title ) . '</div><div style="clear:both;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
             } elseif ( $counter > 1 ) {
 
-                $single_player = intval( $this->main_plugin->get_product_attr( $id, '_bfp_single_player', BFP_DEFAULT_SINGLE_PLAYER ) );
+                $single_player = intval( $this->main_plugin->get_state( '_bfp_single_player', 0, $id ) );
 
-                $before = '<table class="bfp-player-list ' . $merge_grouped_clss . ( $single_player ? ' bfp-single-player ' : '' ) . '" ' . ( $loop ? 'data-loop="1"' : '' ) . '>';
+                $before = '<table class="bfp-player-list ' . $merge_grouped_clss . ( $single_player ? ' bfp-single-player ' : '' ) . '" ' . ( $settings['_bfp_loop'] ? 'data-loop="1"' : '' ) . '>';
                 $first_player_class = 'bfp-first-player';
                 $after  = '';
                 foreach ( $files as $index => $file ) {
@@ -222,25 +229,25 @@ public function include_all_players($product = '') {
                             $audio_url,
                             array(
                                 'product_id'      => $id,
-                                'player_style'    => $player_style,
+                                'player_style'    => $settings['_bfp_player_layout'],
                                 'player_controls' => ( 'all' != $player_controls ) ? 'track' : '',
                                 'media_type'      => $file['media_type'],
                                 'duration'        => $duration,
-                                'preload'         => $preload,
-                                'volume'          => $volume,
+                                'preload'         => $settings['_bfp_preload'],
+                                'volume'          => $settings['_bfp_player_volume'],
                             )
                         ),
                         $id,
                         $index,
                         $audio_url
                     );
-                    $title     = esc_html( ( $player_title ) ? apply_filters( 'bfp_file_name', $file['name'], $id, $index ) : '' );
+                    $title     = esc_html( ( $settings['_bfp_player_title'] ) ? apply_filters( 'bfp_file_name', $file['name'], $id, $index ) : '' );
 
                     print $before; // phpcs:ignore WordPress.Security.EscapeOutput
                     $before = '';
                     $after  = '</table>';
                     if ( 'all' != $player_controls ) {
-                        print '<tr class="' . esc_attr( $evenOdd ) . ' product-' . esc_attr( $file['product'] ) . '"><td class="bfp-column-player-' . esc_attr( $player_style ) . '"><div class="bfp-player-container ' . $first_player_class . '" data-player-id="' . esc_attr( $counter ) . '">' . $audio_tag . '</div></td><td class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr( $counter ) . '">' . wp_kses_post( $title ) . '</td><td class="bfp-file-duration" style="text-align:right;font-size:16px;">' . esc_html( $duration ) . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
+                        print '<tr class="' . esc_attr( $evenOdd ) . ' product-' . esc_attr( $file['product'] ) . '"><td class="bfp-column-player-' . esc_attr( $settings['_bfp_player_layout'] ) . '"><div class="bfp-player-container ' . $first_player_class . '" data-player-id="' . esc_attr( $counter ) . '">' . $audio_tag . '</div></td><td class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr( $counter ) . '">' . wp_kses_post( $title ) . '</td><td class="bfp-file-duration" style="text-align:right;font-size:16px;">' . esc_html( $duration ) . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
                     } else {
                         print '<tr class="' . esc_attr( $evenOdd ) . ' product-' . esc_attr( $file['product'] ) . '"><td><div class="bfp-player-container ' . $first_player_class . '" data-player-id="' . esc_attr( $counter ) . '">' . $audio_tag . '</div><div class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr( $counter ) . '">' . wp_kses_post( $title ) . ( $single_player ? '<span class="bfp-file-duration">' . esc_html( $duration ) . '</span>' : '' ) . '</div></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
                     }
@@ -249,7 +256,7 @@ public function include_all_players($product = '') {
                 print $after; // phpcs:ignore WordPress.Security.EscapeOutput
             }
             $purchased = $this->main_plugin->woocommerce_user_product( $id );
-            $message   = $this->main_plugin->get_global_attr( '_bfp_message', '' );
+            $message   = $this->main_plugin->get_state( '_bfp_message' );
             if ( ! empty( $message ) && false === $purchased ) {
                 print '<div class="bfp-message">' . wp_kses_post( __( $message, 'bandfront-player' ) ) . '</div>'; // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             }

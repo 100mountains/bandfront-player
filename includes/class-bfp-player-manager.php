@@ -159,8 +159,8 @@ class BFP_Player_Manager {
         
         global $BandfrontPlayer;
         
-        // Get audio engine setting
-        $audio_engine = $BandfrontPlayer->get_global_attr('_bfp_audio_engine', 'mediaelement');
+        // Get audio engine setting using new state handler
+        $audio_engine = $BandfrontPlayer->get_config()->get_state('_bfp_audio_engine');
         
         // Enqueue base styles
         wp_enqueue_style(
@@ -210,8 +210,8 @@ class BFP_Player_Manager {
             wp_enqueue_style('wp-mediaelement');
             wp_enqueue_script('wp-mediaelement');
             
-            // Get selected player skin
-            $selected_skin = $BandfrontPlayer->get_global_attr('_bfp_player_layout', 'dark');
+            // Get selected player skin using new state handler
+            $selected_skin = $BandfrontPlayer->get_config()->get_state('_bfp_player_layout');
             
             // Handle backward compatibility - map old names to new names
             $skin_mapping = array(
@@ -247,15 +247,25 @@ class BFP_Player_Manager {
             true
         );
         
-        // Localize script with settings
+        // Localize script with settings using bulk fetch
+        $settings_keys = array(
+            '_bfp_play_simultaneously',
+            '_bfp_ios_controls',
+            '_bfp_fade_out',
+            '_bfp_on_cover',
+            '_bfp_enable_visualizations'
+        );
+        
+        $settings = $BandfrontPlayer->get_config()->get_states($settings_keys);
+        
         $js_settings = array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'audio_engine' => $audio_engine,
-            'play_simultaneously' => $BandfrontPlayer->get_global_attr('_bfp_play_simultaneously', 0),
-            'ios_controls' => $BandfrontPlayer->get_global_attr('_bfp_ios_controls', false),
-            'fade_out' => $BandfrontPlayer->get_global_attr('_bfp_fade_out', 0),
-            'on_cover' => $BandfrontPlayer->get_global_attr('_bfp_on_cover', 0),
-            'visualizations' => $BandfrontPlayer->get_global_attr('_bfp_enable_visualizations', 0),
+            'play_simultaneously' => $settings['_bfp_play_simultaneously'],
+            'ios_controls' => $settings['_bfp_ios_controls'],
+            'fade_out' => $settings['_bfp_fade_out'],
+            'on_cover' => $settings['_bfp_on_cover'],
+            'visualizations' => $settings['_bfp_enable_visualizations'],
             'player_skin' => $selected_skin
         );
         

@@ -41,7 +41,7 @@ class BFP_Hooks_Manager {
             );
         } else {
             // On shop/archive pages, remove the title hook if on_cover is enabled
-            $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+            $on_cover = $this->main_plugin->get_state('_bfp_on_cover');
             if (!$on_cover) {
                 $hooks_config['main_player'] = array(
                     'woocommerce_after_shop_loop_item_title' => 1,
@@ -171,7 +171,7 @@ class BFP_Hooks_Manager {
      * Conditionally add product title filter
      */
     public function conditionally_add_title_filter() {
-        $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+        $on_cover = $this->main_plugin->get_state('_bfp_on_cover');
         if (!$on_cover) {
             add_filter( 'woocommerce_product_title', array( $this->main_plugin->get_woocommerce(), 'woocommerce_product_title' ), 10, 2 );
         }
@@ -185,7 +185,7 @@ class BFP_Hooks_Manager {
             return;
         }
         
-        $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+        $on_cover = $this->main_plugin->get_state('_bfp_on_cover');
         if ($on_cover) {
             wp_add_inline_style('bfp-style', '
                 .woocommerce ul.products li.product .bfp-play-on-cover {
@@ -232,7 +232,7 @@ class BFP_Hooks_Manager {
             return;
         }
         
-        $on_cover = $this->main_plugin->get_global_attr('_bfp_on_cover', 1);
+        $on_cover = $this->main_plugin->get_state('_bfp_on_cover');
         if (!$on_cover) {
             return;
         }
@@ -243,7 +243,7 @@ class BFP_Hooks_Manager {
         }
         
         $product_id = $product->get_id();
-        $enable_player = $this->main_plugin->get_product_attr($product_id, '_bfp_enable_player', false);
+        $enable_player = $this->main_plugin->get_state('_bfp_enable_player', false, $product_id);
         
         if (!$enable_player) {
             return;

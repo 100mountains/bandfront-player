@@ -2,6 +2,10 @@
 /**
  * Audio Engine Module for Bandfront Player
  * Handles MediaElement.js vs WaveSurfer.js selection
+ *
+ * @package BandfrontPlayer
+ * @subpackage Modules
+ * @since 1.0.0
  */
 
 if (!defined('ABSPATH')) {
@@ -12,12 +16,22 @@ if (!defined('ABSPATH')) {
 add_action('bfp_module_general_settings', 'bfp_audio_engine_settings');
 add_action('bfp_module_product_settings', 'bfp_audio_engine_product_settings');
 
+/**
+ * Renders audio engine options on the general settings page
+ * 
+ * Allows selection between MediaElement.js and WaveSurfer.js
+ * with additional visualization options for WaveSurfer
+ *
+ * @since 1.0.0
+ * @global object $BandfrontPlayer Main plugin instance
+ * @return void
+ */
 function bfp_audio_engine_settings() {
     global $BandfrontPlayer;
     
-    // Get current audio engine setting
-    $audio_engine = $BandfrontPlayer->get_global_attr('_bfp_audio_engine', 'mediaelement');
-    $enable_visualizations = $BandfrontPlayer->get_global_attr('_bfp_enable_visualizations', 0);
+    // Use the new state handler
+    $audio_engine = $BandfrontPlayer->get_config()->get_state('_bfp_audio_engine');
+    $enable_visualizations = $BandfrontPlayer->get_config()->get_state('_bfp_enable_visualizations');
     ?>
     <tr>
         <td colspan="2">
@@ -83,16 +97,27 @@ function bfp_audio_engine_settings() {
     <?php
 }
 
+/**
+ * Renders product-specific audio engine settings
+ * 
+ * Allows overriding the global audio engine setting for individual products
+ *
+ * @since 1.0.0
+ * @param int $product_id WooCommerce product ID
+ * @global object $BandfrontPlayer Main plugin instance
+ * @return void
+ */
+
 function bfp_audio_engine_product_settings($product_id) {
     global $BandfrontPlayer;
     
-    // Get product-specific override if it exists
-    $product_engine = get_post_meta($product_id, '_bfp_audio_engine', true);
-    $global_engine = $BandfrontPlayer->get_global_attr('_bfp_audio_engine', 'mediaelement');
+    // Use the new state handler with context
+    $product_engine = $BandfrontPlayer->get_config()->get_state('_bfp_audio_engine', null, $product_id);
+    $global_engine = $BandfrontPlayer->get_config()->get_state('_bfp_audio_engine');
     
-    if (empty($product_engine)) {
-        $product_engine = 'global'; // Use global setting
-    }
+    // Check if this is actually a product override
+    $has_override = metadata_exists('post', $product_id, '_bfp_audio_engine');
+    $display_value = $has_override ? $product_engine : 'global';
     ?>
     <tr>
         <td colspan="2"><h3>🎚️ <?php esc_html_e('Audio Engine Override', 'bandfront-player'); ?></h3></td>
@@ -103,13 +128,13 @@ function bfp_audio_engine_product_settings($product_id) {
         </td>
         <td>
             <select name="_bfp_audio_engine" aria-label="<?php esc_attr_e('Audio engine for this product', 'bandfront-player'); ?>">
-                <option value="global" <?php selected($product_engine, 'global'); ?>>
+                <option value="global" <?php selected($display_value, 'global'); ?>>
                     <?php printf(esc_html__('Use Global Setting (%s)', 'bandfront-player'), ucfirst($global_engine)); ?>
                 </option>
-                <option value="mediaelement" <?php selected($product_engine, 'mediaelement'); ?>>
+                <option value="mediaelement" <?php selected($display_value, 'mediaelement'); ?>>
                     <?php esc_html_e('MediaElement.js', 'bandfront-player'); ?>
                 </option>
-                <option value="wavesurfer" <?php selected($product_engine, 'wavesurfer'); ?>>
+                <option value="wavesurfer" <?php selected($display_value, 'wavesurfer'); ?>>
                     <?php esc_html_e('WaveSurfer.js', 'bandfront-player'); ?>
                 </option>
             </select>
