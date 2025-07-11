@@ -19,11 +19,10 @@
     margin-top: -10px;
 }
 
-/* Tips Section - Updated to match existing highlight box pattern */
+/* Tips Section - Remove border-radius */
 .bfp-tips-container {
     padding: 20px;
     background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 50%, #6A1B9A 100%);
-    border-radius: 12px;
     margin-bottom: 25px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
@@ -50,7 +49,6 @@
 
 .bfp-tips-card {
     padding: 15px;
-    border-radius: 8px;
 }
 
 .bfp-tips-card-start {
@@ -92,7 +90,6 @@
     padding: 8px 16px;
     color: white;
     text-decoration: none;
-    border-radius: 4px;
     font-weight: 600;
 }
 
@@ -112,7 +109,6 @@
     margin-top: 20px;
     padding: 15px;
     background: rgba(255,255,255,0.9);
-    border-radius: 8px;
 }
 
 .bfp-tips-protip p {
@@ -197,11 +193,10 @@
     border-image-slice: 1;
 }
 
-/* Highlight Table */
+/* Highlight Table - Remove border-radius */
 .bfp-highlight-table {
     border: none !important;
     background: linear-gradient(135deg, #EDE7F6 0%, #D1C4E9 100%) !important;
-    border-radius: 8px;
     padding: 10px;
     margin-bottom: 15px;
 }
@@ -268,7 +263,6 @@
     margin-top: 10px;
     padding: 8px;
     background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
-    border-radius: 4px;
     border-left: 4px solid #4CAF50;
 }
 
@@ -383,8 +377,6 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
     margin-right: 2px;
     transition: all 0.3s ease;
     color: #666;
@@ -418,7 +410,6 @@
 .bfp-cloud-placeholder {
     padding: 20px;
     background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
-    border-radius: 8px;
     border-left: 4px solid #6C757D;
 }
 
@@ -454,7 +445,6 @@
 /* Troubleshooting Section */
 .bfp-troubleshoot-item {
     padding: 15px;
-    border-radius: 8px;
     margin-bottom: 15px;
 }
 
@@ -680,99 +670,196 @@ table.wp-list-table.fixed{table-layout:auto;}
 .bfp-general-settings-section {
     background: linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%);
     padding: 15px;
-    border-radius: 8px;
     margin-bottom: 15px;
+}
+
+.bfp-general-settings-section .bfp-section-header {
+    background: rgba(92, 107, 192, 0.7);
+    cursor: pointer;
+}
+
+.bfp-general-settings-section h2 {
+    color: white !important;
+    margin: 0;
 }
 
 /* Player Settings Section */
 .bfp-player-settings-section {
     background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);
     padding: 15px;
-    border-radius: 8px;
     margin-bottom: 15px;
+}
+
+.bfp-player-settings-section .bfp-section-header {
+    background: rgba(0, 137, 123, 0.7);
+    cursor: pointer;
+}
+
+.bfp-player-settings-section h2 {
+    color: white !important;
+    margin: 0;
 }
 
 /* File Truncation Section */
 .bfp-file-truncation-section {
     background: linear-gradient(135deg, #FCE4EC 0%, #F8BBD0 100%);
     padding: 15px;
-    border-radius: 8px;
     margin-bottom: 15px;
+}
+
+.bfp-file-truncation-section .bfp-section-header {
+    background: rgba(194, 24, 91, 0.7);
+    cursor: pointer;
+}
+
+.bfp-file-truncation-section h2 {
+    color: white !important;
+    margin: 0;
 }
 
 /* Analytics Section */
 .bfp-analytics-section {
     background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%);
     padding: 15px;
-    border-radius: 8px;
     margin-bottom: 15px;
+}
+
+.bfp-analytics-section .bfp-section-header {
+    background: rgba(245, 127, 23, 0.7);
+    cursor: pointer;
+}
+
+.bfp-analytics-section h2 {
+    color: white !important;
+    margin: 0;
 }
 
 /* Cloud Storage Section */
 .bfp-cloud-storage-section {
     background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%);
     padding: 15px;
-    border-radius: 8px;
     margin-bottom: 15px;
+}
+
+.bfp-cloud-storage-section .bfp-section-header {
+    background: rgba(2, 136, 209, 0.7);
+    cursor: pointer;
+}
+
+.bfp-cloud-storage-section h2 {
+    color: white !important;
+    margin: 0;
 }
 
 /* Audio Engine Section */
 .bfp-audio-engine-section {
     background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
     padding: 15px;
-    border-radius: 8px;
     margin-bottom: 15px;
 }
 
-/* Remove borders from tables inside sections */
-.bfp-general-settings-section .bfp-settings-table,
-.bfp-player-settings-section .bfp-settings-table,
-.bfp-file-truncation-section .bfp-settings-table,
-.bfp-analytics-section .bfp-settings-table,
-.bfp-cloud-storage-section .bfp-settings-table,
-.bfp-audio-engine-section .bfp-settings-table {
-    border: none;
-    background: transparent;
-    margin-bottom: 0;
-}
-
-/* Highlight Box Update */
-.bfp-highlight-table {
-    border: none !important;
-    background: linear-gradient(135deg, #EDE7F6 0%, #D1C4E9 100%) !important;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-
-/* Section Headers Enhancement */
-.bfp-section-header {
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-/* Section header text colors to match troubleshooting */
-.bfp-general-settings-section h2 {
-    color: #5C6BC0;
-}
-
-.bfp-player-settings-section h2 {
-    color: #00897B;
-}
-
-.bfp-file-truncation-section h2 {
-    color: #C2185B;
-}
-
-.bfp-analytics-section h2 {
-    color: #F57F17;
-}
-
-.bfp-cloud-storage-section h2 {
-    color: #0288D1;
+.bfp-audio-engine-section .bfp-section-header {
+    background: rgba(123, 31, 162, 0.7);
+    cursor: pointer;
 }
 
 .bfp-audio-engine-section h2 {
-    color: #7B1FA2;
+    color: white !important;
+    margin: 0;
+}
+
+/* Section Collapsible Arrows - Position at far right */
+.bfp-section-arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+    font-size: 16px;
+    color: white;
+}
+
+.bfp-section-arrow-open {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.bfp-section-content {
+    transition: all 0.3s ease;
+}
+
+/* Update section headers to show cursor pointer and position relative for arrow */
+.bfp-section-header {
+    position: relative;
+    margin-bottom: 0;
+    padding: 15px;
+    border-bottom: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.bfp-section-header:hover {
+    filter: brightness(1.1);
+}
+
+/* Troubleshooting section header styling - keeping existing */
+.bfp-troubleshoot-section {
+    background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bfp-troubleshoot-section .bfp-section-header {
+    background: #FF5722;
+    margin: -15px -15px 15px -15px;
+    padding: 15px;
+    color: white;
+}
+
+.bfp-troubleshoot-section h2 {
+    color: white !important;
+    margin: 0;
+}
+
+/* Ensure nested tables have no borders */
+.bfp-section-content table.widefat {
+    border: none;
+    margin-bottom: 0;
+}
+
+.bfp-section-content > tr > td {
+    padding: 15px;
+}
+
+/* Remove background gradients from section containers */
+.bfp-general-settings-section,
+.bfp-player-settings-section,
+.bfp-file-truncation-section,
+.bfp-analytics-section,
+.bfp-cloud-storage-section,
+.bfp-audio-engine-section,
+.bfp-troubleshoot-section {
+    background: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+/* Keep section headers consistent */
+.bfp-general-settings-section .bfp-section-header,
+.bfp-player-settings-section .bfp-section-header,
+.bfp-file-truncation-section .bfp-section-header,
+.bfp-analytics-section .bfp-section-header,
+.bfp-cloud-storage-section .bfp-section-header,
+.bfp-audio-engine-section .bfp-section-header,
+.bfp-troubleshoot-section .bfp-section-header {
+    margin: 0;
+    padding: 15px;
+    color: white;
+}
+
+/* Remove the purple highlight table background */
+.bfp-highlight-table {
+    border: none !important;
+    background: none !important;
+    padding: 0;
+    margin-bottom: 0;
 }

@@ -121,37 +121,36 @@ remove_all_actions( 'bfp_general_settings', 10 );
 
 <form method="post" enctype="multipart/form-data">
 <input type="hidden" name="bfp_nonce" value="<?php echo esc_attr( wp_create_nonce( 'bfp_updating_plugin_settings' ) ); ?>" />
-<table class="widefat bfp-main-table">
+
+<table class="widefat bfp-table-noborder">
 	<tr>
-		<td>
-			<div class="bfp-general-settings-section">
-			<table class="widefat bfp-settings-table">
+			<table class="widefat bfp-settings-table bfp-general-settings-section">
 				<tr>
-					<td colspan="2" class="bfp-section-header"><h2>⚙️ <?php esc_html_e( 'General Settings', 'bandfront-player' ); ?></h2></td>
+					<td class="bfp-section-header">
+						<h2 onclick="jQuery(this).closest('table').find('.bfp-section-content').toggle(); jQuery(this).closest('.bfp-section-header').find('.bfp-section-arrow').toggleClass('bfp-section-arrow-open');" style="cursor: pointer;">
+							⚙️ <?php esc_html_e( 'General Settings', 'bandfront-player' ); ?>
+						</h2>
+						<span class="bfp-section-arrow">▶</span>
+					</td>
+				</tr>
+				<tbody class="bfp-section-content" style="display: none;">
+				<tr>
+					<td class="bfp-column-30"><label for="_bfp_registered_only">👤 <?php esc_html_e( 'Registered users only', 'bandfront-player' ); ?></label></td>
+					<td><input aria-label="<?php esc_attr_e( 'Include the players only for registered users', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_registered_only" name="_bfp_registered_only" <?php print( ( $registered_only ) ? 'CHECKED' : '' ); ?> /><br>
+					<em class="bfp-em-text"><?php esc_html_e( 'Only show audio players to logged-in users', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr>
-					<td colspan="2">
-						<table class="widefat bfp-highlight-table">
-							<tr>
-								<td class="bfp-column-30"><label for="_bfp_registered_only">👤 <?php esc_html_e( 'Registered users only', 'bandfront-player' ); ?></label></td>
-								<td><input aria-label="<?php esc_attr_e( 'Include the players only for registered users', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_registered_only" name="_bfp_registered_only" <?php print( ( $registered_only ) ? 'CHECKED' : '' ); ?> /><br>
-								<em class="bfp-em-text"><?php esc_html_e( 'Only show audio players to logged-in users', 'bandfront-player' ); ?></em></td>
-							</tr>
-							<tr>
-								<td class="bfp-column-30">🛒 <?php esc_html_e( 'Full tracks for buyers', 'bandfront-player' ); ?></td>
-								<td>
-									<label><input aria-label="<?php esc_attr_e( 'For buyers, play the purchased audio files instead of the truncated files for demo', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_purchased" <?php print( ( $purchased ) ? 'CHECKED' : '' ); ?> />
-									<?php esc_html_e( 'Let buyers hear full tracks instead of demos', 'bandfront-player' ); ?></label><br>
-									<label class="bfp-settings-label"><?php esc_html_e( 'Reset access', 'bandfront-player' ); ?>
-									<select aria-label="<?php esc_attr_e( 'Reset files interval', 'bandfront-player' ); ?>" name="_bfp_reset_purchased_interval">
-										<option value="daily" <?php if ( 'daily' == $reset_purchased_interval ) {
-											print 'SELECTED';} ?>><?php esc_html_e( 'daily', 'bandfront-player' ); ?></option>
-										<option value="never" <?php if ( 'never' == $reset_purchased_interval ) {
-											print 'SELECTED';} ?>><?php esc_html_e( 'never', 'bandfront-player' ); ?></option>
-									</select></label>
-								</td>
-							</tr>
-						</table>
+					<td class="bfp-column-30">🛒 <?php esc_html_e( 'Full tracks for buyers', 'bandfront-player' ); ?></td>
+					<td>
+						<label><input aria-label="<?php esc_attr_e( 'For buyers, play the purchased audio files instead of the truncated files for demo', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_purchased" <?php print( ( $purchased ) ? 'CHECKED' : '' ); ?> />
+						<?php esc_html_e( 'Let buyers hear full tracks instead of demos', 'bandfront-player' ); ?></label><br>
+						<label class="bfp-settings-label"><?php esc_html_e( 'Reset access', 'bandfront-player' ); ?>
+						<select aria-label="<?php esc_attr_e( 'Reset files interval', 'bandfront-player' ); ?>" name="_bfp_reset_purchased_interval">
+							<option value="daily" <?php if ( 'daily' == $reset_purchased_interval ) {
+								print 'SELECTED';} ?>><?php esc_html_e( 'daily', 'bandfront-player' ); ?></option>
+							<option value="never" <?php if ( 'never' == $reset_purchased_interval ) {
+								print 'SELECTED';} ?>><?php esc_html_e( 'never', 'bandfront-player' ); ?></option>
+						</select></label>
 					</td>
 				</tr>
 				<tr>
@@ -168,12 +167,23 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				<?php
 					do_action( 'bfp_general_settings' );
 				?>
+				</tbody>
 			</table>
-			</div>
+	</tr>
+</table>
 
-			<div class="bfp-player-settings-section">
-			<table class="widefat bfp-player-settings bfp-settings-table">
-				<tr><td colspan="2" class="bfp-section-header"><h2>🎵 <?php esc_html_e( 'Player Settings', 'bandfront-player' ); ?></h2></td></tr>
+<table class="widefat bfp-table-noborder">
+	<tr>
+			<table class="widefat bfp-player-settings bfp-settings-table bfp-player-settings-section">
+				<tr>
+					<td class="bfp-section-header">
+						<h2 onclick="jQuery(this).closest('table').find('.bfp-section-content').toggle(); jQuery(this).closest('.bfp-section-header').find('.bfp-section-arrow').toggleClass('bfp-section-arrow-open');" style="cursor: pointer;">
+							🎵 <?php esc_html_e( 'Player Settings', 'bandfront-player' ); ?>
+						</h2>
+						<span class="bfp-section-arrow">▶</span>
+					</td>
+				</tr>
+				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_enable_player">🎧 <?php esc_html_e( 'Enable players on all products', 'bandfront-player' ); ?></label></td>
 					<td><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Players will show for downloadable products with audio files, or products where you\'ve added custom audio files', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Enable player', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_enable_player" name="_bfp_enable_player" <?php echo ( ( $enable_player ) ? 'checked' : '' ); ?> /></div></td>
@@ -276,75 +286,54 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						<input aria-label="<?php esc_attr_e( 'Display the player title', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_player_title" name="_bfp_player_title" <?php echo ( ( ! empty( $player_title ) ) ? 'checked' : '' ); ?> />
 					</td>
 				</tr>
-				<tr>
-					<td colspan="2">
-						<div class="bfp-file-truncation-section">
-						<table class="widefat bfp-settings-table">
-							<tr><td colspan="2" class="bfp-section-header"><h2>🔒 <?php esc_html_e( 'File Truncation', 'bandfront-player' ); ?></h2></td></tr>
-							<tr>
-								<td class="bfp-column-30"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Truncate audio files', 'bandfront-player' ); ?></label></td>
-								<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php echo ( ( $secure_player ) ? 'checked' : '' ); ?> /><br>
-								<em class="bfp-em-text"><?php esc_html_e( 'Create demo versions to prevent unauthorized downloading', 'bandfront-player' ); ?></em></td>
-							</tr>
-							<tr valign="top">
-								<td class="bfp-column-30"><label for="_bfp_file_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></td>
-								<td>
-									<input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_file_percent" name="_bfp_file_percent" value="<?php echo esc_attr( $file_percent ); ?>" /> % <br />
-									<em class="bfp-em-text"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></em>
-								</td>
-							</tr>
-							<tr valign="top">
-								<td class="bfp-column-30">
-									<label for="_bfp_message">💬 <?php esc_html_e( 'Demo notice text', 'bandfront-player' ); ?></label>
-								</td>
-								<td>
-									<textarea aria-label="<?php esc_attr_e( 'Explaining that demos are partial versions of the original files', 'bandfront-player' ); ?>" id="_bfp_message" name="_bfp_message" class="bfp-input-full" rows="4"><?php echo esc_textarea( $message ); ?></textarea><br>
-									<em class="bfp-em-text"><?php esc_html_e( 'Text shown next to players to explain these are preview versions', 'bandfront-player' ); ?></em>
-								</td>
-							</tr>
-							<tr>
-								<td colspan="2"><hr class="bfp-protection-divider" /></td>
-							</tr>
-							<tr>
-								<td colspan="2"><i class="bfp-ffmpeg-info"><?php esc_html_e( 'Advanced: FFmpeg can create higher-quality demo files with better audio processing than the default PHP method.', 'bandfront-player' ); ?></i></td>
-							</tr>
-							<tr>
-								<td class="bfp-column-30"><label for="_bfp_ffmpeg">⚡ <?php esc_html_e( 'Use FFmpeg for demos', 'bandfront-player' ); ?></label></td>
-								<td><input aria-label="<?php esc_attr_e( 'Truncate the audio files for demo with ffmpeg', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_ffmpeg" name="_bfp_ffmpeg" <?php print( ( $ffmpeg ) ? 'CHECKED' : '' ); ?> /><br>
-								<em class="bfp-em-text"><?php esc_html_e( 'Requires FFmpeg to be installed on your server', 'bandfront-player' ); ?></em></td>
-							</tr>
-							<tr>
-								<td class="bfp-column-30"><label for="_bfp_ffmpeg_path">📁 <?php esc_html_e( 'FFmpeg path', 'bandfront-player' ); ?></label></td>
-								<td>
-									<input aria-label="<?php esc_attr_e( 'ffmpeg path', 'bandfront-player' ); ?>" type="text" id="_bfp_ffmpeg_path" name="_bfp_ffmpeg_path" value="<?php print esc_attr( empty( $ffmpeg_path ) && ! empty( $ffmpeg_system_path ) ? $ffmpeg_system_path : $ffmpeg_path ); ?>" class="bfp-input-full" /><br />
-									<i class="bfp-ffmpeg-example">Example: /usr/bin/</i>
-								</td>
-							</tr>
-							<tr>
-								<td class="bfp-column-30"><label for="_bfp_ffmpeg_watermark">🎤 <?php esc_html_e( 'Audio watermark', 'bandfront-player' ); ?></label></td>
-								<td>
-									<input aria-label="<?php esc_attr_e( 'Watermark audio', 'bandfront-player' ); ?>" type="text" id="_bfp_ffmpeg_watermark" name="_bfp_ffmpeg_watermark" value="<?php print esc_attr( $ffmpeg_watermark ); ?>" class="bfp-watermark-input bfp-file-url" /><input type="button" class="button-secondary bfp-select-file bfp-watermark-button" value="<?php esc_attr_e( 'Select', 'bandfront-player' ); ?>" /><br />
-									<i class="bfp-em-text"><?php esc_html_e( 'Optional audio file to overlay on demos (experimental feature)', 'bandfront-player' ); ?></i>
-								</td>
-							</tr>
-						</table>
-						</div>
-					</td>
-				</tr>
+				</tbody>
 			</table>
-			</div>
-		</td>
 	</tr>
 </table>
 
 <table class="widefat bfp-table-noborder">
 	<tr>
-		<td>
-			<div class="bfp-analytics-section">
-			<table class="widefat bfp-settings-table">
+			<table class="widefat bfp-settings-table bfp-file-truncation-section">
 				<tr>
-					<td class="bfp-section-header"><h2>📈 <?php esc_html_e( 'Analytics', 'bandfront-player' ); ?></h2></td>
+					<td class="bfp-section-header">
+						<h2 onclick="jQuery(this).closest('table').find('.bfp-section-content').toggle(); jQuery(this).closest('.bfp-section-header').find('.bfp-section-arrow').toggleClass('bfp-section-arrow-open');" style="cursor: pointer;">
+							🔒 <?php esc_html_e( 'File Truncation', 'bandfront-player' ); ?>
+						</h2>
+						<span class="bfp-section-arrow">▶</span>
+					</td>
 				</tr>
+				<tbody class="bfp-section-content" style="display: none;">
+				<tr>
+					<td class="bfp-column-30"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Truncate audio files', 'bandfront-player' ); ?></label></td>
+					<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php echo ( ( $secure_player ) ? 'checked' : '' ); ?> /><br>
+					<em class="bfp-em-text"><?php esc_html_e( 'Create demo versions to prevent unauthorized downloading', 'bandfront-player' ); ?></em></td>
+				</tr>
+				<tr valign="top">
+					<td class="bfp-column-30">
+						<label for="_bfp_message">💬 <?php esc_html_e( 'Demo notice text', 'bandfront-player' ); ?></label>
+					</td>
+					<td>
+						<textarea aria-label="<?php esc_attr_e( 'Explaining that demos are partial versions of the original files', 'bandfront-player' ); ?>" id="_bfp_message" name="_bfp_message" class="bfp-input-full" rows="4"><?php echo esc_textarea( $message ); ?></textarea><br>
+						<em class="bfp-em-text"><?php esc_html_e( 'Text shown next to players to explain these are preview versions', 'bandfront-player' ); ?></em>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+	</tr>
+</table>
+
+<table class="widefat bfp-table-noborder">
+	<tr>
+			<table class="widefat bfp-settings-table bfp-analytics-section">
+				<tr>
+					<td class="bfp-section-header">
+						<h2 onclick="jQuery(this).closest('table').find('.bfp-section-content').toggle(); jQuery(this).closest('.bfp-section-header').find('.bfp-section-arrow').toggleClass('bfp-section-arrow-open');" style="cursor: pointer;">
+							📈 <?php esc_html_e( 'Analytics', 'bandfront-player' ); ?>
+						</h2>
+						<span class="bfp-section-arrow">▶</span>
+					</td>
+				</tr>
+				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
 					<td>
 					<label><input aria-label="<?php esc_attr_e( 'Show "playback Counter" in the WooCommerce products list', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_playback_counter_column" <?php print( ( $playback_counter_column ) ? 'CHECKED' : '' ); ?> />
@@ -375,11 +364,11 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						<div><input aria-label="<?php esc_attr_e( 'API Secret', 'bandfront-player' ); ?>" type="text" name="_bfp_analytics_api_secret" value="<?php print esc_attr( $analytics_api_secret ); ?>" class="bfp-analytics-input"></div>
 					</td>
 				</tr>
+				</tbody>
 			</table>
-			</div>
-		</td>
 	</tr>
 </table>
+
 <?php 
 // Cloud Storage Settings
 $bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
@@ -389,18 +378,17 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 ?>
 <table class="widefat bfp-table-noborder">
 	<tr>
-		<td>
-			<div class="bfp-cloud-storage-section">
-			<table class="widefat bfp-settings-table">
+			<table class="widefat bfp-settings-table bfp-cloud-storage-section">
 				<tr>
 					<td class="bfp-section-header">
-						<h2 onclick="jQuery('.bfp-cloud-content').toggle(); jQuery('.bfp-cloud-arrow').toggleClass('bfp-cloud-arrow-open');" style="cursor: pointer;">
+						<h2 onclick="jQuery(this).closest('table').find('.bfp-section-content').toggle(); jQuery(this).closest('.bfp-section-header').find('.bfp-section-arrow').toggleClass('bfp-section-arrow-open');" style="cursor: pointer;">
 							☁️ <?php esc_html_e( 'Cloud Storage', 'bandfront-player' ); ?> 
-							<span class="bfp-cloud-arrow">▶</span>
 						</h2>
+						<span class="bfp-section-arrow">▶</span>
 					</td>
 				</tr>
-				<tr class="bfp-cloud-content" style="display: none;">
+				<tbody class="bfp-section-content" style="display: none;">
+				<tr>
 					<td>
 						<p class="bfp-cloud-info"><?php esc_html_e( 'Automatically upload demo files to cloud storage to save server storage and bandwidth. Files are streamed directly from the cloud.', 'bandfront-player' ); ?></p>
 						
@@ -547,32 +535,62 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 						</div>
 					</td>
 				</tr>
-			</table>
-			</div>
-		</td>
+			</table>	
 	</tr>
 </table>
+
 <table class="widefat bfp-table-noborder">
-	<tr>
-		<td>
-			<div class="bfp-audio-engine-section">
-			<table class="widefat bfp-settings-table">
+	<tr>	
+			<table class="widefat bfp-settings-table bfp-audio-engine-section">
 				<tr>
-					<td colspan="2" class="bfp-section-header"><h2>⚙️ <?php esc_html_e( 'Audio Engine', 'bandfront-player' ); ?></h2></td>
+					<td class="bfp-section-header">
+						<h2 onclick="jQuery(this).closest('table').find('.bfp-section-content').toggle(); jQuery(this).closest('.bfp-section-header').find('.bfp-section-arrow').toggleClass('bfp-section-arrow-open');" style="cursor: pointer;">
+							⚙️ <?php esc_html_e( 'Audio Engine', 'bandfront-player' ); ?>
+						</h2>
+						<span class="bfp-section-arrow">▶</span>
+					</td>
 				</tr>
+				<tbody class="bfp-section-content" style="display: none;">
 				<?php do_action( 'bfp_module_general_settings' ); ?>
+				<tr>
+					<td colspan="2"><hr class="bfp-protection-divider" /></td>
+				</tr>
+				<tr>
+					<td class="bfp-column-30"><label for="_bfp_ffmpeg">⚡ <?php esc_html_e( 'Use FFmpeg', 'bandfront-player' ); ?></label></td>
+					<td><input aria-label="<?php esc_attr_e( 'Truncate the audio files for demo with ffmpeg', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_ffmpeg" name="_bfp_ffmpeg" <?php print( ( $ffmpeg ) ? 'CHECKED' : '' ); ?> /><br>
+					<em class="bfp-em-text"><?php esc_html_e( 'Requires FFmpeg to be installed on your server', 'bandfront-player' ); ?></em></td>
+				</tr>
+				<tr>
+					<td class="bfp-column-30"><label for="_bfp_ffmpeg_path">📁 <?php esc_html_e( 'FFmpeg path', 'bandfront-player' ); ?></label></td>
+					<td>
+						<input aria-label="<?php esc_attr_e( 'ffmpeg path', 'bandfront-player' ); ?>" type="text" id="_bfp_ffmpeg_path" name="_bfp_ffmpeg_path" value="<?php print esc_attr( empty( $ffmpeg_path ) && ! empty( $ffmpeg_system_path ) ? $ffmpeg_system_path : $ffmpeg_path ); ?>" class="bfp-input-full" /><br />
+						<i class="bfp-ffmpeg-example">Example: /usr/bin/</i>
+					</td>
+				</tr>
+				<tr>
+					<td class="bfp-column-30"><label for="_bfp_ffmpeg_watermark">🎤 <?php esc_html_e( 'Audio watermark', 'bandfront-player' ); ?></label></td>
+					<td>
+						<input aria-label="<?php esc_attr_e( 'Watermark audio', 'bandfront-player' ); ?>" type="text" id="_bfp_ffmpeg_watermark" name="_bfp_ffmpeg_watermark" value="<?php print esc_attr( $ffmpeg_watermark ); ?>" class="bfp-watermark-input bfp-file-url" /><input type="button" class="button-secondary bfp-select-file bfp-watermark-button" value="<?php esc_attr_e( 'Select', 'bandfront-player' ); ?>" /><br />
+						<i class="bfp-em-text"><?php esc_html_e( 'Optional audio file to overlay on demos ', 'bandfront-player' ); ?></i>
+					</td>
+				</tr>
+				</tbody>
 			</table>
-			</div>
-		</td>
 	</tr>
 </table>
+
 <table class="widefat bfp-table-noborder">
 	<tr>
-		<td>
-			<table class="widefat bfp-settings-table">
+			<table class="widefat bfp-settings-table bfp-troubleshoot-section">
 				<tr>
-					<td><h2>🔧 <?php esc_html_e( 'Troubleshooting', 'bandfront-player' ); ?></h2></td>
+					<td class="bfp-section-header">
+						<h2 onclick="jQuery(this).closest('table').find('.bfp-section-content').toggle(); jQuery(this).closest('.bfp-section-header').find('.bfp-section-arrow').toggleClass('bfp-section-arrow-open');" style="cursor: pointer;">
+							🔧 <?php esc_html_e( 'Troubleshooting', 'bandfront-player' ); ?>
+						</h2>
+						<span class="bfp-section-arrow">▶</span>
+					</td>
 				</tr>
+				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
 					<td class="bfp-troubleshoot-item bfp-troubleshoot-mobile">
 						<h3>📱 Mobile Issues</h3>
@@ -653,8 +671,8 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 						<p class="bfp-troubleshoot-protip"><b>💡 <?php esc_html_e( 'Pro Tip!', 'bandfront-player' ); ?></b> <?php esc_html_e( 'After changing troubleshooting settings, clear your website and browser caches for best results.', 'bandfront-player' ); ?></p>
 					</td>
 				</tr>
+				</tbody>
 			</table>
-		</td>
 	</tr>
 </table>
 <div class="bfp-submit-wrapper"><input type="submit" value="<?php esc_attr_e( 'Save settings', 'bandfront-player' ); ?>" class="button-primary" /></div>
@@ -662,6 +680,9 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 <script>
 jQuery(window).on('load', function(){
     var $ = jQuery;
+    
+    // Initialize all sections as closed - remove the line that opened them
+    
     function coverSection()
     {
         var v = $('[name="_bfp_player_controls"]:checked').val(),
