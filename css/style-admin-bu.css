@@ -1,0 +1,626 @@
+.bfp-file-name,.bfp-file-url{width:100% !important;}
+#bfp_woocommerce_metabox .widefat{border:0;}
+.bfp-tooltip{position:relative;display:inline-block;}
+.bfp-tooltip .bfp-tooltiptext{visibility:hidden;width:240px;background-color:#555;color:#fff;text-align:center;padding:5px;border-radius:6px;position:absolute;z-index:9999;bottom:125%;left:50%;margin-left:-120px;opacity:0;transition:opacity 1s;}
+.bfp-tooltip .bfp-tooltiptext::after{content:"";position:absolute;top:100%;left:50%;margin-left:-10px;border-width:5px;border-style:solid;border-color:#555 transparent transparent transparent;}
+.bfp-tooltip:hover .bfp-tooltiptext{visibility:visible;opacity:1;}
+.bfp-highlight-box{border:1px solid #E6DB55;margin-bottom:10px;padding:5px;background-color: #FFFFE0;}
+#bfp_tips_body,.bfp-tip-text{display:none;}
+.cp-blink-me {animation: cp_blinker 2s linear infinite;text-transform: uppercase;}
+@keyframes cp_blinker{50% {opacity: 0;}}
+
+/* GLOBAL OPTIONS STYLES */
+
+/* Header and Title Styles */
+.bfp-tagline {
+    font-style: italic;
+    font-size: 12px;
+    color: #666;
+    margin-top: -10px;
+}
+
+/* Tips Section */
+.bfp-tips-container {
+    padding: 20px;
+    background: #6a4c93;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.bfp-tips-header h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    cursor: pointer;
+    color: white;
+    font-size: 24px;
+}
+
+.bfp-tips-body {
+    display: none;
+}
+
+.bfp-tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.bfp-tips-card {
+    padding: 15px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 8px;
+}
+
+.bfp-tips-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.bfp-tips-card p {
+    margin-bottom: 10px;
+    color: #666;
+}
+
+.bfp-tips-link {
+    display: inline-block;
+    padding: 8px 16px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 4px;
+}
+
+.bfp-tips-link-start {
+    background: #2e7d32;
+}
+
+.bfp-tips-link-shortcodes {
+    background: #7b1fa2;
+}
+
+.bfp-tips-link-customization {
+    background: #e65100;
+}
+
+.bfp-tips-protip {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 8px;
+}
+
+.bfp-tips-protip p {
+    margin: 0;
+    color: #1565c0;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Main Form Tables */
+.bfp-main-table {
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.bfp-settings-table {
+    border: 1px solid #e1e1e1;
+    margin-bottom: 20px;
+}
+
+/* Section Headers - Simple colors, no gradients */
+.bfp-settings-table h2 {
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.bfp-settings-table h2:hover {
+    color: #0073aa;
+}
+
+/* Remove all hover animations from table cells */
+.bfp-settings-table tr:hover td {
+    background-color: rgba(0, 115, 170, 0.05);
+    transition: background-color 0.3s ease;
+}
+
+.bfp-settings-table label {
+    transition: color 0.3s ease;
+}
+
+.bfp-settings-table label:hover {
+    color: #0073aa;
+}
+
+/* Input Focus Effects */
+.bfp-settings-table input[type="text"]:focus,
+.bfp-settings-table input[type="number"]:focus,
+.bfp-settings-table textarea:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.bfp-settings-table input[type="checkbox"]:checked,
+.bfp-settings-table input[type="radio"]:checked {
+    accent-color: #0073aa;
+}
+
+.bfp-em-text {
+    color: #666;
+}
+
+.bfp-settings-label {
+    margin-left: 20px;
+}
+
+/* Player Settings */
+.bfp-player-skin-table {
+    width: 100%;
+}
+
+.bfp-player-skin-cell {
+    width: 100%;
+    padding-left: 20px;
+}
+
+.bfp-single-player-row {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    background: #f8f9fa;
+    padding: 10px;
+}
+
+.bfp-single-player-label {
+    padding-left: 20px;
+}
+
+.bfp-on-cover {
+    margin-top: 10px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-left: 4px solid #28a745;
+}
+
+.bfp-on-cover i {
+    color: #666;
+    display: block;
+    margin-top: 4px;
+}
+
+/* File Protection Section */
+.bfp-protection-divider {
+    border: 1px solid #ddd;
+    margin: 15px 0;
+}
+
+.bfp-ffmpeg-info,
+.bfp-ffmpeg-example {
+    color: #666;
+}
+
+.bfp-watermark-input {
+    width: calc(100% - 60px) !important;
+}
+
+.bfp-watermark-button {
+    float: right;
+}
+
+.bfp-scope-table {
+    border: 1px solid #e1e1e1;
+    margin-top: 10px;
+}
+
+/* Analytics Section */
+.bfp-analytics-note {
+    color: #666;
+}
+
+.bfp-analytics-warning {
+    border: 1px solid #0073aa;
+    margin-bottom: 10px;
+    padding: 5px;
+    background: #f0f8ff;
+    border-radius: 4px;
+}
+
+.bfp-analytics-radio-spacer {
+    margin-left: 30px;
+}
+
+.bfp-analytics-g4 {
+    display: none;
+}
+
+.bfp-analytics-input {
+    width: 100%;
+}
+
+/* Cloud Storage Section */
+.bfp-cloud-info {
+    color: #666;
+}
+
+.bfp-oauth-success {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.bfp-cloud-instructions {
+    border: 1px solid #0073aa;
+    margin-bottom: 10px;
+    padding: 5px;
+    background: #f0f8ff;
+    border-radius: 4px;
+}
+
+/* Cloud Storage Collapsible */
+.bfp-cloud-arrow {
+    float: right;
+    transition: transform 0.3s ease;
+    font-size: 16px;
+}
+
+.bfp-cloud-arrow-open {
+    transform: rotate(90deg);
+}
+
+.bfp-cloud-content {
+    transition: all 0.3s ease;
+}
+
+/* Cloud Storage Tabs */
+.bfp-cloud-tabs {
+    margin-top: 15px;
+}
+
+.bfp-cloud-tab-buttons {
+    display: flex;
+    border-bottom: 2px solid #e1e1e1;
+    margin-bottom: 20px;
+}
+
+.bfp-cloud-tab-btn {
+    background: #f1f1f1;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-right: 2px;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.bfp-cloud-tab-btn:hover {
+    background-color: #e8e8e8;
+    color: #333;
+}
+
+.bfp-cloud-tab-active {
+    background: #0073aa !important;
+    color: white !important;
+    border-bottom: 2px solid #0073aa;
+}
+
+.bfp-cloud-tab-content {
+    min-height: 200px;
+}
+
+.bfp-cloud-tab-panel {
+    display: none;
+}
+
+.bfp-cloud-tab-panel-active {
+    display: block;
+}
+
+.bfp-cloud-placeholder {
+    padding: 20px;
+    background: #f8f9fa;
+    border-left: 4px solid #6c757d;
+}
+
+.bfp-cloud-placeholder h3 {
+    margin-top: 0;
+    color: #495057;
+}
+
+.bfp-cloud-placeholder p {
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+.bfp-cloud-features {
+    margin-top: 15px;
+}
+
+.bfp-cloud-features h4 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.bfp-cloud-features ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.bfp-cloud-features li {
+    padding: 5px 0;
+    color: #6c757d;
+}
+
+/* Troubleshooting Section */
+.bfp-troubleshoot-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    border-left: 4px solid #0073aa;
+}
+
+.bfp-troubleshoot-item h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.bfp-troubleshoot-item p {
+    font-weight: 600;
+    color: #333;
+}
+
+.bfp-troubleshoot-protip {
+    border: 1px solid #28a745;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8fff8;
+    border-radius: 8px;
+}
+
+/* Submit Button - Green as requested */
+.bfp-submit-wrapper {
+    margin-top: 20px;
+}
+
+.button-primary {
+    background: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+    transition: all 0.3s ease;
+}
+
+.button-primary:hover {
+    background: #218838 !important;
+    border-color: #1e7e34 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Column Width Fix */
+.bfp-column-30 {
+    width: 30%;
+}
+
+/* Full Width Inputs */
+.bfp-input-full {
+    width: 100% !important;
+}
+
+/* No Border Tables */
+.bfp-table-noborder {
+    border: 0;
+}
+
+/* Player Settings First Column Width */
+.bfp-player-settings tr td:first-child {
+    width: 225px;
+}
+
+/* Section Collapsible Arrows - Only animate arrow, nothing else */
+.bfp-section-arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+    font-size: 16px;
+    color: white;
+}
+
+.bfp-section-arrow-open {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.bfp-section-content {
+    transition: all 0.3s ease;
+}
+
+/* Section headers - clean colors */
+.bfp-section-header {
+    position: relative;
+    margin-bottom: 0;
+    padding: 15px;
+    border-bottom: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.bfp-section-header:hover {
+    filter: brightness(1.05);
+}
+
+/* Clean section colors */
+.bfp-general-settings-section .bfp-section-header {
+    background: #5a6c7d;
+}
+
+.bfp-player-settings-section .bfp-section-header {
+    background: #4a90a4;
+}
+
+.bfp-file-truncation-section .bfp-section-header {
+    background: #8e7cc3;
+}
+
+.bfp-analytics-section .bfp-section-header {
+    background: #d4a574;
+}
+
+.bfp-cloud-storage-section .bfp-section-header {
+    background: #5ba8cc;
+}
+
+.bfp-audio-engine-section .bfp-section-header {
+    background: #9575cd;
+}
+
+.bfp-troubleshoot-section .bfp-section-header {
+    background: #e57373;
+}
+
+/* Section containers */
+.bfp-general-settings-section,
+.bfp-player-settings-section,
+.bfp-file-truncation-section,
+.bfp-analytics-section,
+.bfp-cloud-storage-section,
+.bfp-audio-engine-section,
+.bfp-troubleshoot-section {
+    background: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.bfp-section-header h2 {
+    color: white !important;
+    margin: 0;
+}
+
+/* Ensure nested tables have no borders */
+.bfp-section-content table.widefat {
+    border: none;
+    margin-bottom: 0;
+}
+
+.bfp-section-content > tr > td {
+    padding: 15px;
+}
+
+/* Remove the purple highlight table background */
+.bfp-highlight-table {
+    border: none !important;
+    background: none !important;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+/* PRODUCTS LIST */
+table.wp-list-table.fixed{table-layout:auto;}
+.column-bfp_playback_counter{ white-space:nowrap; }
+.column-bfp_playback_counter>a{ display:flex !important;}
+.bfp-playback-counter{display:block;text-align:center;}
+
+/* LOADING ANIMATION */
+.bfp-skin-generate-btn,
+.bfp-skin-preview-btn{display:flex;flex-direction:row;align-items:center;}
+.bfp-skin-generate-btn:disabled::after,
+.bfp-skin-preview-btn:disabled::after{
+	content: " ";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 2px solid transparent;
+    border-top: 2px solid #999999;
+    border-radius: 50%;
+    animation: bfp-spin 1s linear infinite;
+    margin: 0 0 0 10px;
+}
+
+@keyframes bfp-spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+/* PLAYER OPTIONS PAGE STYLES */
+
+/* Page Header */
+.bfp-page-tagline {
+    font-style: italic;
+    font-size: 12px;
+    color: #666;
+    margin-top: -10px;
+}
+
+/* Info Boxes */
+.bfp-info-box {
+    padding: 15px;
+    background: #f0f8ff;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.bfp-info-box-title {
+    color: #0073aa;
+    margin-top: 0;
+}
+
+.bfp-info-box-text {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.bfp-info-box-highlight {
+    color: #0073aa;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+/* Checkbox Containers */
+.bfp-checkbox-box {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.bfp-checkbox-label {
+    padding-left: 20px;
+}
+
+/* Demo Files Section */
+.bfp-demo-checkbox-box {
+    padding: 15px;
+    background: #fff8e1;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.bfp-demo-description {
+    margin: 8px 0 0 0;
+    color: #666;
+    font-style: italic;
+}
+
+.bfp-demo-files-row {
+    display: block;
+}
+
+.bfp-demo-files-hidden {
+    display: none;
+}
+
+.bfp-demo-files-label {
+    margin-bottom: 15px;
+}
+
+/* Direct Demo Box */
+.bfp-direct-demo-box {
+    padding: 15px;
+    background: #f8fff8;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}

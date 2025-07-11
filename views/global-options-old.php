@@ -1,11 +1,10 @@
 <?php
-// Security check - use ABSPATH instead
-if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
-}
+if ( ! defined( 'BFP_PLUGIN_URL' ) ) {
+	echo 'Direct access not allowed.';
+	exit; }
 
 // include resources
-wp_enqueue_style( 'bfp-admin-style', plugin_dir_url( __FILE__ ) . '../css/style-admin.css', array(), '5.0.181' );
+wp_enqueue_style( 'bfp-admin-style', plugin_dir_url( __FILE__ ) . '../css/style.admin.css', array(), '5.0.181' );
 wp_enqueue_media();
 wp_enqueue_script( 'bfp-admin-js', plugin_dir_url( __FILE__ ) . '../js/admin.js', array(), '5.0.181' );
 $bfp_js = array(
@@ -680,12 +679,33 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 </form>
 <script>
 jQuery(window).on('load', function(){
+    var $ = jQuery;
+    
+    // Initialize all sections as closed - remove the line that opened them
+    
+    function coverSection()
+    {
+        var v = $('[name="_bfp_player_controls"]:checked').val(),
+            c = $('.bfp-on-cover');
+        if(v == 'default' || v == 'button') c.show();
+        else c.hide();
+    };
+    $(document).on('change', '[name="_bfp_player_controls"]', function(){
+        coverSection();
+    });
+    $(document).on('change', '[name="_bfp_analytics_integration"]', function(){
+        var v = $('[name="_bfp_analytics_integration"]:checked').val();
+        $('.bfp-analytics-g4').css('display', v == 'g' ? 'table-row' : 'none');
+        $('[name="_bfp_analytics_property"]').attr('placeholder', v == 'g' ? 'G-XXXXXXXX' : 'UA-XXXXX-Y');
+    });
+    
+    // Cloud Storage Tab Functionality
     $(document).on('click', '.bfp-cloud-tab-btn', function(){
+        var tab = $(this).data('tab');
+        
+        // Update tab buttons
         $('.bfp-cloud-tab-btn').removeClass('bfp-cloud-tab-active');
         $(this).addClass('bfp-cloud-tab-active');
-        
-        // Get the tab from data attribute
-        var tab = $(this).data('tab');
         
         // Update tab panels
         $('.bfp-cloud-tab-panel').removeClass('bfp-cloud-tab-panel-active');

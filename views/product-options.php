@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 
 
 // include resources
-wp_enqueue_style( 'bfp-admin-style', plugin_dir_url( __FILE__ ) . '../css/style.admin.css', array(), '5.0.181' );
+wp_enqueue_style( 'bfp-admin-style', plugin_dir_url( __FILE__ ) . '../css/style-admin.css', array(), '5.0.181' );
 wp_enqueue_script( 'bfp-admin-js', plugin_dir_url( __FILE__ ) . '../js/admin.js', array(), '5.0.181' );
 $bfp_js = array(
 	'File Name'         => __( 'File Name', 'bandfront-player' ),

@@ -24,7 +24,7 @@
 │   │   ├── custom.css
 │   │   ├── dark.css
 │   │   └── light.css
-│   ├── style.admin.css
+│   ├── style-admin.css
 │   └── style.css
 ├── demo
 │   └── demo.mp3

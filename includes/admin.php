@@ -120,7 +120,7 @@ class BFP_Admin {
             if ($this->main_plugin->get_global_attr('_bfp_playback_counter_column', 1)) {
                 wp_enqueue_style(
                     'bfp-Playback-counter', 
-                    plugin_dir_url(BFP_PLUGIN_PATH) . 'css/style.admin.css', 
+                    plugin_dir_url(BFP_PLUGIN_PATH) . 'css/style-admin.css', 
                     array(), 
                     BFP_VERSION
                 );
