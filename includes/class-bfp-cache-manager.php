@@ -51,6 +51,11 @@ class BFP_Cache_Manager {
         if (function_exists('wpfc_clear_all_cache')) {
             wpfc_clear_all_cache();
         }
+        
+        // Autoptimize
+        if (class_exists('autoptimizeCache')) {
+            autoptimizeCache::clearall();
+        }
 
         // Elementor Cache
         if (class_exists('\Elementor\Plugin')) {
@@ -61,5 +66,8 @@ class BFP_Cache_Manager {
 
         // Cache Enabler
         do_action('cache_enabler_clear_complete_cache');
+        
+        // WordPress native cache
+        wp_cache_flush();
     }
 }

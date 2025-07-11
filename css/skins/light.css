@@ -13,30 +13,36 @@
 
 .light .mejs-controls .mejs-time-rail .mejs-time-total {
     background-color: #ccc;
-    height: 6px;
+    height: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+    border: 1px solid #bbb;
 }
 
 .light .mejs-controls .mejs-time-rail .mejs-time-buffering {
-    height: 6px;
+    height: 10px;
+    border-radius: 5px;
 }
 
 .light .mejs-controls .mejs-time-rail .mejs-time-loaded {
     background-color: #ddd;
     width: 0;
-    height: 6px;
+    height: 10px;
+    border-radius: 5px;
 }
 
 .light .mejs-controls .mejs-time-rail .mejs-time-current {
     width: 0;
-    height: 6px;
+    height: 10px;
     background-color: #e74c3c;
+    border-radius: 5px;
 }
 
 .light .mejs-controls .mejs-time-rail .mejs-time-handle {
     display: block;
     margin: 0;
-    width: 14px;
-    height: 21px;
+    width: 16px;
+    height: 24px;
     top: -7px;
     border: 0;
     background: #cb0003;
@@ -67,7 +73,7 @@
 }
 
 .light .mejs-controls .mejs-playpause-button {
-    top: 18px;
+    top: 30px;
     left: 15px;
     width: 45px;
     height: 32px;
@@ -124,7 +130,7 @@
 }
 
 .light .mejs-controls .mejs-fullscreen-button {
-    top: 34px;
+    top: 39px;
     right: 9px;
     width: 17px;
     height: 15px;
@@ -177,7 +183,7 @@
 }
 
 .light .mejs-controls .mejs-volume-button {
-    top: 30px;
+    top: 35px;
     right: 35px;
     width: 24px;
     height: 22px;
@@ -279,7 +285,7 @@
 
 .light .mejs-controls .mejs-currenttime-container {
     position: absolute;
-    top: 32px;
+    top: 37px;
     right: 100px;
     border: 1px solid #999;
     background: #fff;
@@ -290,7 +296,7 @@
 
 .light .mejs-controls .mejs-duration-container {
     position: absolute;
-    top: 32px;
+    top: 37px;
     right: 65px;
     border: 1px solid #999;
     background: #fff;

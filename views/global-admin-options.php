@@ -30,7 +30,7 @@ $disable_302         			= trim( $GLOBALS['BandfrontPlayer']->get_global_attr( '_
 $enable_player   = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_enable_player', false );
 $show_in         = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_show_in', 'all' );
 $players_in_cart = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_players_in_cart', false );
-$player_style    = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_player_layout', BFP_DEFAULT_PLAYER_LAYOUT );
+$player_style    = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_player_layout', 'dark' );
 $volume          = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_player_volume', BFP_DEFAULT_PLAYER_VOLUME );
 $player_controls = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_player_controls', BFP_DEFAULT_PLAYER_CONTROLS );
 $single_player   = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_single_player', false );
@@ -124,9 +124,10 @@ remove_all_actions( 'bfp_general_settings', 10 );
 <table class="widefat bfp-main-table">
 	<tr>
 		<td>
+			<div class="bfp-general-settings-section">
 			<table class="widefat bfp-settings-table">
 				<tr>
-					<td colspan="2"><h2>⚙️ <?php esc_html_e( 'General Settings', 'bandfront-player' ); ?></h2></td>
+					<td colspan="2" class="bfp-section-header"><h2>⚙️ <?php esc_html_e( 'General Settings', 'bandfront-player' ); ?></h2></td>
 				</tr>
 				<tr>
 					<td colspan="2">
@@ -168,10 +169,11 @@ remove_all_actions( 'bfp_general_settings', 10 );
 					do_action( 'bfp_general_settings' );
 				?>
 			</table>
+			</div>
 
-
+			<div class="bfp-player-settings-section">
 			<table class="widefat bfp-player-settings bfp-settings-table">
-				<tr><td colspan="2"><h2>🎵 <?php esc_html_e( 'Player Settings', 'bandfront-player' ); ?></h2></td></tr>
+				<tr><td colspan="2" class="bfp-section-header"><h2>🎵 <?php esc_html_e( 'Player Settings', 'bandfront-player' ); ?></h2></td></tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_enable_player">🎧 <?php esc_html_e( 'Enable players on all products', 'bandfront-player' ); ?></label></td>
 					<td><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Players will show for downloadable products with audio files, or products where you\'ve added custom audio files', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Enable player', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_enable_player" name="_bfp_enable_player" <?php echo ( ( $enable_player ) ? 'checked' : '' ); ?> /></div></td>
@@ -276,8 +278,9 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				</tr>
 				<tr>
 					<td colspan="2">
+						<div class="bfp-file-truncation-section">
 						<table class="widefat bfp-settings-table">
-							<tr><td colspan="2"><h2>🔒 <?php esc_html_e( 'File Truncation', 'bandfront-player' ); ?></h2></td></tr>
+							<tr><td colspan="2" class="bfp-section-header"><h2>🔒 <?php esc_html_e( 'File Truncation', 'bandfront-player' ); ?></h2></td></tr>
 							<tr>
 								<td class="bfp-column-30"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Truncate audio files', 'bandfront-player' ); ?></label></td>
 								<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php echo ( ( $secure_player ) ? 'checked' : '' ); ?> /><br>
@@ -325,9 +328,11 @@ remove_all_actions( 'bfp_general_settings', 10 );
 								</td>
 							</tr>
 						</table>
+						</div>
 					</td>
 				</tr>
 			</table>
+			</div>
 		</td>
 	</tr>
 </table>
@@ -335,9 +340,10 @@ remove_all_actions( 'bfp_general_settings', 10 );
 <table class="widefat bfp-table-noborder">
 	<tr>
 		<td>
+			<div class="bfp-analytics-section">
 			<table class="widefat bfp-settings-table">
 				<tr>
-					<td><h2>📈 <?php esc_html_e( 'Analytics', 'bandfront-player' ); ?></h2></td>
+					<td class="bfp-section-header"><h2>📈 <?php esc_html_e( 'Analytics', 'bandfront-player' ); ?></h2></td>
 				</tr>
 				<tr>
 					<td>
@@ -370,6 +376,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 					</td>
 				</tr>
 			</table>
+			</div>
 		</td>
 	</tr>
 </table>
@@ -383,9 +390,10 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 <table class="widefat bfp-table-noborder">
 	<tr>
 		<td>
+			<div class="bfp-cloud-storage-section">
 			<table class="widefat bfp-settings-table">
 				<tr>
-					<td>
+					<td class="bfp-section-header">
 						<h2 onclick="jQuery('.bfp-cloud-content').toggle(); jQuery('.bfp-cloud-arrow').toggleClass('bfp-cloud-arrow-open');" style="cursor: pointer;">
 							☁️ <?php esc_html_e( 'Cloud Storage', 'bandfront-player' ); ?> 
 							<span class="bfp-cloud-arrow">▶</span>
@@ -540,19 +548,21 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 					</td>
 				</tr>
 			</table>
+			</div>
 		</td>
 	</tr>
 </table>
 <table class="widefat bfp-table-noborder">
-
 	<tr>
 		<td>
+			<div class="bfp-audio-engine-section">
 			<table class="widefat bfp-settings-table">
 				<tr>
-					<td colspan="2"><h2>⚙️ <?php esc_html_e( 'Audio Engine', 'bandfront-player' ); ?></h2></td>
+					<td colspan="2" class="bfp-section-header"><h2>⚙️ <?php esc_html_e( 'Audio Engine', 'bandfront-player' ); ?></h2></td>
 				</tr>
 				<?php do_action( 'bfp_module_general_settings' ); ?>
 			</table>
+			</div>
 		</td>
 	</tr>
 </table>

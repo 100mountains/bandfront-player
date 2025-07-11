@@ -13,33 +13,40 @@
 
 .dark .mejs-controls .mejs-time-rail .mejs-time-total {
     background-color: #555;
-    height: 6px;
+    height: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
 }
 
 .dark .mejs-controls .mejs-time-rail .mejs-time-buffering {
-    height: 6px;
+    height: 10px;
+    border-radius: 5px;
 }
 
 .dark .mejs-controls .mejs-time-rail .mejs-time-loaded {
     background-color: #999;
     width: 0;
-    height: 6px;
+    height: 10px;
+    border-radius: 5px;
 }
 
 .dark .mejs-controls .mejs-time-rail .mejs-time-current {
     width: 0;
-    height: 6px;
+    height: 10px;
     background-color: #fc6;
+    border-radius: 5px;
 }
 
 .dark .mejs-controls .mejs-time-rail .mejs-time-handle {
     display: block;
     margin: 0;
-    width: 10px;
+    width: 14px;
     height: 14px;
-    top: -4px;
+    top: -2px;
     border: 0;
     background: #fc6;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 .dark .mejs-controls .mejs-captions-button,
@@ -48,24 +55,30 @@
 }
 
 .dark .mejs-controls .mejs-playpause-button {
-    top: 12px;
+    top: 25px;
     left: 15px;
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
 }
 
 .dark .mejs-controls .mejs-playpause-button button {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     margin: 0;
     padding: 0;
     position: relative;
-    background: transparent;
+    background: rgba(255, 255, 255, 0.1);
     border: 0;
     outline: 0;
+    cursor: pointer;
+    border-radius: 4px;
 }
 
-/* CSS Play Icon */
+.dark .mejs-controls .mejs-playpause-button button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* CSS Play Icon - Triangle */
 .dark .mejs-controls .mejs-play button::before {
     content: '';
     position: absolute;
@@ -75,24 +88,26 @@
     width: 0;
     height: 0;
     border-style: solid;
-    border-width: 10px 0 10px 16px;
+    border-width: 12px 0 12px 18px;
     border-color: transparent transparent transparent #fc6;
 }
 
-/* CSS Pause Icon */
+/* CSS Pause Icon - Fixed gap issue */
 .dark .mejs-controls .mejs-pause button::before {
     content: '';
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 16px;
-    height: 20px;
-    background: linear-gradient(to right, #fc6 0%, #fc6 35%, transparent 35%, transparent 65%, #fc6 65%, #fc6 100%);
+    width: 6px;
+    height: 24px;
+    background: #fc6;
+    box-shadow: 12px 0 #fc6;
+    pointer-events: none; /* Ensure this doesn't block clicks */
 }
 
 .dark .mejs-controls .mejs-fullscreen-button {
-    top: 27px;
+    top: 32px;
     right: 15px;
     width: 30px;
     height: 28px;
@@ -145,7 +160,7 @@
 }
 
 .dark .mejs-controls .mejs-volume-button {
-    top: 23px;
+    top: 28px;
     right: 55px;
     width: 30px;
     height: 35px;
@@ -218,14 +233,14 @@
 
 .dark .mejs-controls .mejs-currenttime-container {
     position: absolute;
-    top: 25px;
+    top: 30px;
     right: 100px;
     color: #ccc;
 }
 
 .dark .mejs-controls .mejs-duration-container {
     position: absolute;
-    top: 25px;
+    top: 30px;
     right: 152px;
     color: #ccc;
 }
@@ -253,14 +268,14 @@
 
 .dark .mejs-controls .mejs-currenttime-container {
     position: absolute;
-    top: 25px;
+    top: 30px;
     right: 100px;
     color: #ccc;
 }
 
 .dark .mejs-controls .mejs-duration-container {
     position: absolute;
-    top: 25px;
+    top: 30px;
     right: 152px;
     color: #ccc;
 }
