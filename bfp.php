@@ -165,8 +165,10 @@ if (!class_exists('BandfrontPlayer')) {
         }
         
         public function get_product_files($product_id) {
+            // Fixed: Pass product object instead of just array
+            $product = wc_get_product($product_id);
             return $this->_player_renderer->_get_product_files(array(
-                'product' => wc_get_product($product_id),
+                'product' => $product,
                 'all' => true
             ));
         }
@@ -241,7 +243,7 @@ if (!class_exists('BandfrontPlayer')) {
         }
         
         public function init() {
-            // Register shortcodes
+            // Register shortcodes - this is already here but let's make sure it's not duplicated
             add_shortcode('bfp-playlist', array($this->_woocommerce, 'replace_playlist_shortcode'));
             
             // Schedule cron events
