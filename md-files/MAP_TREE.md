@@ -29,21 +29,23 @@
 ├── demo
 │   └── demo.mp3
 ├── includes
-│   ├── class-bfp-admin.php
-│   ├── class-bfp-analytics.php
-│   ├── class-bfp-audio-processor.php
-│   ├── class-bfp-auto-updater.php
-│   ├── class-bfp-cache-manager.php
-│   ├── class-bfp-cloud-tools.php
-│   ├── class-bfp-config.php
-│   ├── class-bfp-file-handler.php
-│   ├── class-bfp-hooks-manager.php
-│   ├── class-bfp-player-manager.php
-│   ├── class-bfp-player-renderer.php
-│   ├── class-bfp-playlist-renderer.php
-│   ├── class-bfp-preview-manager.php
-│   ├── class-bfp-utils.php
-│   └── class-bfp-woocommerce.php
+│   ├── admin.php
+│   ├── audio.php
+│   ├── cover-renderer.php
+│   ├── hooks.php
+│   ├── player-renderer.php
+│   ├── player.php
+│   ├── playlist-renderer.php
+│   ├── state-manager.php
+│   ├── utils
+│   │   ├── analytics.php
+│   │   ├── cache.php
+│   │   ├── cloud.php
+│   │   ├── files.php
+│   │   ├── preview.php
+│   │   ├── update.php
+│   │   └── utils.php
+│   └── woocommerce.php
 ├── js
 │   ├── admin.js
 │   ├── engine.js
@@ -55,9 +57,12 @@
 │   ├── bandfront-player.pot
 │   └── messages.mo
 ├── md-files
+│   ├── AI-CODE-RULES copy.md
 │   ├── AI-CODE-RULES.md
 │   ├── BandFront_Media_Players_Modernization_Guide.md
 │   ├── Bandfront_WordPress_Modernization_Report.md
+│   ├── CLASS_REFACTOR PROGRESS.md
+│   ├── CLASS_REFACTOR.md
 │   ├── CLOUD_STORAGE.md
 │   ├── ERRORS.md
 │   ├── JOBz.md
@@ -97,4 +102,4 @@
     │       └── public.js
     └── playlist_widget.php
 
-25 directories, 73 files
+26 directories, 77 files

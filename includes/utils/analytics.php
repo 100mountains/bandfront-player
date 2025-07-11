@@ -33,7 +33,7 @@ class BFP_Analytics {
      * Track play event
      */
     public function track_play_event($product_id, $file_url) {
-        $this->main_plugin->get_audio_processor()->tracking_play_event($product_id, $file_url);
+        $this->main_plugin->get_audio_core()->tracking_play_event($product_id, $file_url);
     }
     
     /**

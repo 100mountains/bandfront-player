@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  * BFP Audio Processor Class
  * Handles all audio file processing, streaming, and manipulation
  */
-class BFP_Audio_Processor {
+class BFP_Audio_Engine {
     
     private $main_plugin;
     private $_preload_times = 0;

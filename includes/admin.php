@@ -330,7 +330,7 @@ class BFP_Admin {
         do_action('bfp_save_setting');
 
         // Purge Cache using new cache manager
-        BFP_Cache_Manager::clear_all_caches();
+        BFP_Cache::clear_all_caches();
     }
     
     /**

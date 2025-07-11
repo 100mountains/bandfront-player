@@ -10,7 +10,7 @@ bfp.php                            # Main plugin file ✓
 
 /includes/                         # Core classes
   admin.php                       # Rename from class-bfp-admin.php
-  audio-engine.php                # Rename from class-bfp-audio-processor.php
+  audio.php                       # Rename from class-bfp-audio-processor.php
   state-manager.php               # Rename from class-bfp-config.php
   cover-renderer.php              # Rename from class-bfp-cover-overlay-renderer.php
   hooks.php                       # Rename from class-bfp-hooks-manager.php
@@ -18,7 +18,7 @@ bfp.php                            # Main plugin file ✓
   player-renderer.php             # Rename from class-bfp-player-renderer.php
   playlist-renderer.php           # Rename from class-bfp-playlist-renderer.php
   woocommerce.php                 # Rename from class-bfp-woocommerce.php
-  /utils/                         # New utility folder - ULTRA SHORT NAMES
+  /utils/                         # New utility folder 
     analytics.php                 # Rename from class-bfp-analytics.php
     cache.php                     # Rename from class-bfp-cache-manager.php
     cloud.php                     # Rename from class-bfp-cloud-tools.php
@@ -28,7 +28,7 @@ bfp.php                            # Main plugin file ✓
     utils.php                     # Rename from class-bfp-utils.php
 
 /modules/                          # Feature modules ✓
-  audio-engine.php                # ✓ Module for audio engine settings
+  audio-engine.php                # ✓ Module for audio engine settings (KEPT AS IS)
   cloud-engine.php                # ✓ Module for cloud storage settings
 
 /views/                           # UI templates ✓
@@ -41,14 +41,6 @@ bfp.php                            # Main plugin file ✓
   wavesurfer.js                   # ✓ WaveSurfer integration
 ```
 
-## Benefits of Ultra-Short Names
-
-1. **Extremely easy to type** - `cache.php`, `cloud.php`, `files.php`
-2. **Cleaner IDE tabs** - Maximum readability
-3. **Faster development** - Minimal typing when opening files
-4. **Modern convention** - Follows current best practices
-5. **Still clear in context** - The `/includes/utils/` path provides clarity
-
 ## Updated Refactoring Plan
 
 ### Phase 1: Create Utils Directory
@@ -56,13 +48,13 @@ bfp.php                            # Main plugin file ✓
 mkdir -p /var/www/html/wp-content/plugins/bandfront-player/includes/utils
 ```
 
-### Phase 2: Rename and Move Files - ULTRA SHORT VERSION
+### Phase 2: Rename and Move Files - FIXED VERSION
 ```bash
 # Rename core files to shorter names
 mv includes/class-bfp-admin.php includes/admin.php
 mv includes/class-bfp-config.php includes/state-manager.php
 mv includes/class-bfp-hooks-manager.php includes/hooks.php
-mv includes/class-bfp-audio-processor.php includes/audio-engine.php
+mv includes/class-bfp-audio-processor.php includes/audio.php          # FIXED
 mv includes/class-bfp-player-manager.php includes/player.php
 mv includes/class-bfp-player-renderer.php includes/player-renderer.php
 mv includes/class-bfp-playlist-renderer.php includes/playlist-renderer.php
@@ -87,7 +79,7 @@ mv includes/class-bfp-preview-manager.php includes/utils/preview.php
 | class-bfp-admin.php | admin.php | BFP_Admin |
 | class-bfp-config.php | state-manager.php | BFP_Config |
 | class-bfp-hooks-manager.php | hooks.php | BFP_Hooks |
-| class-bfp-audio-processor.php | audio-engine.php | BFP_Audio_Engine |
+| class-bfp-audio-processor.php | audio.php | BFP_Audio_Engine |
 | class-bfp-player-manager.php | player.php | BFP_Player |
 | class-bfp-cover-overlay-renderer.php | cover-renderer.php | BFP_Cover_Renderer |
 
@@ -111,32 +103,7 @@ require_once 'includes/class-bfp-admin.php';
 require_once 'includes/class-bfp-config.php';
 require_once 'includes/class-bfp-hooks-manager.php';
 require_once 'includes/class-bfp-audio-processor.php';
-require_once 'includes/class-bfp-player-manager.php';
-require_once 'includes/class-bfp-cache-manager.php';
-require_once 'includes/class-bfp-auto-updater.php';
-require_once 'includes/class-bfp-preview-manager.php';
-require_once 'includes/class-bfp-utils.php';
-require_once 'includes/class-bfp-file-handler.php';
-require_once 'includes/class-bfp-cloud-tools.php';
-require_once 'includes/class-bfp-analytics.php';
 
-// NEW structure - ULTRA CLEAN!
-require_once 'includes/admin.php';
-require_once 'includes/state-manager.php';
-require_once 'includes/hooks.php';
-require_once 'includes/audio-engine.php';
-require_once 'includes/player.php';
-require_once 'includes/player-renderer.php';
-require_once 'includes/playlist-renderer.php';
-require_once 'includes/cover-renderer.php';
-require_once 'includes/woocommerce.php';
-require_once 'includes/utils/cache.php';
-require_once 'includes/utils/update.php';
-require_once 'includes/utils/preview.php';
-require_once 'includes/utils/utils.php';
-require_once 'includes/utils/files.php';
-require_once 'includes/utils/cloud.php';
-require_once 'includes/utils/analytics.php';
 ```
 
 ### Update class instantiation:
@@ -149,7 +116,7 @@ $this->preview_manager = new BFP_Preview_Manager($this);
 
 // NEW
 $this->hooks = new BFP_Hooks($this);
-$this->audio_engine = new BFP_Audio_Engine($this);
+$this->audio_core = new BFP_Audio_Core($this);
 $this->player = new BFP_Player($this);
 $this->preview = new BFP_Preview($this);
 ```
@@ -163,7 +130,7 @@ public function get_preview_manager() { return $this->preview_manager; }
 public function get_hooks_manager() { return $this->hooks_manager; }
 
 // NEW
-public function get_audio_engine() { return $this->audio_engine; }
+public function get_audio_core() { return $this->audio_core; }
 public function get_player() { return $this->player; }
 public function get_preview() { return $this->preview; }
 public function get_hooks() { return $this->hooks; }
@@ -173,7 +140,7 @@ public function get_hooks() { return $this->hooks; }
 
 ### 1. Class Names
 ```
-BFP_Audio_Processor → BFP_Audio_Engine
+BFP_Audio_Processor → BFP_Audio_Core
 BFP_Hooks_Manager → BFP_Hooks
 BFP_Player_Manager → BFP_Player
 BFP_Cover_Overlay_Renderer → BFP_Cover_Renderer
@@ -184,7 +151,7 @@ BFP_Preview_Manager → BFP_Preview
 
 ### 2. Method Names
 ```
-get_audio_processor → get_audio_engine
+get_audio_processor → get_audio_core
 get_player_manager → get_player
 get_preview_manager → get_preview
 get_hooks_manager → get_hooks
@@ -193,7 +160,7 @@ get_cover_overlay_renderer → get_cover_renderer
 
 ### 3. Property Names
 ```
-->audio_processor → ->audio_engine
+->audio_processor → ->audio_core
 ->player_manager → ->player
 ->preview_manager → ->preview
 ->hooks_manager → ->hooks
@@ -203,6 +170,7 @@ get_cover_overlay_renderer → get_cover_renderer
 ### 4. File Path Updates - ULTRA SHORT
 ```
 includes/class-bfp-config.php → includes/state-manager.php
+includes/class-bfp-audio-processor.php → includes/audio.php    # FIXED
 includes/class-bfp-utils.php → includes/utils/utils.php
 includes/class-bfp-file-handler.php → includes/utils/files.php
 includes/class-bfp-cloud-tools.php → includes/utils/cloud.php
@@ -335,4 +303,56 @@ require_once 'includes/utils/files.php';
 5. **Class names unchanged** - No breaking changes to existing code
 6. **Future-ready** - Easy to add PSR-4 autoloading later
 
-What do you think? Should we go with the shorter names or even shorter utils names?
+
+comments for stages of execution:
+
+
+Looking at the refactoring guide, it's comprehensive and well-structured! Just a few final thoughts before you execute:
+
+## Last Comments on the Refactor:
+
+### 1. **Execution Order Matters**
+Run the refactor in this exact sequence to avoid breaking dependencies:
+1. Create `/utils/` folder first
+2. Move utility files (they have fewer dependencies)
+3. Rename core files last
+4. Update `bfp.php` require statements
+5. Test each step
+
+### 2. **Quick Wins to Prioritize**
+- `state-manager.php` rename is excellent - much more descriptive
+- `audio.php` avoids the module conflict perfectly
+- The `/utils/` folder will make the codebase much cleaner
+
+### 3. **Testing Strategy**
+After each phase:
+```bash
+# Quick smoke test
+wp plugin activate bandfront-player
+# Check if settings page loads
+# Verify a product page with audio still works
+```
+
+### 4. **Backup Strategy**
+```bash
+# Before starting
+cp -r includes/ includes_backup/
+mysqldump database_name > pre_refactor_backup.sql
+```
+
+### 5. **One Thing to Watch**
+The cover overlay renderer path in the hooks manager:
+```php
+require_once plugin_dir_path(__FILE__) . 'cover-renderer.php';
+```
+Make sure this path update doesn't get missed.
+
+### 6. **Post-Refactor Benefits**
+- IDE will love the cleaner file names
+- Much easier to navigate `includes/utils/cache.php` vs `includes/class-bfp-cache-manager.php`
+- Autocomplete will be faster
+- New developers will understand the structure immediately
+
+**This refactor is solid and well-planned!** The guide covers all the edge cases and the benefits far outweigh the effort. The file structure will be much more maintainable afterward.
+
+Ready to make your codebase beautiful! 🚀

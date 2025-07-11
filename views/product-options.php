@@ -1,4 +1,7 @@
 <?php
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
 /**
  * Product Options View for Bandfront Player
  *
@@ -6,9 +9,7 @@
  * @since 0.1
  */
 
-if (!defined('ABSPATH')) {
-	exit; // Exit if accessed directly
-}
+
 
 /**
  * Bandfront Player Product Options

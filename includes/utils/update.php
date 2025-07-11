@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  * BFP Auto Updater Class
  * Handles plugin auto-update functionality
  */
-class BFP_Auto_Updater {
+class BFP_Updater {
     
     private $current_version;
     private $update_path;
@@ -76,4 +76,4 @@ class BFP_Auto_Updater {
 }
 
 // Initialize auto-updater
-BFP_Auto_Updater::init();
+BFP_Updater::init();

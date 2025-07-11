@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 /**
  * BFP Player Manager Class
  */
-class BFP_Player_Manager {
+class BFP_Player {
     
     private $main_plugin;
     private $_enqueued_resources = false;

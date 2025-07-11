@@ -1,15 +1,15 @@
-# Copyright (C) 2025 Bleep
-# This file is distributed under the same license as the Bandfront Player plugin.
+# Copyright (C) 2025 Bandfront.com
+# This file is distributed under the GPL2.
 msgid ""
 msgstr ""
-"Project-Id-Version: Bandfront Player 0.1\n"
+"Project-Id-Version: Bandfront Player 5.0.181\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/bandfront-player\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-11T07:09:36+00:00\n"
+"POT-Creation-Date: 2025-07-11T21:29:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: bandfront-player\n"
@@ -19,24 +19,28 @@ msgstr ""
 #: builders/builders.php:88
 #: builders/elementor/elementor.pb.php:36
 #: builders/elementor/elementor.pb.php:43
-#: includes/class-bfp-admin.php:105
+#: includes/admin.php:105
 msgid "Bandfront Player"
 msgstr ""
 
 #. Plugin URI of the plugin
-#. Author URI of the plugin
 #: bfp.php
-msgid "https://therob.lol"
+msgid "http://bandfront.com/"
 msgstr ""
 
 #. Description of the plugin
 #: bfp.php
-msgid "Bandfront Player is a WordPress plugin that integrates a music player into WooCommerce product pages, allowing users to play audio files associated with products. It supports various player layouts, controls, and features like secure playback and file management."
+msgid "Music Player for WooCommerce"
 msgstr ""
 
 #. Author of the plugin
 #: bfp.php
-msgid "Bleep"
+msgid "Bandfront.com"
+msgstr ""
+
+#. Author URI of the plugin
+#: bfp.php
+msgid "https://bandfront.com"
 msgstr ""
 
 #: builders/elementor/elementor.pb.php:46
@@ -55,11 +59,11 @@ msgstr ""
 msgid "CLICK HERE"
 msgstr ""
 
-#: includes/class-bfp-admin.php:128
+#: includes/admin.php:128
 msgid "Playback Counter"
 msgstr ""
 
-#: includes/class-bfp-woocommerce.php:82
+#: includes/woocommerce.php:82
 msgid "download"
 msgstr ""
 
@@ -68,7 +72,7 @@ msgid "Choose the audio processing engine for your players. WaveSurfer.js provid
 msgstr ""
 
 #: modules/audio-engine.php:43
-#: views/global-admin-options.php:548
+#: views/global-admin-options.php:549
 msgid "Audio Engine"
 msgstr ""
 
@@ -129,815 +133,815 @@ msgstr ""
 msgid "Override the global audio engine setting for this specific product"
 msgstr ""
 
-#: views/global-admin-options.php:11
-#: views/product-options.php:23
-#: views/product-options.php:191
-msgid "File Name"
-msgstr ""
-
 #: views/global-admin-options.php:12
 #: views/product-options.php:24
-#: views/product-options.php:197
-msgid "Choose file"
+#: views/product-options.php:192
+msgid "File Name"
 msgstr ""
 
 #: views/global-admin-options.php:13
 #: views/product-options.php:25
-#: views/product-options.php:200
-msgid "Delete"
+#: views/product-options.php:198
+msgid "Choose file"
 msgstr ""
 
 #: views/global-admin-options.php:14
 #: views/product-options.php:26
-msgid "Select audio file"
+#: views/product-options.php:201
+msgid "Delete"
 msgstr ""
 
 #: views/global-admin-options.php:15
 #: views/product-options.php:27
+msgid "Select audio file"
+msgstr ""
+
+#: views/global-admin-options.php:16
+#: views/product-options.php:28
 msgid "Select Item"
 msgstr ""
 
-#: views/global-admin-options.php:72
+#: views/global-admin-options.php:73
 msgid "Bandfront Player - Global Settings"
 msgstr ""
 
-#: views/global-admin-options.php:78
+#: views/global-admin-options.php:79
 msgid "Tips On How To Setup Bandfront [+|-]"
 msgstr ""
 
-#: views/global-admin-options.php:84
+#: views/global-admin-options.php:85
 msgid "Getting Started"
 msgstr ""
 
-#: views/global-admin-options.php:86
+#: views/global-admin-options.php:87
 msgid "New to Bandfront? Start here for a complete setup guide."
 msgstr ""
 
-#: views/global-admin-options.php:89
+#: views/global-admin-options.php:90
 msgid "How To Start Guide →"
 msgstr ""
 
-#: views/global-admin-options.php:94
+#: views/global-admin-options.php:95
 msgid "Shortcodes"
 msgstr ""
 
-#: views/global-admin-options.php:96
+#: views/global-admin-options.php:97
 msgid "Advanced users can embed players anywhere with shortcodes."
 msgstr ""
 
-#: views/global-admin-options.php:99
+#: views/global-admin-options.php:100
 msgid "Shortcode Reference →"
 msgstr ""
 
-#: views/global-admin-options.php:104
+#: views/global-admin-options.php:105
 msgid "Customization"
 msgstr ""
 
-#: views/global-admin-options.php:106
+#: views/global-admin-options.php:107
 msgid "Make your players match your brand with custom CSS and styling."
 msgstr ""
 
-#: views/global-admin-options.php:109
+#: views/global-admin-options.php:110
 msgid "Customization Guide →"
 msgstr ""
 
-#: views/global-admin-options.php:116
+#: views/global-admin-options.php:117
 msgid "Pro Tip: Combine all three for maximum Bandcamp replacement!"
 msgstr ""
 
-#: views/global-admin-options.php:131
+#: views/global-admin-options.php:132
 msgid "General Settings"
 msgstr ""
 
-#: views/global-admin-options.php:138
+#: views/global-admin-options.php:139
 msgid "Registered users only"
 msgstr ""
 
-#: views/global-admin-options.php:139
+#: views/global-admin-options.php:140
 msgid "Include the players only for registered users"
 msgstr ""
 
-#: views/global-admin-options.php:140
+#: views/global-admin-options.php:141
 msgid "Only show audio players to logged-in users"
 msgstr ""
 
-#: views/global-admin-options.php:143
+#: views/global-admin-options.php:144
 msgid "Full tracks for buyers"
 msgstr ""
 
-#: views/global-admin-options.php:145
+#: views/global-admin-options.php:146
 msgid "For buyers, play the purchased audio files instead of the truncated files for demo"
 msgstr ""
 
-#: views/global-admin-options.php:146
+#: views/global-admin-options.php:147
 msgid "Let buyers hear full tracks instead of demos"
 msgstr ""
 
-#: views/global-admin-options.php:147
+#: views/global-admin-options.php:148
 msgid "Reset access"
 msgstr ""
 
-#: views/global-admin-options.php:148
+#: views/global-admin-options.php:149
 msgid "Reset files interval"
 msgstr ""
 
-#: views/global-admin-options.php:150
+#: views/global-admin-options.php:151
 msgid "daily"
 msgstr ""
 
-#: views/global-admin-options.php:152
+#: views/global-admin-options.php:153
 msgid "never"
 msgstr ""
 
-#: views/global-admin-options.php:157
+#: views/global-admin-options.php:158
 msgid "Smooth fade out"
 msgstr ""
 
-#: views/global-admin-options.php:158
+#: views/global-admin-options.php:159
 msgid "Apply fade out to playing audio when possible"
 msgstr ""
 
-#: views/global-admin-options.php:159
+#: views/global-admin-options.php:160
 msgid "Gradually fade out audio when switching tracks"
 msgstr ""
 
-#: views/global-admin-options.php:162
+#: views/global-admin-options.php:163
 msgid "Purchase count text"
 msgstr ""
 
-#: views/global-admin-options.php:163
+#: views/global-admin-options.php:164
 msgid "Purchased times text"
 msgstr ""
 
-#: views/global-admin-options.php:164
+#: views/global-admin-options.php:165
 #, php-format
 msgid "Text shown in playlists when displaying purchase counts (use %d for the number)"
 msgstr ""
 
-#: views/global-admin-options.php:181
+#: views/global-admin-options.php:182
 msgid "Player Settings"
 msgstr ""
 
-#: views/global-admin-options.php:188
+#: views/global-admin-options.php:189
 msgid "Enable players on all products"
 msgstr ""
 
-#: views/global-admin-options.php:189
+#: views/global-admin-options.php:190
 msgid "Players will show for downloadable products with audio files, or products where you've added custom audio files"
 msgstr ""
 
-#: views/global-admin-options.php:189
-#: views/product-options.php:83
+#: views/global-admin-options.php:190
+#: views/product-options.php:84
 msgid "Enable player"
 msgstr ""
 
-#: views/global-admin-options.php:192
+#: views/global-admin-options.php:193
 msgid "Show players on"
 msgstr ""
 
-#: views/global-admin-options.php:194
+#: views/global-admin-options.php:195
 msgid "Single entry pages"
 msgstr ""
 
-#: views/global-admin-options.php:195
+#: views/global-admin-options.php:196
 msgid "Product pages only"
 msgstr ""
 
-#: views/global-admin-options.php:197
+#: views/global-admin-options.php:198
 msgid "Multiple entry pages"
 msgstr ""
 
-#: views/global-admin-options.php:198
+#: views/global-admin-options.php:199
 msgid "Shop and archive pages only"
 msgstr ""
 
-#: views/global-admin-options.php:200
+#: views/global-admin-options.php:201
 msgid "Single and multiple entry pages"
 msgstr ""
 
-#: views/global-admin-options.php:201
+#: views/global-admin-options.php:202
 msgid "All pages (shop, archives, and product pages)"
 msgstr ""
 
-#: views/global-admin-options.php:205
+#: views/global-admin-options.php:206
 msgid "Show players in cart"
 msgstr ""
 
-#: views/global-admin-options.php:207
+#: views/global-admin-options.php:208
 msgid "Include players in cart"
 msgstr ""
 
-#: views/global-admin-options.php:211
-#: views/product-options.php:86
+#: views/global-admin-options.php:212
+#: views/product-options.php:87
 msgid "Merge grouped products"
 msgstr ""
 
-#: views/global-admin-options.php:212
-#: views/product-options.php:87
+#: views/global-admin-options.php:213
+#: views/product-options.php:88
 msgid "Merge in grouped products"
 msgstr ""
 
-#: views/global-admin-options.php:212
-#: views/product-options.php:87
+#: views/global-admin-options.php:213
+#: views/product-options.php:88
 msgid "Show \"Add to cart\" buttons and quantity fields within player rows for grouped products"
 msgstr ""
 
-#: views/global-admin-options.php:215
+#: views/global-admin-options.php:216
 msgid "Player appearance"
 msgstr ""
 
-#: views/global-admin-options.php:217
+#: views/global-admin-options.php:218
 msgid "Dark"
 msgstr ""
 
-#: views/global-admin-options.php:218
+#: views/global-admin-options.php:219
 msgid "Light"
 msgstr ""
 
-#: views/global-admin-options.php:219
-msgid "Custom"
-msgstr ""
-
 #: views/global-admin-options.php:220
-#: views/product-options.php:93
-msgid "Show a single player instead of one player per audio file."
+msgid "Custom"
 msgstr ""
 
 #: views/global-admin-options.php:221
 #: views/product-options.php:94
+msgid "Show a single player instead of one player per audio file."
+msgstr ""
+
+#: views/global-admin-options.php:222
+#: views/product-options.php:95
 msgid "Single player mode (one player for all tracks)"
 msgstr ""
 
-#: views/global-admin-options.php:226
-#: views/product-options.php:100
+#: views/global-admin-options.php:227
+#: views/product-options.php:101
 msgid "Preload behavior"
 msgstr ""
 
-#: views/global-admin-options.php:229
-#: views/product-options.php:103
+#: views/global-admin-options.php:230
+#: views/product-options.php:104
 msgid "Preload - none"
 msgstr ""
 
-#: views/global-admin-options.php:231
-#: views/product-options.php:105
+#: views/global-admin-options.php:232
+#: views/product-options.php:106
 msgid "Preload - metadata"
 msgstr ""
 
-#: views/global-admin-options.php:233
-#: views/product-options.php:107
+#: views/global-admin-options.php:234
+#: views/product-options.php:108
 msgid "Preload - auto"
 msgstr ""
 
-#: views/global-admin-options.php:239
-#: views/product-options.php:113
+#: views/global-admin-options.php:240
+#: views/product-options.php:114
 msgid "Auto-play next track"
 msgstr ""
 
-#: views/global-admin-options.php:242
-#: views/product-options.php:116
+#: views/global-admin-options.php:243
+#: views/product-options.php:117
 #: widgets/playlist_widget.php:115
 msgid "Play all"
 msgstr ""
 
-#: views/global-admin-options.php:248
-#: views/product-options.php:122
+#: views/global-admin-options.php:249
+#: views/product-options.php:123
 msgid "Loop tracks"
 msgstr ""
 
-#: views/global-admin-options.php:251
-#: views/product-options.php:125
+#: views/global-admin-options.php:252
+#: views/product-options.php:126
 msgid "Loop"
 msgstr ""
 
-#: views/global-admin-options.php:257
+#: views/global-admin-options.php:258
 msgid "Allow multiple players"
 msgstr ""
 
-#: views/global-admin-options.php:260
+#: views/global-admin-options.php:261
 msgid "Allow multiple players to play simultaneously"
 msgstr ""
 
-#: views/global-admin-options.php:263
+#: views/global-admin-options.php:264
 msgid "Let multiple players play at the same time instead of stopping others when one starts"
 msgstr ""
 
-#: views/global-admin-options.php:268
-#: views/product-options.php:130
+#: views/global-admin-options.php:269
+#: views/product-options.php:131
 msgid "Default volume (0.0 to 1.0)"
 msgstr ""
 
-#: views/global-admin-options.php:270
-#: views/product-options.php:132
+#: views/global-admin-options.php:271
+#: views/product-options.php:133
 msgid "Player volume"
 msgstr ""
 
-#: views/global-admin-options.php:275
-#: views/global-admin-options.php:278
+#: views/global-admin-options.php:276
 #: views/global-admin-options.php:279
 #: views/global-admin-options.php:280
+#: views/global-admin-options.php:281
 msgid "Player controls"
 msgstr ""
 
-#: views/global-admin-options.php:278
+#: views/global-admin-options.php:279
 msgid "Play/pause button only"
 msgstr ""
 
-#: views/global-admin-options.php:279
+#: views/global-admin-options.php:280
 msgid "Full controls (progress bar, volume, etc.)"
 msgstr ""
 
-#: views/global-admin-options.php:280
+#: views/global-admin-options.php:281
 msgid "Smart controls (minimal on shop, full on product pages)"
 msgstr ""
 
-#: views/global-admin-options.php:284
+#: views/global-admin-options.php:285
 msgid "Show track titles"
 msgstr ""
 
-#: views/global-admin-options.php:286
+#: views/global-admin-options.php:287
 msgid "Display the player title"
 msgstr ""
 
-#: views/global-admin-options.php:300
-#: views/product-options.php:138
+#: views/global-admin-options.php:301
+#: views/product-options.php:139
 msgid "File Truncation"
-msgstr ""
-
-#: views/global-admin-options.php:307
-#: views/product-options.php:140
-msgid "Truncate audio files"
 msgstr ""
 
 #: views/global-admin-options.php:308
 #: views/product-options.php:141
-msgid "Protect the file"
+msgid "Truncate audio files"
 msgstr ""
 
 #: views/global-admin-options.php:309
 #: views/product-options.php:142
+msgid "Protect the file"
+msgstr ""
+
+#: views/global-admin-options.php:310
+#: views/product-options.php:143
 msgid "Create demo versions to prevent unauthorized downloading"
 msgstr ""
 
-#: views/global-admin-options.php:313
+#: views/global-admin-options.php:314
 msgid "Demo notice text"
 msgstr ""
 
-#: views/global-admin-options.php:316
+#: views/global-admin-options.php:317
 msgid "Explaining that demos are partial versions of the original files"
 msgstr ""
 
-#: views/global-admin-options.php:317
+#: views/global-admin-options.php:318
 msgid "Text shown next to players to explain these are preview versions"
 msgstr ""
 
-#: views/global-admin-options.php:331
+#: views/global-admin-options.php:332
 msgid "Analytics"
 msgstr ""
 
-#: views/global-admin-options.php:339
+#: views/global-admin-options.php:340
 msgid "Show \"playback Counter\" in the WooCommerce products list"
 msgstr ""
 
-#: views/global-admin-options.php:340
+#: views/global-admin-options.php:341
 msgid "Show playback counter in products list"
 msgstr ""
 
-#: views/global-admin-options.php:345
+#: views/global-admin-options.php:346
 msgid "Connect with Google Analytics to track when songs are played. Events include the audio file URL and product ID."
 msgstr ""
 
-#: views/global-admin-options.php:346
+#: views/global-admin-options.php:347
 msgid "Note"
 msgstr ""
 
-#: views/global-admin-options.php:346
+#: views/global-admin-options.php:347
 msgid "If preload is set to \"Metadata\" or \"Auto\", events are tracked when files load, not just when they play."
 msgstr ""
 
-#: views/global-admin-options.php:351
+#: views/global-admin-options.php:352
 msgid "Universal Analytics"
 msgstr ""
 
-#: views/global-admin-options.php:352
+#: views/global-admin-options.php:353
 msgid "Measurement Protocol (Google Analytics 4)"
 msgstr ""
 
-#: views/global-admin-options.php:357
+#: views/global-admin-options.php:358
 msgid "Measurement ID"
 msgstr ""
 
-#: views/global-admin-options.php:358
+#: views/global-admin-options.php:359
 msgid "Measurement id"
 msgstr ""
 
-#: views/global-admin-options.php:363
 #: views/global-admin-options.php:364
+#: views/global-admin-options.php:365
 msgid "API Secret"
 msgstr ""
 
-#: views/global-admin-options.php:385
+#: views/global-admin-options.php:386
 msgid "Cloud Storage"
 msgstr ""
 
-#: views/global-admin-options.php:393
+#: views/global-admin-options.php:394
 msgid "Automatically upload demo files to cloud storage to save server storage and bandwidth. Files are streamed directly from the cloud."
 msgstr ""
 
-#: views/global-admin-options.php:398
+#: views/global-admin-options.php:399
 msgid "Google Drive"
 msgstr ""
 
-#: views/global-admin-options.php:401
+#: views/global-admin-options.php:402
 msgid "Dropbox"
 msgstr ""
 
-#: views/global-admin-options.php:404
+#: views/global-admin-options.php:405
 msgid "AWS S3"
 msgstr ""
 
-#: views/global-admin-options.php:407
+#: views/global-admin-options.php:408
 msgid "Azure Blob"
 msgstr ""
 
-#: views/global-admin-options.php:416
 #: views/global-admin-options.php:417
+#: views/global-admin-options.php:418
 msgid "Store demo files on Google Drive"
 msgstr ""
 
-#: views/global-admin-options.php:421
+#: views/global-admin-options.php:422
 msgid "Import OAuth Client JSON File"
 msgstr ""
 
-#: views/global-admin-options.php:422
+#: views/global-admin-options.php:423
 msgid "Required to upload demo files to Google Drive"
 msgstr ""
 
-#: views/global-admin-options.php:425
+#: views/global-admin-options.php:426
 msgid "OAuth Client JSON file"
 msgstr ""
 
-#: views/global-admin-options.php:428
+#: views/global-admin-options.php:429
 msgid "OAuth Client Available ✅"
 msgstr ""
 
-#: views/global-admin-options.php:433
+#: views/global-admin-options.php:434
 msgid "To create an OAuth 2.0 client ID:"
-msgstr ""
-
-#: views/global-admin-options.php:436
-#: views/global-admin-options.php:469
-msgid "Go to the"
-msgstr ""
-
-#: views/global-admin-options.php:436
-#: views/global-admin-options.php:469
-msgid "Google Cloud Platform Console"
 msgstr ""
 
 #: views/global-admin-options.php:437
 #: views/global-admin-options.php:470
-msgid "From the projects list, select a project or create a new one."
+msgid "Go to the"
+msgstr ""
+
+#: views/global-admin-options.php:437
+#: views/global-admin-options.php:470
+msgid "Google Cloud Platform Console"
 msgstr ""
 
 #: views/global-admin-options.php:438
 #: views/global-admin-options.php:471
-msgid "If the APIs & services page isn't already open, open the console left side menu and select APIs & services."
+msgid "From the projects list, select a project or create a new one."
 msgstr ""
 
 #: views/global-admin-options.php:439
 #: views/global-admin-options.php:472
-msgid "On the left, click Credentials."
+msgid "If the APIs & services page isn't already open, open the console left side menu and select APIs & services."
 msgstr ""
 
 #: views/global-admin-options.php:440
-msgid "Click + CREATE CREDENTIALS, then select OAuth client ID."
+#: views/global-admin-options.php:473
+msgid "On the left, click Credentials."
 msgstr ""
 
 #: views/global-admin-options.php:441
-msgid "Select the application type Web application."
+msgid "Click + CREATE CREDENTIALS, then select OAuth client ID."
 msgstr ""
 
 #: views/global-admin-options.php:442
-msgid "Enter BandFront Player in the Name field."
+msgid "Select the application type Web application."
 msgstr ""
 
 #: views/global-admin-options.php:443
+msgid "Enter BandFront Player in the Name field."
+msgstr ""
+
+#: views/global-admin-options.php:444
 msgid "Enter the URL below as the Authorized redirect URIs:"
 msgstr ""
 
-#: views/global-admin-options.php:449
+#: views/global-admin-options.php:450
 msgid "Press the Create button."
 msgstr ""
 
-#: views/global-admin-options.php:450
+#: views/global-admin-options.php:451
 msgid "In the OAuth client created dialog, press the DOWNLOAD JSON button and store it on your computer, and press the Ok button."
 msgstr ""
 
-#: views/global-admin-options.php:451
+#: views/global-admin-options.php:452
 msgid "Finally, select the downloaded file through the Import OAuth Client JSON File field above."
 msgstr ""
 
-#: views/global-admin-options.php:459
-#: views/global-admin-options.php:463
+#: views/global-admin-options.php:460
+#: views/global-admin-options.php:464
 msgid "API Key"
 msgstr ""
 
-#: views/global-admin-options.php:460
+#: views/global-admin-options.php:461
 msgid "Required to read audio files from players"
 msgstr ""
 
-#: views/global-admin-options.php:466
+#: views/global-admin-options.php:467
 msgid "Get API Key:"
 msgstr ""
 
-#: views/global-admin-options.php:473
+#: views/global-admin-options.php:474
 msgid "Click + CREATE CREDENTIALS, then select API Key."
 msgstr ""
 
-#: views/global-admin-options.php:474
+#: views/global-admin-options.php:475
 msgid "Copy the API Key."
 msgstr ""
 
-#: views/global-admin-options.php:475
+#: views/global-admin-options.php:476
 msgid "Finally, paste it in the API Key field above."
 msgstr ""
 
-#: views/global-admin-options.php:487
+#: views/global-admin-options.php:488
 msgid "Dropbox Integration"
 msgstr ""
 
-#: views/global-admin-options.php:488
+#: views/global-admin-options.php:489
 msgid "Coming soon! Dropbox integration will allow you to store your demo files on Dropbox with automatic syncing and bandwidth optimization."
 msgstr ""
 
-#: views/global-admin-options.php:490
-#: views/global-admin-options.php:507
-#: views/global-admin-options.php:524
+#: views/global-admin-options.php:491
+#: views/global-admin-options.php:508
+#: views/global-admin-options.php:525
 msgid "Planned Features:"
 msgstr ""
 
-#: views/global-admin-options.php:492
+#: views/global-admin-options.php:493
 msgid "Automatic file upload to Dropbox"
 msgstr ""
 
-#: views/global-admin-options.php:493
+#: views/global-admin-options.php:494
 msgid "Real-time synchronization"
 msgstr ""
 
-#: views/global-admin-options.php:494
+#: views/global-admin-options.php:495
 msgid "Bandwidth usage analytics"
 msgstr ""
 
-#: views/global-admin-options.php:495
+#: views/global-admin-options.php:496
 msgid "Advanced security controls"
 msgstr ""
 
-#: views/global-admin-options.php:504
+#: views/global-admin-options.php:505
 msgid "Amazon S3 Storage"
 msgstr ""
 
-#: views/global-admin-options.php:505
+#: views/global-admin-options.php:506
 msgid "Enterprise-grade cloud storage with AWS S3. Perfect for high-traffic websites requiring maximum reliability and global CDN distribution."
 msgstr ""
 
-#: views/global-admin-options.php:509
+#: views/global-admin-options.php:510
 msgid "Global CDN with CloudFront integration"
 msgstr ""
 
-#: views/global-admin-options.php:510
+#: views/global-admin-options.php:511
 msgid "Lightning-fast file delivery"
 msgstr ""
 
-#: views/global-admin-options.php:511
+#: views/global-admin-options.php:512
 msgid "Cost-effective storage pricing"
 msgstr ""
 
-#: views/global-admin-options.php:512
+#: views/global-admin-options.php:513
 msgid "Enterprise security and encryption"
 msgstr ""
 
-#: views/global-admin-options.php:521
+#: views/global-admin-options.php:522
 msgid "Microsoft Azure Blob Storage"
 msgstr ""
 
-#: views/global-admin-options.php:522
+#: views/global-admin-options.php:523
 msgid "Microsoft Azure Blob Storage integration for seamless file management and global distribution with enterprise-level security."
 msgstr ""
 
-#: views/global-admin-options.php:526
+#: views/global-admin-options.php:527
 msgid "Enterprise Active Directory integration"
 msgstr ""
 
-#: views/global-admin-options.php:527
+#: views/global-admin-options.php:528
 msgid "Global edge locations"
 msgstr ""
 
-#: views/global-admin-options.php:528
+#: views/global-admin-options.php:529
 msgid "Advanced analytics and monitoring"
 msgstr ""
 
-#: views/global-admin-options.php:529
+#: views/global-admin-options.php:530
 msgid "Compliance-ready security features"
 msgstr ""
 
-#: views/global-admin-options.php:559
+#: views/global-admin-options.php:560
 msgid "Use FFmpeg for demos"
 msgstr ""
 
-#: views/global-admin-options.php:560
+#: views/global-admin-options.php:561
 msgid "Truncate the audio files for demo with ffmpeg"
 msgstr ""
 
-#: views/global-admin-options.php:561
+#: views/global-admin-options.php:562
 msgid "Requires FFmpeg to be installed on your server"
 msgstr ""
 
-#: views/global-admin-options.php:564
+#: views/global-admin-options.php:565
 msgid "FFmpeg path"
 msgstr ""
 
-#: views/global-admin-options.php:566
+#: views/global-admin-options.php:567
 msgid "ffmpeg path"
 msgstr ""
 
-#: views/global-admin-options.php:571
+#: views/global-admin-options.php:572
 msgid "Audio watermark"
 msgstr ""
 
-#: views/global-admin-options.php:573
+#: views/global-admin-options.php:574
 msgid "Watermark audio"
 msgstr ""
 
-#: views/global-admin-options.php:573
+#: views/global-admin-options.php:574
 msgid "Select"
 msgstr ""
 
-#: views/global-admin-options.php:574
+#: views/global-admin-options.php:575
 msgid "Optional audio file to overlay on demos "
 msgstr ""
 
-#: views/global-admin-options.php:588
+#: views/global-admin-options.php:589
 msgid "Troubleshooting"
 msgstr ""
 
-#: views/global-admin-options.php:598
+#: views/global-admin-options.php:599
 msgid "Players not working on iPads or iPhones?"
 msgstr ""
 
-#: views/global-admin-options.php:601
+#: views/global-admin-options.php:602
 msgid "On iPads and iPhones, use native controls"
 msgstr ""
 
-#: views/global-admin-options.php:603
+#: views/global-admin-options.php:604
 msgid "Use native iOS controls for better compatibility"
 msgstr ""
 
-#: views/global-admin-options.php:611
+#: views/global-admin-options.php:612
 msgid "Cache or optimizer plugins causing problems?"
 msgstr ""
 
-#: views/global-admin-options.php:614
+#: views/global-admin-options.php:615
 msgid "Loading players in the onload event"
 msgstr ""
 
-#: views/global-admin-options.php:616
+#: views/global-admin-options.php:617
 msgid "Load players after page fully loads"
 msgstr ""
 
-#: views/global-admin-options.php:624
+#: views/global-admin-options.php:625
 msgid "Files missing extensions or stored in cloud?"
 msgstr ""
 
-#: views/global-admin-options.php:627
+#: views/global-admin-options.php:628
 msgid "For files whose extensions cannot be determined handle them as mp3 files"
 msgstr ""
 
-#: views/global-admin-options.php:629
+#: views/global-admin-options.php:630
 msgid "Treat unrecognized files as MP3 audio"
 msgstr ""
 
-#: views/global-admin-options.php:637
+#: views/global-admin-options.php:638
 msgid "Gutenberg blocks hiding your players?"
 msgstr ""
 
-#: views/global-admin-options.php:640
+#: views/global-admin-options.php:641
 msgid "For the WooCommerce Gutenberg Blocks, include the main player in the products titles"
 msgstr ""
 
-#: views/global-admin-options.php:642
+#: views/global-admin-options.php:643
 msgid "Force players to appear in product titles"
 msgstr ""
 
-#: views/global-admin-options.php:650
+#: views/global-admin-options.php:651
 msgid "Players visible but not working?"
 msgstr ""
 
-#: views/global-admin-options.php:653
+#: views/global-admin-options.php:654
 msgid "Disable 302 redirection"
 msgstr ""
 
-#: views/global-admin-options.php:655
+#: views/global-admin-options.php:656
 msgid "Load files directly instead of using redirects"
 msgstr ""
 
-#: views/global-admin-options.php:662
+#: views/global-admin-options.php:663
 msgid "Demo files corrupted or outdated?"
 msgstr ""
 
-#: views/global-admin-options.php:664
+#: views/global-admin-options.php:665
 msgid "Delete the demo files generated previously"
 msgstr ""
 
-#: views/global-admin-options.php:665
+#: views/global-admin-options.php:666
 msgid "Delete old demo files (local files only)"
 msgstr ""
 
-#: views/global-admin-options.php:671
+#: views/global-admin-options.php:672
 msgid "Pro Tip!"
 msgstr ""
 
-#: views/global-admin-options.php:671
+#: views/global-admin-options.php:672
 msgid "After changing troubleshooting settings, clear your website and browser caches for best results."
 msgstr ""
 
-#: views/global-admin-options.php:678
+#: views/global-admin-options.php:679
 msgid "Save settings"
 msgstr ""
 
-#: views/product-options.php:71
+#: views/product-options.php:72
 msgid "Product Music Player Settings"
 msgstr ""
 
-#: views/product-options.php:82
+#: views/product-options.php:83
 msgid "Include music player"
 msgstr ""
 
-#: views/product-options.php:83
+#: views/product-options.php:84
 msgid "Player shows only if product is downloadable with audio files, or you've selected custom audio files"
 msgstr ""
 
-#: views/product-options.php:90
+#: views/product-options.php:91
 msgid "Player behavior"
 msgstr ""
 
-#: views/product-options.php:145
+#: views/product-options.php:146
 msgid "Demo length (% of original)"
 msgstr ""
 
-#: views/product-options.php:147
+#: views/product-options.php:148
 msgid "Percent of audio used for protected playbacks"
 msgstr ""
 
-#: views/product-options.php:148
+#: views/product-options.php:149
 msgid "How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)"
 msgstr ""
 
-#: views/product-options.php:163
+#: views/product-options.php:164
 msgid "Custom Demo Files"
 msgstr ""
 
-#: views/product-options.php:167
+#: views/product-options.php:168
 msgid "Own demo files"
 msgstr ""
 
-#: views/product-options.php:168
+#: views/product-options.php:169
 msgid "Use my own custom demo files"
 msgstr ""
 
-#: views/product-options.php:170
+#: views/product-options.php:171
 msgid "Upload your own demo versions instead of auto-generating them from the original files"
 msgstr ""
 
-#: views/product-options.php:176
+#: views/product-options.php:177
 msgid "Demo files"
 msgstr ""
 
-#: views/product-options.php:180
+#: views/product-options.php:181
 msgid "Name"
 msgstr ""
 
-#: views/product-options.php:181
-#: views/product-options.php:194
+#: views/product-options.php:182
+#: views/product-options.php:195
 msgid "File URL"
 msgstr ""
 
-#: views/product-options.php:191
+#: views/product-options.php:192
 msgid "File name"
 msgstr ""
 
-#: views/product-options.php:210
+#: views/product-options.php:211
 msgid "Add File"
 msgstr ""
 
-#: views/product-options.php:219
+#: views/product-options.php:220
 msgid "Load directly the original demo files"
 msgstr ""
 
-#: views/product-options.php:220
+#: views/product-options.php:221
 msgid "Load demo files directly (no preprocessing)"
 msgstr ""
 
-#: views/product-options.php:222
+#: views/product-options.php:223
 msgid "Skip processing and use your demo files exactly as uploaded"
 msgstr ""
 

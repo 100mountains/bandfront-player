@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  * BFP Cover Overlay Renderer Class
  * Handles rendering of play button overlays on product cover images
  */
-class BFP_Cover_Overlay_Renderer {
+class BFP_Cover_Renderer {
     
     private $main_plugin;
     

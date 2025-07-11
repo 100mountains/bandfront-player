@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  * BFP Hooks Manager Class
  * Handles all WordPress action and filter registrations
  */
-class BFP_Hooks_Manager {
+class BFP_Hooks {
     
     private $main_plugin;
     private $cover_overlay_renderer;
@@ -74,7 +74,7 @@ class BFP_Hooks_Manager {
         add_action( 'init', array( $this, 'conditionally_add_title_filter' ) );
         
         // Add filter for analytics preload
-        add_filter( 'bfp_preload', array( $this->main_plugin->get_audio_processor(), 'preload' ), 10, 2 );
+        add_filter( 'bfp_preload', array( $this->main_plugin->get_audio_core(), 'preload' ), 10, 2 );
 
         // EXPORT / IMPORT PRODUCTS
         add_filter( 'woocommerce_product_export_meta_value', function( $value, $meta, $product, $row ){
@@ -181,27 +181,27 @@ class BFP_Hooks_Manager {
     /**
      * Get cover overlay renderer instance
      *
-     * @return BFP_Cover_Overlay_Renderer
+     * @return BFP_Cover_Renderer
      */
-    private function get_cover_overlay_renderer() {
-        if (!$this->cover_overlay_renderer) {
-            require_once plugin_dir_path(__FILE__) . 'class-bfp-cover-overlay-renderer.php';
-            $this->cover_overlay_renderer = new BFP_Cover_Overlay_Renderer($this->main_plugin);
+    private function get_cover_renderer() {
+        if (!$this->cover_renderer) {
+            require_once plugin_dir_path(__FILE__) . 'cover-renderer.php';
+            $this->cover_renderer = new BFP_Cover_Renderer($this->main_plugin);
         }
-        return $this->cover_overlay_renderer;
+        return $this->cover_renderer;
     }
 
     /**
      * Enqueue assets for on_cover functionality
      */
     public function enqueue_on_cover_assets() {
-        $this->get_cover_overlay_renderer()->enqueue_assets();
+        $this->get_cover_renderer()->enqueue_assets();
     }
 
     /**
      * Add play button on product cover image
      */
     public function add_play_button_on_cover() {
-        $this->get_cover_overlay_renderer()->render();
+        $this->get_cover_renderer()->render();
     }
 }

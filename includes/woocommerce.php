@@ -286,32 +286,34 @@ class BFP_WooCommerce {
                 $tax_query = [];
 
                 if ('' != $product_categories) {
+                    $categories = explode(',', $product_categories);
                     $tax_query[] = array(
                         'taxonomy' => 'product_cat',
-                        'field'    => 'slug',
-                        'terms'    => explode(',', $product_categories),
+                        'field' => 'slug',
+                        'terms' => $categories,
+                        'include_children' => true,
+                        'operator' => 'IN'
                     );
                 }
 
                 if ('' != $product_tags) {
+                    $tags = explode(',', $product_tags);
                     $tax_query[] = array(
                         'taxonomy' => 'product_tag',
-                        'field'    => 'slug',
-                        'terms'    => explode(',', $product_tags),
+                        'field' => 'slug',
+                        'terms' => $tags,
+                        'operator' => 'IN'
                     );
                 }
 
                 if (!empty($tax_query)) {
-                    $products_by_tax = get_posts(array(
-                        'post_type'      => 'product',
-                        'post_status'    => 'publish',
-                        'posts_per_page' => -1,
-                        'tax_query'      => $tax_query,
-                        'fields'         => 'ids'
-                    ));
-
-                    if (!empty($products_by_tax)) {
-                        $query .= ' AND posts.ID IN (' . implode(',', $products_by_tax) . ')';
+                    $tax_query['relation'] = 'OR';
+                    $tax_query_sql = get_tax_sql($tax_query, 'posts', 'ID');
+                    if (!empty($tax_query_sql['join'])) {
+                        $query .= ' ' . $tax_query_sql['join'];
+                    }
+                    if (!empty($tax_query_sql['where'])) {
+                        $query .= ' ' . $tax_query_sql['where'];
                     }
                 }
 
@@ -437,11 +439,14 @@ class BFP_WooCommerce {
                     if (!empty($variations_id)) $product_id_for_add_to_cart = $variations_id[0];
                 } elseif ($product_obj->is_type('grouped')) {
                     $children = $product_obj->get_children();
-                    if (!empty($children)) $product_id_for_add_to_cart = $children[0];
+                    if (!empty($children)) {
+                        $product_id_for_add_to_cart = $children[0];
+                    }
                 }
 
                 $output .= '<div class="bfp-widget-product-purchase">
-                                ' . wc_price($product_obj->get_price(), '') . ' <a href="?add-to-cart=' . $product_id_for_add_to_cart . '"></a>
+                                ' . wc_price($product_obj->get_price(), '') . '
+                                <a href="?add-to-cart=' . $product_id_for_add_to_cart . '"></a>
                             </div><!-- product purchase -->';
             }
             $output .= '</div><div class="bfp-widget-product-files">';
@@ -454,28 +459,30 @@ class BFP_WooCommerce {
                 $audio_url  = $this->main_plugin->generate_audio_url($product->ID, $index, $file);
                 $duration   = $this->main_plugin->get_duration_by_url($file['file']);
                 $audio_tag  = apply_filters(
-                    'bfp_widget_audio_tag',
+                    'bfp_audio_tag',
                     $this->main_plugin->get_player(
                         $audio_url,
                         array(
-                            'product_id'      => $product->ID,
-                            'player_controls' => $atts['controls'],
-                            'player_style'    => $atts['player_style'],
-                            'media_type'      => isset($file['media_type']) ? $file['media_type'] : 'mp3',
-                            'id'              => $index,
+                            'product_id'      => $id,
+                            'player_style'    => $settings['_bfp_player_layout'],
+                            'player_controls' => ( 'all' != $player_controls ) ? 'track' : '',
+                            'media_type'      => $file['media_type'],
                             'duration'        => $duration,
-                            'preload'         => $preload,
-                            'volume'          => $atts['volume'],
+                            'preload'         => $settings['_bfp_preload'],
+                            'volume'          => $settings['_bfp_player_volume'],
                         )
                     ),
-                    $product->ID,
+                    $id,
                     $index,
                     $audio_url
                 );
                 $file_title = esc_html(apply_filters('bfp_widget_file_name', $file['name'], $product->ID, $index));
                 $output    .= '
                     <div class="bfp-widget-product-file">
-                        ' . $audio_tag . '<span class="bfp-file-name">' . $file_title . '</span>' . (!isset($atts['duration']) || $atts['duration'] == 1 ? '<span class="bfp-file-duration">' . esc_html($duration) . '</span>' : '') . '<div style="clear:both;"></div>
+                        ' . $audio_tag . '
+                        <span class="bfp-file-name">' . $file_title . '</span>
+                        ' . (!isset($atts['duration']) || $atts['duration'] == 1 ? '<span class="bfp-file-duration">' . esc_html($duration) . '</span>' : '') . '
+                        <div style="clear:both;"></div>
                     </div><!--product file -->
                 ';
             }
@@ -499,13 +506,13 @@ class BFP_WooCommerce {
                 $audio_url = $this->main_plugin->generate_audio_url($product->ID, $index, $file);
                 $duration = $this->main_plugin->get_duration_by_url($file['file']);
                 $audio_tag = apply_filters(
-                    'bfp_widget_audio_tag',
+                    'bfp_audio_tag',
                     $this->main_plugin->get_player(
                         $audio_url,
                         array(
                             'product_id'      => $product->ID,
-                            'player_controls' => $atts['controls'],
                             'player_style'    => $atts['player_style'],
+                            'player_controls' => $atts['controls'],
                             'media_type'      => isset($file['media_type']) ? $file['media_type'] : 'mp3',
                             'id'              => $index,
                             'duration'        => $duration,
@@ -519,9 +526,14 @@ class BFP_WooCommerce {
                 );
                 $file_title = esc_html(apply_filters('bfp_widget_file_name', $file['name'], $product->ID, $index));
                 $output .= '
-                    <div class="bfp-widget-product-file">
-                        ' . $audio_tag . '<span class="bfp-file-name">' . $file_title . '</span>' . (!isset($atts['duration']) || $atts['duration'] == 1 ? '<span class="bfp-file-duration">' . esc_html($duration) . '</span>' : '') . '<div style="clear:both;"></div>
-                    </div><!--product file -->';
+                    <li class="bfp-widget-file">
+                        <div class="bfp-widget-file-item">
+                            ' . $audio_tag . '
+                            <span class="bfp-file-name">' . $file_title . '</span>
+                            ' . (!isset($atts['duration']) || $atts['duration'] == 1 ? '<span class="bfp-file-duration">' . esc_html($duration) . '</span>' : '') . '
+                        </div>
+                    </li>
+                ';
             }
 
             if (!empty($featured_image)) {

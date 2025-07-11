@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  * BFP Cache Manager Class
  * Handles clearing various WordPress cache plugins
  */
-class BFP_Cache_Manager {
+class BFP_Cache {
     
     /**
      * Clear all known caches

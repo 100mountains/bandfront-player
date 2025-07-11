@@ -144,8 +144,8 @@ try {
             }
             
             // Test audio processor
-            if (method_exists($bfp, 'get_audio_processor')) {
-                $audio_processor = $bfp->get_audio_processor();
+            if (method_exists($bfp, 'get_audio_core')) {
+                $audio_processor = $bfp->get_audio_core();
                 if ($audio_processor && is_object($audio_processor)) {
                     echo "✅ Audio processor initialized\n";
                 } else {

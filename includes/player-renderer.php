@@ -91,8 +91,8 @@ class BFP_Player_Renderer {
 
             $file = reset( $files );
             $index = key( $files );
-            $duration = $this->main_plugin->get_audio_processor()->get_duration_by_url( $file['file'] );
-            $audio_url = $this->main_plugin->get_audio_processor()->generate_audio_url( $id, $index, $file );
+            $duration = $this->main_plugin->get_audio_core()->get_duration_by_url( $file['file'] );
+            $audio_url = $this->main_plugin->get_audio_core()->generate_audio_url( $id, $index, $file );
             $audio_tag = apply_filters(
                 'bfp_audio_tag',
                 $this->main_plugin->get_player(
@@ -189,8 +189,8 @@ class BFP_Player_Renderer {
                 $player_controls = ( 'button' == $player_controls ) ? 'track' : '';
                 $file            = reset( $files );
                 $index           = key( $files );
-                $duration        = $this->main_plugin->get_audio_processor()->get_duration_by_url( $file['file'] );
-                $audio_url       = $this->main_plugin->get_audio_processor()->generate_audio_url( $id, $index, $file );
+                $duration        = $this->main_plugin->get_audio_core()->get_duration_by_url( $file['file'] );
+                $audio_url       = $this->main_plugin->get_audio_core()->generate_audio_url( $id, $index, $file );
                 $audio_tag       = apply_filters(
                     'bfp_audio_tag',
                     $this->main_plugin->get_player(
@@ -221,8 +221,8 @@ class BFP_Player_Renderer {
                 foreach ( $files as $index => $file ) {
                     $evenOdd = ( 1 == $counter % 2 ) ? 'bfp-odd-row' : 'bfp-even-row';
                     $counter--;
-                    $audio_url = $this->main_plugin->get_audio_processor()->generate_audio_url( $id, $index, $file );
-                    $duration  = $this->main_plugin->get_audio_processor()->get_duration_by_url( $file['file'] );
+                    $audio_url = $this->main_plugin->get_audio_core()->generate_audio_url( $id, $index, $file );
+                    $duration  = $this->main_plugin->get_audio_core()->get_duration_by_url( $file['file'] );
                     $audio_tag = apply_filters(
                         'bfp_audio_tag',
                         $this->main_plugin->get_player(
@@ -338,7 +338,7 @@ class BFP_Player_Renderer {
 
         $audio_files = array();
         foreach ( $files as $index => $file ) {
-            if ( ! empty( $file['file'] ) && false !== ( $media_type = $this->main_plugin->get_audio_processor()->is_audio( $file['file'] ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments
+            if ( ! empty( $file['file'] ) && false !== ( $media_type = $this->main_plugin->get_audio_core()->is_audio( $file['file'] ) ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments
                 $file['media_type'] = $media_type;
 
                 if ( isset( $args['file_id'] ) ) {

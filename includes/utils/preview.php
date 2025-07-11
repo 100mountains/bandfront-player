@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  * BFP Preview Manager Class
  * Handles preview generation and demo file management
  */
-class BFP_Preview_Manager {
+class BFP_Preview {
     
     private $main_plugin;
     
@@ -67,7 +67,7 @@ class BFP_Preview_Manager {
             $file_percent = $this->main_plugin->get_product_attr($product_id, '_bfp_file_percent', BFP_FILE_PERCENT);
             
             // Output the file
-            $this->main_plugin->get_audio_processor()->output_file(array(
+            $this->main_plugin->get_audio_core()->output_file(array(
                 'url' => $file['file'],
                 'product_id' => $product_id,
                 'secure_player' => $secure_player,
