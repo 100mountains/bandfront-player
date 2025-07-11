@@ -13,447 +13,363 @@
 ### BandfrontPlayer Class (Refactored)
 
 - **__construct()**
-  - Purpose: Initializes all manager classes through init_components()
+  - Purpose: Initializes all core components in proper order
   - Inputs: None
   - Outputs: Component instances via private properties
   - WordPress Data: None directly
-  - Data Flow: Creates instances of all manager classes → sets up file paths
-  - Patterns/Concerns: **IMPROVED** - Better separation of concerns, dependency injection pattern
+  - Data Flow: Config → File Handler → Audio Engine → WooCommerce → Player → Renderers → Hooks → Admin
+  - Patterns/Concerns: **IMPROVED** - Clean component initialization with dependency injection pattern
 
-- **init_components()**
-  - Purpose: Initialize all core components in proper order
+## Core Classes
+
+### State Management
+
+**File:** `/includes/state-manager.php`
+**Purpose:** Centralized configuration and state management with inheritance hierarchy
+**Class:** `BFP_Config`
+
+- **get_state($key, $default, $product_id, $options)**
+  - Purpose: Get configuration value with context-aware inheritance
+  - Inputs: Setting key, default value, optional product ID, options array
+  - Outputs: Setting value (product → global → default)
+  - WordPress Data: `get_post_meta()`, `get_option()`
+  - Data Flow: Check product meta → Check global settings → Return default
+  - Patterns/Concerns: Context-aware state resolution with caching
+
+### Audio Processing
+
+**File:** `/includes/audio.php`
+**Purpose:** Audio file processing, streaming, and demo generation
+**Class:** `BFP_Audio_Engine`
+
+- **output_file($args)**
+  - Purpose: Stream audio file with optional truncation and analytics
+  - Inputs: File URL, product ID, security settings
+  - Outputs: Audio stream or redirect
+  - WordPress Data: `get_post_meta()` for file data
+  - Data Flow: Validate → Process → Track → Stream/Redirect
+  - Patterns/Concerns: Secure file handling with demo generation
+
+### Player Management
+
+**File:** `/includes/player.php`
+**Purpose:** Player HTML generation and resource management
+**Class:** `BFP_Player`
+
+- **get_player($audio_url, $args)**
+  - Purpose: Generate HTML5 audio player based on selected engine
+  - Inputs: Audio URL, player configuration
+  - Outputs: Player HTML markup
+  - WordPress Data: Player settings from state manager
+  - Data Flow: Config → Engine Selection → HTML Generation
+  - Patterns/Concerns: Engine abstraction (MediaElement/WaveSurfer)
+
+- **enqueue_resources()**
+  - Purpose: Load scripts/styles based on audio engine
   - Inputs: None
-  - Outputs: Instantiated component objects
-  - WordPress Data: None
-  - Data Flow: Config → File Handler → Player Manager → Audio Processor → WooCommerce → Hooks → Renderers
-  - Patterns/Concerns: Centralized component initialization
+  - Outputs: Enqueued WordPress resources
+  - WordPress Data: `wp_enqueue_script()`, `wp_enqueue_style()`
+  - Data Flow: Check engine → Load appropriate resources
+  - Patterns/Concerns: Conditional loading for performance
 
-- **plugins_loaded()**
-  - Purpose: Sets up plugin after WordPress loads, checks WooCommerce dependency
+### Rendering Components
+
+**File:** `/includes/player-renderer.php`
+**Purpose:** Context-aware player rendering for products
+**Class:** `BFP_Player_Renderer`
+
+- **include_main_player($product, $_echo)**
+  - Purpose: Render primary player for product
+  - Inputs: Product object/ID, echo flag
+  - Outputs: Player HTML
+  - WordPress Data: Product data via WooCommerce
+  - Data Flow: Get files → Check context → Generate player → Output
+  - Patterns/Concerns: Smart context detection (single/archive)
+
+**File:** `/includes/playlist-renderer.php`
+**Purpose:** Playlist generation for multiple products
+**Class:** `BFP_Playlist_Renderer`
+
+- **render_playlist($product_ids, $args)**
+  - Purpose: Generate playlist from multiple products
+  - Inputs: Array of product IDs, display options
+  - Outputs: Playlist HTML with players
+  - WordPress Data: Multiple product queries
+  - Data Flow: Query products → Build playlist → Render players
+  - Patterns/Concerns: Bulk operations optimization
+
+**File:** `/includes/cover-renderer.php`
+**Purpose:** Play button overlays for product images
+**Class:** `BFP_Cover_Renderer`
+
+- **render($product_id)**
+  - Purpose: Add play buttons to product cover images
+  - Inputs: Product ID
+  - Outputs: HTML overlay markup
+  - WordPress Data: Product image data
+  - Data Flow: Check settings → Generate overlay → Inject HTML
+  - Patterns/Concerns: Non-intrusive DOM manipulation
+
+### Hook Management
+
+**File:** `/includes/hooks.php`
+**Purpose:** Dynamic WordPress hook registration and management
+**Class:** `BFP_Hooks`
+
+- **init_hooks()**
+  - Purpose: Register all WordPress hooks dynamically
   - Inputs: None
-  - Outputs: Registers hooks and loads addons
-  - WordPress Data: Checks `class_exists('woocommerce')`
-  - Data Flow: WP hook → load textdomain → init remaining components → load page builders
-  - Patterns/Concerns: **IMPROVED** - Component initialization moved to dedicated method
+  - Outputs: Registered actions/filters
+  - WordPress Data: Hook system integration
+  - Data Flow: Check context → Register appropriate hooks
+  - Patterns/Concerns: Context-aware registration to prevent conflicts
 
-- **init()**
-  - Purpose: Main initialization, sets up all frontend/backend hooks
-  - Inputs: None
-  - Outputs: Registers AJAX handlers, shortcodes, scheduled events
-  - WordPress Data: `get_current_user_id()`, `$_REQUEST['bfp-action']`
-  - Data Flow: WP hook → check user permissions → register handlers
-  - Patterns/Concerns: **IMPROVED** - Delegated to preview manager for play requests
+### WooCommerce Integration
 
----
+**File:** `/includes/woocommerce.php`
+**Purpose:** Deep WooCommerce integration and purchase handling
+**Class:** `BFP_WooCommerce`
 
-## Core Manager Classes (Refactored Architecture)
+- **woocommerce_user_product($product_id)**
+  - Purpose: Check if user purchased product
+  - Inputs: Product ID
+  - Outputs: Boolean purchase status
+  - WordPress Data: Order data, user purchases
+  - Data Flow: Get user → Check orders → Verify purchase
+  - Patterns/Concerns: Performance optimization with caching
 
-### **File:** `/includes/class-bfp-config.php` (Enhanced State Manager)
-**Purpose:** Comprehensive state management with context-aware inheritance
-**WordPress Integration Points:** None directly
+### Admin Interface
 
-- **get_state()**
-  - Purpose: Universal state retrieval with automatic inheritance
-  - Inputs: `$key`, `$default`, `$product_id`, `$options`
-  - Outputs: Resolved setting value
-  - WordPress Data: `get_option()`, `get_post_meta()`
-  - Data Flow: Check if global-only → Check product override → Fall back to global → Apply default
-  - Patterns/Concerns: **NEW** - Context-aware state management pattern
+**File:** `/includes/admin.php`
+**Purpose:** Backend settings and product options
+**Class:** `BFP_Admin`
 
-- **get_states()**
-  - Purpose: Bulk retrieve multiple settings efficiently
-  - Inputs: `$keys` array, `$product_id`
-  - Outputs: Associative array of settings
-  - WordPress Data: Single DB query for multiple settings
-  - Data Flow: Batch process keys → Return key-value pairs
-  - Patterns/Concerns: **NEW** - Performance optimization for multiple settings
-
-- **is_valid_override()**
-  - Purpose: Determine if a product override should be used
-  - Inputs: `$value`, `$key`
-  - Outputs: Boolean
-  - WordPress Data: None
-  - Data Flow: Check special cases → Validate by type → Return decision
-  - Patterns/Concerns: **NEW** - Smart override detection
-
-### **File:** `/includes/class-bfp-audio-processor.php`
-**Purpose:** Handles audio file processing, streaming, truncation, and analytics tracking.
-**WordPress Integration Points:**
-- Actions: `bfp_play_file`, `bfp_truncated_file`
-
-- **output_file()**
-  - Purpose: Streams audio file to browser with optional truncation
-  - Inputs: `$args` array with url, product_id, secure_player settings
-  - Outputs: HTTP redirect or file stream
-  - WordPress Data: Direct file paths, `do_action()`
-  - Data Flow: URL → validate → copy/truncate → stream output
-  - Patterns/Concerns: **IMPROVED** - Better cloud URL handling via cloud tools
-
-- **process_cloud_url()**
-  - Purpose: Process cloud storage URLs
-  - Inputs: `$url`
-  - Outputs: Processed URL
-  - WordPress Data: None
-  - Data Flow: Detect provider → Process URL → Return download URL
-  - Patterns/Concerns: **NEW** - Delegated to cloud tools class
-
-### **File:** `/includes/class-bfp-admin.php` (Modularized)
-**Purpose:** Manages all WordPress admin functionality with module support
-**WordPress Integration Points:**
-- Hooks: `admin_menu`, `admin_init`, `save_post`, `after_delete_post`
-- Filters: `manage_product_posts_columns`, `manage_product_posts_custom_column`
+- **settings_page()**
+  - Purpose: Render global settings interface
+  - Inputs: POST data for saves
+  - Outputs: Settings HTML
+  - WordPress Data: `update_option()` for settings
+  - Data Flow: Display form → Process submission → Save → Clear cache
+  - Patterns/Concerns: Nonce verification, bulk operations
 
 - **load_admin_modules()**
-  - Purpose: Dynamically load admin modules based on configuration
+  - Purpose: Dynamic module loading system
   - Inputs: None
-  - Outputs: Loaded module files
-  - WordPress Data: Module enable/disable states
-  - Data Flow: Check module states → Load enabled modules → Fire loaded action
-  - Patterns/Concerns: **NEW** - Modular architecture for extensibility
+  - Outputs: Loaded module instances
+  - WordPress Data: Module state from config
+  - Data Flow: Check enabled → Load files → Initialize
+  - Patterns/Concerns: Extensible module architecture
 
-- **save_global_settings()**
-  - Purpose: Processes and saves plugin global settings including modules
-  - Inputs: `$_REQUEST` data
-  - Outputs: Updates options, clears cache
-  - WordPress Data: `update_option()`, `$_REQUEST`
-  - Data Flow: Sanitize input → Handle modules → Build settings → Save → Clear cache
-  - Patterns/Concerns: **IMPROVED** - Includes module state management
+## Utility Classes
 
-### **File:** `/includes/class-bfp-player-renderer.php` (Context-Aware)
-**Purpose:** Renders audio players with smart context detection
-**WordPress Integration Points:** None directly
+### File Management
 
-- **include_main_player()**
-  - Purpose: Renders single main player with context-aware controls
-  - Inputs: `$product`, `$_echo`
-  - Outputs: Player HTML
-  - WordPress Data: Product data, page context
-  - Data Flow: Check context → Determine controls → Check on_cover → Render appropriately
-  - Patterns/Concerns: **IMPROVED** - Smart control selection based on page type
-
-- **include_all_players()**
-  - Purpose: Renders all players with context awareness
-  - Inputs: `$product`
-  - Outputs: Multiple player HTML
-  - WordPress Data: Product files, settings via state handler
-  - Data Flow: Get files → Check context → Apply settings → Render players
-  - Patterns/Concerns: **IMPROVED** - Uses bulk state retrieval
-
-### **File:** `/includes/class-bfp-woocommerce.php`
-**Purpose:** Handles WooCommerce-specific integrations and playlist rendering
-**WordPress Integration Points:**
-- Filters: Applied through main class
-
-- **render_single_product()**
-  - Purpose: Renders individual product in playlist
-  - Inputs: Multiple parameters including product, atts, audio files
-  - Outputs: Product HTML
-  - WordPress Data: Product metadata
-  - Data Flow: Prepare data → Check layout → Render appropriate HTML
-  - Patterns/Concerns: **NEW** - Extracted from monolithic method
-
-- **render_playlist_products()**
-  - Purpose: Orchestrates playlist rendering
-  - Inputs: `$products`, `$atts`, context data
-  - Outputs: Complete playlist HTML
-  - WordPress Data: Product purchased times
-  - Data Flow: Enqueue resources → Loop products → Apply settings → Return HTML
-  - Patterns/Concerns: **IMPROVED** - Better separation from main method
-
-### **File:** `/includes/class-bfp-file-handler.php`
-**Purpose:** Manages file operations, demo files, and cleanup tasks.
-**WordPress Integration Points:**
-- Scheduled events: `bfp_delete_purchased_files`
+**File:** `/includes/utils/files.php`
+**Purpose:** Demo file creation and management
+**Class:** `BFP_File_Handler`
 
 - **_createDir()**
-  - Purpose: Creates and secures upload directories
+  - Purpose: Create secure upload directories
   - Inputs: None
   - Outputs: Directory structure
   - WordPress Data: `wp_upload_dir()`
-  - Data Flow: Get upload dir → Create folders → Add .htaccess
-  - Patterns/Concerns: **IMPROVED** - Better error handling
+  - Data Flow: Get paths → Create dirs → Set permissions
+  - Patterns/Concerns: Security with .htaccess protection
 
-### **File:** `/includes/class-bfp-player-manager.php` (Enhanced)
-**Purpose:** Manages player generation and resource enqueuing
-**WordPress Integration Points:** Script/style enqueuing
+### Cloud Integration
 
-- **enqueue_resources()**
-  - Purpose: Intelligently loads resources based on audio engine
-  - Inputs: None
-  - Outputs: Enqueued scripts and styles
-  - WordPress Data: `wp_enqueue_script()`, `wp_localize_script()`
-  - Data Flow: Check engine → Load appropriate scripts → Handle skins → Localize settings
-  - Patterns/Concerns: **IMPROVED** - Dynamic script loading, bulk settings fetch
+**File:** `/includes/utils/cloud.php`
+**Purpose:** Cloud storage URL processing
+**Class:** `BFP_Cloud_Tools`
 
-- **get_player()**
-  - Purpose: Generates player HTML with proper attributes
-  - Inputs: `$audio_url`, `$args`
-  - Outputs: Audio element HTML
-  - WordPress Data: None
-  - Data Flow: Parse args → Build attributes → Generate HTML → Apply filters
-  - Patterns/Concerns: **NEW** - Centralized player HTML generation
-
-### **File:** `/includes/class-bfp-hooks-manager.php` (Context-Aware)
-**Purpose:** Manages WordPress hooks with smart context detection
-**WordPress Integration Points:** Dynamic hook registration
-
-- **get_hooks_config()**
-  - Purpose: Returns context-aware hook configuration
-  - Inputs: None
-  - Outputs: Hook configuration array
-  - WordPress Data: Page context checks
-  - Data Flow: Check page type → Determine appropriate hooks → Return config
-  - Patterns/Concerns: **IMPROVED** - Prevents duplicate players via context
-
-- **register_dynamic_hooks()**
-  - Purpose: Registers hooks based on current page context
-  - Inputs: None
-  - Outputs: Registered hooks
-  - WordPress Data: Current page context
-  - Data Flow: Get config → Register main/all player hooks
-  - Patterns/Concerns: **NEW** - Dynamic hook registration pattern
-
-- **add_play_button_on_cover()**
-  - Purpose: Adds play button overlay on product images
-  - Inputs: None
-  - Outputs: HTML overlay
-  - WordPress Data: Product data
-  - Data Flow: Check setting → Get files → Render button → Add hidden player
-  - Patterns/Concerns: **NEW** - Clean implementation of on_cover feature
-
-### **File:** `/includes/class-bfp-playlist-renderer.php`
-**Purpose:** Dedicated playlist rendering with proper separation of concerns
-**WordPress Integration Points:** None directly
-**Status:** Minimal stub implementation to prevent errors
-
-### **File:** `/includes/class-bfp-preview-manager.php`
-**Purpose:** Handles preview/play request processing
-**WordPress Integration Points:** 
-- Actions: `init` for request handling
-
-- **handle_preview_request()**
-  - Purpose: Process play requests from URLs
-  - Inputs: `$_REQUEST` parameters
-  - Outputs: Audio stream
-  - WordPress Data: Product files
-  - Data Flow: Validate request → Get file → Track analytics → Stream audio
-  - Patterns/Concerns: **NEW** - Centralized preview handling
-
-### **File:** `/includes/class-bfp-analytics.php`
-**Purpose:** Analytics tracking and integration
-**WordPress Integration Points:**
-- Actions: `bfp_play_file`
-
-- **increment_playback_counter()**
-  - Purpose: Track play counts for products
-  - Inputs: `$product_id`
-  - Outputs: Updated counter
-  - WordPress Data: `update_post_meta()`
-  - Data Flow: Get current count → Increment → Save
-  - Patterns/Concerns: Clean separation of analytics logic
-
-### **File:** `/includes/class-bfp-cloud-tools.php`
-**Purpose:** Cloud storage URL processing utilities
-**WordPress Integration Points:** None
-
-- **get_google_drive_download_url()**
-  - Purpose: Convert various Google Drive URLs to direct download
-  - Inputs: `$url`
+- **get_google_drive_download_url($url)**
+  - Purpose: Convert Drive URLs to direct download
+  - Inputs: Google Drive share URL
   - Outputs: Direct download URL
   - WordPress Data: None
-  - Data Flow: Match patterns → Extract ID → Build download URL
-  - Patterns/Concerns: **IMPROVED** - Robust pattern matching
+  - Data Flow: Parse URL → Extract ID → Build download URL
+  - Patterns/Concerns: Multiple URL format support
 
-### **File:** `/includes/class-bfp-cache-manager.php`
-**Purpose:** Centralized cache clearing for multiple plugins
-**WordPress Integration Points:** Various cache plugin APIs
+### Cache Management
+
+**File:** `/includes/utils/cache.php`
+**Purpose:** Cross-plugin cache clearing
+**Class:** `BFP_Cache`
 
 - **clear_all_caches()**
   - Purpose: Clear all known WordPress caches
   - Inputs: None
-  - Outputs: Cache cleared
-  - WordPress Data: Various cache APIs
-  - Data Flow: Check each cache plugin → Clear if available
-  - Patterns/Concerns: Comprehensive cache support
+  - Outputs: Cache flush results
+  - WordPress Data: Various cache plugin APIs
+  - Data Flow: Detect plugins → Call clear methods
+  - Patterns/Concerns: Plugin-agnostic clearing
 
-### **File:** `/includes/class-bfp-utils.php`
-**Purpose:** General utility functions
-**WordPress Integration Points:** Filters
+### Analytics
 
-- **get_post_types()**
-  - Purpose: Get supported post types with filter
-  - Inputs: `$string` flag
-  - Outputs: Array or SQL string
-  - WordPress Data: None
-  - Data Flow: Define types → Apply filter → Format output
-  - Patterns/Concerns: Extensible via filter
+**File:** `/includes/utils/analytics.php`
+**Purpose:** Playback tracking and analytics
+**Class:** `BFP_Analytics`
 
----
+- **track_play_event($product_id, $file_url)**
+  - Purpose: Record playback events
+  - Inputs: Product ID, file URL
+  - Outputs: Analytics event
+  - WordPress Data: Post meta for counters
+  - Data Flow: Capture event → Update counter → Send to GA
+  - Patterns/Concerns: Privacy-aware tracking
 
-## Module System (New Architecture)
+### Preview Handler
 
-### **File:** `/modules/audio-engine.php`
-**Purpose:** Audio engine selection module (MediaElement.js vs WaveSurfer.js)
-**WordPress Integration Points:**
-- Actions: `bfp_module_general_settings`, `bfp_module_product_settings`
+**File:** `/includes/utils/preview.php`
+**Purpose:** Handle preview/play requests
+**Class:** `BFP_Preview`
 
-- **bfp_audio_engine_settings()**
-  - Purpose: Render audio engine selection UI
-  - Inputs: None
-  - Outputs: Settings HTML
-  - WordPress Data: Engine settings via state handler
-  - Data Flow: Get current engine → Render options → Handle visualizations
-  - Patterns/Concerns: **NEW** - Modular settings integration
+- **handle_preview_request()**
+  - Purpose: Process play button clicks
+  - Inputs: Request parameters
+  - Outputs: Audio stream
+  - WordPress Data: Product/file validation
+  - Data Flow: Validate → Track → Stream
+  - Patterns/Concerns: Security validation
 
-- **bfp_audio_engine_product_settings()**
-  - Purpose: Product-specific engine override UI
-  - Inputs: `$product_id`
-  - Outputs: Override dropdown HTML
-  - WordPress Data: Product and global engine settings
-  - Data Flow: Check for override → Show appropriate options
-  - Patterns/Concerns: **NEW** - Follows global/product override pattern
+### Auto Updates
 
-### **File:** `/modules/cloud-engine.php`
-**Purpose:** Cloud storage integration module placeholder
-**WordPress Integration Points:**
-- Actions: `bfp_module_general_settings`
-**Status:** Stub implementation for future cloud features
+**File:** `/includes/utils/update.php`
+**Purpose:** Plugin update checking
+**Class:** `BFP_Updater`
 
----
+- **check_update($transient)**
+  - Purpose: Check for plugin updates
+  - Inputs: Update transient
+  - Outputs: Modified transient
+  - WordPress Data: Plugin version data
+  - Data Flow: Check version → Compare → Update transient
+  - Patterns/Concerns: Future implementation ready
 
-## JavaScript Files (Enhanced)
+### General Utilities
 
-### **File:** `/js/engine.js`
-**Purpose:** Main frontend player functionality with multi-engine support
-**Key Features:**
-- **NEW** - Dynamic audio engine detection and initialization
-- **NEW** - WaveSurfer.js integration with fallback
-- **IMPROVED** - Context-aware player controls
-- **IMPROVED** - Play button on cover functionality
-- **NEW** - Smooth fade out for both engines
+**File:** `/includes/utils/utils.php`
+**Purpose:** Helper functions and utilities
+**Class:** `BFP_Utils`
 
-### **File:** `/js/wavesurfer.js`
-**Purpose:** WaveSurfer.js specific integration
-**Key Features:**
-- **NEW** - Waveform visualization
-- **NEW** - MediaElement-compatible API wrapper
-- **NEW** - Smooth audio fading
-- **NEW** - Responsive waveform rendering
+- **get_post_types($string)**
+  - Purpose: Get supported post types
+  - Inputs: String format flag
+  - Outputs: Post types array/string
+  - WordPress Data: Post type registry
+  - Data Flow: Build array → Apply filter → Format
+  - Patterns/Concerns: Extensible via filters
 
-### **File:** `/js/admin.js`
-**Purpose:** Admin interface functionality
-**Key Features:**
+## Module System
+
+### Audio Engine Module
+
+**File:** `/modules/audio-engine.php`
+**Purpose:** Audio engine selection UI
+**Functions:** `bfp_audio_engine_settings()`, `bfp_audio_engine_product_settings()`
+
+- Adds MediaElement.js vs WaveSurfer.js selection
+- Global and per-product override settings
+- Visualization options for WaveSurfer
+
+### Cloud Engine Module
+
+**File:** `/modules/cloud-engine.php`
+**Purpose:** Cloud storage configuration
+**Functions:** `bfp_cloud_storage_settings()`
+
+- Google Drive integration setup
+- OAuth configuration
+- Future: Dropbox, S3, Azure support
+
+## View Templates
+
+### Global Settings
+
+**File:** `/views/global-admin-options.php`
+**Purpose:** Main settings page UI
+**Sections:**
+- General Settings (access control, demos)
+- Player Settings (appearance, behavior)
+- File Truncation (security)
+- Analytics (tracking)
+- Cloud Storage (external storage)
+- Audio Engine (engine selection)
+- Troubleshooting (common fixes)
+
+### Product Options
+
+**File:** `/views/product-options.php`
+**Purpose:** Product-specific player settings
+**Sections:**
+- Player enable/disable
+- Behavior overrides
 - Demo file management
-- Settings UI interactions
-- Media library integration
+- Audio engine override
 
----
+## Frontend Assets
 
-## Page Builder Integrations
+### JavaScript
 
-### **File:** `/builders/builders.php`
-**Purpose:** Centralized page builder support
-**Supported Builders:**
-- Gutenberg (block editor)
-- Elementor
-**Key Features:**
-- **IMPROVED** - Server-side block rendering
-- Dynamic shortcode processing
-- Category registration
+**File:** `/js/engine.js`
+**Purpose:** Player functionality and interactions
+- MediaElement.js initialization
+- Play button handling
+- Playlist management
+- Analytics tracking
 
----
+**File:** `/js/wavesurfer.js`
+**Purpose:** WaveSurfer engine integration
+- Waveform rendering
+- Audio visualization
+- Progress tracking
 
-## State Management Flow (New Architecture)
+**File:** `/js/admin.js`
+**Purpose:** Backend UI functionality
+- Settings management
+- File uploads
+- Dynamic UI elements
 
-1. **Configuration Layer** (`BFP_Config`)
-   - Central state repository
-   - Context-aware inheritance (Product → Global → Default)
-   - Bulk retrieval optimization
-   - Smart override detection
+### Stylesheets
 
-2. **Component Layer**
-   - Each component manages its own state
-   - Components request state via config
-   - No direct access to WordPress options/meta
+**File:** `/css/style.css`
+**Purpose:** Frontend player styles
+- Player layouts
+- Responsive design
+- Animation effects
 
-3. **Rendering Layer**
-   - Renderers use bulk state fetching
-   - Context detection for appropriate output
-   - Separation of data and presentation
+**File:** `/css/skins/dark.css`
+**Purpose:** Dark theme skin
 
-4. **Hook Management**
-   - Dynamic registration based on context
-   - Prevents duplicate players
-   - Handles on_cover functionality cleanly
+**File:** `/css/skins/light.css`
+**Purpose:** Light theme skin
 
----
+**File:** `/css/skins/custom.css`
+**Purpose:** Custom theme overrides
 
-## Key Architectural Improvements
+## Data Flow Patterns
 
-1. **Separation of Concerns**
-   - Each class has a single, well-defined responsibility
-   - Components are loosely coupled via main plugin class
-   - Rendering logic separated from data processing
+### Player Rendering Flow
+```
+Page Load → Hook Triggered → Context Check → State Retrieval → 
+File Detection → Player Generation → HTML Output
+```
 
-2. **State Management**
-   - Centralized configuration with smart inheritance
-   - Bulk operations for performance
-   - Context-aware settings resolution
+### Audio Streaming Flow
+```
+Play Click → Request Validation → Analytics → File Processing → 
+Demo Check → Stream/Redirect
+```
 
-3. **Modular Architecture**
-   - Dynamic module loading system
-   - Easy to add new features via modules
-   - Settings integration via action hooks
+### Settings Inheritance
+```
+Product Settings → Global Settings → Default Constants
+```
 
-4. **Performance Optimizations**
-   - Bulk settings retrieval
-   - Lazy loading of components
-   - Smart script/style enqueuing
+## Key Improvements in Refactored Architecture
 
-5. **Context Awareness**
-   - Players adapt to page context
-   - Hooks registered dynamically
-   - Controls change based on location
-
-6. **Extensibility**
-   - Multiple filter/action points
-   - Module system for features
-   - Clean APIs for third-party integration
-
----
-
-## Security Improvements
-
-1. **Input Validation**
-   - Centralized nonce verification
-   - Proper sanitization in all user inputs
-   - Capability checks before operations
-
-2. **File Operations**
-   - Secure file paths
-   - Protected upload directories
-   - Safe file streaming
-
-3. **Data Access**
-   - No direct superglobal access in components
-   - Proper escaping in all outputs
-   - SQL injection prevention
-
----
-
-## Future Considerations
-
-1. **API Development**
-   - REST API endpoints for player operations
-   - AJAX handlers modernization
-   - GraphQL support potential
-
-2. **Performance**
-   - Object caching integration
-   - Lazy loading improvements
-   - Database query optimization
-
-3. **Features**
-   - Enhanced cloud storage
-   - Advanced analytics
-   - AI-powered recommendations
+1. **Cleaner File Names**: Removed `class-bfp-` prefix for readability
+2. **Better Organization**: Utilities in dedicated `/utils/` folder
+3. **Simplified Access**: Shorter, more intuitive file names
+4. **Maintained Compatibility**: Class names unchanged for backward compatibility
+5. **Enhanced Modularity**: Clear separation between core and utility functions

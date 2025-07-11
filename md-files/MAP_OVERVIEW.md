@@ -10,51 +10,74 @@ Component-based architecture with centralized state management and context-aware
 
 ### 1. **Main Plugin (`bfp.php`)**
 - Entry point and component orchestrator
-- Initializes all managers in order: Config → File Handler → Player Manager → Audio Processor → WooCommerce → Hooks → Renderers
+- Initializes all managers in order: Config → File Handler → Audio Engine → WooCommerce → Player → Renderers → Hooks → Admin
 - Provides component access via getters
 
-### 2. **State Management (`class-bfp-config.php`)**
+### 2. **State Management (`state-manager.php`)**
 - Central configuration with inheritance: Product Settings → Global Settings → Defaults
 - Context-aware state resolution
 - Bulk retrieval for performance
 
-### 3. **Core Managers**
+### 3. **Core Components** (`/includes/`)
 
-**Player Manager** (`class-bfp-player-manager.php`)
+**Player** (`player.php`)
 - Generates player HTML
 - Manages script/style enqueuing based on audio engine
 - Handles player configuration
 
-**Audio Processor** (`class-bfp-audio-processor.php`)
+**Audio Engine** (`audio.php`)
 - Streams audio files with optional truncation
 - Creates demo versions
 - Tracks analytics
 
-**Hooks Manager** (`class-bfp-hooks-manager.php`)
+**Hooks** (`hooks.php`)
 - Dynamic hook registration based on page context
 - Prevents duplicate players
 - Manages player insertion points
 
-### 4. **Renderers**
+### 4. **Renderers** (`/includes/`)
 
-**Player Renderer** (`class-bfp-player-renderer.php`)
+**Player Renderer** (`player-renderer.php`)
 - Context-aware player generation
 - Single vs. multiple player modes
 - Play button overlays on product images
 
-**WooCommerce Integration** (`class-bfp-woocommerce.php`)
+**Playlist Renderer** (`playlist-renderer.php`)
+- Multi-product playlist generation
+- Bulk operations optimization
+
+**Cover Renderer** (`cover-renderer.php`)
+- Play button overlays on product images
+
+**WooCommerce** (`woocommerce.php`)
 - Product integration
 - Playlist shortcode handling
 - Purchase verification
 
-### 5. **Support Systems**
+### 5. **Utilities** (`/includes/utils/`)
 
-**File Handler** (`class-bfp-file-handler.php`)
+**Files** (`files.php`)
 - Demo file management
 - Secure directory creation
 - Cleanup operations
 
-**Admin Interface** (`class-bfp-admin.php`)
+**Cloud** (`cloud.php`)
+- Cloud storage URL processing
+- Google Drive integration
+
+**Cache** (`cache.php`)
+- Cross-plugin cache clearing
+- Performance optimization
+
+**Analytics** (`analytics.php`)
+- Playback tracking
+- Google Analytics integration
+
+**Preview** (`preview.php`)
+- Handle preview requests
+- Security validation
+
+**Admin** (`admin.php`)
 - Settings pages
 - Product metaboxes
 - Module loading system
@@ -85,7 +108,7 @@ Component-based architecture with centralized state management and context-aware
 
 ### Module System
 - Audio engine selection (MediaElement.js/WaveSurfer.js)
-- Cloud storage support
+- Cloud storage support (Google Drive, future: S3, Azure)
 - Extensible via action hooks
 
 ### Security
@@ -115,14 +138,17 @@ Component-based architecture with centralized state management and context-aware
 - Smart script enqueuing
 - Cache management support
 
-## File Structure
+## File Structure (Simplified)
 ```
 /bfp.php                    # Main plugin file
 /includes/                  # Core classes
-  class-bfp-*.php          # Component classes
+  *.php                    # Component classes (no class- prefix)
+  /utils/                  # Utility classes
+    *.php                  # Helper utilities
 /modules/                   # Feature modules
 /js/                       # Frontend scripts
 /css/                      # Styles and skins
+  /skins/                  # Theme variations
 /views/                    # Admin UI templates
 /builders/                 # Page builder integrations
 ```
@@ -138,7 +164,16 @@ Component-based architecture with centralized state management and context-aware
 - Action: `bfp_module_*_settings` - Add settings
 - Multiple component-specific hooks
 
-## Future-Ready
-- Modular architecture supports new features
-- Clean API for third-party integration
-- Prepared for REST API implementation
+## What's New in Refactored Version
+- **Cleaner file names**: Removed redundant `class-bfp-` prefixes
+- **Better organization**: Utilities grouped in `/utils/` subfolder
+- **Improved readability**: `state-manager.php` instead of `class-bfp-config.php`
+- **Maintained stability**: All class names unchanged for backward compatibility
+- **Enhanced modularity**: Clear separation of concerns
+
+## Quick Start for Developers
+1. Main logic flows through `bfp.php`
+2. Player rendering happens in `player-renderer.php`
+3. Audio processing in `audio.php`
+4. Settings managed by `state-manager.php`
+5. Add new features via the module system in `/modules/`
