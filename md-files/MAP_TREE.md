@@ -20,15 +20,17 @@
 │       ├── wcblocks.css
 │       └── wcblocks.js
 ├── css
-│   ├── mejs-skins
-│   │   ├── controls-wmp-bg.png
-│   │   ├── mejs-skins.css
-│   │   ├── mejs-skins.min.css
-│   │   └── modern-bfp-skin.css
+│   ├── skins
+│   │   ├── custom.css
+│   │   ├── dark.css
+│   │   └── light.css
 │   ├── style.admin.css
 │   └── style.css
+├── demo
+│   └── demo.mp3
 ├── includes
 │   ├── class-bfp-admin.php
+│   ├── class-bfp-analytics.php
 │   ├── class-bfp-audio-processor.php
 │   ├── class-bfp-auto-updater.php
 │   ├── class-bfp-cache-manager.php
@@ -39,6 +41,8 @@
 │   ├── class-bfp-player-manager.php
 │   ├── class-bfp-player-renderer.php
 │   ├── class-bfp-playlist-renderer.php
+│   ├── class-bfp-preview-manager.php
+│   ├── class-bfp-utils.php
 │   └── class-bfp-woocommerce.php
 ├── js
 │   ├── admin.js
@@ -58,6 +62,7 @@
 │   ├── ERRORS.md
 │   ├── JOBz.md
 │   ├── MAP.md
+│   ├── MAP_OVERVIEW.md
 │   └── MAP_TREE.md
 ├── modules
 │   ├── audio-engine.php
@@ -69,9 +74,8 @@
 │   ├── test_mp3_class.php
 │   ├── test_outputs
 │   └── test_plugin.php
+├── unused
 ├── vendors
-│   ├── demo
-│   │   └── demo.mp3
 │   ├── php-mp3
 │   │   └── class.mp3.php
 │   └── wavesurfer
@@ -93,4 +97,4 @@
     │       └── public.js
     └── playlist_widget.php
 
-24 directories, 70 files
+25 directories, 73 files
