@@ -14,8 +14,6 @@
 - **Format Support**: OGA, MP3, WAV, WMA, M3U, M3U8 playlists
 - **Mobile Optimized**: Works seamlessly on all devices including iPhone, iPad, and Android
 - **File Protection**: Secure playback mode to prevent unauthorized downloads
-
-### 🛡️ Security & Protection
 - **Demo File Generation**: Automatically create truncated preview versions of audio files
 - **FFmpeg Integration**: Advanced audio processing for higher quality demos
 - **Watermark Support**: Add audio watermarks to demo files
