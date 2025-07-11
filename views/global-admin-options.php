@@ -49,8 +49,10 @@ $play_all            = $GLOBALS['BandfrontPlayer']->get_global_attr(
 	// This option is only for compatibility with versions previous to 1.0.28
 					$GLOBALS['BandfrontPlayer']->get_global_attr( 'play_all', 0 )
 );
-$loop                     = intval( $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_loop', 0 ) );
-$on_cover                 = intval( $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_on_cover', 0 ) );
+
+// FORCE on_cover to always be true (1) for now
+$on_cover = 1; // Always show play buttons on product images
+
 $playback_counter_column  = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_playback_counter_column', 1 );
 $analytics_integration    = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_analytics_integration', 'ua' );
 $analytics_property       = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_analytics_property', '' );
@@ -282,23 +284,14 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						<input aria-label="<?php esc_attr_e( 'Player volume', 'bandfront-player' ); ?>" type="number" id="_bfp_player_volume" name="_bfp_player_volume" min="0" max="1" step="0.01" value="<?php echo esc_attr( $volume ); ?>" />
 					</td>
 				</tr>
-				<tr>
-					<td class="bfp-column-30">🎛️ <?php esc_html_e( 'Player controls', 'bandfront-player' ); ?></td>
+				<tr valign="top">
 					<td>
-						<label><input aria-label="<?php esc_attr_e( 'Play/pause button only', 'bandfront-player' ); ?>" type="radio" name="_bfp_player_controls" value="button" <?php echo ( ( 'button' == $player_controls ) ? 'checked' : '' ); ?> /> <?php esc_html_e( 'Play/pause button only', 'bandfront-player' ); ?></label><br />
-						<label><input aria-label="<?php esc_attr_e( 'All controls', 'bandfront-player' ); ?>" type="radio" name="_bfp_player_controls" value="all" <?php echo ( ( 'all' == $player_controls ) ? 'checked' : '' ); ?> /> <?php esc_html_e( 'Full controls (progress bar, volume, etc.)', 'bandfront-player' ); ?></label><br />
-						<label><input aria-label="<?php esc_attr_e( 'Controls depending on context', 'bandfront-player' ); ?>" type="radio" name="_bfp_player_controls" value="default" <?php echo ( ( 'default' == $player_controls ) ? 'checked' : '' ); ?> /> <?php esc_html_e( 'Smart controls (minimal on shop, full on product pages)', 'bandfront-player' ); ?></label>
-						<div class="bfp-on-cover">
-							<label><input aria-label="<?php esc_attr_e( 'Player on cover images', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_player_on_cover" value="default" <?php
-							echo ( ( ! empty( $on_cover ) && ( 'button' == $player_controls || 'default' == $player_controls ) ) ? 'checked' : '' );
-							?> />
-							🖼️ <?php esc_html_e( 'Show play buttons on product images', 'bandfront-player' ); ?>
-							<i>
-							<?php
-							esc_html_e( '(Experimental feature - appearance depends on your theme)', 'bandfront-player' );
-							?>
-							</i></label>
-						</div>
+						🎛️ <?php esc_html_e( 'Player controls', 'bandfront-player' ); ?>
+					</td>
+					<td>
+						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="button" name="_bfp_player_controls" <?php echo ( ( 'button' == $player_controls ) ? 'checked' : '' ); ?> /> <?php esc_html_e( 'Play/pause button only', 'bandfront-player' ); ?></label><br />
+						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="all" name="_bfp_player_controls" <?php echo ( ( 'all' == $player_controls ) ? 'checked' : '' ); ?> /> <?php esc_html_e( 'Full controls (progress bar, volume, etc.)', 'bandfront-player' ); ?></label><br />
+						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="default" name="_bfp_player_controls" <?php echo ( ( 'default' == $player_controls ) ? 'checked' : '' ); ?> /> <?php esc_html_e( 'Smart controls (minimal on shop, full on product pages)', 'bandfront-player' ); ?></label>
 					</td>
 				</tr>
 				<tr>
