@@ -30,7 +30,7 @@ function bfp_audio_engine_settings() {
     global $BandfrontPlayer;
     
     // Use the new state handler
-    $audio_engine = $BandfrontPlayer->get_config()->get_state('_bfp_audio_engine');
+    $audio_engine = $BandfrontPlayer->get_state('_bfp_audio_engine');
     $enable_visualizations = $BandfrontPlayer->get_config()->get_state('_bfp_enable_visualizations');
     ?>
     <tr>

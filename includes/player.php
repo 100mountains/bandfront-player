@@ -604,7 +604,7 @@ class BFP_Player {
         global $BandfrontPlayer;
         
         // Get audio engine setting using new state handler
-        $audio_engine = $BandfrontPlayer->get_config()->get_state('_bfp_audio_engine');
+        $audio_engine = $BandfrontPlayer->get_state('_bfp_audio_engine');
         
         // Enqueue base styles
         wp_enqueue_style(
