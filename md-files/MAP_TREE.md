@@ -20,6 +20,7 @@
 │       ├── wcblocks.css
 │       └── wcblocks.js
 ├── css
+│   ├── admin-notices.css
 │   ├── skins
 │   │   ├── custom.css
 │   │   ├── dark.css
@@ -57,13 +58,11 @@
 │   ├── bandfront-player.pot
 │   └── messages.mo
 ├── md-files
-│   ├── AI-CODE-RULES copy.md
 │   ├── AI-CODE-RULES.md
 │   ├── BandFront_Media_Players_Modernization_Guide.md
 │   ├── Bandfront_WordPress_Modernization_Report.md
-│   ├── CLASS_REFACTOR PROGRESS.md
-│   ├── CLASS_REFACTOR.md
 │   ├── CLOUD_STORAGE.md
+│   ├── COMMIT-RULES.md
 │   ├── ERRORS.md
 │   ├── JOBz.md
 │   ├── MAP.md
@@ -79,7 +78,6 @@
 │   ├── test_mp3_class.php
 │   ├── test_outputs
 │   └── test_plugin.php
-├── unused
 ├── vendors
 │   ├── php-mp3
 │   │   └── class.mp3.php
@@ -102,4 +100,4 @@
     │       └── public.js
     └── playlist_widget.php
 
-26 directories, 77 files
+25 directories, 76 files
