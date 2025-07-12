@@ -517,4 +517,32 @@ class BFP_Audio_Engine {
         }
         return $url;
     }
+    
+    /**
+     * Process play request for a specific file
+     */
+    private function process_play_request($product_id, $file_index) {
+        $files = $this->main_plugin->get_product_files($product_id);
+        
+        if (!empty($files) && isset($files[$file_index])) {
+            $file = $files[$file_index];
+            
+            // Increment playback counter
+            if ($this->main_plugin->get_analytics()) {
+                $this->main_plugin->get_analytics()->increment_playback_counter($product_id);
+            }
+            
+            // Check if secure player is enabled - use state manager, no constant fallback
+            $secure_player = $this->main_plugin->get_product_attr($product_id, '_bfp_secure_player', false);
+            $file_percent = $this->main_plugin->get_product_attr($product_id, '_bfp_file_percent');
+            
+            // Output the file
+            $this->main_plugin->get_audio_core()->output_file(array(
+                'url' => $file['file'],
+                'product_id' => $product_id,
+                'secure_player' => $secure_player,
+                'file_percent' => $file_percent
+            ));
+        }
+    }
 }

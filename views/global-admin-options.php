@@ -20,65 +20,48 @@ wp_localize_script( 'bfp-admin-js', 'bfp', $bfp_js );
 
 // Add AJAX localization
 wp_localize_script( 'bfp-admin-js', 'bfp_ajax', array(
-    'ajax_url' => admin_url('admin-ajax.php'),
-    'nonce' => wp_create_nonce('bfp_updating_plugin_settings'),
     'saving_text' => __('Saving settings...', 'bandfront-player'),
     'error_text' => __('An unexpected error occurred. Please try again.', 'bandfront-player'),
     'dismiss_text' => __('Dismiss this notice', 'bandfront-player'),
 ));
 
-$ffmpeg             = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_ffmpeg', false );
-$ffmpeg_path        = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_ffmpeg_path', '' );
+// Get all settings in one clean call
+$settings = $GLOBALS['BandfrontPlayer']->get_config()->get_admin_form_settings();
+
+// Handle special cases
 $ffmpeg_system_path = defined( 'PHP_OS' ) && strtolower( PHP_OS ) == 'linux' && function_exists( 'shell_exec' ) ? @shell_exec( 'which ffmpeg' ) : '';
-$ffmpeg_watermark   = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_ffmpeg_watermark', '' );
 
-$troubleshoot_default_extension = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_default_extension', false );
-$force_main_player_in_title     = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_force_main_player_in_title', 1 );
-$ios_controls                   = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_ios_controls', false );
-$troubleshoot_onload            = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_onload', false );
-$disable_302         			= trim( $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_disable_302', 0 ) );
+// Cloud Storage Settings
+$bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
+$bfp_drive = isset($bfp_cloud_settings['_bfp_drive']) ? $bfp_cloud_settings['_bfp_drive'] : false;
+$bfp_drive_key = isset($bfp_cloud_settings['_bfp_drive_key']) ? $bfp_cloud_settings['_bfp_drive_key'] : '';
+$bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 
-$enable_player   = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_enable_player', false );
-$show_in         = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_show_in', 'all' );
-$players_in_cart = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_players_in_cart', false );
-$player_style    = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_player_layout', 'dark' );
-$volume          = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_player_volume', BFP_DEFAULT_PLAYER_VOLUME );
-$player_controls = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_player_controls', BFP_DEFAULT_PLAYER_CONTROLS );
-$single_player   = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_single_player', false );
-$secure_player   = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_secure_player', false );
-$file_percent    = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_file_percent', BFP_FILE_PERCENT );
-$player_title    = intval( $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_player_title', 1 ) );
-$merge_grouped   = intval( $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_merge_in_grouped', 0 ) );
-$preload         = $GLOBALS['BandfrontPlayer']->get_global_attr(
-	'_bfp_preload',
-	// This option is only for compatibility with versions previous to 1.0.28
-					$GLOBALS['BandfrontPlayer']->get_global_attr( 'preload', 'none' )
-);
-$play_simultaneously = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_play_simultaneously', 0 );
-$play_all            = $GLOBALS['BandfrontPlayer']->get_global_attr(
-	'_bfp_play_all',
-	// This option is only for compatibility with versions previous to 1.0.28
-					$GLOBALS['BandfrontPlayer']->get_global_attr( 'play_all', 0 )
-);
-$loop                     = intval( $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_loop', 0 ) );
-
-// FORCE on_cover to always be true (1) for now
-$on_cover = 1; // Always show play buttons on product images
-
-$playback_counter_column  = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_playback_counter_column', 1 );
-$analytics_integration    = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_analytics_integration', 'ua' );
-$analytics_property       = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_analytics_property', '' );
-$analytics_api_secret     = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_analytics_api_secret', '' );
-$message                  = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_message', '' );
-$registered_only          = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_registered_only', 0 );
-$purchased                = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_purchased', 0 );
-$reset_purchased_interval = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_reset_purchased_interval', 'daily' );
-$fade_out                 = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_fade_out', 1 );
-$purchased_times_text     = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_purchased_times_text', '- purchased %d time(s)' );
-$apply_to_all_players     = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_apply_to_all_players', 0 );
+// Get cloud storage settings
+$cloud_active_tab = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_active_tab', 'google-drive');
+$cloud_dropbox = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_dropbox', array(
+    'enabled' => false,
+    'access_token' => '',
+    'folder_path' => '/bandfront-demos',
+));
+$cloud_s3 = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_s3', array(
+    'enabled' => false,
+    'access_key' => '',
+    'secret_key' => '',
+    'bucket' => '',
+    'region' => 'us-east-1',
+    'path_prefix' => 'bandfront-demos/',
+));
+$cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', array(
+    'enabled' => false,
+    'account_name' => '',
+    'account_key' => '',
+    'container' => '',
+    'path_prefix' => 'bandfront-demos/',
+));
 
 // Remove Google Drive settings UI from the settings page if present.
-remove_all_actions( 'bfp_general_settings', 10 );
+// remove_all_actions( 'bfp_general_settings', 10 );
 
 ?>
 <h1><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Bandfront Player - Global Settings', 'bandfront-player' ); ?></h1>
@@ -149,26 +132,24 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_registered_only">👤 <?php esc_html_e( 'Registered users only', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Include the players only for registered users', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_registered_only" name="_bfp_registered_only" <?php print( ( $registered_only ) ? 'CHECKED' : '' ); ?> /><br>
+					<td><input aria-label="<?php esc_attr_e( 'Include the players only for registered users', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_registered_only" name="_bfp_registered_only" <?php checked( $settings['_bfp_registered_only'] ); ?> /><br>
 					<em class="bfp-em-text"><?php esc_html_e( 'Only show audio players to logged-in users', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30">🛒 <?php esc_html_e( 'Full tracks for buyers', 'bandfront-player' ); ?></td>
 					<td>
-						<label><input aria-label="<?php esc_attr_e( 'For buyers, play the purchased audio files instead of the truncated files for demo', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_purchased" <?php print( ( $purchased ) ? 'CHECKED' : '' ); ?> />
+						<label><input aria-label="<?php esc_attr_e( 'For buyers, play the purchased audio files instead of the truncated files for demo', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_purchased" <?php checked( $settings['_bfp_purchased'] ); ?> />
 						<?php esc_html_e( 'Let buyers hear full tracks instead of demos', 'bandfront-player' ); ?></label><br>
 						<label class="bfp-settings-label"><?php esc_html_e( 'Reset access', 'bandfront-player' ); ?>
 						<select aria-label="<?php esc_attr_e( 'Reset files interval', 'bandfront-player' ); ?>" name="_bfp_reset_purchased_interval">
-							<option value="daily" <?php if ( 'daily' == $reset_purchased_interval ) {
-								print 'SELECTED';} ?>><?php esc_html_e( 'daily', 'bandfront-player' ); ?></option>
-							<option value="never" <?php if ( 'never' == $reset_purchased_interval ) {
-								print 'SELECTED';} ?>><?php esc_html_e( 'never', 'bandfront-player' ); ?></option>
+							<option value="daily" <?php selected( $settings['_bfp_reset_purchased_interval'], 'daily' ); ?>><?php esc_html_e( 'daily', 'bandfront-player' ); ?></option>
+							<option value="never" <?php selected( $settings['_bfp_reset_purchased_interval'], 'never' ); ?>><?php esc_html_e( 'never', 'bandfront-player' ); ?></option>
 						</select></label>
 					</td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_purchased_times_text">📊 <?php esc_html_e( 'Purchase count text', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Purchased times text', 'bandfront-player' ); ?>" type="text" id="_bfp_purchased_times_text" name="_bfp_purchased_times_text" value="<?php print esc_attr( $purchased_times_text ); ?>" class="bfp-input-full" /><br>
+					<td><input aria-label="<?php esc_attr_e( 'Purchased times text', 'bandfront-player' ); ?>" type="text" id="_bfp_purchased_times_text" name="_bfp_purchased_times_text" value="<?php echo esc_attr( $settings['_bfp_purchased_times_text'] ); ?>" class="bfp-input-full" /><br>
 					<i class="bfp-em-text"><?php esc_html_e( 'Text shown in playlists when displaying purchase counts (use %d for the number)', 'bandfront-player' ); ?></i>
 					</td>
 				</tr>
@@ -194,38 +175,38 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_enable_player">🎧 <?php esc_html_e( 'Enable players on all products', 'bandfront-player' ); ?></label></td>
-					<td><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Players will show for downloadable products with audio files, or products where you\'ve added custom audio files', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Enable player', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_enable_player" name="_bfp_enable_player" <?php echo ( ( $enable_player ) ? 'checked' : '' ); ?> /></div></td>
+					<td><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Players will show for downloadable products with audio files, or products where you\'ve added custom audio files', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Enable player', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_enable_player" name="_bfp_enable_player" <?php checked( $settings['_bfp_enable_player'] ); ?> /></div></td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30">📍 <?php esc_html_e( 'Show players on', 'bandfront-player' ); ?></td>
 					<td>
-						<label><input aria-label="<?php esc_attr_e( 'Single entry pages', 'bandfront-player' ); ?>" type="radio" name="_bfp_show_in" value="single" <?php echo ( ( 'single' == $show_in ) ? 'checked' : '' ); ?> />
+						<label><input aria-label="<?php esc_attr_e( 'Single entry pages', 'bandfront-player' ); ?>" type="radio" name="_bfp_show_in" value="single" <?php checked( $settings['_bfp_show_in'], 'single' ); ?> />
 						<?php _e( 'Product pages only', 'bandfront-player' ); ?></label><br />
 
-						<label><input aria-label="<?php esc_attr_e( 'Multiple entry pages', 'bandfront-player' ); ?>" type="radio" name="_bfp_show_in" value="multiple" <?php echo ( ( 'multiple' == $show_in ) ? 'checked' : '' ); ?> />
+						<label><input aria-label="<?php esc_attr_e( 'Multiple entry pages', 'bandfront-player' ); ?>" type="radio" name="_bfp_show_in" value="multiple" <?php checked( $settings['_bfp_show_in'], 'multiple' ); ?> />
 						<?php _e( 'Shop and archive pages only', 'bandfront-player' ); ?></label><br />
 
-						<label><input aria-label="<?php esc_attr_e( 'Single and multiple entry pages', 'bandfront-player' ); ?>" type="radio" name="_bfp_show_in" value="all" <?php echo ( ( 'all' == $show_in ) ? 'checked' : '' ); ?> />
+						<label><input aria-label="<?php esc_attr_e( 'Single and multiple entry pages', 'bandfront-player' ); ?>" type="radio" name="_bfp_show_in" value="all" <?php checked( $settings['_bfp_show_in'], 'all' ); ?> />
 						<?php _e( 'All pages (shop, archives, and product pages)', 'bandfront-player' ); ?></label>
 					</td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_players_in_cart">🛒 <?php esc_html_e( 'Show players in cart', 'bandfront-player' ); ?></label></td>
 					<td>
-						<input aria-label="<?php esc_attr_e( 'Include players in cart', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_players_in_cart" name="_bfp_players_in_cart" <?php echo ( ( $players_in_cart ) ? 'checked' : '' ); ?> />
+						<input aria-label="<?php esc_attr_e( 'Include players in cart', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_players_in_cart" name="_bfp_players_in_cart" <?php checked( $settings['_bfp_players_in_cart'] ); ?> />
 					</td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_merge_in_grouped">📦 <?php esc_html_e( 'Merge grouped products', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_merge_in_grouped" name="_bfp_merge_in_grouped" <?php echo ( ( $merge_grouped ) ? 'checked' : '' ); ?> /><br /><em class="bfp-em-text"><?php esc_html_e( 'Show "Add to cart" buttons and quantity fields within player rows for grouped products', 'bandfront-player' ); ?></em></td>
+					<td><input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_merge_in_grouped" name="_bfp_merge_in_grouped" <?php checked( $settings['_bfp_merge_in_grouped'] ); ?> /><br /><em class="bfp-em-text"><?php esc_html_e( 'Show "Add to cart" buttons and quantity fields within player rows for grouped products', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr>
 					<td valign="top" class="bfp-column-30">🎨 <?php esc_html_e( 'Player appearance', 'bandfront-player' ); ?></td>
 					<td>
-						<label><input type="radio" name="_bfp_player_layout" value="dark" <?php checked($player_style, 'dark'); ?>> 🌙 <?php esc_html_e('Dark', 'bandfront-player'); ?></label><br>
-						<label><input type="radio" name="_bfp_player_layout" value="light" <?php checked($player_style, 'light'); ?>> ☀️ <?php esc_html_e('Light', 'bandfront-player'); ?></label><br>
-						<label><input type="radio" name="_bfp_player_layout" value="custom" <?php checked($player_style, 'custom'); ?>> 🎨 <?php esc_html_e('Custom', 'bandfront-player'); ?></label><br><br>
-						<label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php echo ( ( $single_player ) ? 'checked' : '' ); ?> />
+						<label><input type="radio" name="_bfp_player_layout" value="dark" <?php checked( $settings['_bfp_player_layout'], 'dark' ); ?>> 🌙 <?php esc_html_e('Dark', 'bandfront-player'); ?></label><br>
+						<label><input type="radio" name="_bfp_player_layout" value="light" <?php checked( $settings['_bfp_player_layout'], 'light' ); ?>> ☀️ <?php esc_html_e('Light', 'bandfront-player'); ?></label><br>
+						<label><input type="radio" name="_bfp_player_layout" value="custom" <?php checked( $settings['_bfp_player_layout'], 'custom' ); ?>> 🎨 <?php esc_html_e('Custom', 'bandfront-player'); ?></label><br><br>
+						<label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php checked( $settings['_bfp_single_player'] ); ?> />
 						<span class="bfp-single-player-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
 					</td>
 				</tr>
@@ -234,12 +215,9 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						⏭️ <?php esc_html_e( 'Preload behavior', 'bandfront-player' ); ?>
 					</td>
 					<td>
-						<label><input aria-label="<?php esc_attr_e( 'Preload - none', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="none" <?php if ( 'none' == $preload ) {
-							echo 'CHECKED';} ?> /> None</label><br />
-						<label><input aria-label="<?php esc_attr_e( 'Preload - metadata', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="metadata" <?php if ( 'metadata' == $preload ) {
-							echo 'CHECKED';} ?> /> Metadata</label><br />
-						<label><input aria-label="<?php esc_attr_e( 'Preload - auto', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="auto" <?php if ( 'auto' == $preload ) {
-							echo 'CHECKED';} ?> /> Auto</label><br />
+						<label><input aria-label="<?php esc_attr_e( 'Preload - none', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="none" <?php checked( $settings['_bfp_preload'], 'none' ); ?> /> None</label><br />
+						<label><input aria-label="<?php esc_attr_e( 'Preload - metadata', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="metadata" <?php checked( $settings['_bfp_preload'], 'metadata' ); ?> /> Metadata</label><br />
+						<label><input aria-label="<?php esc_attr_e( 'Preload - auto', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="auto" <?php checked( $settings['_bfp_preload'], 'auto' ); ?> /> Auto</label><br />
 					</td>
 				</tr>
 				<tr>
@@ -247,8 +225,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						<label for="_bfp_play_all">▶️ <?php esc_html_e( 'Auto-play next track', 'bandfront-player' ); ?></label>
 					</td>
 					<td>
-						<input aria-label="<?php esc_attr_e( 'Play all', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_all" name="_bfp_play_all" <?php if ( $play_all ) {
-							echo 'CHECKED';} ?> />
+						<input aria-label="<?php esc_attr_e( 'Play all', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_all" name="_bfp_play_all" <?php checked( $settings['_bfp_play_all'] ); ?> />
 					</td>
 				</tr>
 				<tr>
@@ -256,8 +233,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						<label for="_bfp_loop">🔄 <?php esc_html_e( 'Loop tracks', 'bandfront-player' ); ?></label>
 					</td>
 					<td>
-						<input aria-label="<?php esc_attr_e( 'Loop', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_loop" name="_bfp_loop" <?php if ( $loop ) {
-							echo 'CHECKED';} ?> />
+						<input aria-label="<?php esc_attr_e( 'Loop', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_loop" name="_bfp_loop" <?php checked( $settings['_bfp_loop'] ); ?> />
 					</td>
 				</tr>
 				<tr>
@@ -265,8 +241,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						<label for="_bfp_play_simultaneously">🎵 <?php esc_html_e( 'Allow multiple players', 'bandfront-player' ); ?></label>
 					</td>
 					<td>
-						<input aria-label="<?php esc_attr_e( 'Allow multiple players to play simultaneously', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_simultaneously" name="_bfp_play_simultaneously" <?php if ( $play_simultaneously ) {
-							echo 'CHECKED';} ?> /><br />
+						<input aria-label="<?php esc_attr_e( 'Allow multiple players to play simultaneously', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_simultaneously" name="_bfp_play_simultaneously" <?php checked( $settings['_bfp_play_simultaneously'] ); ?> /><br />
 						<i class="bfp-em-text"><?php
 							esc_html_e( 'Let multiple players play at the same time instead of stopping others when one starts', 'bandfront-player' );
 						?></i>
@@ -275,7 +250,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				<tr>
 					<td><label for="_bfp_player_volume" >🔊 <?php esc_html_e( 'Default volume (0.0 to 1.0)', 'bandfront-player' ); ?></label></td>
 					<td>
-						<input aria-label="<?php esc_attr_e( 'Player volume', 'bandfront-player' ); ?>" type="number" id="_bfp_player_volume" name="_bfp_player_volume" min="0" max="1" step="0.01" value="<?php echo esc_attr( $volume ); ?>" />
+						<input aria-label="<?php esc_attr_e( 'Player volume', 'bandfront-player' ); ?>" type="number" id="_bfp_player_volume" name="_bfp_player_volume" min="0" max="1" step="0.01" value="<?php echo esc_attr( $settings['_bfp_player_volume'] ); ?>" />
 					</td>
 				</tr>
 				<tr valign="top">
@@ -283,15 +258,15 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						🎛️ <?php esc_html_e( 'Player controls', 'bandfront-player' ); ?>
 					</td>
 					<td>
-						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="button" name="_bfp_player_controls" <?php echo ( ( 'button' == $player_controls ) ? 'checked' : '' ); ?> /> <?php esc_html_e( 'Play/pause button only', 'bandfront-player' ); ?></label><br />
-						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="all" name="_bfp_player_controls" <?php echo ( ( 'all' == $player_controls ) ? 'checked' : '' ); ?> /> <?php esc_html_e( 'Full controls (progress bar, volume, etc.)', 'bandfront-player' ); ?></label><br />
-						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="default" name="_bfp_player_controls" <?php echo ( ( 'default' == $player_controls ) ? 'checked' : '' ); ?> /> <?php esc_html_e( 'Smart controls (minimal on shop, full on product pages)', 'bandfront-player' ); ?></label>
+						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="button" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'button' ); ?> /> <?php esc_html_e( 'Play/pause button only', 'bandfront-player' ); ?></label><br />
+						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="all" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'all' ); ?> /> <?php esc_html_e( 'Full controls (progress bar, volume, etc.)', 'bandfront-player' ); ?></label><br />
+						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="default" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'default' ); ?> /> <?php esc_html_e( 'Smart controls (minimal on shop, full on product pages)', 'bandfront-player' ); ?></label>
 					</td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_player_title">🏷️ <?php esc_html_e( 'Show track titles', 'bandfront-player' ); ?></label></td>
 					<td>
-						<input aria-label="<?php esc_attr_e( 'Display the player title', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_player_title" name="_bfp_player_title" <?php echo ( ( ! empty( $player_title ) ) ? 'checked' : '' ); ?> />
+						<input aria-label="<?php esc_attr_e( 'Display the player title', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_player_title" name="_bfp_player_title" <?php checked( $settings['_bfp_player_title'] ); ?> />
 					</td>
 				</tr>
 				</tbody>
@@ -313,19 +288,19 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Enable demo files', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php echo ( ( $secure_player ) ? 'checked' : '' ); ?> /><br>
+					<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php checked( $settings['_bfp_secure_player'] ); ?> /><br>
 					<em class="bfp-em-text"><?php esc_html_e( 'Create truncated demo versions to prevent unauthorized downloading of full tracks', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr valign="top">
 					<td class="bfp-column-30"><label for="_bfp_file_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></td>
 					<td>
-						<input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_file_percent" name="_bfp_file_percent" min="0" max="100" value="<?php echo esc_attr( $file_percent ); ?>" /> % <br />
+						<input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_file_percent" name="_bfp_file_percent" min="0" max="100" value="<?php echo esc_attr( $settings['_bfp_file_percent'] ); ?>" /> % <br />
 						<em class="bfp-em-text"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></em>
 					</td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_fade_out">🎚️ <?php esc_html_e( 'Smooth fade out', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Apply fade out to playing audio when possible', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_fade_out" name="_bfp_fade_out" <?php print( ( $fade_out ) ? 'CHECKED' : '' ); ?> /><br>
+					<td><input aria-label="<?php esc_attr_e( 'Apply fade out to playing audio when possible', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_fade_out" name="_bfp_fade_out" <?php checked( $settings['_bfp_fade_out'] ); ?> /><br>
 					<em class="bfp-em-text"><?php esc_html_e( 'Gradually fade out audio when switching tracks', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr valign="top">
@@ -333,7 +308,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						<label for="_bfp_message">💬 <?php esc_html_e( 'Demo notice text', 'bandfront-player' ); ?></label>
 					</td>
 					<td>
-						<textarea aria-label="<?php esc_attr_e( 'Explaining that demos are partial versions of the original files', 'bandfront-player' ); ?>" id="_bfp_message" name="_bfp_message" class="bfp-input-full" rows="4"><?php echo esc_textarea( $message ); ?></textarea><br>
+						<textarea aria-label="<?php esc_attr_e( 'Explaining that demos are partial versions of the original files', 'bandfront-player' ); ?>" id="_bfp_message" name="_bfp_message" class="bfp-input-full" rows="4"><?php echo esc_textarea( $settings['_bfp_message'] ); ?></textarea><br>
 						<em class="bfp-em-text"><?php esc_html_e( 'Text shown next to players to explain these are preview versions', 'bandfront-player' ); ?></em>
 					</td>
 				</tr>
@@ -356,7 +331,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
 					<td>
-					<label><input aria-label="<?php esc_attr_e( 'Show "playback Counter" in the WooCommerce products list', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_playback_counter_column" <?php print( ( $playback_counter_column ) ? 'CHECKED' : '' ); ?> />
+					<label><input aria-label="<?php esc_attr_e( 'Show "playback Counter" in the WooCommerce products list', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_playback_counter_column" <?php checked( $settings['_bfp_playback_counter_column'] ); ?> />
 					📊 <?php esc_html_e( 'Show playback counter in products list', 'bandfront-player' ); ?></label>
 					</td>
 				</tr>
@@ -368,20 +343,20 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				</tr>
 				<tr>
 					<td>
-						<label><input type="radio" name="_bfp_analytics_integration" value="ua" <?php print 'ua' == $analytics_integration ? 'CHECKED' : ''; ?>> <?php esc_html_e( 'Universal Analytics', 'bandfront-player' ); ?></label>
-						<label class="bfp-analytics-radio-spacer"><input type="radio" name="_bfp_analytics_integration" value="g" <?php print 'g' == $analytics_integration ? 'CHECKED' : ''; ?>> <?php esc_html_e( 'Measurement Protocol (Google Analytics 4)', 'bandfront-player' ); ?></label>
+						<label><input type="radio" name="_bfp_analytics_integration" value="ua" <?php checked( $settings['_bfp_analytics_integration'], 'ua' ); ?>> <?php esc_html_e( 'Universal Analytics', 'bandfront-player' ); ?></label>
+						<label class="bfp-analytics-radio-spacer"><input type="radio" name="_bfp_analytics_integration" value="g" <?php checked( $settings['_bfp_analytics_integration'], 'g' ); ?>> <?php esc_html_e( 'Measurement Protocol (Google Analytics 4)', 'bandfront-player' ); ?></label>
 					</td>
 				</tr>
 				<tr>
 					<td>
 						<div><?php esc_html_e( 'Measurement ID', 'bandfront-player' ); ?></div>
-						<div><input aria-label="<?php esc_attr_e( 'Measurement id', 'bandfront-player' ); ?>" type="text" name="_bfp_analytics_property" value="<?php print esc_attr( $analytics_property ); ?>" class="bfp-analytics-input" placeholder="UA-XXXXX-Y"></div>
+						<div><input aria-label="<?php esc_attr_e( 'Measurement id', 'bandfront-player' ); ?>" type="text" name="_bfp_analytics_property" value="<?php echo esc_attr( $settings['_bfp_analytics_property'] ); ?>" class="bfp-analytics-input" placeholder="UA-XXXXX-Y"></div>
 					</td>
 				</tr>
-				<tr class="bfp-analytics-g4" style="display:<?php print esc_attr( 'ua' == $analytics_integration ? 'none' : 'table-row' ); ?>;">
+				<tr class="bfp-analytics-g4" style="display:<?php echo esc_attr( $settings['_bfp_analytics_integration'] === 'ua' ? 'none' : 'table-row' ); ?>;">
 					<td class="bfp-input-full">
 						<div><?php esc_html_e( 'API Secret', 'bandfront-player' ); ?></div>
-						<div><input aria-label="<?php esc_attr_e( 'API Secret', 'bandfront-player' ); ?>" type="text" name="_bfp_analytics_api_secret" value="<?php print esc_attr( $analytics_api_secret ); ?>" class="bfp-analytics-input"></div>
+						<div><input aria-label="<?php esc_attr_e( 'API Secret', 'bandfront-player' ); ?>" type="text" name="_bfp_analytics_api_secret" value="<?php echo esc_attr( $settings['_bfp_analytics_api_secret'] ); ?>" class="bfp-analytics-input"></div>
 					</td>
 				</tr>
 				</tbody>
@@ -390,34 +365,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 </table>
 
 <?php 
-// Cloud Storage Settings
-$bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
-$bfp_drive = isset($bfp_cloud_settings['_bfp_drive']) ? $bfp_cloud_settings['_bfp_drive'] : false;
-$bfp_drive_key = isset($bfp_cloud_settings['_bfp_drive_key']) ? $bfp_cloud_settings['_bfp_drive_key'] : '';
-$bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
-
-// Get cloud storage settings
-$cloud_active_tab = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_active_tab', 'google-drive');
-$cloud_dropbox = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_dropbox', array(
-    'enabled' => false,
-    'access_token' => '',
-    'folder_path' => '/bandfront-demos',
-));
-$cloud_s3 = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_s3', array(
-    'enabled' => false,
-    'access_key' => '',
-    'secret_key' => '',
-    'bucket' => '',
-    'region' => 'us-east-1',
-    'path_prefix' => 'bandfront-demos/',
-));
-$cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', array(
-    'enabled' => false,
-    'account_name' => '',
-    'account_key' => '',
-    'container' => '',
-    'path_prefix' => 'bandfront-demos/',
-));
+// Cloud Storage Settings remain the same as they're using different options
 ?>
 
 <table class="widefat bfp-table-noborder">
@@ -438,7 +386,7 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 						
 						<input type="hidden" name="_bfp_cloud_active_tab" id="_bfp_cloud_active_tab" value="<?php echo esc_attr($cloud_active_tab); ?>" />
 						
-						<div class="bfp-cloud-tabs">
+						<div class="bfp-cloud_tabs">
 							<div class="bfp-cloud-tab-buttons">
 								<button type="button" class="bfp-cloud-tab-btn <?php echo $cloud_active_tab === 'google-drive' ? 'bfp-cloud-tab-active' : ''; ?>" data-tab="google-drive">
 									🗂️ <?php esc_html_e( 'Google Drive', 'bandfront-player' ); ?>
@@ -460,7 +408,7 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 									<table class="widefat">
 										<tr>
 											<td class="bfp-column-30"><label for="_bfp_drive"><?php esc_html_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?></label></td>
-											<td><input aria-label="<?php esc_attr_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_drive" name="_bfp_drive" <?php print( ( $bfp_drive ) ? 'CHECKED' : '' ); ?> /></td>
+											<td><input aria-label="<?php esc_attr_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_drive" name="_bfp_drive" <?php checked( $bfp_drive ); ?> /></td>
 										</tr>
 										<tr>
 											<td class="bfp-column-30">
@@ -600,8 +548,8 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 				<?php 
 				// Get current audio engine settings
 				$current_settings = array(
-					'_bfp_audio_engine' => $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_audio_engine', 'mediaelement'),
-					'_bfp_enable_visualizations' => $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_enable_visualizations', 0)
+					'_bfp_audio_engine' => $settings['_bfp_audio_engine'] ?? 'mediaelement',
+					'_bfp_enable_visualizations' => $settings['_bfp_enable_visualizations'] ?? 0
 				);
 				
 				// Call the audio engine settings action with the current settings
@@ -612,20 +560,20 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 				</tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_ffmpeg">⚡ <?php esc_html_e( 'Use FFmpeg for demos', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Truncate the audio files for demo with ffmpeg', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_ffmpeg" name="_bfp_ffmpeg" <?php print( ( $ffmpeg ) ? 'CHECKED' : '' ); ?> /><br>
+					<td><input aria-label="<?php esc_attr_e( 'Truncate the audio files for demo with ffmpeg', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_ffmpeg" name="_bfp_ffmpeg" <?php checked( $settings['_bfp_ffmpeg'] ); ?> /><br>
 					<em class="bfp-em-text"><?php esc_html_e( 'Requires FFmpeg to be installed on your server', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_ffmpeg_path">📁 <?php esc_html_e( 'FFmpeg path', 'bandfront-player' ); ?></label></td>
 					<td>
-						<input aria-label="<?php esc_attr_e( 'ffmpeg path', 'bandfront-player' ); ?>" type="text" id="_bfp_ffmpeg_path" name="_bfp_ffmpeg_path" value="<?php print esc_attr( empty( $ffmpeg_path ) && ! empty( $ffmpeg_system_path ) ? $ffmpeg_system_path : $ffmpeg_path ); ?>" class="bfp-input-full" /><br />
+						<input aria-label="<?php esc_attr_e( 'ffmpeg path', 'bandfront-player' ); ?>" type="text" id="_bfp_ffmpeg_path" name="_bfp_ffmpeg_path" value="<?php echo esc_attr( empty( $settings['_bfp_ffmpeg_path'] ) && ! empty( $ffmpeg_system_path ) ? $ffmpeg_system_path : $settings['_bfp_ffmpeg_path'] ); ?>" class="bfp-input-full" /><br />
 						<i class="bfp-ffmpeg-example">Example: /usr/bin/</i>
 					</td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_ffmpeg_watermark">🎤 <?php esc_html_e( 'Audio watermark', 'bandfront-player' ); ?></label></td>
 					<td>
-						<input aria-label="<?php esc_attr_e( 'Watermark audio', 'bandfront-player' ); ?>" type="text" id="_bfp_ffmpeg_watermark" name="_bfp_ffmpeg_watermark" value="<?php print esc_attr( $ffmpeg_watermark ); ?>" class="bfp-watermark-input bfp-file-url" /><input type="button" class="button-secondary bfp-select-file bfp-watermark-button" value="<?php esc_attr_e( 'Select', 'bandfront-player' ); ?>" /><br />
+						<input aria-label="<?php esc_attr_e( 'Watermark audio', 'bandfront-player' ); ?>" type="text" id="_bfp_ffmpeg_watermark" name="_bfp_ffmpeg_watermark" value="<?php echo esc_attr( $settings['_bfp_ffmpeg_watermark'] ); ?>" class="bfp-watermark-input bfp-file-url" /><input type="button" class="button-secondary bfp-select-file bfp-watermark-button" value="<?php esc_attr_e( 'Select', 'bandfront-player' ); ?>" /><br />
 						<i class="bfp-em-text"><?php esc_html_e( 'Optional audio file to overlay on demos ', 'bandfront-player' ); ?></i>
 					</td>
 				</tr>
@@ -652,8 +600,7 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 							📱 <?php esc_html_e( 'Players not working on iPads or iPhones?', 'bandfront-player' ); ?>
 						</p>
 						<label>
-						<input aria-label="<?php esc_attr_e( 'On iPads and iPhones, use native controls', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_ios_controls" <?php if ( $ios_controls ) {
-							print 'CHECKED';} ?>/>
+						<input aria-label="<?php esc_attr_e( 'On iPads and iPhones, use native controls', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_ios_controls" <?php checked( $settings['_bfp_ios_controls'] ); ?>/>
 						<?php esc_html_e( 'Use native iOS controls for better compatibility', 'bandfront-player' ); ?>
 						</label>
 					</td>
@@ -664,8 +611,7 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 							⚡ <?php esc_html_e( 'Cache Compatibility', 'bandfront-player' ); ?>
 						</p>
 						<label>
-						<input aria-label="<?php esc_attr_e( 'Loading players in the onload event', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_onload" <?php if ( $troubleshoot_onload ) {
-							print 'CHECKED';} ?>/>
+						<input aria-label="<?php esc_attr_e( 'Loading players in the onload event', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_onload" <?php checked( $settings['_bfp_onload'] ); ?>/>
 						<?php esc_html_e( 'Enable', 'bandfront-player' ); ?>
 						</label>
 					</td>
@@ -676,8 +622,7 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 							📁 <?php esc_html_e( 'Files missing extensions or stored in cloud?', 'bandfront-player' ); ?>
 						</p>
 						<label>
-						<input aria-label="<?php esc_attr_e( 'For files whose extensions cannot be determined handle them as mp3 files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_default_extension" <?php if ( $troubleshoot_default_extension ) {
-							print 'CHECKED';} ?>/>
+						<input aria-label="<?php esc_attr_e( 'For files whose extensions cannot be determined handle them as mp3 files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_default_extension" <?php checked( $settings['_bfp_default_extension'] ); ?>/>
 						<?php esc_html_e( 'Treat unrecognized files as MP3 audio', 'bandfront-player' ); ?>
 						</label>
 					</td>
@@ -688,8 +633,7 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 							🧱 <?php esc_html_e( 'Gutenberg blocks hiding your players?', 'bandfront-player' ); ?>
 						</p>
 						<label>
-						<input aria-label="<?php esc_attr_e( 'For the WooCommerce Gutenberg Blocks, include the main player in the products titles', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_force_main_player_in_title" <?php if ( $force_main_player_in_title ) {
-							print 'CHECKED';} ?>/>
+						<input aria-label="<?php esc_attr_e( 'For the WooCommerce Gutenberg Blocks, include the main player in the products titles', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_force_main_player_in_title" <?php checked( $settings['_bfp_force_main_player_in_title'] ); ?>/>
 						<?php esc_html_e( 'Force players to appear in product titles', 'bandfront-player' ); ?>
 						</label>
 					</td>
@@ -700,8 +644,7 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 							🔗 <?php esc_html_e( 'Players visible but not working?', 'bandfront-player' ); ?>
 						</p>
 						<label>
-						<input aria-label="<?php esc_attr_e( 'Disable 302 redirection', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_disable_302" <?php if ( $disable_302 ) {
-							print 'CHECKED';} ?>/>
+						<input aria-label="<?php esc_attr_e( 'Disable 302 redirection', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_disable_302" <?php checked( $settings['_bfp_disable_302'] ); ?>/>
 						<?php esc_html_e( 'Load files directly instead of using redirects', 'bandfront-player' ); ?>
 						</label>
 					</td>

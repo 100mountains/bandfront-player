@@ -241,8 +241,10 @@ class BFP_Admin {
         $players_in_cart = isset($_REQUEST['_bfp_players_in_cart']) ? true : false;
         
         $player_layouts = $this->main_plugin->get_player_layouts();
+        // Use state manager for default instead of constant
+        $default_layout = $this->main_plugin->get_state('_bfp_player_layout');
         $player_style = (isset($_REQUEST['_bfp_player_layout']) && in_array($_REQUEST['_bfp_player_layout'], $player_layouts)) ? 
-                        sanitize_text_field(wp_unslash($_REQUEST['_bfp_player_layout'])) : BFP_DEFAULT_PLAYER_LAYOUT;
+                        sanitize_text_field(wp_unslash($_REQUEST['_bfp_player_layout'])) : $default_layout;
         
         if (isset($skin_mapping[$player_style])) {
             $player_style = $skin_mapping[$player_style];
@@ -255,8 +257,10 @@ class BFP_Admin {
         $file_percent = min(max($file_percent, 0), 100);
         
         $player_controls = $this->main_plugin->get_player_controls();
+        // Use state manager for default instead of constant
+        $default_controls = $this->main_plugin->get_state('_bfp_player_controls');
         $player_controls = (isset($_REQUEST['_bfp_player_controls']) && in_array($_REQUEST['_bfp_player_controls'], $player_controls)) ? 
-                           sanitize_text_field(wp_unslash($_REQUEST['_bfp_player_controls'])) : BFP_DEFAULT_PLAYER_CONTROLS;
+                           sanitize_text_field(wp_unslash($_REQUEST['_bfp_player_controls'])) : $default_controls;
 
         $on_cover = (('button' == $player_controls || 'default' == $player_controls) && isset($_REQUEST['_bfp_player_on_cover'])) ? 1 : 0;
 

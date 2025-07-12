@@ -14,17 +14,13 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-// Define plugin constants
-define('BFP_VERSION', '0.1');
-define('BFP_PLUGIN_PATH', __FILE__);
-define('BFP_PLUGIN_BASE_NAME', plugin_basename(__FILE__));
-define('BFP_PLUGIN_URL', plugin_dir_url(__FILE__)); // Add missing constant
-define('BFP_WEBSITE_URL', get_option('siteurl'));
-define('BFP_REMOTE_TIMEOUT', 120);
-define('BFP_FILE_PERCENT', 100);
-define('BFP_DEFAULT_PLAYER_LAYOUT', 'dark');
-define('BFP_DEFAULT_PLAYER_CONTROLS', 'default');
-define('BFP_DEFAULT_PLAYER_VOLUME', 1.0); // Add this missing constant
+// CONSTANTS
+define( 'BFP_VERSION', '0.1' );
+define( 'BFP_PLUGIN_PATH', __FILE__ );
+define( 'BFP_PLUGIN_BASE_NAME', plugin_basename( __FILE__ ) );
+define( 'BFP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'BFP_WEBSITE_URL', ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) );
+define( 'BFP_REMOTE_TIMEOUT', 240 );
 
 /**
  * Main Bandfront Player Class

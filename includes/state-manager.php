@@ -35,9 +35,9 @@ class BFP_Config {
         '_bfp_preload' => 'none',
         '_bfp_play_all' => 0,
         '_bfp_loop' => 0,
-        '_bfp_player_volume' => 1.0,
+        '_bfp_player_volume' => 1.0,  // Default volume (previously BFP_DEFAULT_PLAYER_VOLUME)
         '_bfp_secure_player' => false,
-        '_bfp_file_percent' => 50,
+        '_bfp_file_percent' => 50,     // Default demo percent (previously BFP_FILE_PERCENT)
         '_bfp_audio_engine' => 'mediaelement',
         '_bfp_own_demos' => 0,
         '_bfp_direct_own_demos' => 0,
@@ -50,8 +50,8 @@ class BFP_Config {
      */
     private $_global_only_settings = array(
         '_bfp_show_in' => 'all',
-        '_bfp_player_layout' => 'dark',
-        '_bfp_player_controls' => 'default',
+        '_bfp_player_layout' => 'dark',        // Default layout (previously BFP_DEFAULT_PLAYER_LAYOUT)
+        '_bfp_player_controls' => 'default',   // Default controls (previously BFP_DEFAULT_PLAYER_CONTROLS)
         '_bfp_player_title' => 1,
         '_bfp_on_cover' => 1,
         '_bfp_registered_only' => 0,
@@ -316,6 +316,108 @@ class BFP_Config {
      */
     public function save_global_settings() {
         update_option('bfp_global_settings', $this->_global_attrs);
+    }
+    
+    /**
+     * Get all settings for admin forms with proper formatting
+     * 
+     * @return array Formatted settings ready for use in admin forms
+     */
+    public function get_admin_form_settings() {
+        // Define all settings with their defaults
+        $settings_config = array(
+            // FFmpeg settings
+            'ffmpeg' => array('key' => '_bfp_ffmpeg', 'type' => 'bool'),
+            'ffmpeg_path' => array('key' => '_bfp_ffmpeg_path', 'type' => 'string'),
+            'ffmpeg_watermark' => array('key' => '_bfp_ffmpeg_watermark', 'type' => 'string'),
+            
+            // Troubleshooting settings
+            'troubleshoot_default_extension' => array('key' => '_bfp_default_extension', 'type' => 'bool'),
+            'force_main_player_in_title' => array('key' => '_bfp_force_main_player_in_title', 'type' => 'int'),
+            'ios_controls' => array('key' => '_bfp_ios_controls', 'type' => 'bool'),
+            'troubleshoot_onload' => array('key' => '_bfp_onload', 'type' => 'bool'),
+            'disable_302' => array('key' => '_bfp_disable_302', 'type' => 'trim_int'),
+            
+            // Player settings
+            'enable_player' => array('key' => '_bfp_enable_player', 'type' => 'bool'),
+            'show_in' => array('key' => '_bfp_show_in', 'type' => 'string'),
+            'players_in_cart' => array('key' => '_bfp_players_in_cart', 'type' => 'bool'),
+            'player_style' => array('key' => '_bfp_player_layout', 'type' => 'string'),
+            'volume' => array('key' => '_bfp_player_volume', 'type' => 'float'),
+            'player_controls' => array('key' => '_bfp_player_controls', 'type' => 'string'),
+            'single_player' => array('key' => '_bfp_single_player', 'type' => 'bool'),
+            'secure_player' => array('key' => '_bfp_secure_player', 'type' => 'bool'),
+            'file_percent' => array('key' => '_bfp_file_percent', 'type' => 'int'),
+            'player_title' => array('key' => '_bfp_player_title', 'type' => 'int'),
+            'merge_grouped' => array('key' => '_bfp_merge_in_grouped', 'type' => 'int'),
+            'play_simultaneously' => array('key' => '_bfp_play_simultaneously', 'type' => 'int'),
+            'play_all' => array('key' => '_bfp_play_all', 'type' => 'int'),
+            'loop' => array('key' => '_bfp_loop', 'type' => 'int'),
+            'on_cover' => array('key' => '_bfp_on_cover', 'type' => 'int'),
+            'preload' => array('key' => '_bfp_preload', 'type' => 'string'),
+            
+            // Analytics settings
+            'playback_counter_column' => array('key' => '_bfp_playback_counter_column', 'type' => 'int'),
+            'analytics_integration' => array('key' => '_bfp_analytics_integration', 'type' => 'string'),
+            'analytics_property' => array('key' => '_bfp_analytics_property', 'type' => 'string'),
+            'analytics_api_secret' => array('key' => '_bfp_analytics_api_secret', 'type' => 'string'),
+            
+            // General settings
+            'message' => array('key' => '_bfp_message', 'type' => 'string'),
+            'registered_only' => array('key' => '_bfp_registered_only', 'type' => 'int'),
+            'purchased' => array('key' => '_bfp_purchased', 'type' => 'int'),
+            'reset_purchased_interval' => array('key' => '_bfp_reset_purchased_interval', 'type' => 'string'),
+            'fade_out' => array('key' => '_bfp_fade_out', 'type' => 'int'),
+            'purchased_times_text' => array('key' => '_bfp_purchased_times_text', 'type' => 'string'),
+            'apply_to_all_players' => array('key' => '_bfp_apply_to_all_players', 'type' => 'int'),
+            
+            // Audio engine settings
+            'audio_engine' => array('key' => '_bfp_audio_engine', 'type' => 'string'),
+            'enable_visualizations' => array('key' => '_bfp_enable_visualizations', 'type' => 'int'),
+        );
+        
+        // Get all keys
+        $keys = array();
+        foreach ($settings_config as $config) {
+            $keys[] = $config['key'];
+        }
+        
+        // Bulk fetch
+        $raw_settings = $this->get_states($keys);
+        
+        // Format settings with the _bfp_ prefix for form compatibility
+        $formatted_settings = array();
+        foreach ($settings_config as $name => $config) {
+            $value = $raw_settings[$config['key']] ?? null;
+            
+            // Apply type casting
+            switch ($config['type']) {
+                case 'bool':
+                    $value = (bool) $value;
+                    break;
+                case 'int':
+                    $value = intval($value);
+                    break;
+                case 'float':
+                    $value = floatval($value);
+                    break;
+                case 'trim_int':
+                    $value = intval(trim($value));
+                    break;
+                case 'string':
+                default:
+                    $value = (string) $value;
+                    break;
+            }
+            
+            // Use the full key with _bfp_ prefix for form field names
+            $formatted_settings[$config['key']] = $value;
+        }
+        
+        // Force on_cover to 1
+        $formatted_settings['_bfp_on_cover'] = 1;
+        
+        return $formatted_settings;
     }
     
     // Backward compatibility methods (keep existing interface)

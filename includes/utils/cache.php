@@ -1,6 +1,6 @@
 <?php
 /**
- * Cache Manager for Bandfront Player
+ * Cache Compatibility Manager for Bandfront Player
  *
  * @package BandfrontPlayer
  * @since 0.1
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 class BFP_Cache {
     
     /**
-     * Clear all known caches
+     * Clear all known caches - turn to function
      */
     public static function clear_all_caches() {
         if (!is_admin()) {

@@ -156,7 +156,8 @@ class BFP_WooCommerce {
                 'purchased_products'        => 0,
                 'highlight_current_product' => 0,
                 'continue_playing'          => 0,
-                'player_style'              => BFP_DEFAULT_PLAYER_LAYOUT,
+                // Use state manager for default player style
+                'player_style'              => $this->main_plugin->get_state('_bfp_player_layout'),
                 'controls'                  => 'track',
                 'layout'                    => 'new',
                 'cover'                     => 0,

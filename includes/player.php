@@ -36,7 +36,8 @@ class BFP_Player {
         
         $product_id = isset($args['product_id']) ? $args['product_id'] : 0;
         $player_controls = isset($args['player_controls']) ? $args['player_controls'] : '';
-        $player_style = isset($args['player_style']) ? $args['player_style'] : BFP_DEFAULT_PLAYER_LAYOUT;
+        // Use state manager for default player style instead of constant
+        $player_style = isset($args['player_style']) ? $args['player_style'] : $this->main_plugin->get_state('_bfp_player_layout');
         $media_type = isset($args['media_type']) ? $args['media_type'] : 'mp3';
         $id = isset($args['id']) ? $args['id'] : 0;
         $duration = isset($args['duration']) ? $args['duration'] : false;
