@@ -99,289 +99,289 @@ msgid "Select Item"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:70
-#: views/global-admin-options.php:83
+#: views/global-admin-options.php:84
 msgid "Bandfront Player - Global Settings"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:76
-#: views/global-admin-options.php:89
+#: views/global-admin-options.php:90
 msgid "Tips On How To Setup Bandfront [+|-]"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:82
-#: views/global-admin-options.php:95
+#: views/global-admin-options.php:96
 msgid "Getting Started"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:84
-#: views/global-admin-options.php:97
+#: views/global-admin-options.php:98
 msgid "New to Bandfront? Start here for a complete setup guide."
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:87
-#: views/global-admin-options.php:100
+#: views/global-admin-options.php:101
 msgid "How To Start Guide →"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:92
-#: views/global-admin-options.php:105
+#: views/global-admin-options.php:106
 msgid "Shortcodes"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:94
-#: views/global-admin-options.php:107
+#: views/global-admin-options.php:108
 msgid "Advanced users can embed players anywhere with shortcodes."
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:97
-#: views/global-admin-options.php:110
+#: views/global-admin-options.php:111
 msgid "Shortcode Reference →"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:102
-#: views/global-admin-options.php:115
+#: views/global-admin-options.php:116
 msgid "Customization"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:104
-#: views/global-admin-options.php:117
+#: views/global-admin-options.php:118
 msgid "Make your players match your brand with custom CSS and styling."
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:107
-#: views/global-admin-options.php:120
+#: views/global-admin-options.php:121
 msgid "Customization Guide →"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:114
-#: views/global-admin-options.php:127
+#: views/global-admin-options.php:128
 msgid "Pro Tip: Combine all three for maximum Bandcamp replacement!"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:127
-#: views/global-admin-options.php:143
+#: views/global-admin-options.php:144
 msgid "General Settings"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:133
-#: views/global-admin-options.php:150
+#: views/global-admin-options.php:151
 msgid "Registered users only"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:134
-#: views/global-admin-options.php:151
+#: views/global-admin-options.php:152
 msgid "Include the players only for registered users"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:135
-#: views/global-admin-options.php:152
+#: views/global-admin-options.php:153
 msgid "Only show audio players to logged-in users"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:138
-#: views/global-admin-options.php:155
+#: views/global-admin-options.php:156
 msgid "Full tracks for buyers"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:140
-#: views/global-admin-options.php:157
+#: views/global-admin-options.php:158
 msgid "For buyers, play the purchased audio files instead of the truncated files for demo"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:141
-#: views/global-admin-options.php:158
+#: views/global-admin-options.php:159
 msgid "Let buyers hear full tracks instead of demos"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:142
-#: views/global-admin-options.php:159
+#: views/global-admin-options.php:160
 msgid "Reset access"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:143
-#: views/global-admin-options.php:160
+#: views/global-admin-options.php:161
 msgid "Reset files interval"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:145
-#: views/global-admin-options.php:162
+#: views/global-admin-options.php:163
 msgid "daily"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:147
-#: views/global-admin-options.php:164
+#: views/global-admin-options.php:165
 msgid "never"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:155
-#: views/global-admin-options.php:169
+#: views/global-admin-options.php:327
 msgid "Smooth fade out"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:156
-#: views/global-admin-options.php:170
+#: views/global-admin-options.php:328
 msgid "Apply fade out to playing audio when possible"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:157
-#: views/global-admin-options.php:171
+#: views/global-admin-options.php:329
 msgid "Gradually fade out audio when switching tracks"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:160
-#: views/global-admin-options.php:174
+#: views/global-admin-options.php:170
 msgid "Purchase count text"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:161
-#: views/global-admin-options.php:175
+#: views/global-admin-options.php:171
 msgid "Purchased times text"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:162
-#: views/global-admin-options.php:176
+#: views/global-admin-options.php:172
 #, php-format
 msgid "Text shown in playlists when displaying purchase counts (use %d for the number)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:172
-#: views/global-admin-options.php:193
+#: views/global-admin-options.php:189
 msgid "Player Settings"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:174
-#: views/global-admin-options.php:200
+#: views/global-admin-options.php:196
 msgid "Enable players on all products"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:175
-#: views/global-admin-options.php:201
+#: views/global-admin-options.php:197
 msgid "Players will show for downloadable products with audio files, or products where you've added custom audio files"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:175
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:95
-#: views/global-admin-options.php:201
+#: views/global-admin-options.php:197
 #: views/product-options.php:84
 msgid "Enable player"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:178
-#: views/global-admin-options.php:204
+#: views/global-admin-options.php:200
 msgid "Show players on"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:180
-#: views/global-admin-options.php:206
+#: views/global-admin-options.php:202
 msgid "Single entry pages"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:181
-#: views/global-admin-options.php:207
+#: views/global-admin-options.php:203
 msgid "Product pages only"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:183
-#: views/global-admin-options.php:209
+#: views/global-admin-options.php:205
 msgid "Multiple entry pages"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:184
-#: views/global-admin-options.php:210
+#: views/global-admin-options.php:206
 msgid "Shop and archive pages only"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:186
-#: views/global-admin-options.php:212
+#: views/global-admin-options.php:208
 msgid "Single and multiple entry pages"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:187
-#: views/global-admin-options.php:213
+#: views/global-admin-options.php:209
 msgid "All pages (shop, archives, and product pages)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:191
-#: views/global-admin-options.php:217
+#: views/global-admin-options.php:213
 msgid "Show players in cart"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:193
-#: views/global-admin-options.php:219
+#: views/global-admin-options.php:215
 msgid "Include players in cart"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:197
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:98
-#: views/global-admin-options.php:223
+#: views/global-admin-options.php:219
 #: views/product-options.php:87
 msgid "Merge grouped products"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:198
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:99
-#: views/global-admin-options.php:224
+#: views/global-admin-options.php:220
 #: views/product-options.php:88
 msgid "Merge in grouped products"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:198
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:99
-#: views/global-admin-options.php:224
+#: views/global-admin-options.php:220
 #: views/product-options.php:88
 msgid "Show \"Add to cart\" buttons and quantity fields within player rows for grouped products"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:201
-#: views/global-admin-options.php:227
+#: views/global-admin-options.php:223
 msgid "Player appearance"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:220
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:105
-#: views/global-admin-options.php:232
+#: views/global-admin-options.php:228
 #: views/product-options.php:94
 msgid "Show a single player instead of one player per audio file."
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:221
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:106
-#: views/global-admin-options.php:233
+#: views/global-admin-options.php:229
 #: views/product-options.php:95
 msgid "Single player mode (one player for all tracks)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:229
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:112
-#: views/global-admin-options.php:238
+#: views/global-admin-options.php:234
 #: views/product-options.php:101
 msgid "Preload behavior"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:232
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:115
-#: views/global-admin-options.php:241
+#: views/global-admin-options.php:237
 #: views/product-options.php:104
 msgid "Preload - none"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:234
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:117
-#: views/global-admin-options.php:243
+#: views/global-admin-options.php:239
 #: views/product-options.php:106
 msgid "Preload - metadata"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:236
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:119
-#: views/global-admin-options.php:245
+#: views/global-admin-options.php:241
 #: views/product-options.php:108
 msgid "Preload - auto"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:242
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:125
-#: views/global-admin-options.php:251
+#: views/global-admin-options.php:247
 #: views/product-options.php:114
 msgid "Auto-play next track"
 msgstr ""
@@ -389,7 +389,7 @@ msgstr ""
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:245
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:128
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:102
-#: views/global-admin-options.php:254
+#: views/global-admin-options.php:250
 #: views/product-options.php:117
 #: widgets/playlist_widget.php:115
 msgid "Play all"
@@ -397,331 +397,329 @@ msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:251
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:134
-#: views/global-admin-options.php:260
+#: views/global-admin-options.php:256
 #: views/product-options.php:123
 msgid "Loop tracks"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:254
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:137
-#: views/global-admin-options.php:263
+#: views/global-admin-options.php:259
 #: views/product-options.php:126
 msgid "Loop"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:260
-#: views/global-admin-options.php:269
+#: views/global-admin-options.php:265
 msgid "Allow multiple players"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:263
-#: views/global-admin-options.php:272
+#: views/global-admin-options.php:268
 msgid "Allow multiple players to play simultaneously"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:266
-#: views/global-admin-options.php:275
+#: views/global-admin-options.php:271
 msgid "Let multiple players play at the same time instead of stopping others when one starts"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:271
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:142
-#: views/global-admin-options.php:280
+#: views/global-admin-options.php:276
 #: views/product-options.php:131
 msgid "Default volume (0.0 to 1.0)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:273
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:144
-#: views/global-admin-options.php:282
+#: views/global-admin-options.php:278
 #: views/product-options.php:133
 msgid "Player volume"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:277
+#: views/global-admin-options.php:283
+#: views/global-admin-options.php:286
 #: views/global-admin-options.php:287
-#: views/global-admin-options.php:290
-#: views/global-admin-options.php:291
-#: views/global-admin-options.php:292
+#: views/global-admin-options.php:288
 msgid "Player controls"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:279
-#: views/global-admin-options.php:290
+#: views/global-admin-options.php:286
 msgid "Play/pause button only"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:280
-#: views/global-admin-options.php:291
+#: views/global-admin-options.php:287
 msgid "Full controls (progress bar, volume, etc.)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:281
-#: views/global-admin-options.php:292
+#: views/global-admin-options.php:288
 msgid "Smart controls (minimal on shop, full on product pages)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:296
-#: views/global-admin-options.php:296
+#: views/global-admin-options.php:292
 msgid "Show track titles"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:298
-#: views/global-admin-options.php:298
+#: views/global-admin-options.php:294
 msgid "Display the player title"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:307
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:153
-#: views/global-admin-options.php:320
+#: views/global-admin-options.php:316
 #: views/product-options.php:142
 msgid "Protect the file"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:308
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:154
-#: views/global-admin-options.php:321
 #: views/product-options.php:143
 msgid "Create demo versions to prevent unauthorized downloading"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:311
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:157
+#: views/global-admin-options.php:320
 #: views/product-options.php:146
 msgid "Demo length (% of original)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:313
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:159
+#: views/global-admin-options.php:322
 #: views/product-options.php:148
 msgid "Percent of audio used for protected playbacks"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:314
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:160
+#: views/global-admin-options.php:323
 #: views/product-options.php:149
 msgid "How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:319
-#: views/global-admin-options.php:325
+#: views/global-admin-options.php:333
 msgid "Demo notice text"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:322
-#: views/global-admin-options.php:328
+#: views/global-admin-options.php:336
 msgid "Explaining that demos are partial versions of the original files"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:323
-#: views/global-admin-options.php:329
+#: views/global-admin-options.php:337
 msgid "Text shown next to players to explain these are preview versions"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:333
-#: views/global-admin-options.php:571
+#: views/global-admin-options.php:614
 msgid "Use FFmpeg for demos"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:334
-#: views/global-admin-options.php:572
+#: views/global-admin-options.php:615
 msgid "Truncate the audio files for demo with ffmpeg"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:335
-#: views/global-admin-options.php:573
+#: views/global-admin-options.php:616
 msgid "Requires FFmpeg to be installed on your server"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:338
-#: views/global-admin-options.php:576
+#: views/global-admin-options.php:619
 msgid "FFmpeg path"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:340
-#: views/global-admin-options.php:578
+#: views/global-admin-options.php:621
 msgid "ffmpeg path"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:345
-#: views/global-admin-options.php:583
+#: views/global-admin-options.php:626
 msgid "Audio watermark"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:347
-#: views/global-admin-options.php:585
+#: views/global-admin-options.php:628
 msgid "Watermark audio"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:347
-#: views/global-admin-options.php:585
+#: views/global-admin-options.php:628
 msgid "Select"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:373
-#: views/global-admin-options.php:343
+#: views/global-admin-options.php:351
 msgid "Analytics"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:377
-#: views/global-admin-options.php:351
+#: views/global-admin-options.php:359
 msgid "Show \"playback Counter\" in the WooCommerce products list"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:378
-#: views/global-admin-options.php:352
+#: views/global-admin-options.php:360
 msgid "Show playback counter in products list"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:383
-#: views/global-admin-options.php:357
+#: views/global-admin-options.php:365
 msgid "Connect with Google Analytics to track when songs are played. Events include the audio file URL and product ID."
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:384
-#: views/global-admin-options.php:358
+#: views/global-admin-options.php:366
 msgid "Note"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:384
-#: views/global-admin-options.php:358
+#: views/global-admin-options.php:366
 msgid "If preload is set to \"Metadata\" or \"Auto\", events are tracked when files load, not just when they play."
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:389
-#: views/global-admin-options.php:363
+#: views/global-admin-options.php:371
 msgid "Universal Analytics"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:390
-#: views/global-admin-options.php:364
+#: views/global-admin-options.php:372
 msgid "Measurement Protocol (Google Analytics 4)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:395
-#: views/global-admin-options.php:369
+#: views/global-admin-options.php:377
 msgid "Measurement ID"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:396
-#: views/global-admin-options.php:370
+#: views/global-admin-options.php:378
 msgid "Measurement id"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:401
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:402
-#: views/global-admin-options.php:375
-#: views/global-admin-options.php:376
+#: views/global-admin-options.php:383
+#: views/global-admin-options.php:384
 msgid "API Secret"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:426
-#: views/global-admin-options.php:600
+#: views/global-admin-options.php:643
 msgid "Troubleshooting"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:432
-#: views/global-admin-options.php:610
+#: views/global-admin-options.php:652
 msgid "Players not working on iPads or iPhones?"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:435
-#: views/global-admin-options.php:613
+#: views/global-admin-options.php:655
 msgid "On iPads and iPhones, use native controls"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:437
-#: views/global-admin-options.php:615
+#: views/global-admin-options.php:657
 msgid "Use native iOS controls for better compatibility"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:445
-#: views/global-admin-options.php:623
 msgid "Cache or optimizer plugins causing problems?"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:448
-#: views/global-admin-options.php:626
+#: views/global-admin-options.php:667
 msgid "Loading players in the onload event"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:450
-#: views/global-admin-options.php:628
 msgid "Load players after page fully loads"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:458
-#: views/global-admin-options.php:636
+#: views/global-admin-options.php:676
 msgid "Files missing extensions or stored in cloud?"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:461
-#: views/global-admin-options.php:639
+#: views/global-admin-options.php:679
 msgid "For files whose extensions cannot be determined handle them as mp3 files"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:463
-#: views/global-admin-options.php:641
+#: views/global-admin-options.php:681
 msgid "Treat unrecognized files as MP3 audio"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:471
-#: views/global-admin-options.php:649
+#: views/global-admin-options.php:688
 msgid "Gutenberg blocks hiding your players?"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:474
-#: views/global-admin-options.php:652
+#: views/global-admin-options.php:691
 msgid "For the WooCommerce Gutenberg Blocks, include the main player in the products titles"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:476
-#: views/global-admin-options.php:654
+#: views/global-admin-options.php:693
 msgid "Force players to appear in product titles"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:484
-#: views/global-admin-options.php:662
+#: views/global-admin-options.php:700
 msgid "Players visible but not working?"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:487
-#: views/global-admin-options.php:665
+#: views/global-admin-options.php:703
 msgid "Disable 302 redirection"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:489
-#: views/global-admin-options.php:667
+#: views/global-admin-options.php:705
 msgid "Load files directly instead of using redirects"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:496
-#: views/global-admin-options.php:674
+#: views/global-admin-options.php:711
 msgid "Demo files corrupted or outdated?"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:498
-#: views/global-admin-options.php:676
+#: views/global-admin-options.php:713
 msgid "Delete the demo files generated previously"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:499
-#: views/global-admin-options.php:677
 msgid "Delete old demo files (local files only)"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:505
-#: views/global-admin-options.php:683
 msgid "Pro Tip!"
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:505
-#: views/global-admin-options.php:683
+#: views/global-admin-options.php:720
 msgid "After changing troubleshooting settings, clear your website and browser caches for best results."
 msgstr ""
 
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:512
-#: views/global-admin-options.php:690
+#: views/global-admin-options.php:727
 msgid "Save settings"
 msgstr ""
 
@@ -873,255 +871,225 @@ msgid "Continue playing the same song at same position after navigate. You can e
 msgstr ""
 
 #: modules/audio-engine.php:53
-#: views/global-admin-options.php:560
+#: modules/audio-engine.php:125
+#: views/global-admin-options.php:594
 msgid "Audio Engine"
 msgstr ""
 
-#: modules/audio-engine.php:128
-msgid "Audio Engine Override"
-msgstr ""
-
-#: modules/audio-engine.php:132
-msgid "Audio Engine for this Product"
-msgstr ""
-
-#: modules/audio-engine.php:135
-msgid "Audio engine for this product"
-msgstr ""
-
-#: modules/audio-engine.php:137
-#, php-format
-msgid "Use Global Setting (%s)"
-msgstr ""
-
-#: modules/audio-engine.php:140
-msgid "MediaElement.js"
-msgstr ""
-
-#: modules/audio-engine.php:143
-msgid "WaveSurfer.js"
-msgstr ""
-
-#: modules/audio-engine.php:146
-msgid "Override the global audio engine setting for this specific product"
-msgstr ""
-
-#: views/global-admin-options.php:231
+#: views/global-admin-options.php:227
 msgid "Custom"
 msgstr ""
 
-#: views/global-admin-options.php:312
 #: views/product-options.php:139
 msgid "File Truncation"
 msgstr ""
 
-#: views/global-admin-options.php:319
 #: views/product-options.php:141
 msgid "Truncate audio files"
 msgstr ""
 
-#: views/global-admin-options.php:397
+#: views/global-admin-options.php:429
 msgid "Cloud Storage"
 msgstr ""
 
-#: views/global-admin-options.php:405
+#: views/global-admin-options.php:437
 msgid "Automatically upload demo files to cloud storage to save server storage and bandwidth. Files are streamed directly from the cloud."
 msgstr ""
 
-#: views/global-admin-options.php:410
+#: views/global-admin-options.php:444
 msgid "Google Drive"
 msgstr ""
 
-#: views/global-admin-options.php:413
+#: views/global-admin-options.php:447
 msgid "Dropbox"
 msgstr ""
 
-#: views/global-admin-options.php:416
+#: views/global-admin-options.php:450
 msgid "AWS S3"
 msgstr ""
 
-#: views/global-admin-options.php:419
+#: views/global-admin-options.php:453
 msgid "Azure Blob"
 msgstr ""
 
-#: views/global-admin-options.php:428
-#: views/global-admin-options.php:429
+#: views/global-admin-options.php:462
+#: views/global-admin-options.php:463
 msgid "Store demo files on Google Drive"
 msgstr ""
 
-#: views/global-admin-options.php:433
+#: views/global-admin-options.php:467
 msgid "Import OAuth Client JSON File"
 msgstr ""
 
-#: views/global-admin-options.php:434
+#: views/global-admin-options.php:468
 msgid "Required to upload demo files to Google Drive"
 msgstr ""
 
-#: views/global-admin-options.php:437
+#: views/global-admin-options.php:471
 msgid "OAuth Client JSON file"
 msgstr ""
 
-#: views/global-admin-options.php:440
+#: views/global-admin-options.php:474
 msgid "OAuth Client Available ✅"
 msgstr ""
 
-#: views/global-admin-options.php:445
+#: views/global-admin-options.php:479
 msgid "To create an OAuth 2.0 client ID:"
 msgstr ""
 
-#: views/global-admin-options.php:448
-#: views/global-admin-options.php:481
+#: views/global-admin-options.php:482
+#: views/global-admin-options.php:515
 msgid "Go to the"
 msgstr ""
 
-#: views/global-admin-options.php:448
-#: views/global-admin-options.php:481
+#: views/global-admin-options.php:482
+#: views/global-admin-options.php:515
 msgid "Google Cloud Platform Console"
 msgstr ""
 
-#: views/global-admin-options.php:449
-#: views/global-admin-options.php:482
+#: views/global-admin-options.php:483
+#: views/global-admin-options.php:516
 msgid "From the projects list, select a project or create a new one."
 msgstr ""
 
-#: views/global-admin-options.php:450
-#: views/global-admin-options.php:483
+#: views/global-admin-options.php:484
+#: views/global-admin-options.php:517
 msgid "If the APIs & services page isn't already open, open the console left side menu and select APIs & services."
 msgstr ""
 
-#: views/global-admin-options.php:451
-#: views/global-admin-options.php:484
+#: views/global-admin-options.php:485
+#: views/global-admin-options.php:518
 msgid "On the left, click Credentials."
 msgstr ""
 
-#: views/global-admin-options.php:452
+#: views/global-admin-options.php:486
 msgid "Click + CREATE CREDENTIALS, then select OAuth client ID."
 msgstr ""
 
-#: views/global-admin-options.php:453
+#: views/global-admin-options.php:487
 msgid "Select the application type Web application."
 msgstr ""
 
-#: views/global-admin-options.php:454
+#: views/global-admin-options.php:488
 msgid "Enter BandFront Player in the Name field."
 msgstr ""
 
-#: views/global-admin-options.php:455
+#: views/global-admin-options.php:489
 msgid "Enter the URL below as the Authorized redirect URIs:"
 msgstr ""
 
-#: views/global-admin-options.php:461
+#: views/global-admin-options.php:495
 msgid "Press the Create button."
 msgstr ""
 
-#: views/global-admin-options.php:462
+#: views/global-admin-options.php:496
 msgid "In the OAuth client created dialog, press the DOWNLOAD JSON button and store it on your computer, and press the Ok button."
 msgstr ""
 
-#: views/global-admin-options.php:463
+#: views/global-admin-options.php:497
 msgid "Finally, select the downloaded file through the Import OAuth Client JSON File field above."
 msgstr ""
 
-#: views/global-admin-options.php:471
-#: views/global-admin-options.php:475
+#: views/global-admin-options.php:505
+#: views/global-admin-options.php:509
 msgid "API Key"
 msgstr ""
 
-#: views/global-admin-options.php:472
+#: views/global-admin-options.php:506
 msgid "Required to read audio files from players"
 msgstr ""
 
-#: views/global-admin-options.php:478
+#: views/global-admin-options.php:512
 msgid "Get API Key:"
 msgstr ""
 
-#: views/global-admin-options.php:485
+#: views/global-admin-options.php:519
 msgid "Click + CREATE CREDENTIALS, then select API Key."
 msgstr ""
 
-#: views/global-admin-options.php:486
+#: views/global-admin-options.php:520
 msgid "Copy the API Key."
 msgstr ""
 
-#: views/global-admin-options.php:487
+#: views/global-admin-options.php:521
 msgid "Finally, paste it in the API Key field above."
 msgstr ""
 
-#: views/global-admin-options.php:499
+#: views/global-admin-options.php:533
 msgid "Dropbox Integration"
 msgstr ""
 
-#: views/global-admin-options.php:500
+#: views/global-admin-options.php:534
 msgid "Coming soon! Dropbox integration will allow you to store your demo files on Dropbox with automatic syncing and bandwidth optimization."
 msgstr ""
 
-#: views/global-admin-options.php:502
-#: views/global-admin-options.php:519
 #: views/global-admin-options.php:536
+#: views/global-admin-options.php:553
+#: views/global-admin-options.php:570
 msgid "Planned Features:"
 msgstr ""
 
-#: views/global-admin-options.php:504
+#: views/global-admin-options.php:538
 msgid "Automatic file upload to Dropbox"
 msgstr ""
 
-#: views/global-admin-options.php:505
+#: views/global-admin-options.php:539
 msgid "Real-time synchronization"
 msgstr ""
 
-#: views/global-admin-options.php:506
+#: views/global-admin-options.php:540
 msgid "Bandwidth usage analytics"
 msgstr ""
 
-#: views/global-admin-options.php:507
+#: views/global-admin-options.php:541
 msgid "Advanced security controls"
 msgstr ""
 
-#: views/global-admin-options.php:516
+#: views/global-admin-options.php:550
 msgid "Amazon S3 Storage"
 msgstr ""
 
-#: views/global-admin-options.php:517
+#: views/global-admin-options.php:551
 msgid "Enterprise-grade cloud storage with AWS S3. Perfect for high-traffic websites requiring maximum reliability and global CDN distribution."
 msgstr ""
 
-#: views/global-admin-options.php:521
+#: views/global-admin-options.php:555
 msgid "Global CDN with CloudFront integration"
 msgstr ""
 
-#: views/global-admin-options.php:522
+#: views/global-admin-options.php:556
 msgid "Lightning-fast file delivery"
 msgstr ""
 
-#: views/global-admin-options.php:523
+#: views/global-admin-options.php:557
 msgid "Cost-effective storage pricing"
 msgstr ""
 
-#: views/global-admin-options.php:524
+#: views/global-admin-options.php:558
 msgid "Enterprise security and encryption"
 msgstr ""
 
-#: views/global-admin-options.php:533
+#: views/global-admin-options.php:567
 msgid "Microsoft Azure Blob Storage"
 msgstr ""
 
-#: views/global-admin-options.php:534
+#: views/global-admin-options.php:568
 msgid "Microsoft Azure Blob Storage integration for seamless file management and global distribution with enterprise-level security."
 msgstr ""
 
-#: views/global-admin-options.php:538
+#: views/global-admin-options.php:572
 msgid "Enterprise Active Directory integration"
 msgstr ""
 
-#: views/global-admin-options.php:539
+#: views/global-admin-options.php:573
 msgid "Global edge locations"
 msgstr ""
 
-#: views/global-admin-options.php:540
+#: views/global-admin-options.php:574
 msgid "Advanced analytics and monitoring"
 msgstr ""
 
-#: views/global-admin-options.php:541
+#: views/global-admin-options.php:575
 msgid "Compliance-ready security features"
 msgstr ""
 
@@ -1137,70 +1105,70 @@ msgctxt "block description"
 msgid "Display a Bandfront Player playlist."
 msgstr ""
 
-#: views/global-admin-options.php:229
+#: views/global-admin-options.php:225
 msgid "Dark"
 msgstr ""
 
-#: views/global-admin-options.php:230
+#: views/global-admin-options.php:226
 msgid "Light"
 msgstr ""
 
-#: views/global-admin-options.php:586
+#: views/global-admin-options.php:629
 msgid "Optional audio file to overlay on demos "
 msgstr ""
 
-#: includes/admin.php:363
+#: includes/admin.php:447
 #, php-format
 msgid "Audio engine changed to %s"
 msgstr ""
 
-#: includes/admin.php:368
+#: includes/admin.php:452
 msgid "Players enabled on all products"
 msgstr ""
 
-#: includes/admin.php:369
+#: includes/admin.php:453
 msgid "Players disabled on all products"
 msgstr ""
 
-#: includes/admin.php:374
+#: includes/admin.php:458
 msgid "File truncation enabled - demo files will be created"
 msgstr ""
 
-#: includes/admin.php:375
+#: includes/admin.php:459
 msgid "File truncation disabled - full files will be played"
 msgstr ""
 
-#: includes/admin.php:380
+#: includes/admin.php:464
 msgid "FFmpeg enabled for demo creation"
 msgstr ""
 
-#: includes/admin.php:381
+#: includes/admin.php:465
 msgid "FFmpeg disabled"
 msgstr ""
 
-#: includes/admin.php:385
+#: includes/admin.php:469
 msgid "Demo files have been deleted"
 msgstr ""
 
-#: includes/admin.php:389
+#: includes/admin.php:473
 msgid "Settings applied to all products"
 msgstr ""
 
-#: includes/admin.php:395
-#: includes/admin.php:400
-#: includes/admin.php:580
+#: includes/admin.php:479
+#: includes/admin.php:484
+#: includes/admin.php:664
 msgid "Settings saved successfully!"
 msgstr ""
 
-#: includes/admin.php:596
+#: includes/admin.php:680
 msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
-#: includes/admin.php:603
+#: includes/admin.php:687
 msgid "You do not have permission to change these settings."
 msgstr ""
 
-#: includes/admin.php:618
+#: includes/admin.php:702
 msgid "An error occurred while saving settings."
 msgstr ""
 
@@ -1411,32 +1379,14 @@ msgstr ""
 msgid "Choose between MediaElement.js (traditional player) or WaveSurfer.js (modern waveform visualization)."
 msgstr ""
 
-#: modules/audio-engine.php:57
-msgid "Select audio engine"
-msgstr ""
-
-#: modules/audio-engine.php:59
+#: modules/audio-engine.php:60
+#: modules/audio-engine.php:136
 msgid "MediaElement.js (Classic Player)"
 msgstr ""
 
-#: modules/audio-engine.php:62
+#: modules/audio-engine.php:69
+#: modules/audio-engine.php:140
 msgid "WaveSurfer.js (Waveform Visualization)"
-msgstr ""
-
-#: modules/audio-engine.php:66
-msgid "MediaElement.js provides a traditional audio player interface. WaveSurfer.js shows audio waveforms."
-msgstr ""
-
-#: modules/audio-engine.php:74
-msgid "Enable Visualizations"
-msgstr ""
-
-#: modules/audio-engine.php:84
-msgid "Show real-time frequency visualization while playing"
-msgstr ""
-
-#: modules/audio-engine.php:87
-msgid "Displays animated frequency bars during playback (WaveSurfer.js only)."
 msgstr ""
 
 #: builders/gutenberg/gutenberg.js:16
@@ -1469,4 +1419,56 @@ msgstr ""
 
 #: builders/gutenberg/gutenberg.js:100
 msgid "View Documentation"
+msgstr ""
+
+#: modules/audio-engine.php:63
+msgid "Traditional audio player with standard controls. Best for compatibility and performance."
+msgstr ""
+
+#: modules/audio-engine.php:72
+msgid "Modern player with visual waveforms. Creates an engaging listening experience."
+msgstr ""
+
+#: modules/audio-engine.php:80
+msgid "Visualizations"
+msgstr ""
+
+#: modules/audio-engine.php:86
+msgid "Enable real-time frequency visualizations"
+msgstr ""
+
+#: modules/audio-engine.php:89
+msgid "Shows animated frequency bars while audio plays. May impact performance on slower devices."
+msgstr ""
+
+#: modules/audio-engine.php:128
+msgid "Player Engine"
+msgstr ""
+
+#: modules/audio-engine.php:132
+msgid "Use global setting"
+msgstr ""
+
+#: views/global-admin-options.php:308
+msgid "Create Demo Files"
+msgstr ""
+
+#: views/global-admin-options.php:315
+msgid "Enable demo files"
+msgstr ""
+
+#: views/global-admin-options.php:317
+msgid "Create truncated demo versions to prevent unauthorized downloading of full tracks"
+msgstr ""
+
+#: views/global-admin-options.php:664
+msgid "Cache Compatibility"
+msgstr ""
+
+#: views/global-admin-options.php:669
+msgid "Enable"
+msgstr ""
+
+#: views/global-admin-options.php:714
+msgid "Regenerate demo files"
 msgstr ""

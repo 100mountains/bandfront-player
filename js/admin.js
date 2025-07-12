@@ -129,6 +129,17 @@ function bfp_admin()
 
 	// Main code
 	$('.bfp-add').trigger('click');
+	
+	// BFP AJAX notices initialization
+	$(document).ready(function($) {
+		// Ensure BFP_AJAX is initialized and converts notices after page load
+		if (window.BFP_AJAX && typeof window.BFP_AJAX.convertExistingNotices === 'function') {
+			// Give WordPress time to render all notices
+			setTimeout(function() {
+				window.BFP_AJAX.convertExistingNotices();
+			}, 100);
+		}
+	});
 }
 
 jQuery(bfp_admin);

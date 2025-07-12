@@ -420,10 +420,6 @@ $cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', 
 ));
 ?>
 
-<script type="text/javascript">
-console.log('Cloud active tab loaded from database:', '<?php echo esc_js($cloud_active_tab); ?>');
-</script>
-
 <table class="widefat bfp-table-noborder">
 	<tr>
 			<table class="widefat bfp-settings-table bfp-cloud-storage-section">
@@ -652,9 +648,8 @@ console.log('Cloud active tab loaded from database:', '<?php echo esc_js($cloud_
 				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
 					<td class="bfp-troubleshoot-item bfp-troubleshoot-mobile">
-						<h3>📱 Mobile Issues</h3>
 						<p>
-							<?php esc_html_e( 'Players not working on iPads or iPhones?', 'bandfront-player' ); ?>
+							📱 <?php esc_html_e( 'Players not working on iPads or iPhones?', 'bandfront-player' ); ?>
 						</p>
 						<label>
 						<input aria-label="<?php esc_attr_e( 'On iPads and iPhones, use native controls', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_ios_controls" <?php if ( $ios_controls ) {
@@ -665,22 +660,20 @@ console.log('Cloud active tab loaded from database:', '<?php echo esc_js($cloud_
 				</tr>
 				<tr>
 					<td class="bfp-troubleshoot-item bfp-troubleshoot-performance">
-						<h3>⚡ Performance Issues</h3>
 						<p>
-							<?php esc_html_e( 'Cache or optimizer plugins causing problems?', 'bandfront-player' ); ?>
+							⚡ <?php esc_html_e( 'Cache Compatibility', 'bandfront-player' ); ?>
 						</p>
 						<label>
 						<input aria-label="<?php esc_attr_e( 'Loading players in the onload event', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_onload" <?php if ( $troubleshoot_onload ) {
 							print 'CHECKED';} ?>/>
-						<?php esc_html_e( 'Load players after page fully loads', 'bandfront-player' ); ?>
+						<?php esc_html_e( 'Enable', 'bandfront-player' ); ?>
 						</label>
 					</td>
 				</tr>
 				<tr>
 					<td class="bfp-troubleshoot-item bfp-troubleshoot-files">
-						<h3>📁 File Recognition</h3>
 						<p>
-							<?php esc_html_e( 'Files missing extensions or stored in cloud?', 'bandfront-player' ); ?>
+							📁 <?php esc_html_e( 'Files missing extensions or stored in cloud?', 'bandfront-player' ); ?>
 						</p>
 						<label>
 						<input aria-label="<?php esc_attr_e( 'For files whose extensions cannot be determined handle them as mp3 files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_default_extension" <?php if ( $troubleshoot_default_extension ) {
@@ -691,9 +684,8 @@ console.log('Cloud active tab loaded from database:', '<?php echo esc_js($cloud_
 				</tr>
 				<tr>
 					<td class="bfp-troubleshoot-item bfp-troubleshoot-gutenberg">
-						<h3>🧱 Gutenberg Blocks</h3>
 						<p>
-							<?php esc_html_e( 'Gutenberg blocks hiding your players?', 'bandfront-player' ); ?>
+							🧱 <?php esc_html_e( 'Gutenberg blocks hiding your players?', 'bandfront-player' ); ?>
 						</p>
 						<label>
 						<input aria-label="<?php esc_attr_e( 'For the WooCommerce Gutenberg Blocks, include the main player in the products titles', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_force_main_player_in_title" <?php if ( $force_main_player_in_title ) {
@@ -704,9 +696,8 @@ console.log('Cloud active tab loaded from database:', '<?php echo esc_js($cloud_
 				</tr>
 				<tr>
 					<td class="bfp-troubleshoot-item bfp-troubleshoot-redirect">
-						<h3>🔗 Redirect Issues</h3>
 						<p>
-							<?php esc_html_e( 'Players visible but not working?', 'bandfront-player' ); ?>
+							🔗 <?php esc_html_e( 'Players visible but not working?', 'bandfront-player' ); ?>
 						</p>
 						<label>
 						<input aria-label="<?php esc_attr_e( 'Disable 302 redirection', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_disable_302" <?php if ( $disable_302 ) {
@@ -717,17 +708,16 @@ console.log('Cloud active tab loaded from database:', '<?php echo esc_js($cloud_
 				</tr>
 				<tr>
 					<td class="bfp-troubleshoot-item bfp-troubleshoot-cleanup">
-						<h3>🗑️ File Cleanup</h3>
-						<p><?php esc_html_e( 'Demo files corrupted or outdated?', 'bandfront-player' ); ?></p>
+						<p>🗑️ <?php esc_html_e( 'Demo files corrupted or outdated?', 'bandfront-player' ); ?></p>
 						<label>
 						<input aria-label="<?php esc_attr_e( 'Delete the demo files generated previously', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_delete_demos" />
-						<?php esc_html_e( 'Delete old demo files (local files only)', 'bandfront-player' ); ?>
+						<?php esc_html_e( 'Regenerate demo files', 'bandfront-player' ); ?>
 						</label>
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<p class="bfp-troubleshoot-protip"><b>💡 <?php esc_html_e( 'Pro Tip!', 'bandfront-player' ); ?></b> <?php esc_html_e( 'After changing troubleshooting settings, clear your website and browser caches for best results.', 'bandfront-player' ); ?></p>
+						<p class="bfp-troubleshoot-protip">💡<?php esc_html_e( 'After changing troubleshooting settings, clear your website and browser caches for best results.', 'bandfront-player' ); ?></p>
 					</td>
 				</tr>
 				</tbody>
@@ -736,43 +726,3 @@ console.log('Cloud active tab loaded from database:', '<?php echo esc_js($cloud_
 </table>
 <div class="bfp-submit-wrapper"><input type="submit" value="<?php esc_attr_e( 'Save settings', 'bandfront-player' ); ?>" class="button-primary" /></div>
 </form>
-
-<script type="text/javascript">
-jQuery(document).ready(function($) {
-    // Ensure BFP_AJAX is initialized and converts notices after page load
-    if (window.BFP_AJAX && typeof window.BFP_AJAX.convertExistingNotices === 'function') {
-        // Give WordPress time to render all notices
-        setTimeout(function() {
-            window.BFP_AJAX.convertExistingNotices();
-        }, 100);
-    }
-    
-    // Cloud Storage Tab Functionality with persistence
-    $(document).on('click', '.bfp-cloud-tab-btn', function(){
-        var tab = $(this).data('tab');
-        
-        // Update tab buttons
-        $('.bfp-cloud-tab-btn').removeClass('bfp-cloud-tab-active');
-        $(this).addClass('bfp-cloud-tab-active');
-        
-        // Update tab panels
-        $('.bfp-cloud-tab-panel').removeClass('bfp-cloud-tab-panel-active');
-        $('.bfp-cloud-tab-panel[data-panel="' + tab + '"]').addClass('bfp-cloud-tab-panel-active');
-        
-        // Save the active tab in hidden input
-        $('#_bfp_cloud_active_tab').val(tab);
-    });
-    
-    // Analytics integration handler
-    $(document).on('change', '[name="_bfp_analytics_integration"]', function(){
-        var v = $('[name="_bfp_analytics_integration"]:checked').val();
-        $('.bfp-analytics-g4').css('display', v == 'g' ? 'table-row' : 'none');
-        $('[name="_bfp_analytics_property"]').attr('placeholder', v == 'g' ? 'G-XXXXXXXX' : 'UA-XXXXX-Y');
-    });
-    
-    // Initialize analytics on page load
-    $('[name="_bfp_analytics_integration"]:checked').trigger('change');
-});
-</script>
-
-<style>.bfp-player-settings tr td:first-child{width:225px;}</style>

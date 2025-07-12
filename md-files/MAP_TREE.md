@@ -233,7 +233,6 @@
 │   │   ├── dark.css
 │   │   └── light.css
 │   ├── style-admin.css
-│   ├── style.admin.css.old
 │   └── style.css
 ├── demo
 │   └── demo.mp3
@@ -300,7 +299,6 @@
 │       └── wavesurfer.min.js
 ├── views
 │   ├── global-admin-options.php
-│   ├── global-admin-options.php.old
 │   └── product-options.php
 └── widgets
     ├── playlist_widget
@@ -310,4 +308,4 @@
     │       └── widget.js
     └── playlist_widget.php
 
-91 directories, 220 files
+91 directories, 218 files
