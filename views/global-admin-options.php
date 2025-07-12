@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
 
 // include resources
 wp_enqueue_style( 'bfp-admin-style', plugin_dir_url( __FILE__ ) . '../css/style-admin.css', array(), '5.0.181' );
+wp_enqueue_style( 'bfp-admin-notices', plugin_dir_url( __FILE__ ) . '../css/admin-notices.css', array(), '5.0.181' );
 wp_enqueue_media();
 wp_enqueue_script( 'bfp-admin-js', plugin_dir_url( __FILE__ ) . '../js/admin.js', array(), '5.0.181' );
 $bfp_js = array(
@@ -16,6 +17,15 @@ $bfp_js = array(
 	'Select Item'       => __( 'Select Item', 'bandfront-player' ),
 );
 wp_localize_script( 'bfp-admin-js', 'bfp', $bfp_js );
+
+// Add AJAX localization
+wp_localize_script( 'bfp-admin-js', 'bfp_ajax', array(
+    'ajax_url' => admin_url('admin-ajax.php'),
+    'nonce' => wp_create_nonce('bfp_updating_plugin_settings'),
+    'saving_text' => __('Saving settings...', 'bandfront-player'),
+    'error_text' => __('An unexpected error occurred. Please try again.', 'bandfront-player'),
+    'dismiss_text' => __('Dismiss this notice', 'bandfront-player'),
+));
 
 $ffmpeg             = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_ffmpeg', false );
 $ffmpeg_path        = $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_ffmpeg_path', '' );
@@ -71,7 +81,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 
 ?>
 <h1><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Bandfront Player - Global Settings', 'bandfront-player' ); ?></h1>
-<p class="bfp-tagline">a player for the storefront theme that makes bandcamp irrelevant</p>
+<p class="bfp-tagline">a player for the storefront theme</p>
 
 <div class="bfp-tips-container">
 	<div id="bandcamp_nuke_tips_header">
@@ -121,6 +131,7 @@ remove_all_actions( 'bfp_general_settings', 10 );
 </div>
 
 <form method="post" enctype="multipart/form-data">
+<input type="hidden" name="action" value="bfp_save_settings" />
 <input type="hidden" name="bfp_nonce" value="<?php echo esc_attr( wp_create_nonce( 'bfp_updating_plugin_settings' ) ); ?>" />
 
 <table class="widefat bfp-table-noborder">
@@ -678,22 +689,17 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 </table>
 <div class="bfp-submit-wrapper"><input type="submit" value="<?php esc_attr_e( 'Save settings', 'bandfront-player' ); ?>" class="button-primary" /></div>
 </form>
-<script>
-jQuery(window).on('load', function(){
-    $(document).on('click', '.bfp-cloud-tab-btn', function(){
-        $('.bfp-cloud-tab-btn').removeClass('bfp-cloud-tab-active');
-        $(this).addClass('bfp-cloud-tab-active');
-        
-        // Get the tab from data attribute
-        var tab = $(this).data('tab');
-        
-        // Update tab panels
-        $('.bfp-cloud-tab-panel').removeClass('bfp-cloud-tab-panel-active');
-        $('.bfp-cloud-tab-panel[data-panel="' + tab + '"]').addClass('bfp-cloud-tab-panel-active');
-    });
-    
-    $('[name="_bfp_analytics_integration"]:eq(0)').change();
-    coverSection();
+
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    // Ensure BFP_AJAX is initialized and converts notices after page load
+    if (window.BFP_AJAX && typeof window.BFP_AJAX.convertExistingNotices === 'function') {
+        // Give WordPress time to render all notices
+        setTimeout(function() {
+            window.BFP_AJAX.convertExistingNotices();
+        }, 100);
+    }
 });
 </script>
+
 <style>.bfp-player-settings tr td:first-child{width:225px;}</style>

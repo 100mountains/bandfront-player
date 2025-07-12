@@ -35,7 +35,7 @@ function bfp_audio_engine_settings() {
     ?>
     <tr>
         <td colspan="2">
-            <p class="bfp-engine-info"><?php esc_html_e('Choose the audio processing engine for your players. WaveSurfer.js provides enhanced features like waveforms and smoother fades.', 'bandfront-player'); ?></p>
+            <h3>🎵 <?php esc_html_e('Audio Engine Selection', 'bandfront-player'); ?></h3>
         </td>
     </tr>
     <tr>
@@ -55,13 +55,13 @@ function bfp_audio_engine_settings() {
                     <?php esc_html_e('MediaElement.js (Default)', 'bandfront-player'); ?>
                 </label>
                 <p id="mediaelement-desc" class="description" style="margin-left: 25px; margin-bottom: 15px; color: #666; font-style: italic;">
-                    <?php esc_html_e('Reliable HTML5 audio with broad browser compatibility', 'bandfront-player'); ?>
+                    <?php esc_html_e('Lightweight HTML5 player with broad browser support', 'bandfront-player'); ?>
                 </p>
                 
                 <label style="display: block;">
                     <input type="radio" 
                            name="_bfp_audio_engine" 
-                           value="wavesurfer"
+                           value="wavesurfer" 
                            <?php checked($audio_engine, 'wavesurfer'); ?>
                            aria-describedby="wavesurfer-desc" />
                     <?php esc_html_e('WaveSurfer.js (Experimental)', 'bandfront-player'); ?>
@@ -73,7 +73,7 @@ function bfp_audio_engine_settings() {
                 <div id="wavesurfer-options" style="margin-left: 25px; margin-top: 15px; display: <?php echo ($audio_engine === 'wavesurfer') ? 'block' : 'none'; ?>;">
                     <label>
                         <input type="checkbox" 
-                               name="_bfp_enable_visualizations" 
+                               name="_bfp_enable_visualizations"
                                value="1"
                                <?php checked($enable_visualizations, 1); ?> />
                         <?php esc_html_e('Enable waveform visualizations', 'bandfront-player'); ?>

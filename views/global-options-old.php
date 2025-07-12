@@ -4,7 +4,7 @@ if ( ! defined( 'BFP_PLUGIN_URL' ) ) {
 	exit; }
 
 // include resources
-wp_enqueue_style( 'bfp-admin-style', plugin_dir_url( __FILE__ ) . '../css/style.admin.css', array(), '5.0.181' );
+wp_enqueue_style( 'bfp-admin-style', plugin_dir_url( __FILE__ ) . '../css/style-admin.css', array(), '5.0.181' );
 wp_enqueue_media();
 wp_enqueue_script( 'bfp-admin-js', plugin_dir_url( __FILE__ ) . '../js/admin.js', array(), '5.0.181' );
 $bfp_js = array(

@@ -212,13 +212,7 @@ class BFP_Player {
             
             // Get selected player skin using new state handler
             $selected_skin = $BandfrontPlayer->get_config()->get_state('_bfp_player_layout');
-            
-            // Handle backward compatibility - map old names to new names
-            $skin_mapping = array(
-                'mejs-classic' => 'dark',
-                'mejs-ted' => 'light',
-                'mejs-wmp' => 'custom'
-            );
+        
             
             if (isset($skin_mapping[$selected_skin])) {
                 $selected_skin = $skin_mapping[$selected_skin];

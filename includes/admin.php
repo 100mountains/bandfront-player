@@ -54,7 +54,17 @@ class BFP_Admin {
         $config = $this->main_plugin->get_config();
         
         foreach ($this->admin_modules as $module_id => $module_info) {
-            // Check if module is enabled in state
+            // Audio engine is core functionality - always load it
+            if ($module_id === 'audio-engine') {
+                $module_path = $this->modules_path . $module_info['file'];
+                if (file_exists($module_path)) {
+                    require_once $module_path;
+                    do_action('bfp_admin_module_loaded', $module_id);
+                }
+                continue;
+            }
+            
+            // Check if other modules are enabled in state
             if (!$config->is_module_enabled($module_id)) {
                 continue;
             }
@@ -87,6 +97,10 @@ class BFP_Admin {
         add_action('admin_init', array($this, 'admin_init'), 99);
         add_action('save_post', array($this, 'save_post'), 10, 3);
         add_action('after_delete_post', array($this, 'after_delete_post'), 10, 2);
+        add_action('admin_notices', array($this, 'show_admin_notices'));
+        
+        // Add AJAX handler for settings save
+        add_action('wp_ajax_bfp_save_settings', array($this, 'ajax_save_settings'));
     }
     
     /**
@@ -163,7 +177,16 @@ class BFP_Admin {
     public function settings_page() {
         if (isset($_POST['bfp_nonce']) && 
             wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['bfp_nonce'])), 'bfp_updating_plugin_settings')) {
-            $this->save_global_settings();
+            $messages = $this->save_global_settings();
+            
+            // Set transient for admin notice
+            if (!empty($messages)) {
+                set_transient('bfp_admin_notice', $messages, 30);
+            }
+            
+            // Redirect to prevent form resubmission
+            wp_redirect(add_query_arg('settings-updated', 'true', wp_get_referer()));
+            exit;
         }
 
         echo '<div class="wrap">';
@@ -183,6 +206,13 @@ class BFP_Admin {
      */
     private function save_global_settings() {
         $_REQUEST = stripslashes_deep($_REQUEST);
+        
+        // Track what changed for notifications
+        $changes = array();
+        $old_audio_engine = $this->main_plugin->get_config()->get_state('_bfp_audio_engine');
+        $old_enable_player = $this->main_plugin->get_config()->get_state('_bfp_enable_player');
+        $old_secure_player = $this->main_plugin->get_config()->get_state('_bfp_secure_player');
+        $old_ffmpeg = $this->main_plugin->get_config()->get_state('_bfp_ffmpeg');
         
         // Save the player settings
         $registered_only = isset($_REQUEST['_bfp_registered_only']) ? 1 : 0;
@@ -213,13 +243,6 @@ class BFP_Admin {
         $player_layouts = $this->main_plugin->get_player_layouts();
         $player_style = (isset($_REQUEST['_bfp_player_layout']) && in_array($_REQUEST['_bfp_player_layout'], $player_layouts)) ? 
                         sanitize_text_field(wp_unslash($_REQUEST['_bfp_player_layout'])) : BFP_DEFAULT_PLAYER_LAYOUT;
-        
-        // Handle backward compatibility - map old names to new names
-        $skin_mapping = array(
-            'mejs-classic' => 'dark',
-            'mejs-ted' => 'light',
-            'mejs-wmp' => 'custom'
-        );
         
         if (isset($skin_mapping[$player_style])) {
             $player_style = $skin_mapping[$player_style];
@@ -331,6 +354,53 @@ class BFP_Admin {
 
         // Purge Cache using new cache manager
         BFP_Cache::clear_all_caches();
+        
+        // Build notification message
+        $messages = array();
+        
+        // Check what changed
+        if ($old_audio_engine !== $audio_engine) {
+            $messages[] = sprintf(__('Audio engine changed to %s', 'bandfront-player'), ucfirst($audio_engine));
+        }
+        
+        if ($old_enable_player != $enable_player) {
+            $messages[] = $enable_player ? 
+                __('Players enabled on all products', 'bandfront-player') : 
+                __('Players disabled on all products', 'bandfront-player');
+        }
+        
+        if ($old_secure_player != $secure_player) {
+            $messages[] = $secure_player ? 
+                __('File truncation enabled - demo files will be created', 'bandfront-player') : 
+                __('File truncation disabled - full files will be played', 'bandfront-player');
+        }
+        
+        if ($old_ffmpeg != $ffmpeg) {
+            $messages[] = $ffmpeg ? 
+                __('FFmpeg enabled for demo creation', 'bandfront-player') : 
+                __('FFmpeg disabled', 'bandfront-player');
+        }
+        
+        if (isset($_REQUEST['_bfp_delete_demos'])) {
+            $messages[] = __('Demo files have been deleted', 'bandfront-player');
+        }
+        
+        if ($apply_to_all_players) {
+            $messages[] = __('Settings applied to all products', 'bandfront-player');
+        }
+        
+        // Return appropriate message
+        if (!empty($messages)) {
+            return array(
+                'message' => __('Settings saved successfully!', 'bandfront-player') . ' ' . implode('. ', $messages) . '.',
+                'type' => 'success'
+            );
+        } else {
+            return array(
+                'message' => __('Settings saved successfully!', 'bandfront-player'),
+                'type' => 'success'
+            );
+        }
     }
     
     /**
@@ -478,5 +548,70 @@ class BFP_Admin {
     public function woocommerce_player_settings() {
         global $post;
         include_once dirname(BFP_PLUGIN_PATH) . '/views/product-options.php';
+    }
+
+    /**
+     * Show admin notices
+     */
+    public function show_admin_notices() {
+        // Only show on our settings page
+        if (!isset($_GET['page']) || $_GET['page'] !== 'bandfront-player-settings') {
+            return;
+        }
+        
+        // Check for transient notice first (has more details)
+        $notice = get_transient('bfp_admin_notice');
+        if ($notice) {
+            delete_transient('bfp_admin_notice');
+            $class = 'notice notice-' . $notice['type'] . ' is-dismissible';
+            printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($notice['message']));
+            return;
+        }
+        
+        // Only show generic notice if no transient notice exists
+        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <p><?php esc_html_e('Settings saved successfully!', 'bandfront-player'); ?></p>
+            </div>
+            <?php
+        }
+    }
+    
+    /**
+     * AJAX handler for saving settings
+     * 
+     * @since 1.0.0
+     */
+    public function ajax_save_settings() {
+        // Verify nonce
+        if (!isset($_POST['bfp_nonce']) || 
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['bfp_nonce'])), 'bfp_updating_plugin_settings')) {
+            wp_send_json_error(array(
+                'message' => __('Security check failed. Please refresh the page and try again.', 'bandfront-player')
+            ));
+        }
+        
+        // Check user capabilities
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array(
+                'message' => __('You do not have permission to change these settings.', 'bandfront-player')
+            ));
+        }
+        
+        // Save settings using existing method
+        $messages = $this->save_global_settings();
+        
+        // Send success response with detailed message
+        if (!empty($messages) && $messages['type'] === 'success') {
+            wp_send_json_success(array(
+                'message' => $messages['message'],
+                'details' => isset($messages['details']) ? $messages['details'] : array()
+            ));
+        } else {
+            wp_send_json_error(array(
+                'message' => isset($messages['message']) ? $messages['message'] : __('An error occurred while saving settings.', 'bandfront-player')
+            ));
+        }
     }
 }
