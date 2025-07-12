@@ -10,7 +10,7 @@ Component-based architecture with centralized state management and context-aware
 
 ### 1. **Main Plugin (`bfp.php`)**
 - Entry point and component orchestrator
-- Initializes all managers in order: Config → File Handler → Audio Engine → WooCommerce → Player → Renderers → Hooks → Admin
+- Initializes all managers in order: Config → File Handler → Audio Engine → WooCommerce → Player → Hooks → Admin
 - Provides component access via getters
 
 ### 2. **State Management (`state-manager.php`)**
@@ -22,6 +22,7 @@ Component-based architecture with centralized state management and context-aware
 
 **Player** (`player.php`)
 - Generates player HTML
+- Handles all player rendering (single, multiple, table layouts)
 - Manages script/style enqueuing based on audio engine
 - Handles player configuration
 
@@ -37,21 +38,13 @@ Component-based architecture with centralized state management and context-aware
 
 ### 4. **Renderers** (`/includes/`)
 
-**Player Renderer** (`player-renderer.php`)
-- Context-aware player generation
-- Single vs. multiple player modes
-- Play button overlays on product images
-
-**Playlist Renderer** (`playlist-renderer.php`)
-- Multi-product playlist generation
-- Bulk operations optimization
-
 **Cover Renderer** (`cover-renderer.php`)
 - Play button overlays on product images
+- Shop page integration
 
 **WooCommerce** (`woocommerce.php`)
 - Product integration
-- Playlist shortcode handling
+- Playlist shortcode handling and rendering
 - Purchase verification
 
 ### 5. **Utilities** (`/includes/utils/`)
@@ -164,8 +157,8 @@ Component-based architecture with centralized state management and context-aware
 - Action: `bfp_module_*_settings` - Add settings
 - Multiple component-specific hooks
 
-## What's New in Refactored Version
-- **Cleaner file names**: Removed redundant `class-bfp-` prefixes
+## Consolidated Architecture
+- **Cleaner structure**: Player functionality consolidated into `player.php`
 - **Better organization**: Utilities grouped in `/utils/` subfolder
 - **Improved readability**: `state-manager.php` instead of `class-bfp-config.php`
 - **Maintained stability**: All class names unchanged for backward compatibility
@@ -173,7 +166,7 @@ Component-based architecture with centralized state management and context-aware
 
 ## Quick Start for Developers
 1. Main logic flows through `bfp.php`
-2. Player rendering happens in `player-renderer.php`
+2. Player rendering happens in `player.php` (includes table layouts)
 3. Audio processing in `audio.php`
 4. Settings managed by `state-manager.php`
 5. Add new features via the module system in `/modules/`

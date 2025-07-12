@@ -979,26 +979,6 @@ msgstr ""
 msgid "Optional audio file to overlay on demos "
 msgstr ""
 
-#. Plugin URI of the plugin
-#: bfp.php
-msgid "http://bandfront.com/"
-msgstr ""
-
-#. Description of the plugin
-#: bfp.php
-msgid "Music Player for WooCommerce"
-msgstr ""
-
-#. Author of the plugin
-#: bfp.php
-msgid "Bandfront.com"
-msgstr ""
-
-#. Author URI of the plugin
-#: bfp.php
-msgid "https://bandfront.com"
-msgstr ""
-
 #: includes/admin.php:363
 #, php-format
 msgid "Audio engine changed to %s"
@@ -1068,4 +1048,19 @@ msgstr ""
 
 #: views/global-admin-options.php:27
 msgid "Dismiss this notice"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: bfp.php
+msgid "https://bandfront.com/"
+msgstr ""
+
+#. Description of the plugin
+#: bfp.php
+msgid "Audio player for WooCommerce products"
+msgstr ""
+
+#. Author of the plugin
+#: bfp.php
+msgid "Bandfront"
 msgstr ""

@@ -14,7 +14,7 @@ class BFP_Player {
     // - include_main_player()
     // - include_all_players() 
     // - _get_product_files()
-    // - _get_recursive_product_files()
+    // - _getall_products()
     
     // Keep existing methods:
     // - get_player()

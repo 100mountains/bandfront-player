@@ -34,9 +34,7 @@
 │   ├── audio.php
 │   ├── cover-renderer.php
 │   ├── hooks.php
-│   ├── player-renderer.php
 │   ├── player.php
-│   ├── playlist-renderer.php
 │   ├── state-manager.php
 │   ├── utils
 │   │   ├── analytics.php
@@ -75,6 +73,8 @@
 │   ├── backup_plugin.sh
 │   ├── backup_plugin_make_downloadable.sh
 │   ├── clear_opcache.sh
+│   ├── player-renderer.php
+│   ├── playlist-renderer.php
 │   ├── test_mp3_class.php
 │   ├── test_outputs
 │   └── test_plugin.php

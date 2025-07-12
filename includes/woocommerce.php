@@ -423,97 +423,69 @@ class BFP_WooCommerce {
         
         if ('new' == $atts['layout']) {
             $price = $product_obj->get_price();
-            $output .= '
-                <div class="bfp-new-layout bfp-widget-product controls-' . esc_attr($atts['controls']) . ' ' . esc_attr($atts['class']) . ' ' . esc_attr($row_class) . ' ' . esc_attr(($product->ID == $current_post_id && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">
-                    <div class="bfp-widget-product-header">
-                        <div class="bfp-widget-product-title">
-                            <a href="' . esc_url(get_permalink($product->ID)) . '">' . esc_html($product_obj->get_name()) . '</a>' .
-                        $download_links . 
-                        '</div><!-- product title -->';
-
+            $output .= '<div class="bfp-new-layout bfp-widget-product controls-' . esc_attr($atts['controls']) . ' ' . 
+                      esc_attr($atts['class']) . ' ' . esc_attr($row_class) . ' ' . 
+                      esc_attr(($product->ID == $current_post_id && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">';
+            
+            // Header section
+            $output .= '<div class="bfp-widget-product-header">';
+            $output .= '<div class="bfp-widget-product-title">';
+            $output .= '<a href="' . esc_url(get_permalink($product->ID)) . '">' . esc_html($product_obj->get_name()) . '</a>';
+            
+            if ($atts['purchased_times']) {
+                $output .= '<span class="bfp-purchased-times">' .
+                          sprintf(
+                              __($this->main_plugin->get_global_attr('_bfp_purchased_times_text', '- purchased %d time(s)'), 'bandfront-player'),
+                              $atts['purchased_times']
+                          ) . '</span>';
+            }
+            
+            $output .= $download_links;
+            $output .= '</div>';
+            
             if (0 != @floatval($price) && 0 == $atts['hide_purchase_buttons']) {
                 $product_id_for_add_to_cart = $product->ID;
+                
                 if ($product_obj->is_type('variable')) {
                     $variations = $product_obj->get_available_variations();
                     $variations_id = wp_list_pluck($variations, 'variation_id');
-                    if (!empty($variations_id)) $product_id_for_add_to_cart = $variations_id[0];
+                    if (!empty($variations_id)) {
+                        $product_id_for_add_to_cart = $variations_id[0];
+                    }
                 } elseif ($product_obj->is_type('grouped')) {
                     $children = $product_obj->get_children();
                     if (!empty($children)) {
                         $product_id_for_add_to_cart = $children[0];
                     }
                 }
-
-                $output .= '<div class="bfp-widget-product-purchase">
-                                ' . wc_price($product_obj->get_price(), '') . '
-                                <a href="?add-to-cart=' . $product_id_for_add_to_cart . '"></a>
-                            </div><!-- product purchase -->';
+                
+                $output .= '<div class="bfp-widget-product-purchase">' . 
+                           wc_price($product_obj->get_price(), '') . 
+                           ' <a href="?add-to-cart=' . $product_id_for_add_to_cart . '"></a>' .
+                           '</div>';
             }
-            $output .= '</div><div class="bfp-widget-product-files">';
+            $output .= '</div>'; // Close header
+            
+            $output .= '<div class="bfp-widget-product-files">';
             
             if (!empty($featured_image)) {
-                $output .= '<img src="' . esc_attr($featured_image) . '" class="bfp-widget-feature-image" /><div class="bfp-widget-product-files-list">';
+                $output .= $featured_image . '<div class="bfp-widget-product-files-list">';
             }
 
-            foreach ($audio_files as $index => $file) {
-                $audio_url  = $this->main_plugin->generate_audio_url($product->ID, $index, $file);
-                $duration   = $this->main_plugin->get_duration_by_url($file['file']);
-                $audio_tag  = apply_filters(
-                    'bfp_audio_tag',
-                    $this->main_plugin->get_player(
-                        $audio_url,
-                        array(
-                            'product_id'      => $id,
-                            'player_style'    => $settings['_bfp_player_layout'],
-                            'player_controls' => ( 'all' != $player_controls ) ? 'track' : '',
-                            'media_type'      => $file['media_type'],
-                            'duration'        => $duration,
-                            'preload'         => $settings['_bfp_preload'],
-                            'volume'          => $settings['_bfp_player_volume'],
-                        )
-                    ),
-                    $id,
-                    $index,
-                    $audio_url
-                );
-                $file_title = esc_html(apply_filters('bfp_widget_file_name', $file['name'], $product->ID, $index));
-                $output    .= '
-                    <div class="bfp-widget-product-file">
-                        ' . $audio_tag . '
-                        <span class="bfp-file-name">' . $file_title . '</span>
-                        ' . (!isset($atts['duration']) || $atts['duration'] == 1 ? '<span class="bfp-file-duration">' . esc_html($duration) . '</span>' : '') . '
-                        <div style="clear:both;"></div>
-                    </div><!--product file -->
-                ';
-            }
-
-            if (!empty($featured_image)) {
-                $output .= '</div>';
-            }
-
-            $output .= '
-                    </div><!-- product-files -->
-                </div><!-- product -->
-            ';
-        } else {
-            $output .= '<ul class="bfp-widget-playlist bfp-classic-layout controls-' . esc_attr($atts['controls']) . ' ' . esc_attr($atts['class']) . ' ' . esc_attr($row_class) . ' ' . esc_attr(($product->ID == $current_post_id && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">';
-
-            if (!empty($featured_image)) {
-                $output .= '<li style="display:table-row;"><img src="' . esc_attr($featured_image) . '" class="bfp-widget-feature-image" /><div class="bfp-widget-product-files-list"><ul>';
-            }
-
+            // Render audio files
             foreach ($audio_files as $index => $file) {
                 $audio_url = $this->main_plugin->generate_audio_url($product->ID, $index, $file);
                 $duration = $this->main_plugin->get_duration_by_url($file['file']);
+                
                 $audio_tag = apply_filters(
-                    'bfp_audio_tag',
+                    'bfp_widget_audio_tag',
                     $this->main_plugin->get_player(
                         $audio_url,
                         array(
                             'product_id'      => $product->ID,
-                            'player_style'    => $atts['player_style'],
                             'player_controls' => $atts['controls'],
-                            'media_type'      => isset($file['media_type']) ? $file['media_type'] : 'mp3',
+                            'player_style'    => $atts['player_style'],
+                            'media_type'      => $file['media_type'],
                             'id'              => $index,
                             'duration'        => $duration,
                             'preload'         => $preload,
@@ -524,23 +496,75 @@ class BFP_WooCommerce {
                     $index,
                     $audio_url
                 );
+                
                 $file_title = esc_html(apply_filters('bfp_widget_file_name', $file['name'], $product->ID, $index));
-                $output .= '
-                    <li class="bfp-widget-file">
-                        <div class="bfp-widget-file-item">
-                            ' . $audio_tag . '
-                            <span class="bfp-file-name">' . $file_title . '</span>
-                            ' . (!isset($atts['duration']) || $atts['duration'] == 1 ? '<span class="bfp-file-duration">' . esc_html($duration) . '</span>' : '') . '
-                        </div>
-                    </li>
-                ';
+                
+                $output .= '<div class="bfp-widget-product-file">';
+                $output .= $audio_tag;
+                $output .= '<span class="bfp-file-name">' . $file_title . '</span>';
+                
+                if (!isset($atts['duration']) || $atts['duration'] == 1) {
+                    $output .= '<span class="bfp-file-duration">' . esc_html($duration) . '</span>';
+                }
+                
+                $output .= '<div style="clear:both;"></div></div>';
+            }
+
+            if (!empty($featured_image)) {
+                $output .= '</div>';
+            }
+
+            $output .= '</div></div>'; // Close files and product
+        } else {
+            // Classic layout
+            $output .= '<ul class="bfp-widget-playlist bfp-classic-layout controls-' . esc_attr($atts['controls']) . ' ' . esc_attr($atts['class']) . ' ' . esc_attr($row_class) . ' ' . esc_attr(($product->ID == $current_post_id && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">';
+
+            if (!empty($featured_image)) {
+                $output .= '<li style="display:table-row;">' . $featured_image . '<div class="bfp-widget-product-files-list"><ul>';
+            }
+
+            foreach ($audio_files as $index => $file) {
+                $audio_url = $this->main_plugin->generate_audio_url($product->ID, $index, $file);
+                $duration = $this->main_plugin->get_duration_by_url($file['file']);
+                
+                $audio_tag = apply_filters(
+                    'bfp_widget_audio_tag',
+                    $this->main_plugin->get_player(
+                        $audio_url,
+                        array(
+                            'product_id'      => $product->ID,
+                            'player_controls' => $atts['controls'],
+                            'player_style'    => $atts['player_style'],
+                            'media_type'      => $file['media_type'],
+                            'id'              => $index,
+                            'duration'        => $duration,
+                            'preload'         => $preload,
+                            'volume'          => $atts['volume'],
+                        )
+                    ),
+                    $product->ID,
+                    $index,
+                    $audio_url
+                );
+                
+                $file_title = esc_html(apply_filters('bfp_widget_file_name', $file['name'], $product->ID, $index));
+                
+                $output .= '<li style="display:table-row;">';
+                $output .= '<div class="bfp-player-col bfp-widget-product-file" style="display:table-cell;">' . $audio_tag . '</div>';
+                $output .= '<div class="bfp-title-col" style="display:table-cell;"><span class="bfp-player-song-title">' . $file_title . '</span>';
+                
+                if (!empty($atts['duration']) && $atts['duration'] == 1) {
+                    $output .= ' <span class="bfp-player-song-duration">' . esc_html($duration) . '</span>';
+                }
+                
+                $output .= '</div></li>';
             }
 
             if (!empty($featured_image)) {
                 $output .= '</ul></div></li>';
             }
 
-            $output .= '</ul><!-- product-files -->';
+            $output .= '</ul>';
         }
         
         return $output;

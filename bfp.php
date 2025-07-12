@@ -39,7 +39,6 @@ class BandfrontPlayer {
     private $_file_handler;
     private $_preview;
     private $_analytics;
-    private $_player_renderer;
     
     // State flags
     private $_purchased_product_flag = false;
@@ -222,17 +221,6 @@ class BandfrontPlayer {
      */
     public function get_analytics() {
         return $this->_analytics;
-    }
-    
-    /**
-     * Get player renderer (lazy load)
-     */
-    public function get_player_renderer() {
-        if (!$this->_player_renderer) {
-            require_once plugin_dir_path(__FILE__) . 'includes/player-renderer.php';
-            $this->_player_renderer = new BFP_Player_Renderer($this);
-        }
-        return $this->_player_renderer;
     }
     
     // ===== STATE MANAGEMENT SHORTCUTS =====

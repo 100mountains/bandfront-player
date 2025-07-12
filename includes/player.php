@@ -264,48 +264,14 @@ class BFP_Player {
                     $title           = esc_html( ( $settings['_bfp_player_title'] ) ? apply_filters( 'bfp_file_name', $file['name'], $id, $index ) : '' );
                     print '<div class="bfp-player-container ' . esc_attr( $merge_grouped_clss ) . ' product-' . esc_attr( $file['product'] ) . '" ' . ( $settings['_bfp_loop'] ? 'data-loop="1"' : '' ) . '>' . $audio_tag . '</div><div class="bfp-player-title" data-audio-url="' . esc_attr( $audio_url ) . '">' . wp_kses_post( $title ) . '</div><div style="clear:both;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
                 } elseif ( $counter > 1 ) {
-
+                    // Use the table renderer for multiple files
                     $single_player = intval( $this->main_plugin->get_config()->get_state( '_bfp_single_player', 0, $id ) );
-
-                    $before = '<table class="bfp-player-list ' . $merge_grouped_clss . ( $single_player ? ' bfp-single-player ' : '' ) . '" ' . ( $settings['_bfp_loop'] ? 'data-loop="1"' : '' ) . '>';
-                    $first_player_class = 'bfp-first-player';
-                    $after  = '';
-                    foreach ( $files as $index => $file ) {
-                        $evenOdd = ( 1 == $counter % 2 ) ? 'bfp-odd-row' : 'bfp-even-row';
-                        $counter--;
-                        $audio_url = $this->main_plugin->get_audio_core()->generate_audio_url( $id, $index, $file );
-                        $duration  = $this->main_plugin->get_audio_core()->get_duration_by_url( $file['file'] );
-                        $audio_tag = apply_filters(
-                            'bfp_audio_tag',
-                            $this->get_player(
-                                $audio_url,
-                                array(
-                                    'product_id'      => $id,
-                                    'player_style'    => $settings['_bfp_player_layout'],
-                                    'player_controls' => ( 'all' != $player_controls ) ? 'track' : '',
-                                    'media_type'      => $file['media_type'],
-                                    'duration'        => $duration,
-                                    'preload'         => $settings['_bfp_preload'],
-                                    'volume'          => $settings['_bfp_player_volume'],
-                                )
-                            ),
-                            $id,
-                            $index,
-                            $audio_url
-                        );
-                        $title     = esc_html( ( $settings['_bfp_player_title'] ) ? apply_filters( 'bfp_file_name', $file['name'], $id, $index ) : '' );
-
-                        print $before; // phpcs:ignore WordPress.Security.EscapeOutput
-                        $before = '';
-                        $after  = '</table>';
-                        if ( 'all' != $player_controls ) {
-                            print '<tr class="' . esc_attr( $evenOdd ) . ' product-' . esc_attr( $file['product'] ) . '"><td class="bfp-column-player-' . esc_attr( $settings['_bfp_player_layout'] ) . '"><div class="bfp-player-container ' . $first_player_class . '" data-player-id="' . esc_attr( $counter ) . '">' . $audio_tag . '</div></td><td class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr( $counter ) . '">' . wp_kses_post( $title ) . '</td><td class="bfp-file-duration" style="text-align:right;font-size:16px;">' . esc_html( $duration ) . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
-                        } else {
-                            print '<tr class="' . esc_attr( $evenOdd ) . ' product-' . esc_attr( $file['product'] ) . '"><td><div class="bfp-player-container ' . $first_player_class . '" data-player-id="' . esc_attr( $counter ) . '">' . $audio_tag . '</div><div class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr( $counter ) . '">' . wp_kses_post( $title ) . ( $single_player ? '<span class="bfp-file-duration">' . esc_html( $duration ) . '</span>' : '' ) . '</div></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
-                        }
-                        $first_player_class = '';
-                    }
-                    print $after; // phpcs:ignore WordPress.Security.EscapeOutput
+                    
+                    // Add player_controls to settings for renderer
+                    $settings['player_controls'] = $player_controls;
+                    $settings['single_player'] = $single_player;
+                    
+                    print $this->render_player_table($files, $id, $settings); // phpcs:ignore WordPress.Security.EscapeOutput
                 }
                 
                 // Fix: Check if WooCommerce integration exists
@@ -324,6 +290,105 @@ class BFP_Player {
     }
     
     /**
+     * Render player table layout for multiple files
+     * Moved from player-renderer.php
+     */
+    private function render_player_table($files, $product_id, $settings) {
+        if (empty($files) || count($files) < 2) {
+            return '';
+        }
+        
+        $output = '';
+        $merge_grouped_clss = ($settings['_bfp_merge_in_grouped']) ? 'merge_in_grouped_products' : '';
+        $single_player = isset($settings['single_player']) ? $settings['single_player'] : 0;
+        
+        $output .= '<table class="bfp-player-list ' . $merge_grouped_clss . ($single_player ? ' bfp-single-player ' : '') . '" ' . 
+                   ($settings['_bfp_loop'] ? 'data-loop="1"' : '') . '>';
+        
+        $counter = count($files);
+        $first_player_class = 'bfp-first-player';
+        
+        foreach ($files as $index => $file) {
+            $evenOdd = (1 == $counter % 2) ? 'bfp-odd-row' : 'bfp-even-row';
+            $counter--;
+            
+            $audio_url = $this->main_plugin->get_audio_core()->generate_audio_url($product_id, $index, $file);
+            $duration = $this->main_plugin->get_audio_core()->get_duration_by_url($file['file']);
+            
+            $audio_tag = apply_filters(
+                'bfp_audio_tag',
+                $this->get_player(
+                    $audio_url,
+                    array(
+                        'product_id'      => $product_id,
+                        'player_style'    => $settings['_bfp_player_layout'],
+                        'player_controls' => ('all' != $settings['player_controls']) ? 'track' : '',
+                        'media_type'      => $file['media_type'],
+                        'duration'        => $duration,
+                        'preload'         => $settings['_bfp_preload'],
+                        'volume'          => $settings['_bfp_player_volume'],
+                    )
+                ),
+                $product_id,
+                $index,
+                $audio_url
+            );
+            
+            $title = esc_html(($settings['_bfp_player_title']) ? 
+                     apply_filters('bfp_file_name', $file['name'], $product_id, $index) : '');
+            
+            $output .= $this->render_player_row($audio_tag, $title, $duration, $evenOdd, 
+                                               $file['product'], $first_player_class, 
+                                               $counter, $settings, $single_player);
+            
+            $first_player_class = '';
+        }
+        
+        $output .= '</table>';
+        
+        return $output;
+    }
+    
+    /**
+     * Render a single player row
+     * Moved from player-renderer.php
+     */
+    private function render_player_row($audio_tag, $title, $duration, $evenOdd, 
+                                      $product_id, $first_player_class, $counter, 
+                                      $settings, $single_player) {
+        $output = '<tr class="' . esc_attr($evenOdd) . ' product-' . esc_attr($product_id) . '">';
+        
+        if ('all' != $settings['player_controls']) {
+            $output .= '<td class="bfp-column-player-' . esc_attr($settings['_bfp_player_layout']) . '">';
+            $output .= '<div class="bfp-player-container ' . $first_player_class . '" data-player-id="' . esc_attr($counter) . '">';
+            $output .= $audio_tag;
+            $output .= '</div></td>';
+            $output .= '<td class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr($counter) . '">';
+            $output .= wp_kses_post($title);
+            $output .= '</td>';
+            $output .= '<td class="bfp-file-duration" style="text-align:right;font-size:16px;">';
+            $output .= esc_html($duration);
+            $output .= '</td>';
+        } else {
+            $output .= '<td>';
+            $output .= '<div class="bfp-player-container ' . $first_player_class . '" data-player-id="' . esc_attr($counter) . '">';
+            $output .= $audio_tag;
+            $output .= '</div>';
+            $output .= '<div class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr($counter) . '">';
+            $output .= wp_kses_post($title);
+            if ($single_player) {
+                $output .= '<span class="bfp-file-duration">' . esc_html($duration) . '</span>';
+            }
+            $output .= '</div>';
+            $output .= '</td>';
+        }
+        
+        $output .= '</tr>';
+        
+        return $output;
+    }
+    
+    /**
      * Get product files
      * Moved from player-renderer.php
      */
@@ -333,7 +398,7 @@ class BFP_Player {
         }
 
         $product = $args['product'];
-        $files   = $this->_get_recursive_product_files( $product, array() );
+        $files   = $this->_getall_products( $product, array() );
         if ( empty( $files ) ) {
             return false;
         }
@@ -363,7 +428,7 @@ class BFP_Player {
      * Get recursive product files
      * Moved from player-renderer.php
      */
-    public function _get_recursive_product_files($product, $files_arr) {
+    public function _getall_products($product, $files_arr) {
         if ( ! is_object( $product ) || ! method_exists( $product, 'get_type' ) ) {
             return $files_arr;
         }
@@ -406,7 +471,7 @@ class BFP_Player {
                         uasort( $children, array( 'BFP_Utils', 'sort_list' ) );
 
                         foreach ( $children as $child_obj ) {
-                            $files_arr = $this->_get_recursive_product_files( $child_obj, $files_arr );
+                            $files_arr = $this->_getall_products( $child_obj, $files_arr );
                         }
                         break;
                     default:

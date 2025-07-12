@@ -1,4 +1,4 @@
-# Bandfront Player - Codebase Map (Refactored Architecture)
+# Bandfront Player - Codebase Map
 
 ## Main Plugin File
 
@@ -10,15 +10,15 @@
 - Shortcodes: `[bfp-playlist]`
 - Actions: `bfp_main_player`, `bfp_all_players`, `bfp_delete_purchased_files` (scheduled)
 
-### BandfrontPlayer Class (Refactored)
+### BandfrontPlayer Class
 
 - **__construct()**
   - Purpose: Initializes all core components in proper order
   - Inputs: None
   - Outputs: Component instances via private properties
   - WordPress Data: None directly
-  - Data Flow: Config → File Handler → Audio Engine → WooCommerce → Player → Renderers → Hooks → Admin
-  - Patterns/Concerns: **IMPROVED** - Clean component initialization with dependency injection pattern
+  - Data Flow: Config → File Handler → Audio Engine → WooCommerce → Player → Hooks → Admin
+  - Patterns/Concerns: Clean component initialization with dependency injection pattern
 
 ## Core Classes
 
@@ -53,7 +53,7 @@
 ### Player Management
 
 **File:** `/includes/player.php`
-**Purpose:** Player HTML generation and resource management
+**Purpose:** Player HTML generation, rendering, and resource management
 **Class:** `BFP_Player`
 
 - **get_player($audio_url, $args)**
@@ -64,20 +64,6 @@
   - Data Flow: Config → Engine Selection → HTML Generation
   - Patterns/Concerns: Engine abstraction (MediaElement/WaveSurfer)
 
-- **enqueue_resources()**
-  - Purpose: Load scripts/styles based on audio engine
-  - Inputs: None
-  - Outputs: Enqueued WordPress resources
-  - WordPress Data: `wp_enqueue_script()`, `wp_enqueue_style()`
-  - Data Flow: Check engine → Load appropriate resources
-  - Patterns/Concerns: Conditional loading for performance
-
-### Rendering Components
-
-**File:** `/includes/player-renderer.php`
-**Purpose:** Context-aware player rendering for products
-**Class:** `BFP_Player_Renderer`
-
 - **include_main_player($product, $_echo)**
   - Purpose: Render primary player for product
   - Inputs: Product object/ID, echo flag
@@ -86,17 +72,31 @@
   - Data Flow: Get files → Check context → Generate player → Output
   - Patterns/Concerns: Smart context detection (single/archive)
 
-**File:** `/includes/playlist-renderer.php`
-**Purpose:** Playlist generation for multiple products
-**Class:** `BFP_Playlist_Renderer`
+- **include_all_players($product)**
+  - Purpose: Render all players for a product
+  - Inputs: Product object/ID
+  - Outputs: Multiple player HTML (single or table layout)
+  - WordPress Data: Product files and settings
+  - Data Flow: Get files → Choose layout → Render players
+  - Patterns/Concerns: Adaptive layout based on file count
 
-- **render_playlist($product_ids, $args)**
-  - Purpose: Generate playlist from multiple products
-  - Inputs: Array of product IDs, display options
-  - Outputs: Playlist HTML with players
-  - WordPress Data: Multiple product queries
-  - Data Flow: Query products → Build playlist → Render players
-  - Patterns/Concerns: Bulk operations optimization
+- **render_player_table($files, $product_id, $settings)**
+  - Purpose: Generate table layout for multiple audio files
+  - Inputs: Files array, product ID, settings
+  - Outputs: HTML table with players
+  - WordPress Data: None directly
+  - Data Flow: Loop files → Generate rows → Build table
+  - Patterns/Concerns: Responsive table layout
+
+- **enqueue_resources()**
+  - Purpose: Load scripts/styles based on audio engine
+  - Inputs: None
+  - Outputs: Enqueued WordPress resources
+  - WordPress Data: `wp_enqueue_script()`, `wp_enqueue_style()`
+  - Data Flow: Check engine → Load appropriate resources
+  - Patterns/Concerns: Conditional loading for performance
+
+### Cover Renderer
 
 **File:** `/includes/cover-renderer.php`
 **Purpose:** Play button overlays for product images
@@ -127,7 +127,7 @@
 ### WooCommerce Integration
 
 **File:** `/includes/woocommerce.php`
-**Purpose:** Deep WooCommerce integration and purchase handling
+**Purpose:** Deep WooCommerce integration, purchase handling, and playlist shortcode
 **Class:** `BFP_WooCommerce`
 
 - **woocommerce_user_product($product_id)**
@@ -137,6 +137,22 @@
   - WordPress Data: Order data, user purchases
   - Data Flow: Get user → Check orders → Verify purchase
   - Patterns/Concerns: Performance optimization with caching
+
+- **replace_playlist_shortcode($atts)**
+  - Purpose: Handle [bfp-playlist] shortcode rendering
+  - Inputs: Shortcode attributes
+  - Outputs: Playlist HTML
+  - WordPress Data: Product queries, user data
+  - Data Flow: Parse attributes → Query products → Render playlist
+  - Patterns/Concerns: Bulk product handling
+
+- **render_single_product($product, $product_obj, $atts, ...)**
+  - Purpose: Render single product in playlist
+  - Inputs: Product data, settings, files
+  - Outputs: Product player HTML
+  - WordPress Data: Product metadata
+  - Data Flow: Build layout → Add players → Format output
+  - Patterns/Concerns: Layout flexibility (new/classic)
 
 ### Admin Interface
 
@@ -366,9 +382,9 @@ Demo Check → Stream/Redirect
 Product Settings → Global Settings → Default Constants
 ```
 
-## Key Improvements in Refactored Architecture
+## Key Architecture Features
 
-1. **Cleaner File Names**: Removed `class-bfp-` prefix for readability
+1. **Consolidated Player Logic**: All player rendering in `player.php`
 2. **Better Organization**: Utilities in dedicated `/utils/` folder
 3. **Simplified Access**: Shorter, more intuitive file names
 4. **Maintained Compatibility**: Class names unchanged for backward compatibility
