@@ -486,22 +486,27 @@ class BFP_Admin {
         $file_percent = min(max($file_percent, 0), 100);
 
         // --- SAVE TO DATABASE ---
-        add_post_meta($post_id, '_bfp_enable_player', $enable_player, true);
-        add_post_meta($post_id, '_bfp_merge_in_grouped', $merge_grouped, true);
-        add_post_meta($post_id, '_bfp_single_player', $single_player, true);
-        add_post_meta($post_id, '_bfp_preload', $preload, true);
-        add_post_meta($post_id, '_bfp_play_all', $play_all, true);
-        add_post_meta($post_id, '_bfp_loop', $loop, true);
-        add_post_meta($post_id, '_bfp_player_volume', $volume, true);
-        add_post_meta($post_id, '_bfp_secure_player', $secure_player, true);
-        add_post_meta($post_id, '_bfp_file_percent', $file_percent, true);
+        update_post_meta($post_id, '_bfp_enable_player', $enable_player);
+        update_post_meta($post_id, '_bfp_merge_in_grouped', $merge_grouped);
+        update_post_meta($post_id, '_bfp_single_player', $single_player);
+        update_post_meta($post_id, '_bfp_preload', $preload);
+        update_post_meta($post_id, '_bfp_play_all', $play_all);
+        update_post_meta($post_id, '_bfp_loop', $loop);
+        update_post_meta($post_id, '_bfp_player_volume', $volume);
+        update_post_meta($post_id, '_bfp_secure_player', $secure_player);
+        update_post_meta($post_id, '_bfp_file_percent', $file_percent);
 
         // --- Product-specific audio engine override
-        $product_audio_engine = '';
-        if (isset($_DATA['_bfp_audio_engine']) && 
-            in_array($_DATA['_bfp_audio_engine'], array('mediaelement', 'wavesurfer'))) {
+        if (isset($_DATA['_bfp_audio_engine'])) {
             $product_audio_engine = sanitize_text_field(wp_unslash($_DATA['_bfp_audio_engine']));
-            update_post_meta($post_id, '_bfp_audio_engine', $product_audio_engine);
+            
+            if ($product_audio_engine === 'global' || empty($product_audio_engine)) {
+                // Delete the meta so it falls back to global
+                delete_post_meta($post_id, '_bfp_audio_engine');
+            } elseif (in_array($product_audio_engine, array('mediaelement', 'wavesurfer'))) {
+                // Save valid override
+                update_post_meta($post_id, '_bfp_audio_engine', $product_audio_engine);
+            }
         }
         // --- END: Product-specific audio engine override
 

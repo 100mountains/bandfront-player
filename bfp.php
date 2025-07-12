@@ -23,6 +23,7 @@ define('BFP_REMOTE_TIMEOUT', 120);
 define('BFP_FILE_PERCENT', 100);
 define('BFP_DEFAULT_PLAYER_LAYOUT', 'dark');
 define('BFP_DEFAULT_PLAYER_CONTROLS', 'default');
+define('BFP_DEFAULT_PLAYER_VOLUME', 1.0); // Add this missing constant
 
 /**
  * Main Bandfront Player Class

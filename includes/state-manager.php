@@ -144,13 +144,37 @@ class BFP_Config {
      * Check if a value is a valid override (not empty or 'global')
      */
     private function is_valid_override($value, $key) {
-        // Special handling for specific keys
+        // Special handling for audio engine
         if ($key === '_bfp_audio_engine') {
-            return !empty($value) && $value !== 'global';
+            return !empty($value) && 
+                   $value !== 'global' && 
+                   in_array($value, array('mediaelement', 'wavesurfer'));
         }
         
-        // For boolean/numeric values, anything other than empty string is valid
-        if (is_numeric($value) || is_bool($value)) {
+        // Special handling for boolean settings stored as strings
+        if (in_array($key, array('_bfp_enable_player', '_bfp_secure_player', '_bfp_merge_in_grouped', 
+                                 '_bfp_single_player', '_bfp_play_all', '_bfp_loop', '_bfp_own_demos', 
+                                 '_bfp_direct_own_demos'))) {
+            return $value === '1' || $value === 1 || $value === true;
+        }
+        
+        // Special handling for preload values
+        if ($key === '_bfp_preload') {
+            return in_array($value, array('none', 'metadata', 'auto'));
+        }
+        
+        // Special handling for file percent (must be 0-100)
+        if ($key === '_bfp_file_percent') {
+            return is_numeric($value) && $value >= 0 && $value <= 100;
+        }
+        
+        // Special handling for volume (must be 0-1)
+        if ($key === '_bfp_player_volume') {
+            return is_numeric($value) && $value >= 0 && $value <= 1;
+        }
+        
+        // For numeric values
+        if (is_numeric($value)) {
             return true;
         }
         
