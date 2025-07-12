@@ -60,6 +60,7 @@ $play_all            = $GLOBALS['BandfrontPlayer']->get_global_attr(
 	// This option is only for compatibility with versions previous to 1.0.28
 					$GLOBALS['BandfrontPlayer']->get_global_attr( 'play_all', 0 )
 );
+$loop                     = intval( $GLOBALS['BandfrontPlayer']->get_global_attr( '_bfp_loop', 0 ) );
 
 // FORCE on_cover to always be true (1) for now
 $on_cover = 1; // Always show play buttons on product images
@@ -387,7 +388,35 @@ $bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
 $bfp_drive = isset($bfp_cloud_settings['_bfp_drive']) ? $bfp_cloud_settings['_bfp_drive'] : false;
 $bfp_drive_key = isset($bfp_cloud_settings['_bfp_drive_key']) ? $bfp_cloud_settings['_bfp_drive_key'] : '';
 $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
+
+// Get cloud storage settings
+$cloud_active_tab = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_active_tab', 'google-drive');
+$cloud_dropbox = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_dropbox', array(
+    'enabled' => false,
+    'access_token' => '',
+    'folder_path' => '/bandfront-demos',
+));
+$cloud_s3 = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_s3', array(
+    'enabled' => false,
+    'access_key' => '',
+    'secret_key' => '',
+    'bucket' => '',
+    'region' => 'us-east-1',
+    'path_prefix' => 'bandfront-demos/',
+));
+$cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', array(
+    'enabled' => false,
+    'account_name' => '',
+    'account_key' => '',
+    'container' => '',
+    'path_prefix' => 'bandfront-demos/',
+));
 ?>
+
+<script type="text/javascript">
+console.log('Cloud active tab loaded from database:', '<?php echo esc_js($cloud_active_tab); ?>');
+</script>
+
 <table class="widefat bfp-table-noborder">
 	<tr>
 			<table class="widefat bfp-settings-table bfp-cloud-storage-section">
@@ -404,25 +433,27 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 					<td>
 						<p class="bfp-cloud-info"><?php esc_html_e( 'Automatically upload demo files to cloud storage to save server storage and bandwidth. Files are streamed directly from the cloud.', 'bandfront-player' ); ?></p>
 						
+						<input type="hidden" name="_bfp_cloud_active_tab" id="_bfp_cloud_active_tab" value="<?php echo esc_attr($cloud_active_tab); ?>" />
+						
 						<div class="bfp-cloud-tabs">
 							<div class="bfp-cloud-tab-buttons">
-								<button type="button" class="bfp-cloud-tab-btn bfp-cloud-tab-active" data-tab="google-drive">
+								<button type="button" class="bfp-cloud-tab-btn <?php echo $cloud_active_tab === 'google-drive' ? 'bfp-cloud-tab-active' : ''; ?>" data-tab="google-drive">
 									🗂️ <?php esc_html_e( 'Google Drive', 'bandfront-player' ); ?>
 								</button>
-								<button type="button" class="bfp-cloud-tab-btn" data-tab="dropbox">
+								<button type="button" class="bfp-cloud-tab-btn <?php echo $cloud_active_tab === 'dropbox' ? 'bfp-cloud-tab-active' : ''; ?>" data-tab="dropbox">
 									📦 <?php esc_html_e( 'Dropbox', 'bandfront-player' ); ?>
 								</button>
-								<button type="button" class="bfp-cloud-tab-btn" data-tab="aws-s3">
+								<button type="button" class="bfp-cloud-tab-btn <?php echo $cloud_active_tab === 'aws-s3' ? 'bfp-cloud-tab-active' : ''; ?>" data-tab="aws-s3">
 									🛡️ <?php esc_html_e( 'AWS S3', 'bandfront-player' ); ?>
 								</button>
-								<button type="button" class="bfp-cloud-tab-btn" data-tab="azure">
+								<button type="button" class="bfp-cloud-tab-btn <?php echo $cloud_active_tab === 'azure' ? 'bfp-cloud-tab-active' : ''; ?>" data-tab="azure">
 									☁️ <?php esc_html_e( 'Azure Blob', 'bandfront-player' ); ?>
 								</button>
 							</div>
 							
 							<div class="bfp-cloud-tab-content">
 								<!-- Google Drive Tab -->
-								<div class="bfp-cloud-tab-panel bfp-cloud-tab-panel-active" data-panel="google-drive">
+								<div class="bfp-cloud-tab-panel <?php echo $cloud_active_tab === 'google-drive' ? 'bfp-cloud-tab-panel-active' : ''; ?>" data-panel="google-drive">
 									<table class="widefat">
 										<tr>
 											<td class="bfp-column-30"><label for="_bfp_drive"><?php esc_html_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?></label></td>
@@ -494,7 +525,7 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 								</div>
 								
 								<!-- Dropbox Tab -->
-								<div class="bfp-cloud-tab-panel" data-panel="dropbox">
+								<div class="bfp-cloud-tab-panel <?php echo $cloud_active_tab === 'dropbox' ? 'bfp-cloud-tab-panel-active' : ''; ?>" data-panel="dropbox">
 									<div class="bfp-cloud-placeholder">
 										<h3>📦 <?php esc_html_e( 'Dropbox Integration', 'bandfront-player' ); ?></h3>
 										<p><?php esc_html_e( 'Coming soon! Dropbox integration will allow you to store your demo files on Dropbox with automatic syncing and bandwidth optimization.', 'bandfront-player' ); ?></p>
@@ -511,7 +542,7 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 								</div>
 								
 								<!-- AWS S3 Tab -->
-								<div class="bfp-cloud-tab-panel" data-panel="aws-s3">
+								<div class="bfp-cloud-tab-panel <?php echo $cloud_active_tab === 'aws-s3' ? 'bfp-cloud-tab-panel-active' : ''; ?>" data-panel="aws-s3">
 									<div class="bfp-cloud-placeholder">
 										<h3>🛡️ <?php esc_html_e( 'Amazon S3 Storage', 'bandfront-player' ); ?></h3>
 										<p><?php esc_html_e( 'Enterprise-grade cloud storage with AWS S3. Perfect for high-traffic websites requiring maximum reliability and global CDN distribution.', 'bandfront-player' ); ?></p>
@@ -528,7 +559,7 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 								</div>
 								
 								<!-- Azure Tab -->
-								<div class="bfp-cloud-tab-panel" data-panel="azure">
+								<div class="bfp-cloud-tab-panel <?php echo $cloud_active_tab === 'azure' ? 'bfp-cloud-tab-panel-active' : ''; ?>" data-panel="azure">
 									<div class="bfp-cloud-placeholder">
 										<h3>☁️ <?php esc_html_e( 'Microsoft Azure Blob Storage', 'bandfront-player' ); ?></h3>
 										<p><?php esc_html_e( 'Microsoft Azure Blob Storage integration for seamless file management and global distribution with enterprise-level security.', 'bandfront-player' ); ?></p>
@@ -563,7 +594,16 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 					</td>
 				</tr>
 				<tbody class="bfp-section-content" style="display: none;">
-				<?php do_action( 'bfp_module_general_settings' ); ?>
+				<?php 
+				// Get current audio engine settings
+				$current_settings = array(
+					'_bfp_audio_engine' => $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_audio_engine', 'mediaelement'),
+					'_bfp_enable_visualizations' => $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_enable_visualizations', 0)
+				);
+				
+				// Call the audio engine settings action with the current settings
+				do_action('bfp_module_audio_engine_settings', $current_settings); 
+				?>
 				<tr>
 					<td colspan="2"><hr class="bfp-protection-divider" /></td>
 				</tr>
@@ -699,6 +739,32 @@ jQuery(document).ready(function($) {
             window.BFP_AJAX.convertExistingNotices();
         }, 100);
     }
+    
+    // Cloud Storage Tab Functionality with persistence
+    $(document).on('click', '.bfp-cloud-tab-btn', function(){
+        var tab = $(this).data('tab');
+        
+        // Update tab buttons
+        $('.bfp-cloud-tab-btn').removeClass('bfp-cloud-tab-active');
+        $(this).addClass('bfp-cloud-tab-active');
+        
+        // Update tab panels
+        $('.bfp-cloud-tab-panel').removeClass('bfp-cloud-tab-panel-active');
+        $('.bfp-cloud-tab-panel[data-panel="' + tab + '"]').addClass('bfp-cloud-tab-panel-active');
+        
+        // Save the active tab in hidden input
+        $('#_bfp_cloud_active_tab').val(tab);
+    });
+    
+    // Analytics integration handler
+    $(document).on('change', '[name="_bfp_analytics_integration"]', function(){
+        var v = $('[name="_bfp_analytics_integration"]:checked').val();
+        $('.bfp-analytics-g4').css('display', v == 'g' ? 'table-row' : 'none');
+        $('[name="_bfp_analytics_property"]').attr('placeholder', v == 'g' ? 'G-XXXXXXXX' : 'UA-XXXXX-Y');
+    });
+    
+    // Initialize analytics on page load
+    $('[name="_bfp_analytics_integration"]:checked').trigger('change');
 });
 </script>
 

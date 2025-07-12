@@ -48,55 +48,56 @@ function bfp_audio_engine_settings($current_settings = array()) {
     </tr>
     
     <tr>
-        <td class="bfp-column-40">
-            <label for="_bfp_audio_engine">
+        <td class="bfp-column-30">
+            <label for="_bfp_audio_engine_mediaelement">
                 <?php esc_html_e('Audio Engine', 'bandfront-player'); ?>
             </label>
         </td>
         <td>
-            <select name="_bfp_audio_engine" id="_bfp_audio_engine" aria-label="<?php esc_attr_e('Select audio engine', 'bandfront-player'); ?>">
-                <option value="mediaelement" <?php selected($audio_engine, 'mediaelement'); ?>>
-                    <?php esc_html_e('MediaElement.js (Classic Player)', 'bandfront-player'); ?>
-                </option>
-                <option value="wavesurfer" <?php selected($audio_engine, 'wavesurfer'); ?>>
-                    <?php esc_html_e('WaveSurfer.js (Waveform Visualization)', 'bandfront-player'); ?>
-                </option>
-            </select>
-            <p class="description">
-                <?php esc_html_e('MediaElement.js provides a traditional audio player interface. WaveSurfer.js shows audio waveforms.', 'bandfront-player'); ?>
-            </p>
+            <div style="margin-bottom: 10px;">
+                <label>
+                    <input type="radio" name="_bfp_audio_engine" id="_bfp_audio_engine_mediaelement" value="mediaelement" <?php checked($audio_engine, 'mediaelement'); ?> />
+                    <strong><?php esc_html_e('MediaElement.js (Classic Player)', 'bandfront-player'); ?></strong>
+                </label>
+                <p class="description" style="margin-left: 25px;">
+                    <?php esc_html_e('Traditional audio player with standard controls. Best for compatibility and performance.', 'bandfront-player'); ?>
+                </p>
+            </div>
+            <div>
+                <label>
+                    <input type="radio" name="_bfp_audio_engine" id="_bfp_audio_engine_wavesurfer" value="wavesurfer" <?php checked($audio_engine, 'wavesurfer'); ?> />
+                    <strong><?php esc_html_e('WaveSurfer.js (Waveform Visualization)', 'bandfront-player'); ?></strong>
+                </label>
+                <p class="description" style="margin-left: 25px;">
+                    <?php esc_html_e('Modern player with visual waveforms. Creates an engaging listening experience.', 'bandfront-player'); ?>
+                </p>
+            </div>
         </td>
     </tr>
-    
-    <tr class="bfp-wavesurfer-options" <?php echo ($audio_engine !== 'wavesurfer') ? 'style="display:none;"' : ''; ?>>
-        <td class="bfp-column-40">
+    <tr class="bfp-wavesurfer-options" style="<?php echo $audio_engine === 'wavesurfer' ? '' : 'display: none;'; ?>">
+        <td class="bfp-column-30">
             <label for="_bfp_enable_visualizations">
-                <?php esc_html_e('Enable Visualizations', 'bandfront-player'); ?>
+                <?php esc_html_e('Visualizations', 'bandfront-player'); ?>
             </label>
         </td>
         <td>
-            <input type="checkbox" 
-                   name="_bfp_enable_visualizations" 
-                   id="_bfp_enable_visualizations" 
-                   value="1" 
-                   <?php checked($enable_visualizations, 1); ?> />
-            <label for="_bfp_enable_visualizations">
-                <?php esc_html_e('Show real-time frequency visualization while playing', 'bandfront-player'); ?>
+            <label>
+                <input type="checkbox" name="_bfp_enable_visualizations" id="_bfp_enable_visualizations" value="1" <?php checked($enable_visualizations, 1); ?> />
+                <?php esc_html_e('Enable real-time frequency visualizations', 'bandfront-player'); ?>
             </label>
             <p class="description">
-                <?php esc_html_e('Displays animated frequency bars during playback (WaveSurfer.js only).', 'bandfront-player'); ?>
+                <?php esc_html_e('Shows animated frequency bars while audio plays. May impact performance on slower devices.', 'bandfront-player'); ?>
             </p>
         </td>
     </tr>
-    
-    <script>
+    <script type="text/javascript">
     jQuery(document).ready(function($) {
-        $('#_bfp_audio_engine').on('change', function() {
+        // Handle audio engine radio button changes
+        $('input[name="_bfp_audio_engine"]').on('change', function() {
             if ($(this).val() === 'wavesurfer') {
                 $('.bfp-wavesurfer-options').show();
             } else {
                 $('.bfp-wavesurfer-options').hide();
-                $('#_bfp_enable_visualizations').prop('checked', false);
             }
         });
     });
@@ -111,43 +112,42 @@ function bfp_audio_engine_settings($current_settings = array()) {
  * @param int $product_id The product ID
  */
 function bfp_audio_engine_product_settings($product_id) {
-    global $BandfrontPlayer;
-    
-    // Get the actual values properly
-    $product_engine = get_post_meta($product_id, '_bfp_audio_engine', true);
-    $global_engine = $BandfrontPlayer->get_state('_bfp_audio_engine', 'mediaelement');
-    
-    // Determine display value - if empty, invalid, or 'global', show 'global'
-    $display_value = 'global';
-    if (!empty($product_engine) && in_array($product_engine, array('mediaelement', 'wavesurfer'))) {
-        $display_value = $product_engine;
+    $audio_engine = get_post_meta($product_id, '_bfp_audio_engine', true);
+    if (empty($audio_engine)) {
+        $audio_engine = 'global';
     }
-    
     ?>
-    <tr>
-        <td colspan="2"><h3>🎚️ <?php esc_html_e('Audio Engine Override', 'bandfront-player'); ?></h3></td>
-    </tr>
-    <tr>
-        <td class="bfp-column-30">
-            <?php esc_html_e('Audio Engine for this Product', 'bandfront-player'); ?>
-        </td>
-        <td>
-            <select name="_bfp_audio_engine" aria-label="<?php esc_attr_e('Audio engine for this product', 'bandfront-player'); ?>">
-                <option value="global" <?php selected($display_value, 'global'); ?>>
-                    <?php printf(esc_html__('Use Global Setting (%s)', 'bandfront-player'), ucfirst($global_engine)); ?>
-                </option>
-                <option value="mediaelement" <?php selected($display_value, 'mediaelement'); ?>>
-                    <?php esc_html_e('MediaElement.js', 'bandfront-player'); ?>
-                </option>
-                <option value="wavesurfer" <?php selected($display_value, 'wavesurfer'); ?>>
-                    <?php esc_html_e('WaveSurfer.js', 'bandfront-player'); ?>
-                </option>
-            </select>
-            <p class="description"><?php esc_html_e('Override the global audio engine setting for this specific product', 'bandfront-player'); ?></p>
-        </td>
-    </tr>
+    <table class="widefat bfp-table-noborder" style="margin-top: 20px;">
+        <tr>
+            <td>
+                <table class="widefat bfp-settings-table">
+                    <tr>
+                        <td colspan="2"><h2>⚙️ <?php esc_html_e('Audio Engine', 'bandfront-player'); ?></h2></td>
+                    </tr>
+                    <tr>
+                        <td width="30%"><?php esc_html_e('Player Engine', 'bandfront-player'); ?></td>
+                        <td>
+                            <label>
+                                <input type="radio" name="_bfp_audio_engine" value="global" <?php checked($audio_engine, 'global'); ?> />
+                                <?php esc_html_e('Use global setting', 'bandfront-player'); ?>
+                            </label><br>
+                            <label>
+                                <input type="radio" name="_bfp_audio_engine" value="mediaelement" <?php checked($audio_engine, 'mediaelement'); ?> />
+                                <?php esc_html_e('MediaElement.js (Classic Player)', 'bandfront-player'); ?>
+                            </label><br>
+                            <label>
+                                <input type="radio" name="_bfp_audio_engine" value="wavesurfer" <?php checked($audio_engine, 'wavesurfer'); ?> />
+                                <?php esc_html_e('WaveSurfer.js (Waveform Visualization)', 'bandfront-player'); ?>
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
     <?php
 }
+
 
 /**
  * Filter to modify audio engine based on context

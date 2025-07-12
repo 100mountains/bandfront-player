@@ -1,13 +1,74 @@
-.bfp-file-name,.bfp-file-url{width:100% !important;}
-#bfp_woocommerce_metabox .widefat{border:0;}
-.bfp-tooltip{position:relative;display:inline-block;}
-.bfp-tooltip .bfp-tooltiptext{visibility:hidden;width:240px;background-color:#555;color:#fff;text-align:center;padding:5px;border-radius:6px;position:absolute;z-index:9999;bottom:125%;left:50%;margin-left:-120px;opacity:0;transition:opacity 1s;}
-.bfp-tooltip .bfp-tooltiptext::after{content:"";position:absolute;top:100%;left:50%;margin-left:-10px;border-width:5px;border-style:solid;border-color:#555 transparent transparent transparent;}
-.bfp-tooltip:hover .bfp-tooltiptext{visibility:visible;opacity:1;}
-.bfp-highlight-box{border:1px solid #E6DB55;margin-bottom:10px;padding:5px;background-color: #FFFFE0;}
-#bfp_tips_body,.bfp-tip-text{display:none;}
-.cp-blink-me {animation: cp_blinker 2s linear infinite;text-transform: uppercase;}
-@keyframes cp_blinker{50% {opacity: 0;}}
+/* mini STYLES */
+
+.bfp-file-name,
+.bfp-file-url {
+    width: 100%;
+}
+
+#bfp_woocommerce_metabox .widefat {
+    border: 0;
+}
+
+.bfp-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.bfp-tooltip .bfp-tooltiptext {
+    visibility: hidden;
+    width: 240px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    padding: 5px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 9999;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -120px;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.bfp-tooltip .bfp-tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -10px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.bfp-tooltip:hover .bfp-tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.bfp-highlight-box {
+    border: 1px solid #E6DB55;
+    margin-bottom: 10px;
+    padding: 5px;
+    background-color: #FFFFE0;
+}
+
+#bfp_tips_body,
+.bfp-tip-text {
+    display: none;
+}
+
+.cp-blink-me {
+    animation: cp_blinker 2s linear infinite;
+    text-transform: uppercase;
+}
+
+@keyframes cp_blinker {
+    50% {
+        opacity: 0;
+    }
+}
 
 /* GLOBAL OPTIONS STYLES */
 
@@ -22,7 +83,7 @@
 /* Tips Section */
 .bfp-tips-container {
     padding: 20px;
-    background: #6a4c93;
+    background: #5a4a6e; /* More muted purple */
     margin-bottom: 25px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
@@ -113,7 +174,7 @@
 
 /* Section Headers - Simple colors, no gradients */
 .bfp-settings-table h2 {
-    color: #333;
+    color: #1a1a1a; /* Much darker text */
     transition: color 0.3s ease;
 }
 
@@ -123,11 +184,12 @@
 
 /* Remove all hover animations from table cells */
 .bfp-settings-table tr:hover td {
-    background-color: rgba(0, 115, 170, 0.05);
+    background-color: rgba(0, 115, 170, 0.03); /* Even more subtle */
     transition: background-color 0.3s ease;
 }
 
 .bfp-settings-table label {
+    color: #2c2c2c; /* Darker labels */
     transition: color 0.3s ease;
 }
 
@@ -151,7 +213,7 @@
 }
 
 .bfp-em-text {
-    color: #666;
+    color: #4a4a4a; /* Darker gray text */
 }
 
 .bfp-settings-label {
@@ -187,7 +249,7 @@
 }
 
 .bfp-on-cover i {
-    color: #666;
+    color: #4a4a4a; /* Darker gray */
     display: block;
     margin-top: 4px;
 }
@@ -200,7 +262,7 @@
 
 .bfp-ffmpeg-info,
 .bfp-ffmpeg-example {
-    color: #666;
+    color: #4a4a4a; /* Darker gray */
 }
 
 .bfp-watermark-input {
@@ -218,7 +280,7 @@
 
 /* Analytics Section */
 .bfp-analytics-note {
-    color: #666;
+    color: #4a4a4a; /* Darker gray */
 }
 
 .bfp-analytics-warning {
@@ -243,7 +305,7 @@
 
 /* Cloud Storage Section */
 .bfp-cloud-info {
-    color: #666;
+    color: #4a4a4a; /* Darker gray */
 }
 
 .bfp-oauth-success {
@@ -294,13 +356,13 @@
     font-weight: 600;
     margin-right: 2px;
     transition: all 0.3s ease;
-    color: #666;
+    color: #2c2c2c; /* Darker text */
     border-bottom: 2px solid #f1f1f1;
 }
 
 .bfp-cloud-tab-btn:hover {
     background-color: #e8e8e8;
-    color: #333;
+    color: #1a1a1a; /* Even darker on hover */
 }
 
 .bfp-cloud-tab-active {
@@ -329,11 +391,11 @@
 
 .bfp-cloud-placeholder h3 {
     margin-top: 0;
-    color: #495057;
+    color: #2c2c2c; /* Darker heading */
 }
 
 .bfp-cloud-placeholder p {
-    color: #6c757d;
+    color: #4a4a4a; /* Darker paragraph text */
     line-height: 1.6;
 }
 
@@ -342,7 +404,7 @@
 }
 
 .bfp-cloud-features h4 {
-    color: #495057;
+    color: #2c2c2c; /* Darker heading */
     margin-bottom: 10px;
 }
 
@@ -353,7 +415,7 @@
 
 .bfp-cloud-features li {
     padding: 5px 0;
-    color: #6c757d;
+    color: #4a4a4a; /* Darker list items */
 }
 
 /* Troubleshooting Section */
@@ -361,17 +423,17 @@
     padding: 15px;
     margin-bottom: 15px;
     background: #f8f9fa;
-    border-left: 4px solid #0073aa;
+    border-left: 4px solid #5a6c7d; /* More muted color */
 }
 
 .bfp-troubleshoot-item h3 {
     margin-top: 0;
-    color: #333;
+    color: #1a1a1a; /* Darker heading */
 }
 
 .bfp-troubleshoot-item p {
     font-weight: 600;
-    color: #333;
+    color: #2c2c2c; /* Darker text */
 }
 
 .bfp-troubleshoot-protip {
@@ -432,12 +494,9 @@
     color: white;
 }
 
-.bfp-section-arrow-open {
-    transform: translateY(-50%) rotate(90deg);
-}
-
-.bfp-section-content {
-    transition: all 0.3s ease;
+/* Special case for light background section */
+.bfp-file-truncation-section .bfp-section-arrow {
+    color: #2c2c2c; /* Dark arrow for light background */
 }
 
 /* Section headers - clean colors */
@@ -451,37 +510,37 @@
 }
 
 .bfp-section-header:hover {
-
-    background: #09090a;
+    opacity: 0.85; /* Use opacity instead of changing background */
 }
 
-/* Clean section colors */
+/* Clean section colors - more muted */
 .bfp-general-settings-section .bfp-section-header {
-    background: #5a6c7d;
+    background: #4a5a6b; /* More muted blue-gray */
 }
 
 .bfp-player-settings-section .bfp-section-header {
-    background: #4a90a4;
+    background: #3a7a8e; /* More muted teal */
 }
 
 .bfp-file-truncation-section .bfp-section-header {
-    background: #8e7cc3;
+    background: #e8e8e8; /* Light gray instead of purple */
+    color: #2c2c2c; /* Dark text for light background */
 }
 
 .bfp-analytics-section .bfp-section-header {
-    background: #d4a574;
+    background: #a08560; /* More muted brown */
 }
 
 .bfp-cloud-storage-section .bfp-section-header {
-    background: #5ba8cc;
+    background: #4a88a5; /* More muted blue */
 }
 
 .bfp-audio-engine-section .bfp-section-header {
-    background: #9575cd;
+    background: #7a5fa5; /* More muted purple */
 }
 
 .bfp-troubleshoot-section .bfp-section-header {
-    background: #e57373;
+    background: #b85555; /* More muted red */
 }
 
 /* Section containers */
@@ -498,62 +557,21 @@
 }
 
 .bfp-section-header h2 {
-    opacity: 0.2;
+    color: white; /* White text for dark backgrounds */
     margin: 0;
+    opacity: 1; /* Full opacity for text */
 }
 
-/* Ensure nested tables have no borders */
-.bfp-section-content table.widefat {
-    border: none;
-    margin-bottom: 0;
+/* Special case for light background section */
+.bfp-file-truncation-section .bfp-section-header h2 {
+    color: #2c2c2c; /* Dark text for light background */
 }
-
-.bfp-section-content > tr > td {
-    padding: 15px;
-}
-
-/* Remove the purple highlight table background */
-.bfp-highlight-table {
-    border: none !important;
-    background: none !important;
-    padding: 0;
-    margin-bottom: 0;
-}
-
-/* PRODUCTS LIST */
-table.wp-list-table.fixed{table-layout:auto;}
-.column-bfp_playback_counter{ white-space:nowrap; }
-.column-bfp_playback_counter>a{ display:flex !important;}
-.bfp-playback-counter{display:block;text-align:center;}
-
-/* LOADING ANIMATION */
-.bfp-skin-generate-btn,
-.bfp-skin-preview-btn{display:flex;flex-direction:row;align-items:center;}
-.bfp-skin-generate-btn:disabled::after,
-.bfp-skin-preview-btn:disabled::after{
-	content: " ";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border: 2px solid transparent;
-    border-top: 2px solid #999999;
-    border-radius: 50%;
-    animation: bfp-spin 1s linear infinite;
-    margin: 0 0 0 10px;
-}
-
-@keyframes bfp-spin {
-	0% { transform: rotate(0deg); }
-	100% { transform: rotate(360deg); }
-}
-
-/* PLAYER OPTIONS PAGE STYLES */
 
 /* Page Header */
 .bfp-page-tagline {
     font-style: italic;
     font-size: 12px;
-    color: #666;
+    color: #4a4a4a; /* Darker gray */
     margin-top: -10px;
 }
 
@@ -571,7 +589,7 @@ table.wp-list-table.fixed{table-layout:auto;}
 }
 
 .bfp-info-box-text {
-    color: #333;
+    color: #2c2c2c; /* Darker text */
     margin-bottom: 10px;
 }
 
@@ -603,7 +621,7 @@ table.wp-list-table.fixed{table-layout:auto;}
 
 .bfp-demo-description {
     margin: 8px 0 0 0;
-    color: #666;
+    color: #4a4a4a; /* Darker gray */
     font-style: italic;
 }
 

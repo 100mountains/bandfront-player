@@ -75,6 +75,28 @@ class BFP_Config {
         '_bfp_analytics_property' => '',
         '_bfp_analytics_api_secret' => '',
         '_bfp_enable_visualizations' => 0,
+        // Cloud Storage Settings
+        '_bfp_cloud_active_tab' => 'google-drive',
+        '_bfp_cloud_dropbox' => array(
+            'enabled' => false,
+            'access_token' => '',
+            'folder_path' => '/bandfront-demos',
+        ),
+        '_bfp_cloud_s3' => array(
+            'enabled' => false,
+            'access_key' => '',
+            'secret_key' => '',
+            'bucket' => '',
+            'region' => 'us-east-1',
+            'path_prefix' => 'bandfront-demos/',
+        ),
+        '_bfp_cloud_azure' => array(
+            'enabled' => false,
+            'account_name' => '',
+            'account_key' => '',
+            'container' => '',
+            'path_prefix' => 'bandfront-demos/',
+        ),
         // Module states
         '_bfp_modules_enabled' => array(
             'audio-engine' => true,

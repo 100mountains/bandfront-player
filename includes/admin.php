@@ -299,6 +299,85 @@ class BFP_Admin {
             }
         }
 
+        // Cloud Storage Settings
+        $cloud_active_tab = isset($_REQUEST['_bfp_cloud_active_tab']) ? 
+                           sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_active_tab'])) : 'google-drive';
+        
+        // Handle cloud storage settings from the form
+        $cloud_dropbox = array(
+            'enabled' => isset($_REQUEST['_bfp_cloud_dropbox_enabled']) ? true : false,
+            'access_token' => isset($_REQUEST['_bfp_cloud_dropbox_token']) ? 
+                             sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_dropbox_token'])) : '',
+            'folder_path' => isset($_REQUEST['_bfp_cloud_dropbox_folder']) ? 
+                            sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_dropbox_folder'])) : '/bandfront-demos',
+        );
+        
+        $cloud_s3 = array(
+            'enabled' => isset($_REQUEST['_bfp_cloud_s3_enabled']) ? true : false,
+            'access_key' => isset($_REQUEST['_bfp_cloud_s3_access_key']) ? 
+                           sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_s3_access_key'])) : '',
+            'secret_key' => isset($_REQUEST['_bfp_cloud_s3_secret_key']) ? 
+                           sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_s3_secret_key'])) : '',
+            'bucket' => isset($_REQUEST['_bfp_cloud_s3_bucket']) ? 
+                       sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_s3_bucket'])) : '',
+            'region' => isset($_REQUEST['_bfp_cloud_s3_region']) ? 
+                       sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_s3_region'])) : 'us-east-1',
+            'path_prefix' => isset($_REQUEST['_bfp_cloud_s3_path']) ? 
+                            sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_s3_path'])) : 'bandfront-demos/',
+        );
+        
+        $cloud_azure = array(
+            'enabled' => isset($_REQUEST['_bfp_cloud_azure_enabled']) ? true : false,
+            'account_name' => isset($_REQUEST['_bfp_cloud_azure_account']) ? 
+                             sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_azure_account'])) : '',
+            'account_key' => isset($_REQUEST['_bfp_cloud_azure_key']) ? 
+                            sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_azure_key'])) : '',
+            'container' => isset($_REQUEST['_bfp_cloud_azure_container']) ? 
+                          sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_azure_container'])) : '',
+            'path_prefix' => isset($_REQUEST['_bfp_cloud_azure_path']) ? 
+                            sanitize_text_field(wp_unslash($_REQUEST['_bfp_cloud_azure_path'])) : 'bandfront-demos/',
+        );
+
+        // Handle Google Drive settings from the legacy addon
+        $bfp_drive = isset($_REQUEST['_bfp_drive']) ? 1 : 0;
+        $bfp_drive_api_key = isset($_REQUEST['_bfp_drive_api_key']) ? 
+                            sanitize_text_field(wp_unslash($_REQUEST['_bfp_drive_api_key'])) : '';
+        
+        // Handle Google Drive OAuth file upload
+        if (!empty($_FILES['_bfp_drive_key']) && $_FILES['_bfp_drive_key']['error'] == UPLOAD_ERR_OK) {
+            $uploaded_file = $_FILES['_bfp_drive_key'];
+            if ($uploaded_file['type'] == 'application/json') {
+                $json_content = file_get_contents($uploaded_file['tmp_name']);
+                $json_data = json_decode($json_content, true);
+                
+                if ($json_data && isset($json_data['web'])) {
+                    // Save to the legacy option format for compatibility
+                    $cloud_drive_addon = get_option('_bfp_cloud_drive_addon', array());
+                    $cloud_drive_addon['_bfp_drive'] = $bfp_drive;
+                    $cloud_drive_addon['_bfp_drive_key'] = $json_content;
+                    update_option('_bfp_cloud_drive_addon', $cloud_drive_addon);
+                }
+            }
+        } else {
+            // Preserve existing drive key if no new file uploaded
+            $existing_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
+            if ($bfp_drive && isset($existing_cloud_settings['_bfp_drive_key'])) {
+                $cloud_drive_addon = array(
+                    '_bfp_drive' => $bfp_drive,
+                    '_bfp_drive_key' => $existing_cloud_settings['_bfp_drive_key']
+                );
+                update_option('_bfp_cloud_drive_addon', $cloud_drive_addon);
+            } elseif (!$bfp_drive) {
+                // If unchecked, clear the settings
+                delete_option('_bfp_cloud_drive_addon');
+            }
+        }
+        
+        // Save the Google Drive API key separately
+        if ($bfp_drive_api_key !== '') {
+            update_option('_bfp_drive_api_key', $bfp_drive_api_key);
+        }
+
         $global_settings = array(
             '_bfp_registered_only' => $registered_only,
             '_bfp_purchased' => $purchased,
@@ -338,6 +417,11 @@ class BFP_Admin {
             '_bfp_audio_engine' => $audio_engine,
             '_bfp_enable_visualizations' => $enable_visualizations,
             '_bfp_modules_enabled' => $modules_enabled,
+            // Add cloud storage settings
+            '_bfp_cloud_active_tab' => $cloud_active_tab,
+            '_bfp_cloud_dropbox' => $cloud_dropbox,
+            '_bfp_cloud_s3' => $cloud_s3,
+            '_bfp_cloud_azure' => $cloud_azure,
         );
 
         if ($apply_to_all_players || isset($_REQUEST['_bfp_delete_demos'])) {
@@ -618,5 +702,19 @@ class BFP_Admin {
                 'message' => isset($messages['message']) ? $messages['message'] : __('An error occurred while saving settings.', 'bandfront-player')
             ));
         }
+    }
+
+    /**
+     * Save settings
+     */
+    public function save_settings() {
+        $attrs = array();
+        
+        // When processing form data, make sure to include cloud tab
+        if (isset($_POST['_bfp_cloud_active_tab'])) {
+            $attrs['_bfp_cloud_active_tab'] = sanitize_text_field($_POST['_bfp_cloud_active_tab']);
+        }
+        
+        // ...existing code...
     }
 }

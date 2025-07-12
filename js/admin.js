@@ -118,6 +118,9 @@ function bfp_admin()
 		// Update tab panels
 		$('.bfp-cloud-tab-panel').removeClass('bfp-cloud-tab-panel-active');
 		$('.bfp-cloud-tab-panel[data-panel="' + tab + '"]').addClass('bfp-cloud-tab-panel-active');
+		
+		// Save the active tab in hidden input
+		$('#_bfp_cloud_active_tab').val(tab);
 	});
 	
 	// Initialize
