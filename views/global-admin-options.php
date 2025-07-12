@@ -310,16 +310,23 @@ remove_all_actions( 'bfp_general_settings', 10 );
 				<tr>
 					<td class="bfp-section-header">
 						<h2 onclick="jQuery(this).closest('table').find('.bfp-section-content').toggle(); jQuery(this).closest('.bfp-section-header').find('.bfp-section-arrow').toggleClass('bfp-section-arrow-open');" style="cursor: pointer;">
-							🔒 <?php esc_html_e( 'File Truncation', 'bandfront-player' ); ?>
+							🔒 <?php esc_html_e( 'Create Demo Files', 'bandfront-player' ); ?>
 						</h2>
 						<span class="bfp-section-arrow">▶</span>
 					</td>
 				</tr>
 				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
-					<td class="bfp-column-30"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Truncate audio files', 'bandfront-player' ); ?></label></td>
+					<td class="bfp-column-30"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Enable demo files', 'bandfront-player' ); ?></label></td>
 					<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php echo ( ( $secure_player ) ? 'checked' : '' ); ?> /><br>
-					<em class="bfp-em-text"><?php esc_html_e( 'Create demo versions to prevent unauthorized downloading', 'bandfront-player' ); ?></em></td>
+					<em class="bfp-em-text"><?php esc_html_e( 'Create truncated demo versions to prevent unauthorized downloading of full tracks', 'bandfront-player' ); ?></em></td>
+				</tr>
+				<tr valign="top">
+					<td class="bfp-column-30"><label for="_bfp_file_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></td>
+					<td>
+						<input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_file_percent" name="_bfp_file_percent" min="0" max="100" value="<?php echo esc_attr( $file_percent ); ?>" /> % <br />
+						<em class="bfp-em-text"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></em>
+					</td>
 				</tr>
 				<tr valign="top">
 					<td class="bfp-column-30">
