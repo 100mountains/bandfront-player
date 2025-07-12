@@ -189,19 +189,6 @@ bandfront-player/
 └── vendors/              # Third-party libraries
 ```
 
-## Changelog
-
-### Version 5.0.181
-- Refactored architecture with improved component separation
-- Enhanced state management system
-- Added WaveSurfer.js engine support
-- Improved context-aware rendering
-- Enhanced security and performance optimizations
-
-## License
-
-This project is 
-
 ## Support
 
 For technical support and feature requests, please refer to someone else.
