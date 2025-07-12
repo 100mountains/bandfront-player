@@ -1,0 +1,21 @@
+.wcv-container{margin-top:20px;}
+.wcv-container table,
+.wcv-container tr,
+.wcv-container td,
+.wcv-container th{border:0;}
+
+
+.wcv-container .wcmp-player-demos>tbody>tr>td:first-child{padding-left:30px;}
+.wcv-container .wcmp-player-demos>tbody>tr>td:last-child{padding-right:30px;}
+.wcv-container .wcmp-player-demos>tbody>tr:first-child>td{padding-top:30px;}
+.wcv-container .wcmp-player-demos>tbody>tr:last-child>td{padding-bottom:30px;}
+
+.wcv-container .wcmp-player-settings tr td:first-child{padding-left:30px;}
+.wcv-container .wcmp-player-settings tr td:last-child{padding-right:30px;}
+.wcv-container .wcmp-player-settings tr:first-child td{padding-top:30px;}
+.wcv-container .wcmp-player-settings tr:last-child td{padding-bottom:30px;}
+
+.wcmp-demo-files td{padding-top:10px;}
+
+.wcv-container .button.wcmp-select-file{white-space: nowrap;margin-right: 10px !important;margin-left: 10px !important;}
+.wcv-container .button.wcmp-add{margin-top:10px !important;display:inline-block}

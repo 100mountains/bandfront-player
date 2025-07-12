@@ -1,0 +1,19 @@
+{
+  "elements": {
+    "WCMPplaylist": {
+      "settings": {
+        "name": "Music Player for WooCommerce Playlist",
+        "metaThumbnailUrl": "[publicPath]/wcmp-thumbnail.png",
+        "metaPreviewUrl": "[publicPath]/wcmp-preview.png",
+        "metaDescription": "Add a playlist."
+      }
+    }
+  },
+  "categories": {
+    "Misc": {
+      "elements": [
+        "WCMPplaylist"
+      ]
+    }
+  }
+}

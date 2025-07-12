@@ -10,13 +10,14 @@ monolithic file
 
 - widget rendering worked ! 
 
+- block rendered a playlist as soon as you selected it! 
 
 
 
 ** NEW CODEBASE **
 
 - any logic, icons, pngs has to be transferred into the new system laid out in AI-CODE-RULES
-- we want it to work like it BUT within our new system - see OVERVIEW
+- we want it to work like it BUT within our new system - see MAP_OVERVIEW
 - new version supports mostly default css players
 - may support pngs later
 - has removed many over-rides and now uses state-manager.php

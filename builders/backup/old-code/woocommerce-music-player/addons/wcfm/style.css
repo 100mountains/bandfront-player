@@ -1,0 +1,11 @@
+.wcfm-tabWrap{overflow-y:auto !important;}
+#wcfm_products_manage_form_wcmp_expander *{font-size:15px;}
+#wcfm_products_manage_form_wcmp_expander .wcfm-checkbox{margin-right: 20px;}
+#wcfm_products_manage_form_wcmp_expander .wcmp-player-settings td:first-child{ font-style: italic !important; font-weight: 600!important; vertical-align: top;}
+#wcfm_products_manage_form_wcmp_expander .wcmp-player-settings table td{width:auto;}
+#wcfm_products_manage_form_wcmp_expander table{margin-top:5px; margin-bottom:5px;}
+#wcfm_products_manage_form_wcmp_expander .wcmp-player-settings,
+#wcfm_products_manage_form_wcmp_expander .wcmp-player-demos{border: 1px solid #dfdfdf !important;padding:10px;}
+#wcfm_products_manage_form_wcmp_expander .wcmp-demo-files a{white-space:nowrap !important;}
+#wcfm_products_manage_form_wcmp_expander [name="_wcmp_file_percent"]{max-width: 150px;display: inline;}
+#wcfm_products_manage_form_wcmp_expander .wcmp-tip-text li{list-style: none !important;}
