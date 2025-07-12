@@ -23,13 +23,13 @@ if ( ! class_exists( 'BFP_BUILDERS' ) ) {
 
         public static function run() {
             $instance = self::instance();
-            add_action( 'init', array( $instance, 'init' ) );
+            add_action( 'init', array( $instance, 'init' ), 10 );
         }
 
         public function init() {
             $instance = self::instance();
 
-            // Gutenberg
+            // Gutenberg - register with higher priority to ensure dependencies are loaded
             $instance->gutenberg_editor();
 
             // Elementor
@@ -39,17 +39,34 @@ if ( ! class_exists( 'BFP_BUILDERS' ) ) {
         } // End init
 
         public function gutenberg_editor() {
+            // Check if block editor is available
+            if ( ! function_exists( 'register_block_type' ) ) {
+                return;
+            }
+            
             // Register block type from block.json
             $block_json_file = plugin_dir_path( __FILE__ ) . 'gutenberg/block.json';
             if ( file_exists( $block_json_file ) ) {
-                register_block_type( $block_json_file );
+                $result = register_block_type( $block_json_file );
                 
-                // Add localization after block registration
-                add_action( 'enqueue_block_editor_assets', array( $this, 'localize_block_editor' ) );
+                if ( is_wp_error( $result ) ) {
+                    error_log( 'BFP Block Registration Error: ' . $result->get_error_message() );
+                } else {
+                    // Add localization after block registration
+                    add_action( 'enqueue_block_editor_assets', array( $this, 'localize_block_editor' ), 20 );
+                }
+            } else {
+                error_log( 'BFP Block JSON file not found: ' . $block_json_file );
             }
         } // End gutenberg_editor
 
         public function localize_block_editor() {
+            // First check if our script is enqueued
+            if ( ! wp_script_is( 'bfp-bandfront-player-playlist-editor-script', 'enqueued' ) ) {
+                error_log( 'BFP Editor script not enqueued' );
+                return;
+            }
+            
             // Localize script for the block editor
             wp_localize_script(
                 'bfp-bandfront-player-playlist-editor-script',
@@ -80,6 +97,7 @@ if ( ! class_exists( 'BFP_BUILDERS' ) ) {
 
     } // End class
 } // End if
+
 
 // Initialize builders
 BFP_BUILDERS::run();

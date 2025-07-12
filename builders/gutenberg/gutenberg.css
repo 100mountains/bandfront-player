@@ -1,20 +1,61 @@
-.bfp-iframe-container {
-	position: relative;
-	width: 100%;
-	max-width: 100%;
-	margin: 0 auto;
-	overflow: visible;
-	min-height: 400px;
+.bfp-block-editor {
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    background: #f9f9f9;
+    border-radius: 4px;
 }
-.bfp-iframe-container iframe {
-	width: 100%;
-	max-width: 100%;
-	display: block;
-	margin: 0 auto;
-	min-height: 400px;
+
+.bfp-shortcode-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1e1e1e;
 }
+
 .bfp-playlist-shortcode-input {
-	width: 100%;
-	min-height: 60px;
-	margin-bottom: 10px;
+    width: 100%;
+    min-height: 80px;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 14px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+}
+
+.bfp-preview-note {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff;
+    border-left: 4px solid #007cba;
+}
+
+.bfp-preview-note p {
+    margin: 0;
+    color: #555;
+    font-style: italic;
+}
+
+.bfp-inspector-help h3 {
+    margin-top: 0;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.bfp-inspector-help hr {
+    margin: 10px 0;
+}
+
+.bfp-inspector-help p {
+    margin-bottom: 12px;
+}
+
+.bfp-inspector-help strong {
+    color: #007cba;
+}
+
+/* Block container in editor */
+.wp-block-bfp-bandfront-player-playlist {
+    margin: 0;
 }

@@ -16,6 +16,7 @@ monolithic file
 ** NEW CODEBASE **
 
 - any logic, icons, pngs has to be transferred into the new system laid out in AI-CODE-RULES
+- we want it to work like it BUT within our new system - see OVERVIEW
 - new version supports mostly default css players
 - may support pngs later
 - has removed many over-rides and now uses state-manager.php
