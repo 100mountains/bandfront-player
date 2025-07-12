@@ -1,114 +1,208 @@
-# 🎵 Bandfront Player
+# Bandfront Player
 
-> A powerful WordPress plugin that integrates music players into WooCommerce product pages, making Bandcamp irrelevant for your music store.
+A professional WordPress audio player plugin for WooCommerce that transforms product pages into interactive music stores with secure preview capabilities and advanced analytics.
 
-[![WordPress](https://img.shields.io/badge/WordPress-6.8%2B-blue.svg)](https://wordpress.org)
-[![WooCommerce](https://img.shields.io/badge/WooCommerce-Compatible-purple.svg)](https://woocommerce.com)
+[![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-0073aa.svg)](https://wordpress.org)
+[![WooCommerce](https://img.shields.io/badge/WooCommerce-7.0%2B-96588a.svg)](https://woocommerce.com)
+[![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-ANARCHY%20LICENCE-red.svg)](LICENSE)
 
-## 🚀 Features yo
+## 🚀 overview yo
+
+Bandfront Player integrates seamlessly with WooCommerce to provide audio playback functionality for digital music products. The plugin features context-aware player controls, secure file protection, and analytics tracking.
 
 ### 🎧 Core Player Features
-- **Context-Aware Controls**: Smart player behavior - minimal controls on shop pages for quick previews, full controls on product pages for detailed listening
-- **Multiple Player Skins**: Choose from classic, modern, and custom designs
-- **Format Support**: OGA, MP3, WAV, WMA, M3U, M3U8 playlists
-- **Mobile Optimized**: Works seamlessly on all devices including iPhone, iPad, and Android
-- **File Protection**: Secure playback mode to prevent unauthorized downloads
-- **Demo File Generation**: Automatically create truncated preview versions of audio files
-- **FFmpeg Integration**: Advanced audio processing for higher quality demos
-- **Watermark Support**: Add audio watermarks to demo files
-- **Purchase-Based Access**: Full tracks for buyers, demos for visitors
 
-### 🎨 Page Builder Integration
-- **Gutenberg Blocks**: Native block for playlist insertion
-- **Elementor Widget**: Drag-and-drop playlist widget
+### Audio Engine Support
+- **MediaElement.js**: Cross-browser HTML5 audio player with fallback support
+- **WaveSurfer.js**: Advanced waveform visualization and audio analysis
+- **Format Support**: MP3, OGG, WAV, WMA, M4A, and playlist formats (M3U, M3U8)
 
-### 📊 Analytics & Insights
-- **Google Analytics Integration**: Track play events with Universal Analytics or GA4
-- **Playback Counter**: Monitor how often tracks are played
-- **Purchase Tracking**: See which products generate the most interest
+### Context-Aware Rendering
+- **Shop Pages**: Minimal controls optimized for quick previews
+- **Product Pages**: Full-featured player with complete control set
+- **Dynamic Hook Registration**: Prevents rendering conflicts and duplicate players
 
-## 📦 Installation
+### File Security & Demo Generation
+- **Secure Streaming**: Protects original files from unauthorized access
+- **Truncated Previews**: Configurable demo length (percentage-based)
+- **FFmpeg Integration**: High-quality audio processing for demo creation
+- **Watermark Support**: Audio overlay capabilities for branding
 
-1. **Download and Extract**
-   ```bash
-   # Extract the plugin to your WordPress plugins directory
-   unzip bandfront-player.zip -d /wp-content/plugins/
-   ```
+### Analytics Integration
+- **Google Analytics**: Universal Analytics and GA4 support
+- **Playback Tracking**: Monitor engagement metrics per product
+- **Purchase Correlation**: Track conversion from preview to purchase
 
-2. **Activate Plugin**
-   - Go to `WordPress Admin > Plugins`
-   - Find "Bandfront Player" and click "Activate"
+## Technical Architecture
 
-3. **Configure Settings**
-   - Navigate to `Settings > Bandfront Player`
-   - Configure global player settings
-   - Set up file protection if needed
+### Component Structure
+```
+BandfrontPlayer (Main Class)
+├── BFP_Config (State Management)
+├── BFP_Audio_Engine (File Processing)
+├── BFP_Player (HTML Generation)
+├── BFP_Hooks (WordPress Integration)
+├── Renderers/
+│   ├── BFP_Player_Renderer
+│   ├── BFP_Playlist_Renderer
+│   └── BFP_Cover_Renderer
+└── Utilities/
+    ├── BFP_File_Handler
+    ├── BFP_Cloud_Tools
+    ├── BFP_Cache
+    └── BFP_Analytics
+```
 
-4. **Setup Products**
-   - Edit your WooCommerce products
-   - Enable the music player in the product settings
-   - Upload audio files or configure custom demo files
+### State Management
+The plugin implements a hierarchical settings system:
+1. Product-specific overrides (highest priority)
+2. Global plugin settings
+3. Default fallback values
 
-## 🎛️ Configuration
+### Modular Extensions
+- **Audio Engine Module**: Engine selection and visualization options
+- **Cloud Storage Module**: External storage integration (Google Drive, planned: S3, Azure)
+
+## Installation & Configuration
+
+### Requirements
+- WordPress 6.0 or higher
+- WooCommerce 7.0 or higher
+- PHP 7.4 or higher
+- Optional: FFmpeg for advanced audio processing
+
+### Setup Process
+1. Upload plugin files to `/wp-content/plugins/bandfront-player/`
+2. Activate through WordPress admin interface
+3. Configure global settings: `Admin → Bandfront Player`
+4. Enable players on individual products as needed
 
 ### Global Settings
 
-Access global settings via `WordPress Admin > Bandfront Player`:
+**Player Configuration**
+- Audio engine selection (MediaElement.js/WaveSurfer.js)
+- Display context (shop pages, product pages, or both)
+- Player appearance and control layout
+- Playback behavior (autoplay, loop, volume)
 
-#### Player Behavior
-- **Context-Aware Controls**: Automatically adjusts controls based on page type
-- **Single Player Mode**: One player for all tracks vs individual players
-- **Auto-play Next**: Automatically play next track when current ends
-- **Loop Tracks**: Endless playback loop
-- **Preload Behavior**: None, metadata, or auto
+**Security Settings**
+- File truncation enable/disable
+- Demo length percentage
+- FFmpeg processing options
+- Audio watermark configuration
 
-#### File Protection
-- **Secure Mode**: Create demo versions of audio files
-- **Demo Length**: Percentage of original file to include in demos (e.g., 30%)
-- **FFmpeg Processing**: Use FFmpeg for higher quality demo generation
-- **Audio Watermarks**: Add watermarks to demo files
+**Analytics Setup**
+- Google Analytics integration
+- Measurement ID configuration
+- Event tracking preferences
 
-#### Analytics
-- **Google Analytics**: Track play events
-- **Playback Counters**: Monitor track popularity
-- **Purchase Analytics**: Track conversion metrics
+## Usage
 
-### Product-Level Settings
-
-Each product can override global settings:
-
-- **Enable Player**: Turn player on/off for specific products
-- **Custom Demo Files**: Upload separate demo versions
-- **Volume Control**: Set default volume (0.0 to 1.0)
-- **Player Behavior**: Product-specific playback settings
-
-## 🎵 Usage Examples
-
-### Basic Playlist Shortcode
-```shortcode
+### Shortcode Implementation
+```php
+// Basic playlist
 [bfp-playlist products_ids="*"]
+
+// Category-filtered playlist
+[bfp-playlist product_categories="albums,singles" title="Featured Music"]
+
+// Purchased products only
+[bfp-playlist purchased_products="1"]
+
+// Custom styling
+[bfp-playlist layout="new" player_style="dark" cover="1"]
 ```
 
-### Filtered by Categories
-```shortcode
-[bfp-playlist products_ids="*" product_categories="rock,jazz" title="Featured Albums"]
+### Product Integration
+Players automatically integrate with:
+- WooCommerce product loops
+- Single product pages
+- Grouped and variable products
+- Cart and checkout pages (optional)
+
+### Page Builder Support
+- **Gutenberg**: Native playlist block
+- **Elementor**: Dedicated playlist widget
+- **WooCommerce Blocks**: Compatible integration
+
+## Developer API
+
+### Hooks & Filters
+```php
+// Modify player HTML output
+add_filter('bfp_audio_tag', function($html, $product_id, $file_index, $audio_url) {
+    return $html;
+}, 10, 4);
+
+// Track playback events
+add_action('bfp_play_file', function($product_id, $file_url) {
+    // Custom tracking logic
+}, 10, 2);
+
+// Extend settings
+add_action('bfp_module_general_settings', function() {
+    // Add custom settings fields
+});
 ```
 
-### Custom Styling
-```shortcode
-[bfp-playlist products_ids="123,456,789" layout="new" player_style="custom" cover="1"]
+### State Management
+```php
+// Access plugin instance
+global $BandfrontPlayer;
+
+// Get settings with inheritance
+$setting = $BandfrontPlayer->get_state('_bfp_audio_engine', 'mediaelement', $product_id);
+
+// Bulk settings retrieval
+$settings = $BandfrontPlayer->get_states([
+    '_bfp_player_layout',
+    '_bfp_player_volume',
+    '_bfp_secure_player'
+], $product_id);
 ```
 
-### Purchased Products Only
-```shortcode
-[bfp-playlist purchased_products="1" title="Your Music Library"]
+## Performance Considerations
+
+### Optimization Features
+- **Lazy Loading**: Components load only when needed
+- **Bulk Operations**: Efficient database queries
+- **Cache Integration**: Supports major caching plugins
+- **Resource Management**: Conditional script/style loading
+
+## File Structure
+
+```
+bandfront-player/
+├── bfp.php                 # Main plugin file
+├── includes/               # Core classes
+│   ├── state-manager.php   # Configuration management
+│   ├── audio.php          # Audio processing
+│   ├── player.php         # Player generation
+│   ├── hooks.php          # WordPress integration
+│   └── utils/             # Utility classes
+├── modules/               # Feature modules
+├── views/                 # Admin templates
+├── js/                    # Frontend scripts
+├── css/                   # Stylesheets
+│   └── skins/            # Theme variations
+└── vendors/              # Third-party libraries
 ```
 
-## 🏗️ Architecture
+## Changelog
 
-### Modular Structure
-The plugin follows a clean, modular architecture:
+### Version 5.0.181
+- Refactored architecture with improved component separation
+- Enhanced state management system
+- Added WaveSurfer.js engine support
+- Improved context-aware rendering
+- Enhanced security and performance optimizations
 
-````
+## License
+
+This project is 
+
+## Support
+
+For technical support and feature requests, please refer to someone else.
 
