@@ -90,7 +90,7 @@ class BFP_WooCommerce {
     public function woocommerce_product_title($title, $product) {
         $player = '';
         if (false === stripos($title, '<audio')) {
-            $player .= $this->main_plugin->include_main_player($product, false);
+            $player .= $this->main_plugin->get_player()->include_main_player($product, false);
         }
         return $player . $title;
     }
@@ -136,7 +136,7 @@ class BFP_WooCommerce {
         ) {
             try {
                 ob_start();
-                $this->main_plugin->include_all_players($post->ID);
+                $this->main_plugin->get_player()->include_all_players($post->ID);
                 $output = ob_get_contents();
                 ob_end_clean();
 

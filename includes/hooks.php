@@ -159,12 +159,12 @@ class BFP_Hooks {
         
         // Register main player hooks
         foreach ($hooks_config['main_player'] as $hook => $priority) {
-            add_action($hook, array($this->main_plugin, 'include_main_player'), $priority);
+            add_action($hook, array($this->main_plugin->get_player(), 'include_main_player'), $priority);
         }
         
         // Register all players hooks
         foreach ($hooks_config['all_players'] as $hook => $priority) {
-            add_action($hook, array($this->main_plugin, 'include_all_players'), $priority);
+            add_action($hook, array($this->main_plugin->get_player(), 'include_all_players'), $priority);
         }
     }
 
@@ -173,8 +173,10 @@ class BFP_Hooks {
      */
     public function conditionally_add_title_filter() {
         $on_cover = $this->main_plugin->get_state('_bfp_on_cover');
-        if (!$on_cover) {
-            add_filter( 'woocommerce_product_title', array( $this->main_plugin->get_woocommerce(), 'woocommerce_product_title' ), 10, 2 );
+        $woocommerce = $this->main_plugin->get_woocommerce();
+        
+        if (!$on_cover && $woocommerce) {
+            add_filter( 'woocommerce_product_title', array( $woocommerce, 'woocommerce_product_title' ), 10, 2 );
         }
     }
 

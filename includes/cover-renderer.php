@@ -118,14 +118,14 @@ class BFP_Cover_Renderer {
             return;
         }
         
-        // Check if product has audio files
-        $files = $this->main_plugin->get_product_files($product_id);
+        // Check if product has audio files using the consolidated player class
+        $files = $this->main_plugin->get_player()->get_product_files($product_id);
         if (empty($files)) {
             return;
         }
         
         // Enqueue player resources
-        $this->main_plugin->enqueue_resources();
+        $this->main_plugin->get_player()->enqueue_resources();
         
         // Render the overlay
         $this->render_overlay_html($product_id, $product);
@@ -145,7 +145,7 @@ class BFP_Cover_Renderer {
             </svg>
         </div>
         <div class="bfp-hidden-player-container" style="display:none;">
-            <?php $this->main_plugin->include_main_player($product, true); ?>
+            <?php $this->main_plugin->get_player()->include_main_player($product, true); ?>
         </div>
         <?php
     }

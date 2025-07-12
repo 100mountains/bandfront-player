@@ -72,8 +72,8 @@ class BFP_Playlist_Renderer {
         // Prepare product data
         $product_data = $this->prepare_product_data($product, $product_obj, $atts, $counter, $purchased_times_data);
         
-        // Get audio files
-        $audio_files = $this->main_plugin->get_product_files($product->ID);
+        // Get audio files using the consolidated player class
+        $audio_files = $this->main_plugin->get_player()->get_product_files($product->ID);
         if (!is_array($audio_files)) {
             $audio_files = array();
         }
