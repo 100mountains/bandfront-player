@@ -595,39 +595,6 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 				</tr>
 				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
-					<td class="bfp-troubleshoot-item bfp-troubleshoot-mobile">
-						<p>
-							📱 <?php esc_html_e( 'Players not working on iPads or iPhones?', 'bandfront-player' ); ?>
-						</p>
-						<label>
-						<input aria-label="<?php esc_attr_e( 'On iPads and iPhones, use native controls', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_ios_controls" <?php checked( $settings['_bfp_ios_controls'] ); ?>/>
-						<?php esc_html_e( 'Use native iOS controls for better compatibility', 'bandfront-player' ); ?>
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<td class="bfp-troubleshoot-item bfp-troubleshoot-performance">
-						<p>
-							⚡ <?php esc_html_e( 'Cache Compatibility', 'bandfront-player' ); ?>
-						</p>
-						<label>
-						<input aria-label="<?php esc_attr_e( 'Loading players in the onload event', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_onload" <?php checked( $settings['_bfp_onload'] ); ?>/>
-						<?php esc_html_e( 'Enable', 'bandfront-player' ); ?>
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<td class="bfp-troubleshoot-item bfp-troubleshoot-files">
-						<p>
-							📁 <?php esc_html_e( 'Files missing extensions or stored in cloud?', 'bandfront-player' ); ?>
-						</p>
-						<label>
-						<input aria-label="<?php esc_attr_e( 'For files whose extensions cannot be determined handle them as mp3 files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_default_extension" <?php checked( $settings['_bfp_default_extension'] ); ?>/>
-						<?php esc_html_e( 'Treat unrecognized files as MP3 audio', 'bandfront-player' ); ?>
-						</label>
-					</td>
-				</tr>
-				<tr>
 					<td class="bfp-troubleshoot-item bfp-troubleshoot-gutenberg">
 						<p>
 							🧱 <?php esc_html_e( 'Gutenberg blocks hiding your players?', 'bandfront-player' ); ?>
@@ -635,17 +602,6 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 						<label>
 						<input aria-label="<?php esc_attr_e( 'For the WooCommerce Gutenberg Blocks, include the main player in the products titles', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_force_main_player_in_title" <?php checked( $settings['_bfp_force_main_player_in_title'] ); ?>/>
 						<?php esc_html_e( 'Force players to appear in product titles', 'bandfront-player' ); ?>
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<td class="bfp-troubleshoot-item bfp-troubleshoot-redirect">
-						<p>
-							🔗 <?php esc_html_e( 'Players visible but not working?', 'bandfront-player' ); ?>
-						</p>
-						<label>
-						<input aria-label="<?php esc_attr_e( 'Disable 302 redirection', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_disable_302" <?php checked( $settings['_bfp_disable_302'] ); ?>/>
-						<?php esc_html_e( 'Load files directly instead of using redirects', 'bandfront-player' ); ?>
 						</label>
 					</td>
 				</tr>

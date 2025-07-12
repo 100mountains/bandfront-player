@@ -594,6 +594,20 @@ class BFP_Player {
     }
     
     /**
+     * Check if current device is iOS
+     */
+    private function is_ios_device() {
+        static $is_ios = null;
+        
+        if ($is_ios === null) {
+            $is_ios = isset($_SERVER['HTTP_USER_AGENT']) && 
+                      preg_match('/(iPad|iPhone|iPod)/i', $_SERVER['HTTP_USER_AGENT']);
+        }
+        
+        return $is_ios;
+    }
+    
+    /**
      * Enqueue player resources
      */
     public function enqueue_resources() {
@@ -708,7 +722,21 @@ class BFP_Player {
             'player_skin' => $settings['_bfp_player_layout']
         );
         
-        wp_localize_script('bfp-engine', 'bfp_global_settings', $js_settings);
+        // Get smart settings with auto-detection
+        $smart_settings = array(
+            'ios_controls' => $this->is_ios_device() ? 1 : 0,
+            'onload' => 1, // Always use onload for better compatibility
+        );
+        
+        // Merge with user settings
+        $settings = array_merge(
+            $smart_settings,
+            $this->main_plugin->get_config()->get_states(array(
+                '_bfp_force_main_player_in_title'
+            ))
+        );
+        
+        wp_localize_script('bfp-engine', 'bfp_global_settings', $settings);
         
         $this->_enqueued_resources = true;
     }

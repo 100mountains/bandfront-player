@@ -526,3 +526,36 @@ The state management system provides a robust, performant, and maintainable way 
 3. **Flexibility** - Easy to add new settings
 4. **Maintainability** - Single source of truth
 5. **Reliability** - Type safety and validation
+
+## Deprecated Settings (Now Automatic)
+
+The following settings have been removed from the UI and are now handled automatically:
+
+### iOS Controls (`_bfp_ios_controls`)
+- **Previous:** Manual checkbox in troubleshooting
+- **Current:** Auto-detected based on user agent
+- **Implementation:** Checks for iPad/iPhone/iPod in HTTP_USER_AGENT
+
+### Default Extension (`_bfp_default_extension`)  
+- **Previous:** Manual checkbox for extensionless files
+- **Current:** Always enabled with smart detection
+- **Implementation:** Checks cloud URLs and MIME types automatically
+
+### Disable 302 Redirects (`_bfp_disable_302`)
+- **Previous:** Manual checkbox to disable redirects
+- **Current:** Always serves files directly
+- **Implementation:** Direct file serving for better performance
+
+## Active Troubleshooting Settings
+
+Only these settings remain in the troubleshooting section:
+
+### Force Players in Titles (`_bfp_force_main_player_in_title`)
+- **Purpose:** Layout preference for Gutenberg compatibility
+- **Type:** Boolean (checkbox)
+- **Default:** false
+
+### Delete Demo Files (`_bfp_delete_demos`)
+- **Purpose:** One-time action to regenerate demo files
+- **Type:** Action checkbox (not saved)
+- **Default:** N/A

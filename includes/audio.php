@@ -108,7 +108,8 @@ class BFP_Audio_Engine {
      * Process secure audio with limited playback percentage
      */
     private function process_secure_audio($file_path, $o_file_path, $file_percent, &$file_name, &$o_file_name, $args) {
-        $ffmpeg = $this->main_plugin->get_global_attr('_bfp_ffmpeg', false);
+        // Use get_state instead of get_global_attr
+        $ffmpeg = $this->main_plugin->get_config()->get_state('_bfp_ffmpeg', false);
 
         if ($ffmpeg && function_exists('shell_exec')) {
             $this->process_with_ffmpeg($file_path, $o_file_path, $file_percent);
@@ -159,12 +160,7 @@ class BFP_Audio_Engine {
      * Send file headers for audio streaming
      */
     private function send_file_headers($mime_type, $file_name, $file_path) {
-        // Use get_state for single value retrieval
-        if (!$this->main_plugin->get_config()->get_state('_bfp_disable_302')) {
-            header("location: " . $this->main_plugin->get_files_directory_url() . $file_name, true, 302);
-            exit;
-        }
-
+        // Remove 302 redirect option - always serve files directly for better performance
         header("Content-Type: " . $mime_type);
         header("Content-length: " . filesize($file_path));
         header('Content-Disposition: filename="' . $file_name . '"');
@@ -283,11 +279,13 @@ class BFP_Audio_Engine {
         $ext = $aux($file_path);
         if ($ext) return $ext;
 
-        // From troubleshoot - use get_state for single value
+        // Always handle extensionless files gracefully (smart default)
         $extension = pathinfo($file_path, PATHINFO_EXTENSION);
-        $troubleshoot_default_extension = $this->main_plugin->get_config()->get_state('_bfp_default_extension', false);
-        if ((empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) && $troubleshoot_default_extension) {
-            return 'mp3';
+        if (empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) {
+            // Check if it's a cloud URL or has audio MIME type
+            if ($this->is_cloud_url($file_path) || $this->has_audio_mime_type($file_path)) {
+                return 'mp3';
+            }
         }
 
         return false;
@@ -394,7 +392,7 @@ class BFP_Audio_Engine {
             try {
                 if (isset($_COOKIE['_ga'])) {
                     $cid_parts = explode('.', sanitize_text_field(wp_unslash($_COOKIE['_ga'])), 3);
-                    // BUG FIX: Add array bounds check to prevent undefined index
+                    // Fix: Add array bounds check to prevent undefined index
                     if (isset($cid_parts[2])) {
                         $cid = $cid_parts[2];
                     }
@@ -538,13 +536,15 @@ class BFP_Audio_Engine {
         $ffmpeg_path = '"' . esc_attr($ffmpeg_path) . '"';
         $result = @shell_exec($ffmpeg_path . ' -i ' . escapeshellcmd($file_path) . ' 2>&1');
         if (!empty($result)) {
-            // BUG FIX: Add array key existence check to prevent undefined offset warnings
+            // Fix: Add array key existence check to prevent undefined offset warnings
             preg_match('/(?<=Duration: )(\d{2}:\d{2}:\d{2})\.\d{2}/', $result, $match);
             if (!empty($match[1])) {
-                $time = explode(':', $match[1]) + array(00, 00, 00);
-                $total = (!empty($time[0]) && is_numeric($time[0]) ? intval($time[0]) : 0) * 3600 + 
-                         (!empty($time[1]) && is_numeric($time[1]) ? intval($time[1]) : 0) * 60 + 
-                         (!empty($time[2]) && is_numeric($time[2]) ? intval($time[2]) : 0);
+                $time = explode(':', $match[1]);
+                // Fix: Ensure array has all required indices
+                $hours = isset($time[0]) && is_numeric($time[0]) ? intval($time[0]) : 0;
+                $minutes = isset($time[1]) && is_numeric($time[1]) ? intval($time[1]) : 0;
+                $seconds = isset($time[2]) && is_numeric($time[2]) ? intval($time[2]) : 0;
+                $total = $hours * 3600 + $minutes * 60 + $seconds;
                 $total = apply_filters('bfp_ffmpeg_time', floor($total * $file_percent / 100));
 
                 $command = $ffmpeg_path . ' -hide_banner -loglevel panic -vn -i ' . preg_replace(["/^'/", "/'$/"], '"', escapeshellarg($file_path));
@@ -581,11 +581,13 @@ class BFP_Audio_Engine {
         $ext = $aux($file_path);
         if ($ext) return $ext;
 
-        // From troubleshoot - use get_state for single value
+        // Smart default for extensionless video files
         $extension = pathinfo($file_path, PATHINFO_EXTENSION);
-        $troubleshoot_default_extension = $this->main_plugin->get_config()->get_state('_bfp_default_extension', false);
-        if ((empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) && $troubleshoot_default_extension) {
-            return 'mp4';
+        if (empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) {
+            // Check if it's a cloud URL with video MIME type
+            if ($this->is_cloud_url($file_path) && $this->has_video_mime_type($file_path)) {
+                return 'mp4';
+            }
         }
 
         return false;
@@ -609,11 +611,13 @@ class BFP_Audio_Engine {
         $ext = $aux($file_path);
         if ($ext) return $ext;
 
-        // From troubleshoot - use get_state for single value
+        // Smart default for extensionless image files
         $extension = pathinfo($file_path, PATHINFO_EXTENSION);
-        $troubleshoot_default_extension = $this->main_plugin->get_config()->get_state('_bfp_default_extension', false);
-        if ((empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) && $troubleshoot_default_extension) {
-            return 'jpg';
+        if (empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) {
+            // Check if it's a cloud URL with image MIME type
+            if ($this->is_cloud_url($file_path) && $this->has_image_mime_type($file_path)) {
+                return 'jpg';
+            }
         }
 
         return false;
@@ -632,5 +636,74 @@ class BFP_Audio_Engine {
         }
 
         return $player;
+    }
+    
+    /**
+     * Check if URL is from a cloud service
+     */
+    private function is_cloud_url($url) {
+        $cloud_patterns = array(
+            'drive.google.com',
+            'dropbox.com',
+            'onedrive.live.com',
+            's3.amazonaws.com',
+            'blob.core.windows.net'
+        );
+        
+        foreach ($cloud_patterns as $pattern) {
+            if (stripos($url, $pattern) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if file has audio MIME type
+     */
+    private function has_audio_mime_type($file_path) {
+        if (!file_exists($file_path)) {
+            return false;
+        }
+        
+        if (function_exists('mime_content_type')) {
+            $mime = mime_content_type($file_path);
+            return strpos($mime, 'audio/') === 0;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if file has video MIME type
+     */
+    private function has_video_mime_type($file_path) {
+        if (!file_exists($file_path)) {
+            return false;
+        }
+        
+        if (function_exists('mime_content_type')) {
+            $mime = mime_content_type($file_path);
+            return strpos($mime, 'video/') === 0;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if file has image MIME type
+     */
+    private function has_image_mime_type($file_path) {
+        if (!file_exists($file_path)) {
+            return false;
+        }
+        
+        if (function_exists('mime_content_type')) {
+            $mime = mime_content_type($file_path);
+            return strpos($mime, 'image/') === 0;
+        }
+        
+        return false;
     }
 }

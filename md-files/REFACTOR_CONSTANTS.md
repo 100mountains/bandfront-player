@@ -1,8 +1,6 @@
 
 
-Prompt for Refactoring Constants and Defaults in Bandfront Player
-
-Refactor the codebase so that:
+RULES for Refactoring Constants and Defaults in Bandfront Player
 
 All user-configurable defaults (such as default player style, controls, volume, demo length, etc.) are managed exclusively via the state manager (options/settings), not as PHP constants. These should be accessible and changeable via the admin UI and stored in the database.
 Technical/plugin constants (such as plugin version, file paths, plugin base name, plugin URL, and remote timeouts) remain as PHP constants, since they are not user-configurable and are required for plugin bootstrapping or internal logic.
@@ -16,8 +14,6 @@ Do not move everything to state management.
 Do move only user-facing defaults to state/options.
 Keep technical/plugin constants as PHP constants.
 Remove any constants that are now redundant due to state management.
-
-
 
 Refactor the codebase so that:
 

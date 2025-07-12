@@ -6,6 +6,12 @@ PHP-STAN
 etc
 
 
+GLOBAL-ADMIN-OPTIONS AJAX.
+
+TWO AJAX NOTIFICATIONS AFTER MOVING FILE TO STATE MANAGEMENT 
+controlling the form does not seem to stop the error, it seems to be with how the wordpress thing is called twice. 
+
+
 ----
 
 FIREFOX ISSUES ON PLAYBACK - LATER TRACKS NOT PLAYING
