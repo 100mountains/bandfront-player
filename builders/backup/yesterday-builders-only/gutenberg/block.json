@@ -1,0 +1,17 @@
+{
+  "apiVersion": 2,
+  "name": "bfp/bandfront-player-playlist",
+  "title": "Bandfront Player Playlist",
+  "category": "media",
+  "icon": "playlist-audio",
+  "description": "Display a Bandfront Player playlist.",
+  "attributes": {
+    "shortcode": {
+      "type": "string",
+      "default": "[bfp-playlist products_ids=\"*\" controls=\"track\" download_links=\"1\"]"
+    }
+  },
+  "editorScript": "file:./gutenberg.js",
+  "editorStyle": "file:./gutenberg.css",
+  "style": "file:./gutenberg.css"
+}

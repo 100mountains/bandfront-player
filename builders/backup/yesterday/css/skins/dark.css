@@ -1,0 +1,285 @@
+/* Dark Theme for BandFront Player (formerly mejs-classic) */
+
+.dark .mejs-controls {
+    background: #333;
+    height: 65px;
+}
+
+.dark .mejs-button,
+.dark .mejs-time {
+    position: absolute;
+    background: #222;
+}
+
+.dark .mejs-controls .mejs-time-rail .mejs-time-total {
+    background-color: #555;
+    height: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.dark .mejs-controls .mejs-time-rail .mejs-time-buffering {
+    height: 10px;
+    border-radius: 5px;
+}
+
+.dark .mejs-controls .mejs-time-rail .mejs-time-loaded {
+    background-color: #999;
+    width: 0;
+    height: 10px;
+    border-radius: 5px;
+}
+
+.dark .mejs-controls .mejs-time-rail .mejs-time-current {
+    width: 0;
+    height: 10px;
+    background-color: #fc6;
+    border-radius: 5px;
+}
+
+.dark .mejs-controls .mejs-time-rail .mejs-time-handle {
+    display: block;
+    margin: 0;
+    width: 14px;
+    height: 14px;
+    top: -2px;
+    border: 0;
+    background: #fc6;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.dark .mejs-controls .mejs-captions-button,
+.dark .mejs-controls .mejs-time-rail .mejs-time-float {
+    display: none;
+}
+
+.dark .mejs-controls .mejs-playpause-button {
+    top: 25px;
+    left: 15px;
+    width: 45px;
+    height: 45px;
+}
+
+.dark .mejs-controls .mejs-playpause-button button {
+    width: 45px;
+    height: 45px;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    background: rgba(255, 255, 255, 0.1);
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.dark .mejs-controls .mejs-playpause-button button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* CSS Play Icon - Triangle */
+.dark .mejs-controls .mejs-play button::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-40%, -50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 12px 0 12px 18px;
+    border-color: transparent transparent transparent #fc6;
+}
+
+/* CSS Pause Icon - Fixed gap issue */
+.dark .mejs-controls .mejs-pause button::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 24px;
+    background: #fc6;
+    box-shadow: 12px 0 #fc6;
+    pointer-events: none; /* Ensure this doesn't block clicks */
+}
+
+.dark .mejs-controls .mejs-fullscreen-button {
+    top: 32px;
+    right: 15px;
+    width: 30px;
+    height: 28px;
+    background: transparent;
+}
+
+.dark .mejs-controls .mejs-fullscreen-button button {
+    width: 30px;
+    height: 28px;
+    background: transparent;
+    position: relative;
+    border: 0;
+    outline: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* CSS Fullscreen Icon */
+.dark .mejs-controls .mejs-fullscreen-button button::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 14px;
+    border: 2px solid #fc6;
+    border-radius: 2px;
+}
+
+.dark .mejs-controls .mejs-fullscreen-button button::after {
+    content: '';
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 6px 6px;
+    border-color: transparent transparent #fc6 #fc6;
+}
+
+/* Exit fullscreen */
+.dark .mejs-controls .mejs-unfullscreen button::after {
+    right: auto;
+    bottom: auto;
+    left: 6px;
+    top: 6px;
+    transform: rotate(180deg);
+}
+
+.dark .mejs-controls .mejs-volume-button {
+    top: 28px;
+    right: 55px;
+    width: 30px;
+    height: 35px;
+}
+
+.dark .mejs-controls .mejs-volume-button button {
+    width: 30px;
+    height: 35px;
+    background: transparent;
+    position: relative;
+    border: 0;
+    outline: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* CSS Volume Icon */
+.dark .mejs-controls .mejs-volume-button button::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 12px;
+    background: #fc6;
+}
+
+.dark .mejs-controls .mejs-volume-button button::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 8px;
+    border-color: transparent transparent transparent #fc6;
+}
+
+/* Volume waves */
+.dark .mejs-controls .mejs-volume-button:not(.mejs-unmute) button::before {
+    box-shadow: 
+        10px 0 0 -4px #fc6,
+        14px 0 0 -6px #fc6;
+}
+
+/* Muted state */
+.dark .mejs-controls .mejs-unmute button::after {
+    content: '×';
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: #fc6;
+    font-weight: bold;
+    line-height: 1;
+    border: 0;
+}
+
+.dark .mejs-controls .mejs-volume-button .mejs-volume-slider {
+    background: rgba(50, 50, 50, 0.9);
+}
+
+.dark .mejs-controls .mejs-time span {
+    color: #ccc;
+}
+
+.dark .mejs-controls .mejs-currenttime-container {
+    position: absolute;
+    top: 30px;
+    right: 100px;
+    color: #ccc;
+}
+
+.dark .mejs-controls .mejs-duration-container {
+    position: absolute;
+    top: 30px;
+    right: 152px;
+    color: #ccc;
+}
+
+.dark .mejs-controls .mejs-time button {
+    color: #ccc;
+}
+.dark .mejs-controls .mejs-volume-button button {
+    background-image: url(images/controls-dark.png);
+    background-repeat: no-repeat;
+    background-position: -30px 0;
+}
+
+.dark .mejs-controls .mejs-volume-button button:not([style*="background-image"]) {
+    background-image: none !important;
+}
+
+.dark .mejs-controls .mejs-unmute button {
+    background-position: -30px -40px;
+}
+
+.dark .mejs-controls .mejs-time span {
+    color: #ccc;
+}
+
+.dark .mejs-controls .mejs-currenttime-container {
+    position: absolute;
+    top: 30px;
+    right: 100px;
+    color: #ccc;
+}
+
+.dark .mejs-controls .mejs-duration-container {
+    position: absolute;
+    top: 30px;
+    right: 152px;
+    color: #ccc;
+}
+
+.dark .mejs-controls .mejs-time button {
+    color: #ccc;
+}

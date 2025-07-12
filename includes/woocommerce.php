@@ -23,14 +23,42 @@ class BFP_WooCommerce {
     }
     
     /**
+     * Include the shortcode in the product title only if the player is enabled and playlist_watermark is not active
+     */
+    public function woocommerce_product_title($title, $product) {
+        if (!$product) {
+            return $title;
+        }
+        
+        // Use get_state instead of legacy method
+        if (
+            $this->main_plugin->get_config()->get_state('_bfp_enable_player', false, $product->get_id()) &&
+            $this->main_plugin->get_config()->get_state('_bfp_force_main_player_in_title') &&
+            !$this->main_plugin->get_inserted_player()
+        ) {
+            $this->main_plugin->set_inserted_player(true);
+            // Use get_state for show_in check
+            $show_in = $this->main_plugin->get_config()->get_state('_bfp_show_in', 'all', $product->get_id());
+            if (!is_admin() && $show_in !== 'single') {
+                $title = $this->main_plugin->get_player()->include_main_player($product, false) . $title;
+            }
+        }
+        return $title;
+    }
+
+    /**
      * Check if user has purchased a specific product
      */
     public function woocommerce_user_product($product_id) {
         $this->main_plugin->set_purchased_product_flag(false);
+        
+        // Use get_state instead of legacy method
+        $purchased_enabled = $this->main_plugin->get_config()->get_state('_bfp_purchased', false);
+        
         if (
             !is_user_logged_in() ||
             (
-                !$this->main_plugin->get_global_attr('_bfp_purchased', false) &&
+                !$purchased_enabled &&
                 empty($this->main_plugin->get_force_purchased_flag())
             )
         ) {
@@ -82,17 +110,6 @@ class BFP_WooCommerce {
             return '<a href="javascript:void(0);" data-download-links="' . esc_attr(json_encode($download_links)) . '" class="bfp-download-link">' . esc_html__('download', 'bandfront-player') . '</a>';
         }
         return '';
-    }
-    
-    /**
-     * Modify product title to include player
-     */
-    public function woocommerce_product_title($title, $product) {
-        $player = '';
-        if (false === stripos($title, '<audio')) {
-            $player .= $this->main_plugin->get_player()->include_main_player($product, false);
-        }
-        return $player . $title;
     }
     
     /**
@@ -156,8 +173,8 @@ class BFP_WooCommerce {
                 'purchased_products'        => 0,
                 'highlight_current_product' => 0,
                 'continue_playing'          => 0,
-                // Use state manager for default player style
-                'player_style'              => $this->main_plugin->get_state('_bfp_player_layout'),
+                // Use get_state for default value
+                'player_style'              => $this->main_plugin->get_config()->get_state('_bfp_player_layout'),
                 'controls'                  => 'track',
                 'layout'                    => 'new',
                 'cover'                     => 0,
@@ -363,7 +380,7 @@ class BFP_WooCommerce {
 
             $product_obj = wc_get_product($product->ID);
             $counter++;
-            $preload = $this->main_plugin->get_product_attr($product->ID, '_bfp_preload', '');
+            $preload = $this->main_plugin->get_config()->get_state('_bfp_preload', '', $product->ID);
             $row_class = 'bfp-even-product';
             if (1 == $counter % 2) {
                 $row_class = 'bfp-odd-product';
@@ -396,11 +413,12 @@ class BFP_WooCommerce {
         
         $output .= '</div>';
         
-        $message = $this->main_plugin->get_global_attr('_bfp_message', '');
+        // Use get_state for message retrieval
+        $message = $this->main_plugin->get_config()->get_state('_bfp_message', '');
         if (!empty($message) && empty($atts['hide_message'])) {
             $output .= '<div class="bfp-message">' . wp_kses_post(__($message, 'bandfront-player')) . '</div>';
         }
-
+        
         $this->main_plugin->set_force_purchased_flag(0);
 
         if (!empty($atts['title']) && !empty($output)) {

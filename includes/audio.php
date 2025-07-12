@@ -156,47 +156,11 @@ class BFP_Audio_Engine {
     }
     
     /**
-     * Process file with ffmpeg
-     */
-    private function process_with_ffmpeg($file_path, $o_file_path, $file_percent) {
-        $ffmpeg_path = rtrim($this->main_plugin->get_global_attr('_bfp_ffmpeg_path', ''), '/');
-        if (is_dir($ffmpeg_path)) {
-            $ffmpeg_path .= '/ffmpeg';
-        }
-
-        $ffmpeg_path = '"' . esc_attr($ffmpeg_path) . '"';
-        $result = @shell_exec($ffmpeg_path . ' -i ' . escapeshellcmd($file_path) . ' 2>&1');
-        if (!empty($result)) {
-            // BUG FIX: Add array key existence check to prevent undefined offset warnings
-            preg_match('/(?<=Duration: )(\d{2}:\d{2}:\d{2})\.\d{2}/', $result, $match);
-            if (!empty($match[1])) {
-                $time = explode(':', $match[1]) + array(00, 00, 00);
-                $total = (!empty($time[0]) && is_numeric($time[0]) ? intval($time[0]) : 0) * 3600 + 
-                         (!empty($time[1]) && is_numeric($time[1]) ? intval($time[1]) : 0) * 60 + 
-                         (!empty($time[2]) && is_numeric($time[2]) ? intval($time[2]) : 0);
-                $total = apply_filters('bfp_ffmpeg_time', floor($total * $file_percent / 100));
-
-                $command = $ffmpeg_path . ' -hide_banner -loglevel panic -vn -i ' . preg_replace(["/^'/", "/'$/"], '"', escapeshellarg($file_path));
-
-                $ffmpeg_watermark = trim($this->main_plugin->get_global_attr('_bfp_ffmpeg_watermark', ''));
-                if (!empty($ffmpeg_watermark)) {
-                    $ffmpeg_watermark = $this->fix_url($ffmpeg_watermark);
-                    if (false !== ($watermark_path = $this->is_local($ffmpeg_watermark))) {
-                        $watermark_path = str_replace(array('\\', ':', '.', "'"), array('/', '\:', '\.', "\'"), $watermark_path);
-                        $command .= ' -filter_complex "amovie=\'' . trim(escapeshellarg($watermark_path), '"') . '\':loop=0,volume=0.3[s];[0][s]amix=duration=first,afade=t=out:st=' . max(0, $total - 2) . ':d=2"';
-                    }
-                }
-                $command = str_replace("''", "'", $command);
-                @shell_exec($command . '  -map 0:a -t ' . $total . ' -y ' . preg_replace(["/^'/", "/'$/"], '"', escapeshellarg($o_file_path)));
-            }
-        }
-    }
-    
-    /**
      * Send file headers for audio streaming
      */
     private function send_file_headers($mime_type, $file_name, $file_path) {
-        if (!$this->main_plugin->get_global_attr('_bfp_disable_302', 0)) {
+        // Use get_state for single value retrieval
+        if (!$this->main_plugin->get_config()->get_state('_bfp_disable_302')) {
             header("location: " . $this->main_plugin->get_files_directory_url() . $file_name, true, 302);
             exit;
         }
@@ -319,9 +283,9 @@ class BFP_Audio_Engine {
         $ext = $aux($file_path);
         if ($ext) return $ext;
 
-        // From troubleshoot
+        // From troubleshoot - use get_state for single value
         $extension = pathinfo($file_path, PATHINFO_EXTENSION);
-        $troubleshoot_default_extension = $this->main_plugin->get_global_attr('_bfp_default_extension', false);
+        $troubleshoot_default_extension = $this->main_plugin->get_config()->get_state('_bfp_default_extension', false);
         if ((empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) && $troubleshoot_default_extension) {
             return 'mp3';
         }
@@ -377,7 +341,8 @@ class BFP_Audio_Engine {
                 return $file_url;
             }
 
-            $_bfp_analytics_property = trim($this->main_plugin->get_global_attr('_bfp_analytics_property', ''));
+            // Use get_state for single value retrieval
+            $_bfp_analytics_property = trim($this->main_plugin->get_config()->get_state('_bfp_analytics_property', ''));
             if ('' == $_bfp_analytics_property) {
                 $files = get_post_meta($product_id, '_bfp_drive_files', true);
                 $key = md5($file_url);
@@ -413,9 +378,16 @@ class BFP_Audio_Engine {
      * Tracking play event for analytics
      */
     public function tracking_play_event($product_id, $file_url) {
-        $_bfp_analytics_integration = $this->main_plugin->get_global_attr('_bfp_analytics_integration', 'ua');
-        $_bfp_analytics_property = trim($this->main_plugin->get_global_attr('_bfp_analytics_property', ''));
-        $_bfp_analytics_api_secret = trim($this->main_plugin->get_global_attr('_bfp_analytics_api_secret', ''));
+        // Use get_states for bulk retrieval when getting multiple values
+        $analytics_settings = $this->main_plugin->get_config()->get_states(array(
+            '_bfp_analytics_integration',
+            '_bfp_analytics_property',
+            '_bfp_analytics_api_secret'
+        ));
+        
+        $_bfp_analytics_integration = $analytics_settings['_bfp_analytics_integration'];
+        $_bfp_analytics_property = trim($analytics_settings['_bfp_analytics_property']);
+        $_bfp_analytics_api_secret = trim($analytics_settings['_bfp_analytics_api_secret']);
         
         if (!empty($_bfp_analytics_property)) {
             $cid = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
@@ -532,17 +504,133 @@ class BFP_Audio_Engine {
                 $this->main_plugin->get_analytics()->increment_playback_counter($product_id);
             }
             
-            // Check if secure player is enabled - use state manager, no constant fallback
-            $secure_player = $this->main_plugin->get_product_attr($product_id, '_bfp_secure_player', false);
-            $file_percent = $this->main_plugin->get_product_attr($product_id, '_bfp_file_percent');
+            // Use get_states for bulk retrieval of product-specific settings
+            $demo_settings = $this->main_plugin->get_config()->get_states(array(
+                '_bfp_secure_player',
+                '_bfp_file_percent'
+            ), $product_id);
             
             // Output the file
             $this->main_plugin->get_audio_core()->output_file(array(
                 'url' => $file['file'],
                 'product_id' => $product_id,
-                'secure_player' => $secure_player,
-                'file_percent' => $file_percent
+                'secure_player' => $demo_settings['_bfp_secure_player'],
+                'file_percent' => $demo_settings['_bfp_file_percent']
             ));
         }
+    }
+    
+    /**
+     * Process with ffmpeg
+     */
+    private function process_with_ffmpeg($file_path, $o_file_path, $file_percent) {
+        // Use get_states for bulk retrieval when getting multiple related settings
+        $ffmpeg_settings = $this->main_plugin->get_config()->get_states(array(
+            '_bfp_ffmpeg_path',
+            '_bfp_ffmpeg_watermark'
+        ));
+        
+        $ffmpeg_path = rtrim($ffmpeg_settings['_bfp_ffmpeg_path'], '/');
+        if (is_dir($ffmpeg_path)) {
+            $ffmpeg_path .= '/ffmpeg';
+        }
+
+        $ffmpeg_path = '"' . esc_attr($ffmpeg_path) . '"';
+        $result = @shell_exec($ffmpeg_path . ' -i ' . escapeshellcmd($file_path) . ' 2>&1');
+        if (!empty($result)) {
+            // BUG FIX: Add array key existence check to prevent undefined offset warnings
+            preg_match('/(?<=Duration: )(\d{2}:\d{2}:\d{2})\.\d{2}/', $result, $match);
+            if (!empty($match[1])) {
+                $time = explode(':', $match[1]) + array(00, 00, 00);
+                $total = (!empty($time[0]) && is_numeric($time[0]) ? intval($time[0]) : 0) * 3600 + 
+                         (!empty($time[1]) && is_numeric($time[1]) ? intval($time[1]) : 0) * 60 + 
+                         (!empty($time[2]) && is_numeric($time[2]) ? intval($time[2]) : 0);
+                $total = apply_filters('bfp_ffmpeg_time', floor($total * $file_percent / 100));
+
+                $command = $ffmpeg_path . ' -hide_banner -loglevel panic -vn -i ' . preg_replace(["/^'/", "/'$/"], '"', escapeshellarg($file_path));
+
+                $ffmpeg_watermark = trim($ffmpeg_settings['_bfp_ffmpeg_watermark']);
+                if (!empty($ffmpeg_watermark)) {
+                    $ffmpeg_watermark = $this->fix_url($ffmpeg_watermark);
+                    if (false !== ($watermark_path = $this->is_local($ffmpeg_watermark))) {
+                        $watermark_path = str_replace(array('\\', ':', '.', "'"), array('/', '\:', '\.', "\'"), $watermark_path);
+                        $command .= ' -filter_complex "amovie=\'' . trim(escapeshellarg($watermark_path), '"') . '\':loop=0,volume=0.3[s];[0][s]amix=duration=first,afade=t=out:st=' . max(0, $total - 2) . ':d=2"';
+                    }
+                }
+                $command = str_replace("''", "'", $command);
+                @shell_exec($command . '  -map 0:a -t ' . $total . ' -y ' . preg_replace(["/^'/", "/'$/"], '"', escapeshellarg($o_file_path)));
+            }
+        }
+    }
+    
+    /**
+     * Check if the file is a video file and return its type or false
+     */
+    public function is_video($file_path) {
+        $aux = function($file_path) {
+            if (preg_match('/\.(mp4|mov|avi|wmv|mkv)$/i', $file_path, $match)) {
+                return $match[1];
+            }
+            return false;
+        };
+
+        $file_name = $this->demo_file_name($file_path);
+        $demo_file_path = $this->main_plugin->get_files_directory_path() . $file_name;
+        if ($this->valid_demo($demo_file_path)) return $aux($demo_file_path);
+
+        $ext = $aux($file_path);
+        if ($ext) return $ext;
+
+        // From troubleshoot - use get_state for single value
+        $extension = pathinfo($file_path, PATHINFO_EXTENSION);
+        $troubleshoot_default_extension = $this->main_plugin->get_config()->get_state('_bfp_default_extension', false);
+        if ((empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) && $troubleshoot_default_extension) {
+            return 'mp4';
+        }
+
+        return false;
+    }
+    
+    /**
+     * Check if the file is an image file and return its type or false
+     */
+    public function is_image($file_path) {
+        $aux = function($file_path) {
+            if (preg_match('/\.(jpg|jpeg|png|gif|bmp|webp)$/i', $file_path, $match)) {
+                return $match[1];
+            }
+            return false;
+        };
+
+        $file_name = $this->demo_file_name($file_path);
+        $demo_file_path = $this->main_plugin->get_files_directory_path() . $file_name;
+        if ($this->valid_demo($demo_file_path)) return $aux($demo_file_path);
+
+        $ext = $aux($file_path);
+        if ($ext) return $ext;
+
+        // From troubleshoot - use get_state for single value
+        $extension = pathinfo($file_path, PATHINFO_EXTENSION);
+        $troubleshoot_default_extension = $this->main_plugin->get_config()->get_state('_bfp_default_extension', false);
+        if ((empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) && $troubleshoot_default_extension) {
+            return 'jpg';
+        }
+
+        return false;
+    }
+    
+    /**
+     * Get the correct player for the file type
+     */
+    public function get_player($file_path) {
+        $player = 'audio'; // Default to audio player
+
+        if ($this->is_video($file_path)) {
+            $player = 'video';
+        } elseif ($this->is_image($file_path)) {
+            $player = 'image';
+        }
+
+        return $player;
     }
 }

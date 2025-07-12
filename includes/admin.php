@@ -131,7 +131,8 @@ class BFP_Admin {
      */
     private function setup_product_columns() {
         $manage_product_posts_columns = function($columns) {
-            if ($this->main_plugin->get_global_attr('_bfp_playback_counter_column', 1)) {
+            // Use get_state for single value retrieval
+            if ($this->main_plugin->get_config()->get_state('_bfp_playback_counter_column', 1)) {
                 wp_enqueue_style(
                     'bfp-Playback-counter', 
                     plugin_dir_url(BFP_PLUGIN_PATH) . 'css/style-admin.css', 
@@ -147,7 +148,8 @@ class BFP_Admin {
         add_filter('manage_product_posts_columns', $manage_product_posts_columns);
 
         $manage_product_posts_custom_column = function($column_key, $product_id) {
-            if ($this->main_plugin->get_global_attr('_bfp_playback_counter_column', 1) && 
+            // Use get_state for single value retrieval
+            if ($this->main_plugin->get_config()->get_state('_bfp_playback_counter_column', 1) && 
                 'bfp_playback_counter' == $column_key) {
                 $counter = get_post_meta($product_id, '_bfp_playback_counter', true);
                 echo '<span class="bfp-playback-counter">' . esc_html(!empty($counter) ? $counter : '') . '</span>';
@@ -209,10 +211,13 @@ class BFP_Admin {
         
         // Track what changed for notifications
         $changes = array();
-        $old_audio_engine = $this->main_plugin->get_config()->get_state('_bfp_audio_engine');
-        $old_enable_player = $this->main_plugin->get_config()->get_state('_bfp_enable_player');
-        $old_secure_player = $this->main_plugin->get_config()->get_state('_bfp_secure_player');
-        $old_ffmpeg = $this->main_plugin->get_config()->get_state('_bfp_ffmpeg');
+        // Use get_states for bulk retrieval when comparing multiple old values
+        $old_settings = $this->main_plugin->get_config()->get_states(array(
+            '_bfp_audio_engine',
+            '_bfp_enable_player',
+            '_bfp_secure_player',
+            '_bfp_ffmpeg'
+        ));
         
         // Save the player settings
         $registered_only = isset($_REQUEST['_bfp_registered_only']) ? 1 : 0;
@@ -240,9 +245,9 @@ class BFP_Admin {
                    sanitize_text_field(wp_unslash($_REQUEST['_bfp_show_in'])) : 'all';
         $players_in_cart = isset($_REQUEST['_bfp_players_in_cart']) ? true : false;
         
-        $player_layouts = $this->main_plugin->get_player_layouts();
-        // Use state manager for default instead of constant
-        $default_layout = $this->main_plugin->get_state('_bfp_player_layout');
+        // Use get_state for getting default values
+        $player_layouts = $this->main_plugin->get_config()->get_player_layouts();
+        $default_layout = $this->main_plugin->get_config()->get_state('_bfp_player_layout');
         $player_style = (isset($_REQUEST['_bfp_player_layout']) && in_array($_REQUEST['_bfp_player_layout'], $player_layouts)) ? 
                         sanitize_text_field(wp_unslash($_REQUEST['_bfp_player_layout'])) : $default_layout;
         
@@ -256,10 +261,9 @@ class BFP_Admin {
                         intval($_REQUEST['_bfp_file_percent']) : 0;
         $file_percent = min(max($file_percent, 0), 100);
         
-        $player_controls = $this->main_plugin->get_player_controls();
-        // Use state manager for default instead of constant
-        $default_controls = $this->main_plugin->get_state('_bfp_player_controls');
-        $player_controls = (isset($_REQUEST['_bfp_player_controls']) && in_array($_REQUEST['_bfp_player_controls'], $player_controls)) ? 
+        $player_controls_list = $this->main_plugin->get_config()->get_player_controls();
+        $default_controls = $this->main_plugin->get_config()->get_state('_bfp_player_controls');
+        $player_controls = (isset($_REQUEST['_bfp_player_controls']) && in_array($_REQUEST['_bfp_player_controls'], $player_controls_list)) ? 
                            sanitize_text_field(wp_unslash($_REQUEST['_bfp_player_controls'])) : $default_controls;
 
         $on_cover = (('button' == $player_controls || 'default' == $player_controls) && isset($_REQUEST['_bfp_player_on_cover'])) ? 1 : 0;
@@ -447,23 +451,23 @@ class BFP_Admin {
         $messages = array();
         
         // Check what changed
-        if ($old_audio_engine !== $audio_engine) {
+        if ($old_settings['_bfp_audio_engine'] !== $audio_engine) {
             $messages[] = sprintf(__('Audio engine changed to %s', 'bandfront-player'), ucfirst($audio_engine));
         }
         
-        if ($old_enable_player != $enable_player) {
+        if ($old_settings['_bfp_enable_player'] != $enable_player) {
             $messages[] = $enable_player ? 
                 __('Players enabled on all products', 'bandfront-player') : 
                 __('Players disabled on all products', 'bandfront-player');
         }
         
-        if ($old_secure_player != $secure_player) {
+        if ($old_settings['_bfp_secure_player'] != $secure_player) {
             $messages[] = $secure_player ? 
                 __('File truncation enabled - demo files will be created', 'bandfront-player') : 
                 __('File truncation disabled - full files will be played', 'bandfront-player');
         }
         
-        if ($old_ffmpeg != $ffmpeg) {
+        if ($old_settings['_bfp_ffmpeg'] != $ffmpeg) {
             $messages[] = $ffmpeg ? 
                 __('FFmpeg enabled for demo creation', 'bandfront-player') : 
                 __('FFmpeg disabled', 'bandfront-player');

@@ -15,6 +15,14 @@ if (!defined('ABSPATH')) {
  * 
  * Provides context-aware state management with automatic inheritance:
  * Product Setting → Global Setting → Default Value
+ * 
+ * USAGE GUIDELINES:
+ * - get_state(): For single value retrieval with context-aware inheritance
+ * - get_states(): For bulk retrieval of multiple values (performance optimization)
+ * - get_player_state(): For frontend player initialization (minimal settings only)
+ * - get_admin_form_settings(): For admin forms (includes type casting)
+ * - get_global_attr(): Legacy method for backward compatibility
+ * - get_product_attr(): Legacy method for backward compatibility
  */
 class BFP_Config {
     
@@ -26,57 +34,78 @@ class BFP_Config {
     
     /**
      * Settings that support product-level overrides
-     * Key: setting name, Value: default value
+     * These can be customized per product
      */
     private $_overridable_settings = array(
-        '_bfp_enable_player' => false,
-        '_bfp_merge_in_grouped' => 0,
-        '_bfp_single_player' => 0,
-        '_bfp_preload' => 'none',
-        '_bfp_play_all' => 0,
-        '_bfp_loop' => 0,
-        '_bfp_player_volume' => 1.0,  // Default volume (previously BFP_DEFAULT_PLAYER_VOLUME)
-        '_bfp_secure_player' => false,
-        '_bfp_file_percent' => 50,     // Default demo percent (previously BFP_FILE_PERCENT)
-        '_bfp_audio_engine' => 'mediaelement',
-        '_bfp_own_demos' => 0,
-        '_bfp_direct_own_demos' => 0,
-        '_bfp_demos_list' => array(),
+        // === CORE PLAYER FUNCTIONALITY ===
+        '_bfp_enable_player' => false,              // Enable/disable player
+        '_bfp_audio_engine' => 'mediaelement',      // Audio engine selection
+        
+        // === PLAYBACK BEHAVIOR ===
+        '_bfp_single_player' => 0,                  // Use single player for multiple files
+        '_bfp_merge_in_grouped' => 0,               // Merge tracks in grouped products
+        '_bfp_play_all' => 0,                       // Play all tracks sequentially
+        '_bfp_loop' => 0,                           // Loop playback
+        '_bfp_preload' => 'none',                   // Audio preload strategy
+        '_bfp_player_volume' => 1.0,                // Default volume (0-1)
+        
+        // === DEMO/SECURE MODE ===
+        '_bfp_secure_player' => false,              // Enable demo/secure mode
+        '_bfp_file_percent' => 50,                  // Demo file percentage (0-100)
+        '_bfp_own_demos' => 0,                      // Use custom demo files
+        '_bfp_direct_own_demos' => 0,               // Play demo files directly
+        '_bfp_demos_list' => array(),               // List of demo files
     );
     
     /**
      * Settings that are global-only (no product overrides)
-     * Key: setting name, Value: default value
+     * These apply to all products uniformly
      */
     private $_global_only_settings = array(
-        '_bfp_show_in' => 'all',
-        '_bfp_player_layout' => 'dark',        // Default layout (previously BFP_DEFAULT_PLAYER_LAYOUT)
-        '_bfp_player_controls' => 'default',   // Default controls (previously BFP_DEFAULT_PLAYER_CONTROLS)
-        '_bfp_player_title' => 1,
-        '_bfp_on_cover' => 1,
-        '_bfp_registered_only' => 0,
-        '_bfp_purchased' => 0,
-        '_bfp_reset_purchased_interval' => 'daily',
-        '_bfp_fade_out' => 0,
+        // === DISPLAY SETTINGS ===
+        '_bfp_show_in' => 'all',                    // Where to show (all/single/multiple)
+        '_bfp_player_layout' => 'dark',             // Player skin theme
+        '_bfp_player_controls' => 'default',        // Control type
+        '_bfp_player_title' => 1,                   // Show track titles
+        '_bfp_on_cover' => 1,                       // Play button on cover image
+        '_bfp_force_main_player_in_title' => 1,     // Force player in product title
+        '_bfp_players_in_cart' => false,            // Show players in cart
+        '_bfp_play_simultaneously' => 0,            // Allow simultaneous playback
+        
+        // === ACCESS CONTROL ===
+        '_bfp_registered_only' => 0,                // Restrict to registered users
+        '_bfp_purchased' => 0,                      // Restrict to purchased products
+        '_bfp_reset_purchased_interval' => 'daily', // Reset interval
+        '_bfp_fade_out' => 0,                       // Fade out at demo end
         '_bfp_purchased_times_text' => '- purchased %d time(s)',
-        '_bfp_ffmpeg' => 0,
-        '_bfp_ffmpeg_path' => '',
-        '_bfp_ffmpeg_watermark' => '',
-        '_bfp_players_in_cart' => false,
-        '_bfp_play_simultaneously' => 0,
-        '_bfp_message' => '',
-        '_bfp_default_extension' => false,
-        '_bfp_force_main_player_in_title' => 1,
-        '_bfp_ios_controls' => false,
-        '_bfp_onload' => false,
-        '_bfp_disable_302' => 0,
-        '_bfp_playback_counter_column' => 1,
-        '_bfp_analytics_integration' => 'ua',
-        '_bfp_analytics_property' => '',
-        '_bfp_analytics_api_secret' => '',
-        '_bfp_enable_visualizations' => 0,
-        // Cloud Storage Settings
-        '_bfp_cloud_active_tab' => 'google-drive',
+        '_bfp_message' => '',                       // Custom message for non-purchasers
+        
+        // === FFMPEG SETTINGS ===
+        '_bfp_ffmpeg' => 0,                         // Enable FFmpeg
+        '_bfp_ffmpeg_path' => '',                   // Path to FFmpeg binary
+        '_bfp_ffmpeg_watermark' => '',              // Audio watermark file
+        
+        // === TROUBLESHOOTING ===
+        '_bfp_default_extension' => false,          // Force mp3 extension
+        '_bfp_ios_controls' => false,               // iOS-specific controls
+        '_bfp_onload' => false,                     // Load on page load
+        '_bfp_disable_302' => 0,                    // Disable 302 redirects
+        
+        // === ANALYTICS ===
+        '_bfp_playback_counter_column' => 1,        // Show playback counter
+        '_bfp_analytics_integration' => 'ua',       // Analytics type (ua/ga4)
+        '_bfp_analytics_property' => '',            // Analytics property ID
+        '_bfp_analytics_api_secret' => '',          // GA4 API secret
+        
+        // === ADVANCED FEATURES ===
+        '_bfp_enable_visualizations' => 0,          // Enable waveforms
+        '_bfp_modules_enabled' => array(            // Module states
+            'audio-engine' => true,
+            'cloud-engine' => true,
+        ),
+        
+        // === CLOUD STORAGE ===
+        '_bfp_cloud_active_tab' => 'google-drive',  // Active cloud tab
         '_bfp_cloud_dropbox' => array(
             'enabled' => false,
             'access_token' => '',
@@ -96,11 +125,6 @@ class BFP_Config {
             'account_key' => '',
             'container' => '',
             'path_prefix' => 'bandfront-demos/',
-        ),
-        // Module states
-        '_bfp_modules_enabled' => array(
-            'audio-engine' => true,
-            'cloud-engine' => true,
         ),
     );
     
@@ -420,15 +444,50 @@ class BFP_Config {
         return $formatted_settings;
     }
     
-    // Backward compatibility methods (keep existing interface)
+    /**
+     * Get minimal player state for frontend/runtime use
+     * 
+     * Returns only the essential settings needed for player initialization
+     * and operation, excluding admin-only and diagnostic options.
+     *
+     * @param int|null $product_id Optional product context for overrides
+     * @return array Player state containing only runtime-necessary settings
+     * 
+     * @since 0.1
+     */
+    public function get_player_state($product_id = null) {
+        // Define the essential player settings needed for runtime
+        $player_keys = array(
+            '_bfp_enable_player',      // Core functionality toggle
+            '_bfp_player_layout',      // Visual theme
+            '_bfp_player_controls',    // Control type
+            '_bfp_player_volume',      // Default volume
+            '_bfp_single_player',      // Single player mode
+            '_bfp_secure_player',      // Demo/secure mode
+            '_bfp_file_percent',       // Demo percentage
+            '_bfp_play_all',           // Play all tracks
+            '_bfp_loop',               // Loop playback
+            '_bfp_preload',            // Preload strategy
+            '_bfp_audio_engine',       // Audio engine selection
+            '_bfp_merge_in_grouped',   // Grouped product behavior
+        );
+        
+        // Use bulk fetch for efficiency
+        $player_state = $this->get_states($player_keys, $product_id);
+        
+        // Apply any runtime-specific filters
+        return apply_filters('bfp_player_state', $player_state, $product_id);
+    }
     
     /**
-     * Get product attribute - DEPRECATED, use get_state() instead
-     * @deprecated Use get_state() with product_id parameter
+     * Get product attribute
+     * Keep for compatibility with existing code
      */
     public function get_product_attr($product_id, $attr, $default = false) {
         return $this->get_state($attr, $default, $product_id);
     }
+    
+    // Backward compatibility methods (keep existing interface)
     
     /**
      * Get global attribute - DEPRECATED, use get_state() instead

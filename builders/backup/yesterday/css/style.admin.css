@@ -1,0 +1,865 @@
+.bfp-file-name,.bfp-file-url{width:100% !important;}
+#bfp_woocommerce_metabox .widefat{border:0;}
+.bfp-tooltip{position:relative;display:inline-block;}
+.bfp-tooltip .bfp-tooltiptext{visibility:hidden;width:240px;background-color:#555;color:#fff;text-align:center;padding:5px;border-radius:6px;position:absolute;z-index:9999;bottom:125%;left:50%;margin-left:-120px;opacity:0;transition:opacity 1s;}
+.bfp-tooltip .bfp-tooltiptext::after{content:"";position:absolute;top:100%;left:50%;margin-left:-10px;border-width:5px;border-style:solid;border-color:#555 transparent transparent transparent;}
+.bfp-tooltip:hover .bfp-tooltiptext{visibility:visible;opacity:1;}
+.bfp-highlight-box{border:1px solid #E6DB55;margin-bottom:10px;padding:5px;background-color: #FFFFE0;}
+#bfp_tips_body,.bfp-tip-text{display:none;}
+.cp-blink-me {animation: cp_blinker 2s linear infinite;text-transform: uppercase;}
+@keyframes cp_blinker{50% {opacity: 0;}}
+
+/* GLOBAL OPTIONS STYLES */
+
+/* Header and Title Styles */
+.bfp-tagline {
+    font-style: italic;
+    font-size: 12px;
+    color: #666;
+    margin-top: -10px;
+}
+
+/* Tips Section - Remove border-radius */
+.bfp-tips-container {
+    padding: 20px;
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 50%, #6A1B9A 100%);
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.bfp-tips-header h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    cursor: pointer;
+    color: white;
+    font-size: 24px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.bfp-tips-body {
+    display: none;
+}
+
+.bfp-tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.bfp-tips-card {
+    padding: 15px;
+}
+
+.bfp-tips-card-start {
+    background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+}
+
+.bfp-tips-card-shortcodes {
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+}
+
+.bfp-tips-card-customization {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+}
+
+.bfp-tips-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.bfp-tips-card-start h3 {
+    color: #2E7D32;
+}
+
+.bfp-tips-card-shortcodes h3 {
+    color: #7B1FA2;
+}
+
+.bfp-tips-card-customization h3 {
+    color: #E65100;
+}
+
+.bfp-tips-card p {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.bfp-tips-link {
+    display: inline-block;
+    padding: 8px 16px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.bfp-tips-link-start {
+    background: #4CAF50;
+}
+
+.bfp-tips-link-shortcodes {
+    background: #9C27B0;
+}
+
+.bfp-tips-link-customization {
+    background: #FF9800;
+}
+
+.bfp-tips-protip {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255,255,255,0.9);
+}
+
+.bfp-tips-protip p {
+    margin: 0;
+    color: #1565C0;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Main Form Tables */
+.bfp-main-table {
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.bfp-settings-table {
+    border: 1px solid #e1e1e1;
+    margin-bottom: 20px;
+}
+
+/* Section Header Color Gradients */
+.bfp-settings-table h2:nth-of-type(1) {
+    background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    position: relative;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.bfp-player-settings > tbody > tr:first-child h2 {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+
+.bfp-settings-table h2:hover {
+    transform: translateX(5px);
+}
+
+/* Add hover animation to all left column cells */
+.bfp-settings-table td:first-child,
+.bfp-settings-table td.bfp-column-30 {
+    transition: transform 0.3s ease;
+}
+
+.bfp-settings-table tr:hover td:first-child,
+.bfp-settings-table tr:hover td.bfp-column-30 {
+    transform: translateX(5px);
+}
+
+/* Prevent double animation on headers that already have it */
+.bfp-settings-table tr:hover td:first-child h2,
+.bfp-settings-table tr:hover td.bfp-column-30 h2 {
+    transform: none;
+}
+
+/* Exclude File Truncation section from hover animations */
+.bfp-settings-table .bfp-settings-table td:first-child,
+.bfp-settings-table .bfp-settings-table td.bfp-column-30,
+.bfp-settings-table .bfp-settings-table tr:hover td:first-child,
+.bfp-settings-table .bfp-settings-table tr:hover td.bfp-column-30 {
+    transform: none;
+}
+
+/* Gradient Borders for Sections */
+.bfp-main-table > tbody > tr > td > .bfp-settings-table:nth-child(1) {
+    border-top: 2px solid transparent;
+    border-image: linear-gradient(90deg, #7c3aed 0%, #6366f1 50%, #3b82f6 100%);
+    border-image-slice: 1;
+}
+
+.bfp-player-settings {
+    border-top: 2px solid transparent;
+    border-image: linear-gradient(90deg, #3b82f6 0%, #06b6d4 50%, #14b8a6 100%);
+    border-image-slice: 1;
+}
+
+/* Highlight Table - Remove border-radius */
+.bfp-highlight-table {
+    border: none !important;
+    background: linear-gradient(135deg, #EDE7F6 0%, #D1C4E9 100%) !important;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+/* Hover Effects */
+.bfp-settings-table tr:hover td {
+    background-color: rgba(99, 102, 241, 0.05);
+    transition: background-color 0.3s ease;
+}
+
+.bfp-settings-table label {
+    transition: color 0.3s ease;
+}
+
+.bfp-settings-table label:hover {
+    color: #6366f1;
+}
+
+/* Input Focus Effects */
+.bfp-settings-table input[type="text"]:focus,
+.bfp-settings-table input[type="number"]:focus,
+.bfp-settings-table textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.bfp-settings-table input[type="checkbox"]:checked,
+.bfp-settings-table input[type="radio"]:checked {
+    accent-color: #6366f1;
+}
+
+.bfp-em-text {
+    color: #666;
+}
+
+.bfp-settings-label {
+    margin-left: 20px;
+}
+
+/* Player Settings */
+.bfp-player-skin-table {
+    width: 100%;
+}
+
+.bfp-player-skin-cell {
+    width: 100%;
+    padding-left: 20px;
+}
+
+.bfp-single-player-row {
+    border-top: 1px solid #9C27B0;
+    border-bottom: 1px solid #9C27B0;
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    padding: 10px;
+}
+
+.bfp-single-player-label {
+    padding-left: 20px;
+}
+
+.bfp-on-cover {
+    margin-top: 10px;
+    padding: 8px;
+    background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+    border-left: 4px solid #4CAF50;
+}
+
+.bfp-on-cover i {
+    color: #666;
+    display: block;
+    margin-top: 4px;
+}
+
+/* File Protection Section */
+.bfp-protection-divider {
+    border: 1px solid #ddd;
+    margin: 15px 0;
+}
+
+.bfp-ffmpeg-info,
+.bfp-ffmpeg-example {
+    color: #666;
+}
+
+.bfp-watermark-input {
+    width: calc(100% - 60px) !important;
+}
+
+.bfp-watermark-button {
+    float: right;
+}
+
+.bfp-scope-table {
+    border: 1px solid #e1e1e1;
+    margin-top: 10px;
+}
+
+/* Analytics Section */
+.bfp-analytics-note {
+    color: #666;
+}
+
+.bfp-analytics-warning {
+    border: 1px solid #4A90E2;
+    margin-bottom: 10px;
+    padding: 5px;
+    background: linear-gradient(135deg, #E3F2FD 0%, #F8F9FA 100%);
+    border-radius: 4px;
+}
+
+.bfp-analytics-radio-spacer {
+    margin-left: 30px;
+}
+
+.bfp-analytics-g4 {
+    display: none;
+}
+
+.bfp-analytics-input {
+    width: 100%;
+}
+
+/* Cloud Storage Section */
+.bfp-cloud-info {
+    color: #666;
+}
+
+.bfp-oauth-success {
+    font-weight: bold;
+    color: green;
+}
+
+.bfp-cloud-instructions {
+    border: 1px solid #4FC3F7;
+    margin-bottom: 10px;
+    padding: 5px;
+    background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%);
+    border-radius: 4px;
+}
+
+/* Cloud Storage Collapsible */
+.bfp-cloud-arrow {
+    float: right;
+    transition: transform 0.3s ease;
+    font-size: 16px;
+}
+
+.bfp-cloud-arrow-open {
+    transform: rotate(90deg);
+}
+
+.bfp-cloud-content {
+    transition: all 0.3s ease;
+}
+
+.bfp-settings-table tr:hover .bfp-cloud-content {
+    background-color: rgba(99, 102, 241, 0.03);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+}
+
+/* Cloud Storage Tabs */
+.bfp-cloud-tabs {
+    margin-top: 15px;
+}
+
+.bfp-cloud-tab-buttons {
+    display: flex;
+    border-bottom: 2px solid #e1e1e1;
+    margin-bottom: 20px;
+}
+
+.bfp-cloud-tab-btn {
+    background: #f1f1f1;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-right: 2px;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.bfp-cloud-tab-btn:hover {
+    background-color: rgba(99, 102, 241, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+    color: #333;
+}
+
+.bfp-cloud-tab-active {
+    background: #2196F3 !important;
+    color: white !important;
+    border-bottom: 2px solid #2196F3;
+}
+
+.bfp-cloud-tab-content {
+    min-height: 200px;
+}
+
+.bfp-cloud-tab-panel {
+    display: none;
+}
+
+.bfp-cloud-tab-panel-active {
+    display: block;
+}
+
+.bfp-cloud-placeholder {
+    padding: 20px;
+    background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+    border-left: 4px solid #6C757D;
+}
+
+.bfp-cloud-placeholder h3 {
+    margin-top: 0;
+    color: #495057;
+}
+
+.bfp-cloud-placeholder p {
+    color: #6C757D;
+    line-height: 1.6;
+}
+
+.bfp-cloud-features {
+    margin-top: 15px;
+}
+
+.bfp-cloud-features h4 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.bfp-cloud-features ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.bfp-cloud-features li {
+    padding: 5px 0;
+    color: #6C757D;
+}
+
+/* Troubleshooting Section */
+.bfp-troubleshoot-item {
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bfp-troubleshoot-item h3 {
+    margin-top: 0;
+}
+
+.bfp-troubleshoot-item p {
+    font-weight: 600;
+    color: #333;
+}
+
+.bfp-troubleshoot-mobile {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+}
+
+.bfp-troubleshoot-mobile h3 {
+    color: #E65100;
+}
+
+.bfp-troubleshoot-performance {
+    background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+}
+
+.bfp-troubleshoot-performance h3 {
+    color: #2E7D32;
+}
+
+.bfp-troubleshoot-files {
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+}
+
+.bfp-troubleshoot-files h3 {
+    color: #7B1FA2;
+}
+
+.bfp-troubleshoot-gutenberg {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+}
+
+.bfp-troubleshoot-gutenberg h3 {
+    color: #1565C0;
+}
+
+.bfp-troubleshoot-redirect {
+    background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+}
+
+.bfp-troubleshoot-redirect h3 {
+    color: #F57F17;
+}
+
+.bfp-troubleshoot-cleanup {
+    background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+}
+
+.bfp-troubleshoot-cleanup h3 {
+    color: #C62828;
+}
+
+.bfp-troubleshoot-protip {
+    border: 1px solid #4CAF50;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+    border-radius: 8px;
+}
+
+/* Submit Button */
+.bfp-submit-wrapper {
+    margin-top: 20px;
+}
+
+.button-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.button-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* Column Width Fix */
+.bfp-column-30 {
+    width: 30%;
+}
+
+/* Full Width Inputs - Consolidating with existing */
+.bfp-input-full {
+    width: 100% !important;
+}
+
+/* No Border Tables */
+.bfp-table-noborder {
+    border: 0;
+}
+
+/* Player Settings First Column Width */
+.bfp-player-settings tr td:first-child {
+    width: 225px;
+}
+
+/* PRODUCTS LIST */
+table.wp-list-table.fixed{table-layout:auto;}
+.column-bfp_playback_counter{ white-space:nowrap; }
+.column-bfp_playback_counter>a{ display:flex !important;}
+.bfp-playback-counter{display:block;text-align:center;}
+
+/* LOADING ANIMATION */
+
+.bfp-skin-generate-btn,
+.bfp-skin-preview-btn{display:flex;flex-direction:row;align-items:center;}
+.bfp-skin-generate-btn:disabled::after,
+.bfp-skin-preview-btn:disabled::after{
+	content: " ";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 2px solid transparent;
+    border-top: 2px solid #999999;
+    border-radius: 50%;
+    animation: bfp-spin 1s linear infinite;
+    margin: 0 0 0 10px;
+}
+
+@keyframes bfp-spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+/* PLAYER OPTIONS PAGE STYLES - Only adding missing styles */
+
+/* Page Header - .bfp-tagline already exists, so using different class name */
+.bfp-page-tagline {
+    font-style: italic;
+    font-size: 12px;
+    color: #666;
+    margin-top: -10px;
+}
+
+/* Info Boxes */
+.bfp-info-box {
+    padding: 15px;
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.bfp-info-box-title {
+    color: #1565C0;
+    margin-top: 0;
+}
+
+.bfp-info-box-text {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.bfp-info-box-highlight {
+    color: #1565C0;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+/* Checkbox Containers */
+.bfp-checkbox-box {
+    padding: 10px;
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.bfp-checkbox-label {
+    padding-left: 20px;
+}
+
+/* Demo Files Section */
+.bfp-demo-checkbox-box {
+    padding: 15px;
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.bfp-demo-description {
+    margin: 8px 0 0 0;
+    color: #666;
+    font-style: italic;
+}
+
+.bfp-demo-files-row {
+    display: block;
+}
+
+.bfp-demo-files-hidden {
+    display: none;
+}
+
+.bfp-demo-files-label {
+    margin-bottom: 15px;
+}
+
+/* Direct Demo Box */
+.bfp-direct-demo-box {
+    padding: 15px;
+    background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+/* Tables - .bfp-main-table already exists */
+.bfp-options-inner-table {
+    border: 1px solid #e1e1e1;
+}
+
+.bfp-nested-protection-table {
+    border: 1px solid #e1e1e1;
+}
+
+/* General Settings Section */
+.bfp-general-settings-section {
+    background: linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bfp-general-settings-section .bfp-section-header {
+    background: rgba(92, 107, 192, 0.7);
+    cursor: pointer;
+}
+
+.bfp-general-settings-section h2 {
+    color: white !important;
+    margin: 0;
+}
+
+/* Player Settings Section */
+.bfp-player-settings-section {
+    background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bfp-player-settings-section .bfp-section-header {
+    background: rgba(0, 137, 123, 0.7);
+    cursor: pointer;
+}
+
+.bfp-player-settings-section h2 {
+    color: white !important;
+    margin: 0;
+}
+
+/* File Truncation Section */
+.bfp-file-truncation-section {
+    background: linear-gradient(135deg, #FCE4EC 0%, #F8BBD0 100%);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bfp-file-truncation-section .bfp-section-header {
+    background: rgba(194, 24, 91, 0.7);
+    cursor: pointer;
+}
+
+.bfp-file-truncation-section h2 {
+    color: white !important;
+    margin: 0;
+}
+
+/* Analytics Section */
+.bfp-analytics-section {
+    background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bfp-analytics-section .bfp-section-header {
+    background: rgba(245, 127, 23, 0.7);
+    cursor: pointer;
+}
+
+.bfp-analytics-section h2 {
+    color: white !important;
+    margin: 0;
+}
+
+/* Cloud Storage Section */
+.bfp-cloud-storage-section {
+    background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bfp-cloud-storage-section .bfp-section-header {
+    background: rgba(2, 136, 209, 0.7);
+    cursor: pointer;
+}
+
+.bfp-cloud-storage-section h2 {
+    color: white !important;
+    margin: 0;
+}
+
+/* Audio Engine Section */
+.bfp-audio-engine-section {
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bfp-audio-engine-section .bfp-section-header {
+    background: rgba(123, 31, 162, 0.7);
+    cursor: pointer;
+}
+
+.bfp-audio-engine-section h2 {
+    color: white !important;
+    margin: 0;
+}
+
+/* Section Collapsible Arrows - Position at far right */
+.bfp-section-arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+    font-size: 16px;
+    color: white;
+}
+
+.bfp-section-arrow-open {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.bfp-section-content {
+    transition: all 0.3s ease;
+}
+
+/* Update section headers to show cursor pointer and position relative for arrow */
+.bfp-section-header {
+    position: relative;
+    margin-bottom: 0;
+    padding: 15px;
+    border-bottom: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.bfp-section-header:hover {
+    filter: brightness(1.1);
+}
+
+/* Troubleshooting section header styling - keeping existing */
+.bfp-troubleshoot-section {
+    background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bfp-troubleshoot-section .bfp-section-header {
+    background: #FF5722;
+    margin: -15px -15px 15px -15px;
+    padding: 15px;
+    color: white;
+}
+
+.bfp-troubleshoot-section h2 {
+    color: white !important;
+    margin: 0;
+}
+
+/* Ensure nested tables have no borders */
+.bfp-section-content table.widefat {
+    border: none;
+    margin-bottom: 0;
+}
+
+.bfp-section-content > tr > td {
+    padding: 15px;
+}
+
+/* Remove background gradients from section containers */
+.bfp-general-settings-section,
+.bfp-player-settings-section,
+.bfp-file-truncation-section,
+.bfp-analytics-section,
+.bfp-cloud-storage-section,
+.bfp-audio-engine-section,
+.bfp-troubleshoot-section {
+    background: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+/* Keep section headers consistent */
+.bfp-general-settings-section .bfp-section-header,
+.bfp-player-settings-section .bfp-section-header,
+.bfp-file-truncation-section .bfp-section-header,
+.bfp-analytics-section .bfp-section-header,
+.bfp-cloud-storage-section .bfp-section-header,
+.bfp-audio-engine-section .bfp-section-header,
+.bfp-troubleshoot-section .bfp-section-header {
+    margin: 0;
+    padding: 15px;
+    color: white;
+}
+
+/* Remove the purple highlight table background */
+.bfp-highlight-table {
+    border: none !important;
+    background: none !important;
+    padding: 0;
+    margin-bottom: 0;
+}

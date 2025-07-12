@@ -232,25 +232,24 @@ class BandfrontPlayer {
     // ===== STATE MANAGEMENT SHORTCUTS =====
     
     /**
-     * Get state value - shortcut to config
+     * Get state value - delegates to config
+     * This provides a convenient shortcut from the main plugin instance
      */
-    public function get_state($key, $default = null, $product_id = null) {
-        return $this->_config->get_state($key, $default, $product_id);
+    public function get_state($key, $default = null, $product_id = null, $options = array()) {
+        return $this->config->get_state($key, $default, $product_id, $options);
     }
     
     /**
-     * Get product attribute - delegates to config
+     * Check if module is enabled - delegates to config
      */
-    public function get_product_attr($product_id, $attr, $default = false) {
-        return $this->_config->get_product_attr($product_id, $attr, $default);
+    public function is_module_enabled($module_name) {
+        return $this->config->is_module_enabled($module_name);
     }
     
-    /**
-     * Get global attribute - delegates to config
-     */
-    public function get_global_attr($attr, $default = false) {
-        return $this->_config->get_global_attr($attr, $default);
-    }
+    // Remove these legacy methods if they exist:
+    // - get_global_attr() 
+    // - get_product_attr()
+    // These should ONLY exist in BFP_Config for backward compatibility
     
     // ===== DELEGATED METHODS TO OTHER COMPONENTS =====
     

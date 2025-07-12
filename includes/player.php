@@ -75,7 +75,6 @@ class BFP_Player {
     
     /**
      * Include main player for a product
-     * Moved from player-renderer.php
      */
     public function include_main_player($product = '', $_echo = true) {
         $output = '';
@@ -97,7 +96,7 @@ class BFP_Player {
             return '';
         }
 
-        // Check if on_cover is enabled for shop pages using state handler
+        // Use get_state for single value retrieval
         $on_cover = $this->main_plugin->get_config()->get_state('_bfp_on_cover');
         if ($on_cover && (is_shop() || is_product_category() || is_product_tag())) {
             // Don't render the regular player on shop pages when on_cover is enabled
@@ -114,7 +113,7 @@ class BFP_Player {
         if ( ! empty( $files ) ) {
             $id = $product->get_id();
 
-            // Use state handler for product-specific settings
+            // Use get_state for single value with product context
             $show_in = $this->main_plugin->get_config()->get_state( '_bfp_show_in', null, $id );
             if (
                 ( 'single' == $show_in && ( ! function_exists( 'is_product' ) || ! is_product() ) ) ||
@@ -132,7 +131,7 @@ class BFP_Player {
                 $player_controls = 'track';  // 'track' means button controls
             }
             
-            // Get all player settings using bulk fetch
+            // Get all player settings using bulk fetch for performance
             $settings = $this->main_plugin->get_config()->get_states(array(
                 '_bfp_preload',
                 '_bfp_player_layout',
@@ -203,7 +202,7 @@ class BFP_Player {
         if ( ! empty( $files ) ) {
             $id = $product->get_id();
 
-            // Use state handler for settings
+            // Use get_state for single value with product context
             $show_in = $this->main_plugin->get_config()->get_state( '_bfp_show_in', null, $id );
             if (
                 ( 'single' == $show_in && ! is_singular() ) ||
@@ -604,8 +603,8 @@ class BFP_Player {
         
         global $BandfrontPlayer;
         
-        // Get audio engine setting using new state handler
-        $audio_engine = $BandfrontPlayer->get_state('_bfp_audio_engine');
+        // Use get_state for single value retrieval
+        $audio_engine = $BandfrontPlayer->get_config()->get_state('_bfp_audio_engine');
         
         // Enqueue base styles
         wp_enqueue_style(
@@ -655,7 +654,7 @@ class BFP_Player {
             wp_enqueue_style('wp-mediaelement');
             wp_enqueue_script('wp-mediaelement');
             
-            // Get selected player skin using new state handler
+            // Use get_state for single value retrieval
             $selected_skin = $BandfrontPlayer->get_config()->get_state('_bfp_player_layout');
         
             
@@ -692,7 +691,8 @@ class BFP_Player {
             '_bfp_ios_controls',
             '_bfp_fade_out',
             '_bfp_on_cover',
-            '_bfp_enable_visualizations'
+            '_bfp_enable_visualizations',
+            '_bfp_player_layout'
         );
         
         $settings = $BandfrontPlayer->get_config()->get_states($settings_keys);
@@ -705,7 +705,7 @@ class BFP_Player {
             'fade_out' => $settings['_bfp_fade_out'],
             'on_cover' => $settings['_bfp_on_cover'],
             'visualizations' => $settings['_bfp_enable_visualizations'],
-            'player_skin' => $selected_skin
+            'player_skin' => $settings['_bfp_player_layout']
         );
         
         wp_localize_script('bfp-engine', 'bfp_global_settings', $js_settings);

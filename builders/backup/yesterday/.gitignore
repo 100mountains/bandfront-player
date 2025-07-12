@@ -1,0 +1,37 @@
+# WordPress
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+
+# Backups
+*.backup
+*backup.php
+*backup.js
+
+# Test outputs
+test_outputs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+
+# Temporary files
+*.tmp
+*.temp
+
+# Bash scripts
+backup_plugin.sh
+backup_plugin_make_downloadable.sh
+clear_opcache.sh
+AI-CODE-RULES.md

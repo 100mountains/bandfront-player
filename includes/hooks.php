@@ -42,7 +42,8 @@ class BFP_Hooks {
             );
         } else {
             // On shop/archive pages, remove the title hook if on_cover is enabled
-            $on_cover = $this->main_plugin->get_state('_bfp_on_cover');
+            // Use get_state for single value retrieval
+            $on_cover = $this->main_plugin->get_config()->get_state('_bfp_on_cover');
             if (!$on_cover) {
                 $hooks_config['main_player'] = array(
                     'woocommerce_after_shop_loop_item_title' => 1,
@@ -172,7 +173,8 @@ class BFP_Hooks {
      * Conditionally add product title filter
      */
     public function conditionally_add_title_filter() {
-        $on_cover = $this->main_plugin->get_state('_bfp_on_cover');
+        // Use get_state instead of accessing config directly
+        $on_cover = $this->main_plugin->get_config()->get_state('_bfp_on_cover');
         $woocommerce = $this->main_plugin->get_woocommerce();
         
         if (!$on_cover && $woocommerce) {

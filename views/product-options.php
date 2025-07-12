@@ -37,25 +37,25 @@ if ( empty( $post ) ) {
 // Get the state manager
 $config = $GLOBALS['BandfrontPlayer']->get_config();
 
-// Get all product settings with proper context
-$enable_player    = $config->get_state( '_bfp_enable_player', false, $post->ID );
-$single_player    = $config->get_state( '_bfp_single_player', 0, $post->ID );
-$volume           = $config->get_state( '_bfp_player_volume', 1.0, $post->ID );
-$secure_player    = $config->get_state( '_bfp_secure_player', false, $post->ID );
-$file_percent     = $config->get_state( '_bfp_file_percent', 50, $post->ID );
-$merge_grouped    = intval( $config->get_state( '_bfp_merge_in_grouped', 0, $post->ID ) );
-$own_demos        = intval( $config->get_state( '_bfp_own_demos', 0, $post->ID ) );
-$direct_own_demos = intval( $config->get_state( '_bfp_direct_own_demos', 0, $post->ID ) );
-$demos_list       = $config->get_state( '_bfp_demos_list', array(), $post->ID );
-$play_all         = intval( $config->get_state( '_bfp_play_all', 0, $post->ID ) );
-$loop             = intval( $config->get_state( '_bfp_loop', 0, $post->ID ) );
-$preload          = $config->get_state( '_bfp_preload', 'none', $post->ID );
+// Use bulk fetch for all product settings
+$product_settings = $GLOBALS['BandfrontPlayer']->get_config()->get_states(array(
+    '_bfp_enable_player',
+    '_bfp_audio_engine',
+    '_bfp_merge_in_grouped',
+    '_bfp_single_player',
+    '_bfp_preload',
+    '_bfp_play_all',
+    '_bfp_loop',
+    '_bfp_player_volume',
+    '_bfp_secure_player',
+    '_bfp_file_percent',
+    '_bfp_own_demos',
+    '_bfp_direct_own_demos',
+    '_bfp_demos_list'
+), $post->ID);
 
-// Get audio engine setting if module is enabled
-$audio_engine = 'mediaelement'; // default
-if ( $config->is_module_enabled( 'audio-engine' ) ) {
-	$audio_engine = $config->get_state( '_bfp_audio_engine', 'mediaelement', $post->ID );
-}
+// Get global audio engine for comparison
+$global_audio_engine = $GLOBALS['BandfrontPlayer']->get_config()->get_state('_bfp_audio_engine');
 ?>
 <h2><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Product Music Player Settings', 'bandfront-player' ); ?></h2>
 <p class="bfp-page-tagline">customize essential player settings for this specific product</p>
@@ -73,7 +73,7 @@ if ( $config->is_module_enabled( 'audio-engine' ) ) {
 				</tr>
 				<tr>
 					<td><label for="_bfp_merge_in_grouped">📦 <?php esc_html_e( 'Merge grouped products', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_merge_in_grouped" name="_bfp_merge_in_grouped" <?php checked( $merge_grouped ); ?> /><br /><em class="bfp-em-text"><?php esc_html_e( 'Show "Add to cart" buttons and quantity fields within player rows for grouped products', 'bandfront-player' ); ?></em></td>
+					<td><input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_merge_in_grouped" name="_bfp_merge_in_grouped" <?php checked( $merge_in_grouped ); ?> /><br /><em class="bfp-em-text"><?php esc_html_e( 'Show "Add to cart" buttons and quantity fields within player rows for grouped products', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr>
 					<td valign="top">🎭 <?php esc_html_e( 'Player behavior', 'bandfront-player' ); ?></td>

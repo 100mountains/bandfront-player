@@ -40,7 +40,8 @@ class BFP_Analytics {
      * Increment playback counter
      */
     public function increment_playback_counter($product_id) {
-        if (!$this->main_plugin->get_global_attr('_bfp_playback_counter_column', 1)) {
+        // Use get_state for single value retrieval
+        if (!$this->main_plugin->get_config()->get_state('_bfp_playback_counter_column', 1)) {
             return;
         }
         

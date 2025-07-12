@@ -361,3 +361,14 @@ jQuery(function($) {
         window.BFP_AJAX.init();
     }
 });
+
+// Ensure we're using the localized settings from state manager
+jQuery(document).ready(function($) {
+    // Any admin JS that needs settings should use the localized data
+    // passed via wp_localize_script from the state manager
+    
+    // Example:
+    // var audioEngine = bfp_admin_settings.audio_engine; // From localized data
+    
+    // ...existing code...
+});

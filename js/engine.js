@@ -757,8 +757,13 @@ function initWaveSurferPlayer(container, audioUrl, options) {
     );
     
     jQuery(document).ready(function($) {
+        // Use localized settings
+        var audioEngine = bfp_global_settings.audio_engine;
+        var playSim = bfp_global_settings.play_simultaneously;
+        var onCover = bfp_global_settings.on_cover;
+        
         // Play button on cover functionality
-        if (bfp_global_settings.on_cover == '1') {
+        if (onCover == '1') {
             $(document).on('click', '.bfp-play-on-cover', function(e) {
                 e.preventDefault();
                 e.stopPropagation();

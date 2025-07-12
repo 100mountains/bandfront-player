@@ -33,4 +33,5 @@ package-lock.json
 # Bash scripts
 backup_plugin.sh
 backup_plugin_make_downloadable.sh
-clear_opcache.shbuilders/backup/old-code/
+clear_opcache.sh
+builders/backup/old-code/

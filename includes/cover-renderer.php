@@ -33,8 +33,8 @@ class BFP_Cover_Renderer {
             return false;
         }
         
-        // Check if on_cover feature is enabled
-        $on_cover = $this->main_plugin->get_state('_bfp_on_cover');
+        // Use get_state for single value retrieval
+        $on_cover = $this->main_plugin->get_config()->get_state('_bfp_on_cover');
         return (bool) $on_cover;
     }
     
@@ -112,8 +112,8 @@ class BFP_Cover_Renderer {
         
         $product_id = $product->get_id();
         
-        // Check if player is enabled for this product
-        $enable_player = $this->main_plugin->get_state('_bfp_enable_player', false, $product_id);
+        // Use get_state with product context
+        $enable_player = $this->main_plugin->get_config()->get_state('_bfp_enable_player', false, $product_id);
         if (!$enable_player) {
             return;
         }

@@ -25,8 +25,16 @@ wp_localize_script( 'bfp-admin-js', 'bfp_ajax', array(
     'dismiss_text' => __('Dismiss this notice', 'bandfront-player'),
 ));
 
-// Get all settings in one clean call
+// Get all settings using state manager's admin form method
 $settings = $GLOBALS['BandfrontPlayer']->get_config()->get_admin_form_settings();
+
+// For cloud settings, use bulk fetch
+$cloud_settings = $GLOBALS['BandfrontPlayer']->get_config()->get_states(array(
+    '_bfp_cloud_active_tab',
+    '_bfp_cloud_dropbox',
+    '_bfp_cloud_s3',
+    '_bfp_cloud_azure'
+));
 
 // Handle special cases
 $ffmpeg_system_path = defined( 'PHP_OS' ) && strtolower( PHP_OS ) == 'linux' && function_exists( 'shell_exec' ) ? @shell_exec( 'which ffmpeg' ) : '';
@@ -37,28 +45,20 @@ $bfp_drive = isset($bfp_cloud_settings['_bfp_drive']) ? $bfp_cloud_settings['_bf
 $bfp_drive_key = isset($bfp_cloud_settings['_bfp_drive_key']) ? $bfp_cloud_settings['_bfp_drive_key'] : '';
 $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 
-// Get cloud storage settings
-$cloud_active_tab = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_active_tab', 'google-drive');
-$cloud_dropbox = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_dropbox', array(
-    'enabled' => false,
-    'access_token' => '',
-    'folder_path' => '/bandfront-demos',
-));
-$cloud_s3 = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_s3', array(
-    'enabled' => false,
-    'access_key' => '',
-    'secret_key' => '',
-    'bucket' => '',
-    'region' => 'us-east-1',
-    'path_prefix' => 'bandfront-demos/',
-));
-$cloud_azure = $GLOBALS['BandfrontPlayer']->get_global_attr('_bfp_cloud_azure', array(
-    'enabled' => false,
-    'account_name' => '',
-    'account_key' => '',
-    'container' => '',
-    'path_prefix' => 'bandfront-demos/',
-));
+// Get cloud storage settings using bulk fetch for performance
+$settings_keys = array(
+    '_bfp_cloud_active_tab',
+    '_bfp_cloud_dropbox',
+    '_bfp_cloud_s3',
+    '_bfp_cloud_azure'
+);
+
+$cloud_settings = $GLOBALS['BandfrontPlayer']->get_config()->get_states($settings_keys);
+
+$cloud_active_tab = $cloud_settings['_bfp_cloud_active_tab'];
+$cloud_dropbox = $cloud_settings['_bfp_cloud_dropbox'];
+$cloud_s3 = $cloud_settings['_bfp_cloud_s3'];
+$cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 
 // Remove Google Drive settings UI from the settings page if present.
 // remove_all_actions( 'bfp_general_settings', 10 );

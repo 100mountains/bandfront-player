@@ -137,7 +137,8 @@ class BFP_File_Handler {
      * Delete purchased files based on reset interval
      */
     public function delete_purchased_files() {
-        if ($this->main_plugin->get_global_attr('_bfp_reset_purchased_interval', 'daily') == 'daily') {
+        // Use get_state for single value retrieval
+        if ($this->main_plugin->get_config()->get_state('_bfp_reset_purchased_interval', 'daily') == 'daily') {
             $this->_clearDir($this->_files_directory_path . 'purchased/');
             $this->_createDir();
         }
