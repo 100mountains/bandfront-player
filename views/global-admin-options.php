@@ -167,11 +167,6 @@ remove_all_actions( 'bfp_general_settings', 10 );
 					</td>
 				</tr>
 				<tr>
-					<td class="bfp-column-30"><label for="_bfp_fade_out">🎚️ <?php esc_html_e( 'Smooth fade out', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Apply fade out to playing audio when possible', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_fade_out" name="_bfp_fade_out" <?php print( ( $fade_out ) ? 'CHECKED' : '' ); ?> /><br>
-					<em class="bfp-em-text"><?php esc_html_e( 'Gradually fade out audio when switching tracks', 'bandfront-player' ); ?></em></td>
-				</tr>
-				<tr>
 					<td class="bfp-column-30"><label for="_bfp_purchased_times_text">📊 <?php esc_html_e( 'Purchase count text', 'bandfront-player' ); ?></label></td>
 					<td><input aria-label="<?php esc_attr_e( 'Purchased times text', 'bandfront-player' ); ?>" type="text" id="_bfp_purchased_times_text" name="_bfp_purchased_times_text" value="<?php print esc_attr( $purchased_times_text ); ?>" class="bfp-input-full" /><br>
 					<i class="bfp-em-text"><?php esc_html_e( 'Text shown in playlists when displaying purchase counts (use %d for the number)', 'bandfront-player' ); ?></i>
@@ -327,6 +322,11 @@ remove_all_actions( 'bfp_general_settings', 10 );
 						<input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_file_percent" name="_bfp_file_percent" min="0" max="100" value="<?php echo esc_attr( $file_percent ); ?>" /> % <br />
 						<em class="bfp-em-text"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></em>
 					</td>
+				</tr>
+				<tr>
+					<td class="bfp-column-30"><label for="_bfp_fade_out">🎚️ <?php esc_html_e( 'Smooth fade out', 'bandfront-player' ); ?></label></td>
+					<td><input aria-label="<?php esc_attr_e( 'Apply fade out to playing audio when possible', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_fade_out" name="_bfp_fade_out" <?php print( ( $fade_out ) ? 'CHECKED' : '' ); ?> /><br>
+					<em class="bfp-em-text"><?php esc_html_e( 'Gradually fade out audio when switching tracks', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr valign="top">
 					<td class="bfp-column-30">
