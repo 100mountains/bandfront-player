@@ -18,6 +18,7 @@ if (!defined('ABSPATH')) {
 define('BFP_VERSION', '0.1');
 define('BFP_PLUGIN_PATH', __FILE__);
 define('BFP_PLUGIN_BASE_NAME', plugin_basename(__FILE__));
+define('BFP_PLUGIN_URL', plugin_dir_url(__FILE__)); // Add missing constant
 define('BFP_WEBSITE_URL', get_option('siteurl'));
 define('BFP_REMOTE_TIMEOUT', 120);
 define('BFP_FILE_PERCENT', 100);
@@ -74,9 +75,17 @@ class BandfrontPlayer {
         require_once plugin_dir_path(__FILE__) . 'includes/woocommerce.php';
         require_once plugin_dir_path(__FILE__) . 'includes/hooks.php';
         
+        // Load widgets
+        require_once plugin_dir_path(__FILE__) . 'widgets/playlist_widget.php';
+        
         // Load admin if needed
         if (is_admin()) {
             require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
+        }
+        
+        // Load builders (Gutenberg, Elementor, etc.)
+        if ( file_exists( plugin_dir_path(__FILE__) . 'builders/builders.php' ) ) {
+            require_once plugin_dir_path(__FILE__) . 'builders/builders.php';
         }
     }
     
@@ -248,6 +257,17 @@ class BandfrontPlayer {
     }
     
     // ===== DELEGATED METHODS TO OTHER COMPONENTS =====
+    
+    /**
+     * Replace playlist shortcode
+     * Delegates to WooCommerce integration if available
+     */
+    public function replace_playlist_shortcode($atts = array()) {
+        if ($this->_woocommerce) {
+            return $this->_woocommerce->replace_playlist_shortcode($atts);
+        }
+        return '';
+    }
     
     /**
      * Check if user purchased product

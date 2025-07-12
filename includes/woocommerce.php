@@ -345,7 +345,7 @@ class BFP_WooCommerce {
 
         $this->main_plugin->enqueue_resources();
         wp_enqueue_style('bfp-playlist-widget-style', plugin_dir_url(dirname(__FILE__)) . 'widgets/playlist_widget/css/style.css', array(), BFP_VERSION);
-        wp_enqueue_script('bfp-playlist-widget-script', plugin_dir_url(dirname(__FILE__)) . 'widgets/playlist_widget/js/public.js', array(), BFP_VERSION);
+        wp_enqueue_script('bfp-playlist-widget-script', plugin_dir_url(dirname(__FILE__)) . 'widgets/playlist_widget/js/widget.js', array(), BFP_VERSION);
         wp_localize_script(
             'bfp-playlist-widget-script',
             'bfp_widget_settings',

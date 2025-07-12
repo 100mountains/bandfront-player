@@ -4,122 +4,91 @@ window.wp = window.wp || {};
 window.wp.domReady = window.wp.domReady || function(cb){cb();};
 
 window.wp.domReady(function() {
-	var blocks = window.wp.blocks;
-	var element = window.wp.element;
-	console.log('Registering block:', blocks, element);
-	console.log('bfp_gutenberg_editor_config:', typeof bfp_gutenberg_editor_config !== 'undefined' ? bfp_gutenberg_editor_config : 'NOT SET');
-	if (!blocks || !element) {
-		console.error('wp.blocks or wp.element not available!');
-		return;
-	}
-	var el = element.createElement,
-		InspectorControls = ('blockEditor' in wp) ? wp.blockEditor.InspectorControls : wp.editor.InspectorControls;
-
-	blocks.registerBlockType( 'bfp/bandfront-player-playlist', {
-		edit: function( props ) {
-			var children = [], focus = props.isSelected;
-
-			children.push(
-				el('textarea',
-					{
-						key : 'bfp_playlist_shortcode',
-						value: props.attributes.shortcode,
-						onChange: function(evt){
-							props.setAttributes({shortcode: evt.target.value});
-						},
-						className: 'bfp-playlist-shortcode-input'
-					}
-				)
-			);
-
-			children.push(
-				el(
-					'div', {className: 'bfp-iframe-container', key:'bfp_iframe_container'},
-					el('iframe',
-						{
-							key: 'bfp_iframe',
-							src: bfp_gutenberg_editor_config.url + '?bfp-preview=' + encodeURIComponent(props.attributes.shortcode),
-							height: 400,
-							width: '100%',
-							scrolling: 'no',
-							style: { border: 'none', display: 'block' },
-							onLoad: function(e) {
-								// Auto-resize iframe based on content
-								try {
-									var iframe = e.target;
-									var doc = iframe.contentDocument || iframe.contentWindow.document;
-									var height = doc.body.scrollHeight;
-									if (height > 0) {
-										iframe.style.height = height + 'px';
-									}
-								} catch(err) {
-									console.log('Could not auto-resize iframe:', err);
-								}
-							}
-						}
-					)
-				)
-			);
-
-			if(!!focus)
-			{
-				children.push(
-					el(
-						InspectorControls,
-						{ key : 'bfp_playlist' },
-						el(
-							'div',
-							{ key: 'cp_inspector_container' },
-							[
-								el(
-									'b',
-									{ key: 'bfp_inspector_help_main_attributes', style: { 'textTransform': 'uppercase' } },
-									'Main playlist attributes',
-									el('hr', { key: 'bfp_inspector_help_separator' })
-								),
-								el(
-									'p',
-									{ key: 'bfp_inspector_help_ids_attr' },
-									el('b', { key: 'bfp_inspector_help_ids_attr_b' }, 'products_ids: '),
-									bfp_gutenberg_editor_config.ids_attr_description
-								),
-								el(
-									'p',
-									{ key: 'categories_attr_description_cat_attr' },
-									el('b', { key: 'categories_attr_description_cat_attr_b' }, 'product_categories: '),
-									bfp_gutenberg_editor_config.categories_attr_description
-								),
-								el(
-									'p',
-									{ key: 'tags_attr_description_tag_attr' },
-									el('b', { key: 'bfp_inspector_help_ids_attr_b' }, 'product_tags: '),
-									bfp_gutenberg_editor_config.tags_attr_description
-								),
-								el(
-									'p',
-									{ key   : 'bfp_inspector_more_help', style : {fontWeight: 'bold'} },
-									bfp_gutenberg_editor_config.more_details
-								),
-								el(
-									'a',
-									{
-										key		: 'bfp_inspector_help_link',
-										href	: 'https://therob.lol/shortcodes',
-										target	: '_blank',
-										style   : {'marginBottom' : '20px', 'display' : 'block'}
-									},
-									'CLICK HERE'
-								),
-							]
-						)
-					)
-				);
-			}
-			return children;
-		},
-
-		save: function( props ) {
-			return props.attributes.shortcode;
-		}
-	});
-});
+    // Get dependencies
+    const { registerBlockType } = wp.blocks;
+    const { createElement: el } = wp.element;
+    const { InspectorControls } = wp.blockEditor || wp.editor;
+    const { PanelBody } = wp.components;
+    const { __ } = wp.i18n;
+    
+    // Register the block
+    registerBlockType('bfp/bandfront-player-playlist', {
+        edit: function(props) {
+            const { attributes, setAttributes, isSelected } = props;
+            const { shortcode } = attributes;
+            
+            // Get preview URL from localized config
+            const config = window.bfp_gutenberg_editor_config || {};
+            const previewUrl = config.url ? config.url + '?bfp-preview=' + encodeURIComponent(shortcode) : '';
+            
+            // Build the editor interface
+            const editorElements = [];
+            
+            // Main editor area
+            editorElements.push(
+                el('div', { key: 'editor-main', className: 'bfp-block-editor' },
+                    el('textarea', {
+                        key: 'shortcode-input',
+                        value: shortcode,
+                        onChange: function(event) {
+                            setAttributes({ shortcode: event.target.value });
+                        },
+                        className: 'bfp-playlist-shortcode-input',
+                        rows: 3,
+                        placeholder: __('Enter shortcode...', 'bandfront-player')
+                    }),
+                    previewUrl && el('div', { key: 'preview-container', className: 'bfp-iframe-container' },
+                        el('iframe', {
+                            src: previewUrl,
+                            width: '100%',
+                            height: '400',
+                            scrolling: 'no',
+                            style: { border: 'none', display: 'block' }
+                        })
+                    )
+                )
+            );
+            
+            // Inspector controls (sidebar)
+            if (isSelected) {
+                editorElements.push(
+                    el(InspectorControls, { key: 'inspector' },
+                        el(PanelBody, { 
+                            title: __('Playlist Settings', 'bandfront-player'),
+                            initialOpen: true 
+                        },
+                            el('div', { className: 'bfp-inspector-help' },
+                                el('p', {},
+                                    el('strong', {}, 'products_ids: '),
+                                    config.ids_attr_description || __('Comma-separated product IDs.', 'bandfront-player')
+                                ),
+                                el('p', {},
+                                    el('strong', {}, 'product_categories: '),
+                                    config.categories_attr_description || __('Comma-separated product category slugs.', 'bandfront-player')
+                                ),
+                                el('p', {},
+                                    el('strong', {}, 'product_tags: '),
+                                    config.tags_attr_description || __('Comma-separated product tag slugs.', 'bandfront-player')
+                                ),
+                                el('p', { style: { marginTop: '20px' } },
+                                    el('a', {
+                                        href: 'https://therob.lol/shortcodes',
+                                        target: '_blank',
+                                        rel: 'noopener noreferrer'
+                                    }, __('View Documentation', 'bandfront-player'))
+                                )
+                            )
+                        )
+                    );
+                }
+                
+                return editorElements;
+            },
+            
+            save: function() {
+                // Server-side rendering, so return null
+                return null;
+            }
+        });
+    });
+})();

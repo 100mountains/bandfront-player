@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! function_exists( 'bfp_register_playlist_widget' ) ) {
 	function bfp_register_playlist_widget() {
-		if ( ! class_exists( 'woocommerce' ) ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 		return register_widget( 'BFP_PLAYLIST_WIDGET' );
