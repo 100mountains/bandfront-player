@@ -533,18 +533,18 @@ The following settings have been removed from the UI and are now handled automat
 
 ### iOS Controls (`_bfp_ios_controls`)
 - **Previous:** Manual checkbox in troubleshooting
-- **Current:** Auto-detected based on user agent
-- **Implementation:** Checks for iPad/iPhone/iPod in HTTP_USER_AGENT
+- **Current:** Auto-detected in player.php based on user agent
+- **Implementation:** Local detection in components that need it
 
 ### Default Extension (`_bfp_default_extension`)  
 - **Previous:** Manual checkbox for extensionless files
-- **Current:** Always enabled with smart detection
-- **Implementation:** Checks cloud URLs and MIME types automatically
+- **Current:** Always enabled in audio.php
+- **Implementation:** Graceful handling in is_audio() method
 
 ### Disable 302 Redirects (`_bfp_disable_302`)
 - **Previous:** Manual checkbox to disable redirects
-- **Current:** Always serves files directly
-- **Implementation:** Direct file serving for better performance
+- **Current:** Smart detection in audio.php
+- **Implementation:** Local logic in output_file() method
 
 ## Active Troubleshooting Settings
 
@@ -559,3 +559,62 @@ Only these settings remain in the troubleshooting section:
 - **Purpose:** One-time action to regenerate demo files
 - **Type:** Action checkbox (not saved)
 - **Default:** N/A
+
+## Auto-Detection in Components
+
+The components now handle detection locally without needing state management:
+
+### iOS Device Detection (player.php)
+```php
+// Local detection in player component
+private function is_ios_device() {
+    return isset($_SERVER['HTTP_USER_AGENT']) && 
+           preg_match('/(iPad|iPhone|iPod)/i', $_SERVER['HTTP_USER_AGENT']);
+}
+```
+
+### File Handling (audio.php)
+```php
+// Always treat extensionless files gracefully
+// Handled directly in is_audio() method
+```
+
+### File Serving (audio.php)
+```php
+// Smart serving decision made locally
+// Based on file type and server configuration
+```
+
+These auto-detections are implemented directly in the components that need them, reducing complexity and improving performance by avoiding unnecessary state lookups.
+// In player.php
+class BFP_Player {
+    private function get_player_config($product_id = null) {
+        $config = array();
+        
+        // Auto-detect iOS and apply native controls
+        if ($this->main_plugin->get_config()->is_ios_device()) {
+            $config['iPadUseNativeControls'] = true;
+            $config['iPhoneUseNativeControls'] = true;
+        }
+        
+        return $config;
+    }
+}
+
+// In audio.php
+class BFP_Audio_Engine {
+    public function is_audio($file_path) {
+        // Always treat extensionless files as audio
+        if ($this->main_plugin->get_config()->should_treat_as_audio()) {
+            return true;
+        }
+    }
+    
+    public function output_file($args) {
+        // Use direct serving for better performance
+        if ($this->main_plugin->get_config()->should_serve_directly()) {
+            $this->serve_file_directly($args['file_path']);
+        }
+    }
+}
+```

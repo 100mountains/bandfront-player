@@ -15,14 +15,6 @@ if (!defined('ABSPATH')) {
  * 
  * Provides context-aware state management with automatic inheritance:
  * Product Setting → Global Setting → Default Value
- * 
- * USAGE GUIDELINES:
- * - get_state(): For single value retrieval with context-aware inheritance
- * - get_states(): For bulk retrieval of multiple values (performance optimization)
- * - get_player_state(): For frontend player initialization (minimal settings only)
- * - get_admin_form_settings(): For admin forms (includes type casting)
- * - get_global_attr(): Legacy method for backward compatibility
- * - get_product_attr(): Legacy method for backward compatibility
  */
 class BFP_Config {
     
@@ -31,81 +23,52 @@ class BFP_Config {
     private $_global_attrs = array();
     private $_player_layouts = array('dark', 'light', 'custom');
     private $_player_controls = array('button', 'all', 'default');
-    
-    /**
-     * Settings that support product-level overrides
-     * These can be customized per product
-     */
+
     private $_overridable_settings = array(
-        // === CORE PLAYER FUNCTIONALITY ===
-        '_bfp_enable_player' => false,              // Enable/disable player
-        '_bfp_audio_engine' => 'mediaelement',      // Audio engine selection
-        
-        // === PLAYBACK BEHAVIOR ===
-        '_bfp_single_player' => 0,                  // Use single player for multiple files
-        '_bfp_merge_in_grouped' => 0,               // Merge tracks in grouped products
-        '_bfp_play_all' => 0,                       // Play all tracks sequentially
-        '_bfp_loop' => 0,                           // Loop playback
-        '_bfp_preload' => 'none',                   // Audio preload strategy
-        '_bfp_player_volume' => 1.0,                // Default volume (0-1)
-        
-        // === DEMO/SECURE MODE ===
-        '_bfp_secure_player' => false,              // Enable demo/secure mode
-        '_bfp_file_percent' => 50,                  // Demo file percentage (0-100)
-        '_bfp_own_demos' => 0,                      // Use custom demo files
-        '_bfp_direct_own_demos' => 0,               // Play demo files directly
-        '_bfp_demos_list' => array(),               // List of demo files
+        '_bfp_enable_player' => false,
+        '_bfp_audio_engine' => 'mediaelement',
+        '_bfp_single_player' => 0,
+        '_bfp_merge_in_grouped' => 0,
+        '_bfp_play_all' => 0,
+        '_bfp_loop' => 0,
+        '_bfp_preload' => 'none',
+        '_bfp_player_volume' => 1.0,
+        '_bfp_secure_player' => false,
+        '_bfp_file_percent' => 50,
+        '_bfp_own_demos' => 0,
+        '_bfp_direct_own_demos' => 0,
+        '_bfp_demos_list' => array(),
     );
-    
-    /**
-     * Settings that are global-only (no product overrides)
-     * These apply to all products uniformly
-     */
+
     private $_global_only_settings = array(
-        // === DISPLAY SETTINGS ===
-        '_bfp_show_in' => 'all',                    // Where to show (all/single/multiple)
-        '_bfp_player_layout' => 'dark',             // Player skin theme
-        '_bfp_player_controls' => 'default',        // Control type
-        '_bfp_player_title' => 1,                   // Show track titles
-        '_bfp_on_cover' => 1,                       // Play button on cover image
-        '_bfp_force_main_player_in_title' => 1,     // Force player in product title
-        '_bfp_players_in_cart' => false,            // Show players in cart
-        '_bfp_play_simultaneously' => 0,            // Allow simultaneous playback
-        
-        // === ACCESS CONTROL ===
-        '_bfp_registered_only' => 0,                // Restrict to registered users
-        '_bfp_purchased' => 0,                      // Restrict to purchased products
-        '_bfp_reset_purchased_interval' => 'daily', // Reset interval
-        '_bfp_fade_out' => 0,                       // Fade out at demo end
+        '_bfp_show_in' => 'all',
+        '_bfp_player_layout' => 'dark',
+        '_bfp_player_controls' => 'default',
+        '_bfp_player_title' => 1,
+        '_bfp_on_cover' => 1,
+        '_bfp_force_main_player_in_title' => 1,
+        '_bfp_players_in_cart' => false,
+        '_bfp_play_simultaneously' => 0,
+        '_bfp_registered_only' => 0,
+        '_bfp_purchased' => 0,
+        '_bfp_reset_purchased_interval' => 'daily',
+        '_bfp_fade_out' => 0,
         '_bfp_purchased_times_text' => '- purchased %d time(s)',
-        '_bfp_message' => '',                       // Custom message for non-purchasers
-        
-        // === FFMPEG SETTINGS ===
-        '_bfp_ffmpeg' => 0,                         // Enable FFmpeg
-        '_bfp_ffmpeg_path' => '',                   // Path to FFmpeg binary
-        '_bfp_ffmpeg_watermark' => '',              // Audio watermark file
-        
-        // === TROUBLESHOOTING ===
-        '_bfp_default_extension' => false,          // Force mp3 extension
-        '_bfp_ios_controls' => false,               // iOS-specific controls
-        '_bfp_onload' => false,                     // Load on page load
-        '_bfp_disable_302' => 0,                    // Disable 302 redirects
-        
-        // === ANALYTICS ===
-        '_bfp_playback_counter_column' => 1,        // Show playback counter
-        '_bfp_analytics_integration' => 'ua',       // Analytics type (ua/ga4)
-        '_bfp_analytics_property' => '',            // Analytics property ID
-        '_bfp_analytics_api_secret' => '',          // GA4 API secret
-        
-        // === ADVANCED FEATURES ===
-        '_bfp_enable_visualizations' => 0,          // Enable waveforms
-        '_bfp_modules_enabled' => array(            // Module states
+        '_bfp_message' => '',
+        '_bfp_ffmpeg' => 0,
+        '_bfp_ffmpeg_path' => '',
+        '_bfp_ffmpeg_watermark' => '',
+        '_bfp_onload' => false,
+        '_bfp_playback_counter_column' => 1,
+        '_bfp_analytics_integration' => 'ua',
+        '_bfp_analytics_property' => '',
+        '_bfp_analytics_api_secret' => '',
+        '_bfp_enable_visualizations' => 0,
+        '_bfp_modules_enabled' => array(
             'audio-engine' => true,
             'cloud-engine' => true,
         ),
-        
-        // === CLOUD STORAGE ===
-        '_bfp_cloud_active_tab' => 'google-drive',  // Active cloud tab
+        '_bfp_cloud_active_tab' => 'google-drive',
         '_bfp_cloud_dropbox' => array(
             'enabled' => false,
             'access_token' => '',
@@ -127,115 +90,82 @@ class BFP_Config {
             'path_prefix' => 'bandfront-demos/',
         ),
     );
-    
+
     public function __construct($main_plugin) {
         $this->main_plugin = $main_plugin;
     }
-    
-    /**
-     * Get state value with context-aware inheritance
-     * 
-     * This is the main method for retrieving any setting value.
-     * It automatically handles inheritance based on the context.
-     * 
-     * @param string $key Setting key (e.g., '_bfp_audio_engine')
-     * @param mixed $default Default value if not found anywhere
-     * @param int|null $product_id Optional product ID for context
-     * @param array $options Additional options (e.g., ['force_global' => true])
-     * @return mixed The resolved setting value
-     */
+
     public function get_state($key, $default = null, $product_id = null, $options = array()) {
-        // Determine actual default if not provided
         if ($default === null) {
             $default = $this->get_default_value($key);
         }
-        
-        // Check if this is a global-only setting or forced to global
+
         if ($this->is_global_only($key) || !empty($options['force_global'])) {
             return $this->get_global_attr($key, $default);
         }
-        
-        // If product context is provided and setting is overridable
+
         if ($product_id && $this->is_overridable($key)) {
-            // First check product-level cache
             if (isset($this->_products_attrs[$product_id][$key])) {
                 $value = $this->_products_attrs[$product_id][$key];
                 if ($this->is_valid_override($value, $key)) {
                     return apply_filters('bfp_state_value', $value, $key, $product_id, 'product');
                 }
             }
-            
-            // Check if product has the meta
+
             if (metadata_exists('post', $product_id, $key)) {
                 $value = get_post_meta($product_id, $key, true);
-                
-                // Cache it
+
                 if (!isset($this->_products_attrs[$product_id])) {
                     $this->_products_attrs[$product_id] = array();
                 }
+
                 $this->_products_attrs[$product_id][$key] = $value;
-                
-                // Check if it's a valid override
+
                 if ($this->is_valid_override($value, $key)) {
                     return apply_filters('bfp_state_value', $value, $key, $product_id, 'product');
                 }
             }
         }
-        
-        // Fall back to global setting
+
         return $this->get_global_attr($key, $default);
     }
-    
-    /**
-     * Check if a value is a valid override (not empty or 'global')
-     */
+
     private function is_valid_override($value, $key) {
-        // Special handling for audio engine
         if ($key === '_bfp_audio_engine') {
-            return !empty($value) && 
-                   $value !== 'global' && 
+            return !empty($value) &&
+                   $value !== 'global' &&
                    in_array($value, array('mediaelement', 'wavesurfer'));
         }
-        
-        // Special handling for boolean settings stored as strings
-        if (in_array($key, array('_bfp_enable_player', '_bfp_secure_player', '_bfp_merge_in_grouped', 
-                                 '_bfp_single_player', '_bfp_play_all', '_bfp_loop', '_bfp_own_demos', 
+
+        if (in_array($key, array('_bfp_enable_player', '_bfp_secure_player', '_bfp_merge_in_grouped',
+                                 '_bfp_single_player', '_bfp_play_all', '_bfp_loop', '_bfp_own_demos',
                                  '_bfp_direct_own_demos'))) {
             return $value === '1' || $value === 1 || $value === true;
         }
-        
-        // Special handling for preload values
+
         if ($key === '_bfp_preload') {
             return in_array($value, array('none', 'metadata', 'auto'));
         }
-        
-        // Special handling for file percent (must be 0-100)
+
         if ($key === '_bfp_file_percent') {
             return is_numeric($value) && $value >= 0 && $value <= 100;
         }
-        
-        // Special handling for volume (must be 0-1)
+
         if ($key === '_bfp_player_volume') {
             return is_numeric($value) && $value >= 0 && $value <= 1;
         }
-        
-        // For numeric values
+
         if (is_numeric($value)) {
             return true;
         }
-        
-        // For arrays
+
         if (is_array($value)) {
             return !empty($value);
         }
-        
-        // For strings
+
         return !empty($value) && $value !== 'global' && $value !== 'default';
     }
-    
-    /**
-     * Get default value for a setting
-     */
+
     private function get_default_value($key) {
         if (isset($this->_overridable_settings[$key])) {
             return $this->_overridable_settings[$key];
@@ -245,43 +175,29 @@ class BFP_Config {
         }
         return false;
     }
-    
-    /**
-     * Check if a setting is global-only
-     */
+
     private function is_global_only($key) {
         return isset($this->_global_only_settings[$key]);
     }
-    
-    /**
-     * Check if a setting supports product-level overrides
-     */
+
     private function is_overridable($key) {
         return isset($this->_overridable_settings[$key]);
     }
-    
-    /**
-     * Get all settings for a specific context
-     * 
-     * @param int|null $product_id Product ID for context
-     * @return array All resolved settings
-     */
+
     public function get_all_settings($product_id = null) {
         $settings = array();
-        
-        // Get all possible settings
         $all_keys = array_merge(
             array_keys($this->_global_only_settings),
             array_keys($this->_overridable_settings)
         );
-        
+
         foreach ($all_keys as $key) {
             $settings[$key] = $this->get_state($key, null, $product_id);
         }
-        
+
         return apply_filters('bfp_all_settings', $settings, $product_id);
     }
-    
+
     /**
      * Bulk get multiple settings efficiently
      * 
@@ -356,11 +272,8 @@ class BFP_Config {
             'ffmpeg_watermark' => array('key' => '_bfp_ffmpeg_watermark', 'type' => 'string'),
             
             // Troubleshooting settings
-            'troubleshoot_default_extension' => array('key' => '_bfp_default_extension', 'type' => 'bool'),
             'force_main_player_in_title' => array('key' => '_bfp_force_main_player_in_title', 'type' => 'int'),
-            'ios_controls' => array('key' => '_bfp_ios_controls', 'type' => 'bool'),
             'troubleshoot_onload' => array('key' => '_bfp_onload', 'type' => 'bool'),
-            'disable_302' => array('key' => '_bfp_disable_302', 'type' => 'trim_int'),
             
             // Player settings
             'enable_player' => array('key' => '_bfp_enable_player', 'type' => 'bool'),
@@ -447,29 +360,24 @@ class BFP_Config {
     /**
      * Get minimal player state for frontend/runtime use
      * 
-     * Returns only the essential settings needed for player initialization
-     * and operation, excluding admin-only and diagnostic options.
-     *
      * @param int|null $product_id Optional product context for overrides
      * @return array Player state containing only runtime-necessary settings
-     * 
-     * @since 0.1
      */
     public function get_player_state($product_id = null) {
         // Define the essential player settings needed for runtime
         $player_keys = array(
-            '_bfp_enable_player',      // Core functionality toggle
-            '_bfp_player_layout',      // Visual theme
-            '_bfp_player_controls',    // Control type
-            '_bfp_player_volume',      // Default volume
-            '_bfp_single_player',      // Single player mode
-            '_bfp_secure_player',      // Demo/secure mode
-            '_bfp_file_percent',       // Demo percentage
-            '_bfp_play_all',           // Play all tracks
-            '_bfp_loop',               // Loop playback
-            '_bfp_preload',            // Preload strategy
-            '_bfp_audio_engine',       // Audio engine selection
-            '_bfp_merge_in_grouped',   // Grouped product behavior
+            '_bfp_enable_player',
+            '_bfp_player_layout',
+            '_bfp_player_controls',
+            '_bfp_player_volume',
+            '_bfp_single_player',
+            '_bfp_secure_player',
+            '_bfp_file_percent',
+            '_bfp_play_all',
+            '_bfp_loop',
+            '_bfp_preload',
+            '_bfp_audio_engine',
+            '_bfp_merge_in_grouped',
         );
         
         // Use bulk fetch for efficiency
@@ -477,31 +385,6 @@ class BFP_Config {
         
         // Apply any runtime-specific filters
         return apply_filters('bfp_player_state', $player_state, $product_id);
-    }
-    
-    /**
-     * Get product attribute
-     * Keep for compatibility with existing code
-     */
-    public function get_product_attr($product_id, $attr, $default = false) {
-        return $this->get_state($attr, $default, $product_id);
-    }
-    
-    // Backward compatibility methods (keep existing interface)
-    
-    /**
-     * Get global attribute - DEPRECATED, use get_state() instead
-     * @deprecated Use get_state() without product_id parameter
-     */
-    public function get_global_attr($attr, $default = false) {
-        if (empty($this->_global_attrs)) {
-            $this->_global_attrs = get_option('bfp_global_settings', array());
-        }
-        if (!isset($this->_global_attrs[$attr])) {
-            $this->_global_attrs[$attr] = $this->get_default_value($attr) !== null ? 
-                                          $this->get_default_value($attr) : $default;
-        }
-        return apply_filters('bfp_global_attr', $this->_global_attrs[$attr], $attr);
     }
     
     /**
@@ -576,5 +459,21 @@ class BFP_Config {
      */
     public function get_all_modules() {
         return $this->get_state('_bfp_modules_enabled');
+    }
+
+    // Enhanced compatibility methods
+    public function get_global_attr($key, $default = null) {
+        if (empty($this->_global_attrs)) {
+            $this->_global_attrs = get_option('bfp_global_settings', array());
+        }
+        if (!isset($this->_global_attrs[$key])) {
+            $this->_global_attrs[$key] = $this->get_default_value($key) !== null ? 
+                                          $this->get_default_value($key) : $default;
+        }
+        return apply_filters('bfp_global_attr', $this->_global_attrs[$key], $key);
+    }
+
+    public function get_product_attr($product_id, $attr, $default = false) {
+        return $this->get_state($attr, $default, $product_id);
     }
 }

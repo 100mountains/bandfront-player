@@ -4,7 +4,8 @@ ANALYSIS PROGRAMS
 PHP-STAN
 
 etc
-
+troubleshooting move
+ (player.php for iOS detection, audio.php for file handling).
 
 GLOBAL-ADMIN-OPTIONS AJAX.
 
