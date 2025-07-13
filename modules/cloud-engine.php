@@ -1,7 +1,17 @@
 <?php
 /**
  * Cloud Storage Module for Bandfront Player
- * Handles Google Drive integration for audio file storage
+ * 
+ * This module provides:
+ * - Cloud storage provider settings UI
+ * - Integration with cloud storage APIs
+ * - URL processing for cloud-hosted files
+ * - Hooks for extending cloud functionality
+ * 
+ * Currently implements Google Drive with plans for:
+ * - Dropbox
+ * - AWS S3
+ * - Azure Blob Storage
  *
  * @package BandfrontPlayer
  * @subpackage Modules

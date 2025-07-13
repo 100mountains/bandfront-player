@@ -1,204 +1,182 @@
-# Bandfront Player - AI Coding Rules & Guidelines
+# AI Code Rules for Bandfront Player
 
-## Core Architecture Principles
+## Core Principles
 
-### 1. State Management is King
-- Always use BFP_Config class for ALL settings via get_state() method
-- Context-aware inheritance: Product Setting → Global Setting → Default Value
-- Never access post meta or options directly - always go through state manager
-- **Example:**
-  // ✅ CORRECT
-  $value = $this->main_plugin->get_state('_bfp_audio_engine', 'mediaelement', $product_id);
-  
-  // ❌ WRONG
-  $value = get_post_meta($product_id, '_bfp_audio_engine', true);
+1. **State Management First**
+   - All settings MUST go through the state manager (`BFP_Config`)
+   - Never access post meta or options directly
+   - Use bulk fetch (`get_states()`) when retrieving multiple values
+   - Respect the inheritance hierarchy: Product → Global → Default
 
-### 2. Class Architecture & Separation
-Each class has ONE clear purpose:
+2. **Component Access**
+   - Always access components through the main plugin instance getters
+   - Never instantiate components directly
+   - Follow initialization order (see STATE-MANAGEMENT.md)
 
-**Core Classes:**
-- BandfrontPlayer - Main coordinator class (the hub)
-- BFP_Config - State management and settings (state-manager.php)
-- BFP_Hooks - WordPress hook registrations ONLY (hooks.php)
-- BFP_Player - Player HTML generation and resource management (player.php)
-- BFP_Audio_Engine - Audio file processing and streaming (audio.php)
-- BFP_Admin - Admin interface and settings pages (admin.php)
-- BFP_WooCommerce - WooCommerce-specific integrations (woocommerce.php)
+3. **Class Architecture**
+   - **Refer to STATE-MANAGEMENT.md for all class information**
+   - No need to define classes here - they're documented in the state management file
+   - Focus on implementation patterns and rules
 
-**Rendering Classes:**
-- BFP_Player_Renderer - Context-aware player rendering (player-renderer.php)
-- BFP_Playlist_Renderer - Multi-product playlist generation (playlist-renderer.php)
-- BFP_Cover_Renderer - Play button overlays on images (cover-renderer.php)
+## Critical Rules
 
-**Utility Classes:**
-- BFP_File_Handler - Demo file management (utils/files.php)
-- BFP_Cloud_Tools - Cloud storage URL processing (utils/cloud.php)
-- BFP_Cache - Cross-plugin cache clearing (utils/cache.php)
-- BFP_Analytics - Playback tracking (utils/analytics.php)
-- BFP_Preview - Preview handling (utils/preview.php)
-- BFP_Updater - Auto updates (utils/update.php)
-- BFP_Utils - General utilities (utils/utils.php)
+### 1. State Access Patterns
 
-### 3. Dependency Injection Pattern
-- Classes receive main plugin instance in constructor
-- Access other components through main plugin
-- Example: $config = $this->main_plugin->get_config();
+```php
+// ✅ CORRECT - Single value
+$value = $this->main_plugin->get_config()->get_state('_bfp_audio_engine', 'mediaelement', $product_id);
 
-### 4. Context-Aware Design Rules
+// ✅ CORRECT - Multiple values (PREFERRED)
+$settings = $this->main_plugin->get_config()->get_states(array(
+    '_bfp_audio_engine',
+    '_bfp_play_simultaneously',
+    '_bfp_fade_out'
+), $product_id);
 
-Shop vs Product Pages:
-- Shop pages: Show button/minimal controls only
-- Product pages: Show full player with all controls
-- Always check context before rendering
+// ❌ WRONG - Direct meta access
+$value = get_post_meta($product_id, '_bfp_audio_engine', true);
 
-Cover Overlay Behavior:
-- Always enabled (falls back to below title if needed)
-- Implemented via dedicated BFP_Cover_Renderer class
-- CSS goes in external files, NO inline styles
+// ❌ WRONG - Direct option access
+$value = get_option('_bfp_audio_engine');
+```
 
-### 5. Settings Hierarchy
+### 2. Component Access
 
-Global-Only Settings (no product overrides):
-- _bfp_show_in
-- _bfp_player_layout
-- _bfp_player_controls
-- _bfp_player_title
-- _bfp_on_cover
-- Analytics settings
-- FFmpeg settings
+```php
+// ✅ CORRECT
+$audio_core = $this->main_plugin->get_audio_core();
+$player = $this->main_plugin->get_player_manager();
 
-Product-Overridable Settings:
-- _bfp_enable_player
-- _bfp_audio_engine
-- _bfp_secure_player
-- _bfp_file_percent
-- _bfp_loop
-- _bfp_volume
+// ❌ WRONG
+$audio_core = new BFP_Audio_Engine($this->main_plugin);
+```
 
-## Development Standards
+### 3. Context Awareness
 
-### 6. CSS Rules
-- NO INLINE CSS EVER - Use external CSS files
-- Organize by component: /css/style.css (frontend), /css/style-admin.css (admin), /css/skins/*.css
-- BEM naming: .bfp-component__element--modifier
+```php
+// Check context before registering hooks
+if (function_exists('is_product') && is_product()) {
+    // Single product page logic
+} else {
+    // Archive/shop page logic
+}
+```
 
-### 7. File Organization
-/includes/
-  *.php                   # Core classes (no class-bfp- prefix)
-  /utils/                 # Utility classes
-/modules/                 # Optional feature modules
-/views/                   # Admin UI templates
-/css/                     # Styles
-/js/                      # Scripts
+### 4. File Naming Convention
 
-### 8. Hook Registration Pattern
-- Hooks class delegates only - no logic in hook callbacks
-- Dynamic registration based on context
-- Example: Hook calls renderer method which contains actual logic
+- Core classes: `/includes/{function}.php` (e.g., `player.php`, `audio.php`)
+- Utilities: `/includes/utils/{utility}.php` (e.g., `files.php`, `cache.php`)
+- Modules: `/modules/{module-name}.php` (e.g., `audio-engine.php`)
+- No `class-` prefix in filenames
 
-### 9. Security Standards
-- Always escape output: esc_html(), esc_attr(), esc_url()
-- Verify nonces: wp_verify_nonce()
-- Sanitize input: sanitize_text_field(), wp_kses_post()
-- Capability checks: current_user_can()
+### 5. Security Rules
 
-### 10. Performance Rules
-- Lazy load components - Only instantiate when needed
-- Cache in memory during request lifecycle
-- Bulk fetch settings when possible
-- Minimize database queries
+```php
+// Always sanitize input
+$value = sanitize_text_field(wp_unslash($_POST['field']));
 
-### 11. Error Handling
-- Use try-catch for external operations
-- Log errors properly: error_log()
-- Graceful fallbacks - never break the page
+// Always verify nonces
+if (!wp_verify_nonce($_POST['nonce'], 'action')) {
+    return;
+}
 
-### 12. Naming Conventions
-- Classes: BFP_Class_Name (prefix with BFP_)
-- Methods: snake_case public, _snake_case private
-- Constants: BFP_CONSTANT_NAME
-- Hooks: bfp_hook_name
-- Meta keys: _bfp_meta_key (underscore = hidden)
-- CSS classes: .bfp-element-name
-- JS globals: bfp_variable_name
+// Always check capabilities
+if (!current_user_can('manage_options')) {
+    return;
+}
 
-### 13. Type Safety (PHP 7.4+)
-- Use type declarations where possible
-- Return type hints for clarity
+// Always escape output
+echo esc_html($value);
+echo esc_attr($attribute);
+echo esc_url($url);
+```
 
-## Feature Implementation Patterns
+### 6. Performance Rules
 
-### 14. Adding New Features
-1. Create dedicated class in /includes/
-2. Register in main plugin class
-3. Add hooks via Hooks class
-4. Store settings via Config class
-5. Add admin UI in Admin class
+1. **Use bulk operations** when dealing with multiple settings
+2. **Enqueue resources only when needed** (check context first)
+3. **Cache expensive operations** in class properties
+4. **Lazy load components** - initialize only when needed
 
-### 15. Renderer Pattern
-For any UI output, create a dedicated renderer:
-- Get settings via state manager
-- Output clean HTML
-- No inline styles or scripts
+### 7. Hook Registration
 
-### 16. Module System
-Optional features use the module pattern:
-- Check if enabled: $config->is_module_enabled('module-name')
-- Load conditionally in BFP_Admin::load_admin_modules()
-- Store state in _bfp_modules_enabled
+```php
+// Dynamic hook registration based on context
+public function register_dynamic_hooks() {
+    $hooks_config = $this->get_hooks_config();
+    
+    foreach ($hooks_config['main_player'] as $hook => $priority) {
+        add_action($hook, array($this->main_plugin->get_player(), 'include_main_player'), $priority);
+    }
+}
+```
 
-### 17. JavaScript Integration
-- Localize data properly with wp_localize_script()
-- Use jQuery safely: jQuery(function($) { ... });
-- Namespace everything to avoid global scope pollution
+### 8. Error Handling
 
-## Key Components Reference
+```php
+// Graceful degradation
+if (!$product) {
+    return '';  // Return empty string, not false or null
+}
 
-Main Classes:
-- BandfrontPlayer - Main plugin orchestrator
-- BFP_Config - State management (state-manager.php)
-- BFP_Audio_Engine - Audio processing (audio.php)
-- BFP_Player - Player generation (player.php)
-- BFP_Hooks - Hook management (hooks.php)
-- BFP_Admin - Admin interface (admin.php)
+// Check method existence
+if (method_exists($object, 'method_name')) {
+    $object->method_name();
+}
 
-Renderers:
-- BFP_Player_Renderer - Product players (player-renderer.php)
-- BFP_Playlist_Renderer - Playlists (playlist-renderer.php)
-- BFP_Cover_Renderer - Cover overlays (cover-renderer.php)
+// Array bounds checking
+if (isset($array[$key])) {
+    $value = $array[$key];
+}
+```
 
-Utilities (/includes/utils/):
-- BFP_File_Handler - File operations (files.php)
-- BFP_Cloud_Tools - Cloud storage (cloud.php)
-- BFP_Cache - Cache management (cache.php)
-- BFP_Analytics - Tracking (analytics.php)
-- BFP_Preview - Preview handling (preview.php)
-- BFP_Updater - Auto updates (update.php)
-- BFP_Utils - General utilities (utils.php)
+### 9. Data Attributes
 
-## Remember: The Golden Rules
-1. State management for EVERYTHING - Use BFP_Config
-2. NO inline CSS - External files only
-3. Context matters - Check if shop or product page
-4. Security first - Escape, sanitize, verify
-5. Single responsibility - One class, one job
-6. Test the inheritance - Product → Global → Default
-- **CSS classes**: `.bfp-element-name`
-- **JS globals**: `bfp_variable_name`
+```html
+<!-- Player MUST have these attributes -->
+<audio 
+    class="bfp-player {style} {track-class-if-button}"
+    data-product="{product-id}"
+    data-file-index="{index}"
+    data-audio-engine="{engine}"
+>
+```
 
-### 13. Type Safety (PHP 7.4+)
-- **Use type declarations** where possible
-- **Return type hints** for clarity
-- **Example:**
-  ```php
-  public function get_state(string $key, $default = null, ?int $product_id = null): mixed {
-      // Implementation
-  }
-  ```
+### 10. Module System
 
-## Feature Implementation Patterns
+```php
+// Check module status before using features
+if ($this->main_plugin->get_config()->is_module_enabled('cloud-engine')) {
+    // Cloud features available
+}
+```
 
-### 15. Adding New Features
+## Common Pitfalls to Avoid
+
+1. **Never use legacy methods** like `get_global_attr()` or `get_product_attr()`
+2. **Never hardcode settings** - always use state manager
+3. **Never assume WooCommerce is active** - check first
+4. **Never output without escaping**
+5. **Never trust user input** - always sanitize
+
+## Testing Checklist
+
+- [ ] State manager used for all settings?
+- [ ] Components accessed via getters?
+- [ ] Context checked before hooks?
+- [ ] Input sanitized?
+- [ ] Output escaped?
+- [ ] Nonces verified?
+- [ ] Capabilities checked?
+- [ ] Bulk fetch used where appropriate?
+- [ ] Resources enqueued conditionally?
+
+## Quick Reference
+
+For detailed class information, methods, and architecture:
+- See `STATE-MANAGEMENT.md` for complete class reference
+- See `MAP.md` for detailed code flow
+- See `MAP_OVERVIEW.md` for high-level architecture
 1. **Create dedicated class** in `/includes/`
 2. **Register in main plugin** class
 3. **Add hooks via Hooks Manager**

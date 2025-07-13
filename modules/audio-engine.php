@@ -2,8 +2,14 @@
 /**
  * Audio Engine Module for Bandfront Player
  * 
- * Provides settings for selecting between MediaElement.js and WaveSurfer.js
- * audio engines, both globally and per-product.
+ * This module provides:
+ * - Audio engine selection UI for global settings
+ * - Audio engine selection UI for product settings
+ * - Filters for engine-specific behavior
+ * - Hooks for extending audio functionality
+ * 
+ * While currently focused on settings UI, this module serves as the 
+ * central point for all audio engine related functionality.
  *
  * @package BandfrontPlayer
  * @subpackage Modules

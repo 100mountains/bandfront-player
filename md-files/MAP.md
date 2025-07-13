@@ -1,391 +1,327 @@
-# Bandfront Player - Codebase Map
-
-## Main Plugin File
-
-**File:** `/bfp.php`
-**Purpose:** Main plugin entry point, initializes core functionality and loads all dependencies.
-**WordPress Integration Points:**
-- Hooks: `init`, `plugins_loaded`, `wp_privacy_personal_data_export_file`, `wp_privacy_personal_data_eraser`
-- Filters: `get_post_metadata`, `the_title`, `esc_html`, `woocommerce_product_title`, `wp_kses_allowed_html`
-- Shortcodes: `[bfp-playlist]`
-- Actions: `bfp_main_player`, `bfp_all_players`, `bfp_delete_purchased_files` (scheduled)
-
-### BandfrontPlayer Class
-
-- **__construct()**
-  - Purpose: Initializes all core components in proper order
-  - Inputs: None
-  - Outputs: Component instances via private properties
-  - WordPress Data: None directly
-  - Data Flow: Config → File Handler → Audio Engine → WooCommerce → Player → Hooks → Admin
-  - Patterns/Concerns: Clean component initialization with dependency injection pattern
-
-## Core Classes
-
-### State Management
-
-**File:** `/includes/state-manager.php`
-**Purpose:** Centralized configuration and state management with inheritance hierarchy
-**Class:** `BFP_Config`
-
-- **get_state($key, $default, $product_id, $options)**
-  - Purpose: Get configuration value with context-aware inheritance
-  - Inputs: Setting key, default value, optional product ID, options array
-  - Outputs: Setting value (product → global → default)
-  - WordPress Data: `get_post_meta()`, `get_option()`
-  - Data Flow: Check product meta → Check global settings → Return default
-  - Patterns/Concerns: Context-aware state resolution with caching
-
-### Audio Processing
-
-**File:** `/includes/audio.php`
-**Purpose:** Audio file processing, streaming, and demo generation
-**Class:** `BFP_Audio_Engine`
-
-- **output_file($args)**
-  - Purpose: Stream audio file with optional truncation and analytics
-  - Inputs: File URL, product ID, security settings
-  - Outputs: Audio stream or redirect
-  - WordPress Data: `get_post_meta()` for file data
-  - Data Flow: Validate → Process → Track → Stream/Redirect
-  - Patterns/Concerns: Secure file handling with demo generation
-
-### Player Management
-
-**File:** `/includes/player.php`
-**Purpose:** Player HTML generation, rendering, and resource management
-**Class:** `BFP_Player`
-
-- **get_player($audio_url, $args)**
-  - Purpose: Generate HTML5 audio player based on selected engine
-  - Inputs: Audio URL, player configuration
-  - Outputs: Player HTML markup
-  - WordPress Data: Player settings from state manager
-  - Data Flow: Config → Engine Selection → HTML Generation
-  - Patterns/Concerns: Engine abstraction (MediaElement/WaveSurfer)
-
-- **include_main_player($product, $_echo)**
-  - Purpose: Render primary player for product
-  - Inputs: Product object/ID, echo flag
-  - Outputs: Player HTML
-  - WordPress Data: Product data via WooCommerce
-  - Data Flow: Get files → Check context → Generate player → Output
-  - Patterns/Concerns: Smart context detection (single/archive)
-
-- **include_all_players($product)**
-  - Purpose: Render all players for a product
-  - Inputs: Product object/ID
-  - Outputs: Multiple player HTML (single or table layout)
-  - WordPress Data: Product files and settings
-  - Data Flow: Get files → Choose layout → Render players
-  - Patterns/Concerns: Adaptive layout based on file count
-
-- **render_player_table($files, $product_id, $settings)**
-  - Purpose: Generate table layout for multiple audio files
-  - Inputs: Files array, product ID, settings
-  - Outputs: HTML table with players
-  - WordPress Data: None directly
-  - Data Flow: Loop files → Generate rows → Build table
-  - Patterns/Concerns: Responsive table layout
-
-- **enqueue_resources()**
-  - Purpose: Load scripts/styles based on audio engine
-  - Inputs: None
-  - Outputs: Enqueued WordPress resources
-  - WordPress Data: `wp_enqueue_script()`, `wp_enqueue_style()`
-  - Data Flow: Check engine → Load appropriate resources
-  - Patterns/Concerns: Conditional loading for performance
-
-### Cover Renderer
-
-**File:** `/includes/cover-renderer.php`
-**Purpose:** Play button overlays for product images
-**Class:** `BFP_Cover_Renderer`
-
-- **render($product_id)**
-  - Purpose: Add play buttons to product cover images
-  - Inputs: Product ID
-  - Outputs: HTML overlay markup
-  - WordPress Data: Product image data
-  - Data Flow: Check settings → Generate overlay → Inject HTML
-  - Patterns/Concerns: Non-intrusive DOM manipulation
-
-### Hook Management
-
-**File:** `/includes/hooks.php`
-**Purpose:** Dynamic WordPress hook registration and management
-**Class:** `BFP_Hooks`
-
-- **init_hooks()**
-  - Purpose: Register all WordPress hooks dynamically
-  - Inputs: None
-  - Outputs: Registered actions/filters
-  - WordPress Data: Hook system integration
-  - Data Flow: Check context → Register appropriate hooks
-  - Patterns/Concerns: Context-aware registration to prevent conflicts
-
-### WooCommerce Integration
-
-**File:** `/includes/woocommerce.php`
-**Purpose:** Deep WooCommerce integration, purchase handling, and playlist shortcode
-**Class:** `BFP_WooCommerce`
-
-- **woocommerce_user_product($product_id)**
-  - Purpose: Check if user purchased product
-  - Inputs: Product ID
-  - Outputs: Boolean purchase status
-  - WordPress Data: Order data, user purchases
-  - Data Flow: Get user → Check orders → Verify purchase
-  - Patterns/Concerns: Performance optimization with caching
-
-- **replace_playlist_shortcode($atts)**
-  - Purpose: Handle [bfp-playlist] shortcode rendering
-  - Inputs: Shortcode attributes
-  - Outputs: Playlist HTML
-  - WordPress Data: Product queries, user data
-  - Data Flow: Parse attributes → Query products → Render playlist
-  - Patterns/Concerns: Bulk product handling
-
-- **render_single_product($product, $product_obj, $atts, ...)**
-  - Purpose: Render single product in playlist
-  - Inputs: Product data, settings, files
-  - Outputs: Product player HTML
-  - WordPress Data: Product metadata
-  - Data Flow: Build layout → Add players → Format output
-  - Patterns/Concerns: Layout flexibility (new/classic)
-
-### Admin Interface
-
-**File:** `/includes/admin.php`
-**Purpose:** Backend settings and product options
-**Class:** `BFP_Admin`
-
-- **settings_page()**
-  - Purpose: Render global settings interface
-  - Inputs: POST data for saves
-  - Outputs: Settings HTML
-  - WordPress Data: `update_option()` for settings
-  - Data Flow: Display form → Process submission → Save → Clear cache
-  - Patterns/Concerns: Nonce verification, bulk operations
-
-- **load_admin_modules()**
-  - Purpose: Dynamic module loading system
-  - Inputs: None
-  - Outputs: Loaded module instances
-  - WordPress Data: Module state from config
-  - Data Flow: Check enabled → Load files → Initialize
-  - Patterns/Concerns: Extensible module architecture
-
-## Utility Classes
-
-### File Management
-
-**File:** `/includes/utils/files.php`
-**Purpose:** Demo file creation and management
-**Class:** `BFP_File_Handler`
-
-- **_createDir()**
-  - Purpose: Create secure upload directories
-  - Inputs: None
-  - Outputs: Directory structure
-  - WordPress Data: `wp_upload_dir()`
-  - Data Flow: Get paths → Create dirs → Set permissions
-  - Patterns/Concerns: Security with .htaccess protection
-
-### Cloud Integration
-
-**File:** `/includes/utils/cloud.php`
-**Purpose:** Cloud storage URL processing
-**Class:** `BFP_Cloud_Tools`
-
-- **get_google_drive_download_url($url)**
-  - Purpose: Convert Drive URLs to direct download
-  - Inputs: Google Drive share URL
-  - Outputs: Direct download URL
-  - WordPress Data: None
-  - Data Flow: Parse URL → Extract ID → Build download URL
-  - Patterns/Concerns: Multiple URL format support
-
-### Cache Management
-
-**File:** `/includes/utils/cache.php`
-**Purpose:** Cross-plugin cache clearing
-**Class:** `BFP_Cache`
-
-- **clear_all_caches()**
-  - Purpose: Clear all known WordPress caches
-  - Inputs: None
-  - Outputs: Cache flush results
-  - WordPress Data: Various cache plugin APIs
-  - Data Flow: Detect plugins → Call clear methods
-  - Patterns/Concerns: Plugin-agnostic clearing
-
-### Analytics
-
-**File:** `/includes/utils/analytics.php`
-**Purpose:** Playback tracking and analytics
-**Class:** `BFP_Analytics`
-
-- **track_play_event($product_id, $file_url)**
-  - Purpose: Record playback events
-  - Inputs: Product ID, file URL
-  - Outputs: Analytics event
-  - WordPress Data: Post meta for counters
-  - Data Flow: Capture event → Update counter → Send to GA
-  - Patterns/Concerns: Privacy-aware tracking
-
-### Preview Handler
-
-**File:** `/includes/utils/preview.php`
-**Purpose:** Handle preview/play requests
-**Class:** `BFP_Preview`
-
-- **handle_preview_request()**
-  - Purpose: Process play button clicks
-  - Inputs: Request parameters
-  - Outputs: Audio stream
-  - WordPress Data: Product/file validation
-  - Data Flow: Validate → Track → Stream
-  - Patterns/Concerns: Security validation
-
-### Auto Updates
-
-**File:** `/includes/utils/update.php`
-**Purpose:** Plugin update checking
-**Class:** `BFP_Updater`
-
-- **check_update($transient)**
-  - Purpose: Check for plugin updates
-  - Inputs: Update transient
-  - Outputs: Modified transient
-  - WordPress Data: Plugin version data
-  - Data Flow: Check version → Compare → Update transient
-  - Patterns/Concerns: Future implementation ready
-
-### General Utilities
-
-**File:** `/includes/utils/utils.php`
-**Purpose:** Helper functions and utilities
-**Class:** `BFP_Utils`
-
-- **get_post_types($string)**
-  - Purpose: Get supported post types
-  - Inputs: String format flag
-  - Outputs: Post types array/string
-  - WordPress Data: Post type registry
-  - Data Flow: Build array → Apply filter → Format
-  - Patterns/Concerns: Extensible via filters
-
-## Module System
-
-### Audio Engine Module
-
-**File:** `/modules/audio-engine.php`
-**Purpose:** Audio engine selection UI
-**Functions:** `bfp_audio_engine_settings()`, `bfp_audio_engine_product_settings()`
-
-- Adds MediaElement.js vs WaveSurfer.js selection
-- Global and per-product override settings
-- Visualization options for WaveSurfer
-
-### Cloud Engine Module
-
-**File:** `/modules/cloud-engine.php`
-**Purpose:** Cloud storage configuration
-**Functions:** `bfp_cloud_storage_settings()`
-
-- Google Drive integration setup
-- OAuth configuration
-- Future: Dropbox, S3, Azure support
-
-## View Templates
-
-### Global Settings
-
-**File:** `/views/global-admin-options.php`
-**Purpose:** Main settings page UI
-**Sections:**
-- General Settings (access control, demos)
-- Player Settings (appearance, behavior)
-- File Truncation (security)
-- Analytics (tracking)
-- Cloud Storage (external storage)
-- Audio Engine (engine selection)
-- Troubleshooting (common fixes)
-
-### Product Options
-
-**File:** `/views/product-options.php`
-**Purpose:** Product-specific player settings
-**Sections:**
-- Player enable/disable
-- Behavior overrides
-- Demo file management
-- Audio engine override
-
-## Frontend Assets
-
-### JavaScript
-
-**File:** `/js/engine.js`
-**Purpose:** Player functionality and interactions
-- MediaElement.js initialization
-- Play button handling
-- Playlist management
-- Analytics tracking
-
-**File:** `/js/wavesurfer.js`
-**Purpose:** WaveSurfer engine integration
-- Waveform rendering
-- Audio visualization
-- Progress tracking
-
-**File:** `/js/admin.js`
-**Purpose:** Backend UI functionality
-- Settings management
-- File uploads
-- Dynamic UI elements
-
-### Stylesheets
-
-**File:** `/css/style.css`
-**Purpose:** Frontend player styles
-- Player layouts
-- Responsive design
-- Animation effects
-
-**File:** `/css/skins/dark.css`
-**Purpose:** Dark theme skin
-
-**File:** `/css/skins/light.css`
-**Purpose:** Light theme skin
-
-**File:** `/css/skins/custom.css`
-**Purpose:** Custom theme overrides
+# Bandfront Player - Detailed Code Map
+
+*For class definitions and methods, see STATE-MANAGEMENT.md*
+
+## Plugin Initialization Flow
+
+### 1. WordPress Bootstrap
+```
+WordPress loads plugin → bfp.php instantiates BandfrontPlayer → 
+Components initialized in dependency order → Hooks registered
+```
+
+### 2. Component Initialization Order
+```php
+// bfp.php: init_components()
+1. BFP_Config (state-manager.php)        // Must be first
+2. BFP_File_Handler (utils/files.php)    // Creates directories
+3. BFP_Player_Manager (player.php)       // Player functionality
+4. BFP_Audio_Engine (audio.php)          // Audio processing
+5. BFP_WooCommerce (woocommerce.php)    // WC integration
+6. BFP_Hooks (hooks.php)                 // Hook registration
+7. BFP_Player_Renderer (player-html.php) // Player rendering
+8. BFP_Cover_Renderer (cover-renderer.php) // Cover overlays
+9. BFP_Analytics (utils/analytics.php)   // Tracking
+10. BFP_Preview (utils/preview.php)      // Preview handling
+11. BFP_Admin (admin.php)                // Admin UI (conditional)
+```
+
+## Request Lifecycle
+
+### Frontend Page Load
+
+#### Shop/Archive Pages
+```
+1. wp action triggered
+2. BFP_Hooks::register_dynamic_hooks()
+3. Check context (is_shop/is_archive)
+4. If on_cover enabled:
+   - Register cover overlay hooks
+   - Skip title hooks
+5. Else:
+   - Register woocommerce_after_shop_loop_item_title hook
+6. When hook fires:
+   - BFP_Player_Manager::include_main_player()
+   - Context detected → button-only player
+   - First file only
+```
+
+#### Single Product Pages
+```
+1. wp action triggered
+2. BFP_Hooks::register_dynamic_hooks()
+3. Check context (is_product)
+4. Register woocommerce_single_product_summary hook (priority 25)
+5. When hook fires:
+   - BFP_Player_Manager::include_all_players()
+   - Context detected → full controls
+   - All files rendered (single or table layout)
+```
+
+### Audio Play Request
+```
+1. Click play button
+2. Browser requests: ?bfp-action=play&bfp-product=X&bfp-file=Y
+3. BFP_Preview::handle_preview_request()
+4. Validate request parameters
+5. BFP_Analytics::increment_playback_counter()
+6. Get file settings via state manager
+7. BFP_Audio_Engine::output_file()
+8. If secure_player enabled:
+   - Check purchase status
+   - Generate/retrieve demo file
+   - Stream truncated version
+9. Else:
+   - Stream full file
+```
 
 ## Data Flow Patterns
 
-### Player Rendering Flow
-```
-Page Load → Hook Triggered → Context Check → State Retrieval → 
-File Detection → Player Generation → HTML Output
+### State Resolution
+```php
+// Request for '_bfp_audio_engine' with product_id = 123
+
+1. BFP_Config::get_state('_bfp_audio_engine', 'mediaelement', 123)
+2. Is it global-only? No, it's overridable
+3. Check memory cache for product 123
+4. Not in cache, check post meta
+5. Found 'wavesurfer' in post meta
+6. Validate override (not 'global', valid engine)
+7. Cache and return 'wavesurfer'
+
+// If no product override:
+8. Check global settings
+9. Return global value or default
 ```
 
-### Audio Streaming Flow
-```
-Play Click → Request Validation → Analytics → File Processing → 
-Demo Check → Stream/Redirect
+### Player Generation
+```php
+// Single product page, multiple files
+
+1. Hook: woocommerce_single_product_summary (priority 25)
+2. BFP_Player_Manager::include_all_players($product)
+3. Get product files from meta
+4. Check file count:
+   - If > 3: Use table layout
+   - Else: Individual players
+5. For each file:
+   - Generate audio URL
+   - Get duration
+   - Build player args
+   - Call get_player()
+6. Wrap in container div
+7. Output HTML
 ```
 
-### Settings Inheritance
-```
-Product Settings → Global Settings → Default Constants
+### Resource Loading
+```php
+// Conditional script/style loading
+
+1. Player needed on page
+2. BFP_Player_Manager::enqueue_resources()
+3. Check if already enqueued (prevent duplicates)
+4. Load base CSS (style.css)
+5. Get audio engine from state
+6. If 'wavesurfer':
+   - Load wavesurfer.min.js
+   - Load bfp-wavesurfer.js
+7. Else:
+   - Load wp-mediaelement
+8. Load engine.js
+9. Localize settings for JavaScript
 ```
 
-## Key Architecture Features
+## Key Integration Points
 
-1. **Consolidated Player Logic**: All player rendering in `player.php`
-2. **Better Organization**: Utilities in dedicated `/utils/` folder
-3. **Simplified Access**: Shorter, more intuitive file names
-4. **Maintained Compatibility**: Class names unchanged for backward compatibility
-5. **Enhanced Modularity**: Clear separation between core and utility functions
+### WooCommerce Hooks
+```php
+// Product display
+'woocommerce_after_shop_loop_item_title' => Main player on shop
+'woocommerce_single_product_summary' => All players on product page
+'woocommerce_before_shop_loop_item_title' => Cover overlay
+
+// Data handling
+'woocommerce_product_export_meta_value' => Export player data
+'woocommerce_product_importer_pre_expand_data' => Import player data
+
+// Third-party compatibility
+'wc_product_table_data_name' => Product table integration
+```
+
+### WordPress Core
+```php
+// Lifecycle
+'init' => Plugin initialization
+'plugins_loaded' => Load translations
+'wp' => Dynamic hook registration
+'admin_init' => Admin setup
+
+// Content
+'the_content' => Content filtering
+'save_post' => Save product settings
+'after_delete_post' => Cleanup files
+
+// AJAX
+'wp_ajax_bfp_save_settings' => Save settings via AJAX
+```
+
+## Security Checkpoints
+
+### Admin Operations
+```php
+// Settings save
+1. Nonce verification: wp_verify_nonce($_POST['bfp_nonce'])
+2. Capability check: current_user_can('manage_options')
+3. Sanitization: sanitize_text_field(), esc_url_raw(), etc.
+4. Validation: in_array() for enums, min/max for numbers
+```
+
+### File Operations
+```php
+// Demo file creation
+1. Validate product exists
+2. Check user permissions
+3. Sanitize file paths
+4. Restrict to plugin directories
+5. Set proper file permissions
+```
+
+### Output Security
+```php
+// Player HTML
+1. esc_attr() for attributes
+2. esc_url() for URLs
+3. esc_html() for text
+4. wp_kses_post() for rich content
+```
+
+## Performance Optimizations
+
+### Bulk Operations
+```php
+// Instead of:
+$setting1 = get_state('key1');
+$setting2 = get_state('key2');
+$setting3 = get_state('key3');
+
+// Use:
+$settings = get_states(['key1', 'key2', 'key3']);
+```
+
+### Lazy Loading
+```php
+// Components loaded only when needed
+if (is_admin()) {
+    $this->_admin = new BFP_Admin($this);
+}
+```
+
+### Caching
+```php
+// State manager caches within request
+private $_products_attrs = array();  // Product settings cache
+private $_global_attrs = array();    // Global settings cache
+```
+
+## Error Handling Patterns
+
+### Graceful Degradation
+```php
+// Missing product
+if (!$product) {
+    return '';  // Return empty, don't break page
+}
+
+// Missing files
+if (empty($files)) {
+    return $output;  // Return accumulated output
+}
+```
+
+### Safe Array Access
+```php
+// Check before accessing
+if (isset($files[$file_index])) {
+    $file = $files[$file_index];
+}
+
+// Default values
+$value = isset($args['key']) ? $args['key'] : 'default';
+```
+
+## JavaScript Integration
+
+### Player Initialization
+```javascript
+// engine.js receives localized data
+bfp_global_settings = {
+    ajaxurl: '/wp-admin/admin-ajax.php',
+    audio_engine: 'mediaelement',
+    play_simultaneously: '0',
+    fade_out: '0',
+    on_cover: '1'
+};
+
+// Initializes players based on engine
+jQuery('.bfp-player').each(function() {
+    if (audio_engine === 'wavesurfer') {
+        initWaveSurfer(this);
+    } else {
+        initMediaElement(this);
+    }
+});
+```
+
+### Event Flow
+```
+User clicks play → JavaScript prevents default → 
+Checks other players → Stops if needed → 
+Initializes player → Starts playback → 
+Tracks analytics event
+```
+
+## Module System
+
+### Module Loading
+```php
+// admin.php: load_admin_modules()
+1. Check if in admin area
+2. Loop through $admin_modules array
+3. For each module:
+   - If 'audio-engine': always load (core)
+   - Else: check is_module_enabled()
+   - If enabled: require module file
+   - Fire 'bfp_admin_module_loaded' action
+```
+
+### Module Structure
+```php
+// modules/audio-engine.php
+add_action('bfp_module_audio_engine_settings', 'bfp_audio_engine_settings');
+function bfp_audio_engine_settings() {
+    // Render module settings UI
+}
+```
+
+## Common Workflows
+
+### Adding a New Setting
+1. Add to `$_overridable_settings` or `$_global_only_settings` in state-manager.php
+2. Add UI in appropriate module or view
+3. Handle in save_global_settings() or save_product_options()
+4. Access via get_state() where needed
+
+### Creating a Module
+1. Create file in `/modules/`
+2. Add to `$admin_modules` in admin.php
+3. Hook into settings rendering
+4. Use state manager for storage
+
+### Debugging Player Issues
+1. Check browser console for JS errors
+2. Verify data attributes on audio element
+3. Check state values with get_state()
+4. Ensure resources enqueued
+5. Validate file accessibility
+
+For complete class reference, see STATE-MANAGEMENT.md.

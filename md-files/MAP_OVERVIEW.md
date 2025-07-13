@@ -6,167 +6,179 @@ WordPress plugin that adds audio players to WooCommerce products with support fo
 ## Architecture Pattern
 Component-based architecture with centralized state management and context-aware rendering.
 
-## Main Components
+## System Architecture
 
-### 1. **Main Plugin (`bfp.php`)**
-- Entry point and component orchestrator
-- Initializes all managers in order: Config → File Handler → Audio Engine → WooCommerce → Player → Hooks → Admin
-- Provides component access via getters
+### Component Initialization Flow
+```
+WordPress Init
+    ↓
+BandfrontPlayer (Main Orchestrator)
+    ↓
+Components initialized in order:
+Config → File Handler → Player Manager → Audio Engine → 
+WooCommerce → Hooks → Renderers → Utilities → Admin
+```
 
-### 2. **State Management (`state-manager.php`)**
-- Central configuration with inheritance: Product Settings → Global Settings → Defaults
-- Context-aware state resolution
-- Bulk retrieval for performance
+### State Management Hierarchy
+```
+Product-Specific Settings (Highest Priority)
+    ↓ (fallback)
+Global Plugin Settings
+    ↓ (fallback)
+Default Values (Lowest Priority)
+```
 
-### 3. **Core Components** (`/includes/`)
+## Core Subsystems
 
-**Player** (`player.php`)
-- Generates player HTML
-- Handles all player rendering (single, multiple, table layouts)
-- Manages script/style enqueuing based on audio engine
-- Handles player configuration
+### 1. **State Management System**
+- Centralized configuration with intelligent inheritance
+- Context-aware resolution (product vs global settings)
+- Bulk retrieval optimization for performance
+- Module enable/disable management
 
-**Audio Engine** (`audio.php`)
-- Streams audio files with optional truncation
-- Creates demo versions
-- Tracks analytics
+### 2. **Player Rendering System**
+- Multiple player types (single, playlist, table)
+- Context-aware controls (full vs button-only)
+- Audio engine abstraction (MediaElement.js/WaveSurfer.js)
+- Responsive layouts with skin support
 
-**Hooks** (`hooks.php`)
-- Dynamic hook registration based on page context
-- Prevents duplicate players
-- Manages player insertion points
-
-### 4. **Renderers** (`/includes/`)
-
-**Cover Renderer** (`cover-renderer.php`)
-- Play button overlays on product images
-- Shop page integration
-
-**WooCommerce** (`woocommerce.php`)
-- Product integration
-- Playlist shortcode handling and rendering
-- Purchase verification
-
-### 5. **Utilities** (`/includes/utils/`)
-
-**Files** (`files.php`)
-- Demo file management
-- Secure directory creation
-- Cleanup operations
-
-**Cloud** (`cloud.php`)
+### 3. **Audio Processing System**
+- Secure file streaming with optional truncation
+- Demo file generation (PHP-MP3 or FFmpeg)
 - Cloud storage URL processing
-- Google Drive integration
+- Analytics tracking integration
 
-**Cache** (`cache.php`)
-- Cross-plugin cache clearing
-- Performance optimization
+### 4. **Hook Management System**
+- Dynamic registration based on page context
+- Prevents duplicate players
+- Integration with WooCommerce hooks
+- Cover overlay functionality
 
-**Analytics** (`analytics.php`)
-- Playback tracking
-- Google Analytics integration
+### 5. **Admin Interface System**
+- Modular settings architecture
+- Product-specific overrides
+- Bulk operations support
+- AJAX-powered saves
 
-**Preview** (`preview.php`)
-- Handle preview requests
-- Security validation
+## Data Flow Patterns
 
-**Admin** (`admin.php`)
-- Settings pages
-- Product metaboxes
-- Module loading system
+### Player Rendering Flow
+```
+Hook Triggered → Context Detection → State Resolution → 
+File Validation → Engine Selection → HTML Generation → Output
+```
 
-## Data Flow
+### Audio Streaming Flow
+```
+Play Request → Security Check → Analytics Tracking → 
+File Processing → Demo Generation (if needed) → Stream/Redirect
+```
 
-1. **Page Load**
-   ```
-   WordPress Init → Plugin Init → Component Loading → Hook Registration
-   ```
-
-2. **Player Rendering**
-   ```
-   Hook Triggered → Context Check → State Retrieval → Player Generation → HTML Output
-   ```
-
-3. **Audio Playback**
-   ```
-   Play Request → File Validation → Analytics → Stream/Redirect
-   ```
+### Settings Save Flow
+```
+Form Submission → Validation → State Update → 
+Cache Clear → Module Reload → Success Response
+```
 
 ## Key Features
 
 ### Context Awareness
-- Players adapt controls based on page type (product/shop/single)
-- Hooks registered only where needed
-- Smart state inheritance
+- Shop pages: Button-only players with cover overlays
+- Product pages: Full control players below price
+- Playlist shortcodes: Table or list layouts
+- Admin detection: Load only necessary components
 
 ### Module System
-- Audio engine selection (MediaElement.js/WaveSurfer.js)
-- Cloud storage support (Google Drive, future: S3, Azure)
-- Extensible via action hooks
+Extensible architecture supporting:
+- **Core Modules**: Audio engine selection
+- **Optional Modules**: Cloud storage integration
+- **Future Modules**: Easy to add via module interface
 
-### Security
-- File truncation for demos
-- Secure streaming
-- Protected upload directories
-- Nonce verification
+### Security Layers
+1. **File Security**: Protected upload directories
+2. **Demo Security**: Truncation for non-purchasers
+3. **Access Control**: Purchase/registration verification
+4. **Input Validation**: Sanitization at all entry points
+
+### Performance Optimizations
+- Lazy component loading
+- Bulk state retrieval
+- Conditional resource enqueuing
+- Memory caching within request
+- Smart defaults to reduce queries
 
 ## Integration Points
 
-### WordPress Hooks
-- `init`, `plugins_loaded` - Initialization
-- `the_content`, `woocommerce_*` - Player insertion
-- Custom actions: `bfp_main_player`, `bfp_all_players`
+### WordPress Core
+- Action hooks for initialization
+- Filter system for extensibility
+- Shortcode API for playlists
+- Admin menu system
+- AJAX handlers
 
-### Shortcodes
-- `[bfp-playlist]` - Render product playlists
+### WooCommerce
+- Product meta integration
+- Purchase verification
+- Order tracking
+- Product table support
+- Cart/checkout compatibility
 
-### JavaScript
-- `engine.js` - Player controls and interactions
-- `wavesurfer.js` - Waveform visualizations
-- `admin.js` - Backend UI
+### Third-Party
+- Cache plugin compatibility
+- Page builder support
+- Analytics platforms
+- Cloud storage services
 
-## Performance Optimizations
-- Bulk settings retrieval
-- Lazy component loading
-- Smart script enqueuing
-- Cache management support
+## File Organization
 
-## File Structure (Simplified)
 ```
-/bfp.php                    # Main plugin file
-/includes/                  # Core classes
-  *.php                    # Component classes (no class- prefix)
-  /utils/                  # Utility classes
-    *.php                  # Helper utilities
-/modules/                   # Feature modules
-/js/                       # Frontend scripts
-/css/                      # Styles and skins
-  /skins/                  # Theme variations
-/views/                    # Admin UI templates
-/builders/                 # Page builder integrations
+/bandfront-player/
+├── bfp.php                 # Main plugin file
+├── includes/               # Core functionality
+│   ├── *.php              # Core components
+│   └── utils/             # Utility classes
+├── modules/               # Feature modules
+├── js/                    # Frontend scripts
+├── css/                   # Styles and skins
+├── views/                 # Admin templates
+├── builders/              # Page builder integrations
+└── md-files/              # Documentation
 ```
 
-## State Hierarchy
-1. **Product-specific settings** (highest priority)
-2. **Global plugin settings**
-3. **Default values** (fallback)
+## Extension Architecture
 
-## Extension Points
+### Adding New Features
+1. Create module in `/modules/`
+2. Register with module system
+3. Add settings UI components
+4. Hook into existing systems
+
+### Custom Integrations
 - Filter: `bfp_player_html` - Modify player output
-- Action: `bfp_play_file` - Track playback
-- Action: `bfp_module_*_settings` - Add settings
-- Multiple component-specific hooks
+- Action: `bfp_play_file` - Track custom events
+- Filter: `bfp_state_value` - Override settings
+- Action: `bfp_module_loaded` - Extend modules
 
-## Consolidated Architecture
-- **Cleaner structure**: Player functionality consolidated into `player.php`
-- **Better organization**: Utilities grouped in `/utils/` subfolder
-- **Improved readability**: `state-manager.php` instead of `class-bfp-config.php`
-- **Maintained stability**: All class names unchanged for backward compatibility
-- **Enhanced modularity**: Clear separation of concerns
+## Development Workflow
 
-## Quick Start for Developers
+### Quick Start
 1. Main logic flows through `bfp.php`
-2. Player rendering happens in `player.php` (includes table layouts)
-3. Audio processing in `audio.php`
-4. Settings managed by `state-manager.php`
-5. Add new features via the module system in `/modules/`
+2. State always via `get_config()->get_state()`
+3. Players rendered by player manager
+4. Audio handled by audio engine
+5. Settings in state manager
+
+### Best Practices
+- Always use bulk state retrieval when possible
+- Check context before registering hooks
+- Sanitize all inputs, escape all outputs
+- Use component getters, never direct instantiation
+- Follow the established patterns
+
+## For Detailed Information
+
+- **Class Reference**: See `STATE-MANAGEMENT.md` for all classes, methods, and properties
+- **Code Details**: See `MAP.md` for line-by-line code documentation
+- **Configuration**: See `MAP_STATE_CONFIG_&_VARIABLES.md` for settings reference
+
+This architecture ensures maintainability, extensibility, and performance while providing a robust audio player solution for WooCommerce.

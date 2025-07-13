@@ -1,620 +1,270 @@
-# Bandfront Player - State Management System
+# Bandfront Player - State Management Architecture
 
-## Overview
+## Core Classes Overview
 
-The Bandfront Player uses a centralized state management system (`BFP_Config`) that provides context-aware settings inheritance, performance optimization through caching, and type-safe data handling. All plugin components must retrieve settings through this system rather than directly accessing WordPress options or post meta.
+### 1. **Main Plugin Class**
+- **Class:** `BandfrontPlayer` (bfp.php)
+- **Purpose:** Main orchestrator and component manager
+- **Key Methods:**
+  - `get_config()` - Returns BFP_Config instance
+  - `get_audio_core()` - Returns BFP_Audio_Engine instance
+  - `get_player_manager()` - Returns BFP_Player_Manager instance
+  - `get_player_renderer()` - Returns BFP_Player_Renderer instance
+  - `get_woocommerce()` - Returns BFP_WooCommerce instance
+  - `get_file_handler()` - Returns BFP_File_Handler instance
+  - `get_hooks_manager()` - Returns BFP_Hooks instance
+  - `get_admin()` - Returns BFP_Admin instance
 
-## Core Principles
+### 2. **State Manager**
+- **Class:** `BFP_Config` (state-manager.php)
+- **Purpose:** Centralized state management with context-aware inheritance
+- **Key Methods:**
+  - `get_state($key, $default, $product_id, $options)` - Get single state value
+  - `get_states($keys, $product_id)` - Bulk get multiple state values
+  - `update_state($key, $value, $product_id)` - Update state value
+  - `delete_state($key, $product_id)` - Remove product override
+  - `is_module_enabled($module_name)` - Check module status
+  - `get_player_state($product_id)` - Get minimal player runtime state
 
-### 1. **Context-Aware Inheritance**
+### 3. **Core Manager Classes**
+
+#### Player Manager
+- **Class:** `BFP_Player_Manager` (player.php)
+- **Purpose:** Player HTML generation and resource management
+- **Key Methods:**
+  - `get_player($audio_url, $args)` - Generate player HTML
+  - `enqueue_resources()` - Load CSS/JS assets
+  - `include_main_player($product, $_echo)` - Render main player
+  - `include_all_players($product)` - Render all players
+  - `get_product_files($product_id)` - Retrieve product audio files
+
+#### Audio Engine
+- **Class:** `BFP_Audio_Engine` (audio.php)
+- **Purpose:** Audio file processing, streaming, and manipulation
+- **Key Methods:**
+  - `output_file($args)` - Stream/output audio file
+  - `generate_audio_url($product_id, $file_index, $file_data)` - Create playback URL
+  - `get_duration_by_url($url)` - Get audio duration
+  - `is_audio($file_path)` - Check if file is audio
+  - `preload($preload, $audio_url)` - Handle preload logic
+
+#### Hooks Manager
+- **Class:** `BFP_Hooks` (hooks.php)
+- **Purpose:** WordPress hook registration and management
+- **Key Methods:**
+  - `get_hooks_config()` - Get context-aware hook configuration
+  - `register_dynamic_hooks()` - Register hooks based on page context
+  - `enqueue_on_cover_assets()` - Load cover overlay assets
+  - `add_play_button_on_cover()` - Render play button overlay
+
+#### Admin Interface
+- **Class:** `BFP_Admin` (admin.php)
+- **Purpose:** Admin interface and settings management
+- **Key Methods:**
+  - `settings_page()` - Render settings page
+  - `save_global_settings()` - Save global settings
+  - `save_post($post_id, $post, $update)` - Save product settings
+  - `ajax_save_settings()` - AJAX handler for settings
+  - `get_admin_modules()` - Get available admin modules
+
+#### WooCommerce Integration
+- **Class:** `BFP_WooCommerce` (woocommerce.php)
+- **Purpose:** WooCommerce-specific functionality
+- **Key Methods:**
+  - `woocommerce_user_product($product_id)` - Check purchase status
+  - `replace_playlist_shortcode($atts)` - Handle [bfp-playlist] shortcode
+  - `woocommerce_product_title($title, $product)` - Filter product titles
+
+### 4. **Renderer Classes**
+
+#### Player Renderer
+- **Class:** `BFP_Player_Renderer` (player-html.php)
+- **Purpose:** Context-aware player HTML rendering
+- **Note:** Currently empty - functionality may be in BFP_Player_Manager
+
+#### Cover Renderer
+- **Class:** `BFP_Cover_Renderer` (cover-renderer.php)
+- **Purpose:** Play button overlay on product images
+- **Key Methods:**
+  - `should_render()` - Check if overlay should display
+  - `enqueue_assets()` - Load overlay CSS
+  - `render($product)` - Render overlay HTML
+
+### 5. **Utility Classes**
+
+#### File Handler
+- **Class:** `BFP_File_Handler` (utils/files.php)
+- **Purpose:** Demo file management and directory operations
+- **Key Methods:**
+  - `_createDir()` - Create upload directories
+  - `_clearDir($dirPath)` - Clear directory contents
+  - `delete_post($post_id, $demos_only, $force)` - Delete post files
+  - `delete_truncated_files($product_id)` - Remove demo files
+
+#### Cloud Tools
+- **Class:** `BFP_Cloud_Tools` (utils/cloud.php)
+- **Purpose:** Cloud storage URL processing
+- **Key Methods:**
+  - `get_google_drive_download_url($url)` - Convert Drive URLs
+  - `get_google_drive_file_name($url)` - Extract file names
+
+#### Cache Manager
+- **Class:** `BFP_Cache` (utils/cache.php)
+- **Purpose:** Cross-plugin cache clearing
+- **Key Methods:**
+  - `clear_all_caches()` - Clear all known cache plugins
+
+#### Analytics
+- **Class:** `BFP_Analytics` (utils/analytics.php)
+- **Purpose:** Playback tracking and analytics
+- **Key Methods:**
+  - `track_play_event($product_id, $file_url)` - Track plays
+  - `increment_playback_counter($product_id)` - Update counter
+
+#### Preview Manager
+- **Class:** `BFP_Preview` (utils/preview.php)
+- **Purpose:** Handle preview/play requests
+- **Key Methods:**
+  - `handle_preview_request()` - Process play URLs
+  - `process_play_request($product_id, $file_index)` - Stream file
+
+#### Utilities
+- **Class:** `BFP_Utils` (utils/utils.php)
+- **Purpose:** General helper functions
+- **Key Methods:**
+  - `get_post_types($string)` - Get supported post types
+  - `add_class($html, $class, $tag)` - Add CSS class to element
+
+#### Auto Updater
+- **Class:** `BFP_Updater` (utils/update.php)
+- **Purpose:** Plugin auto-update functionality
+- **Note:** Currently placeholder implementation
+
+## State Management Flow
+
+### 1. **State Retrieval Hierarchy**
 ```
-Product Setting → Global Setting → Default Value
+Product Override → Global Setting → Default Value
 ```
-- Product-level settings override global settings (where allowed)
-- Global settings override default values
-- Some settings are global-only and cannot be overridden
 
-### 2. **Single Source of Truth**
-- All settings access goes through `BFP_Config`
-- No direct `get_option()` or `get_post_meta()` calls for plugin settings
-- Centralized validation and type casting
+### 2. **Context-Aware Settings**
 
-### 3. **Performance Optimization**
-- Bulk fetching for multiple values
-- Request-level caching to prevent duplicate queries
-- Lazy loading of settings
+**Global-Only Settings** (no product overrides):
+- `_bfp_show_in`
+- `_bfp_player_layout`
+- `_bfp_player_controls`
+- `_bfp_player_title`
+- `_bfp_on_cover`
+- `_bfp_force_main_player_in_title`
+- `_bfp_players_in_cart`
+- `_bfp_play_simultaneously`
+- `_bfp_registered_only`
+- `_bfp_purchased`
+- `_bfp_fade_out`
+- `_bfp_message`
+- `_bfp_ffmpeg`
+- `_bfp_analytics_*`
+- `_bfp_modules_enabled`
+- `_bfp_cloud_*`
 
-## State Manager Access Methods
+**Product-Overridable Settings**:
+- `_bfp_enable_player`
+- `_bfp_audio_engine`
+- `_bfp_single_player`
+- `_bfp_merge_in_grouped`
+- `_bfp_play_all`
+- `_bfp_loop`
+- `_bfp_preload`
+- `_bfp_player_volume`
+- `_bfp_secure_player`
+- `_bfp_file_percent`
+- `_bfp_own_demos`
+- `_bfp_direct_own_demos`
+- `_bfp_demos_list`
 
-### Getting the State Manager Instance
+### 3. **State Access Patterns**
 
+**Single Value Retrieval:**
 ```php
-// From main plugin instance
-$config = $this->main_plugin->get_config();
-
-// From global
-$config = $GLOBALS['BandfrontPlayer']->get_config();
+$value = $this->main_plugin->get_config()->get_state('_bfp_audio_engine', 'mediaelement', $product_id);
 ```
 
-### Core Methods
-
-#### **get_state() - Single Value Retrieval**
-
-**Purpose:** Retrieve a single setting value with context-aware inheritance
-
+**Bulk Retrieval (Recommended for Performance):**
 ```php
-$value = $config->get_state($key, $default = null, $product_id = null, $options = array());
-```
-
-**Parameters:**
-- `$key` (string): Setting key (e.g., '_bfp_enable_player')
-- `$default` (mixed): Default value if setting not found
-- `$product_id` (int|null): Product ID for context (null for global)
-- `$options` (array): Additional options (reserved for future use)
-
-**Usage Examples:**
-
-```php
-// Global setting (no product context)
-$player_layout = $config->get_state('_bfp_player_layout', 'dark');
-
-// Product-specific setting with inheritance
-$enable_player = $config->get_state('_bfp_enable_player', false, $product_id);
-
-// With explicit default
-$volume = $config->get_state('_bfp_player_volume', 1.0, $product_id);
-```
-
-**When to Use:**
-- Retrieving a single setting value
-- When you need inheritance (product → global → default)
-- For conditional logic based on settings
-
-#### **get_states() - Bulk Retrieval**
-
-**Purpose:** Retrieve multiple setting values in one operation (performance optimization)
-
-```php
-$settings = $config->get_states($keys, $product_id = null);
-```
-
-**Parameters:**
-- `$keys` (array): Array of setting keys
-- `$product_id` (int|null): Product ID for context
-
-**Returns:** Associative array with key => value pairs
-
-**Usage Examples:**
-
-```php
-// Get multiple global settings
-$settings = $config->get_states(array(
-    '_bfp_player_layout',
-    '_bfp_player_controls',
-    '_bfp_on_cover'
-));
-
-// Get multiple product settings with inheritance
-$product_settings = $config->get_states(array(
-    '_bfp_enable_player',
+$settings = $this->main_plugin->get_config()->get_states(array(
     '_bfp_audio_engine',
-    '_bfp_secure_player',
-    '_bfp_file_percent'
+    '_bfp_play_simultaneously',
+    '_bfp_fade_out'
 ), $product_id);
-
-// Destructure results
-$player_layout = $settings['_bfp_player_layout'];
-$player_controls = $settings['_bfp_player_controls'];
 ```
 
-**When to Use:**
-- Need 2 or more settings at once
-- Initializing components with multiple settings
-- Building configuration arrays
-
-#### **get_player_state() - Frontend Player State**
-
-**Purpose:** Get minimal settings required for player initialization on frontend
-
+**Module Status Check:**
 ```php
-$player_state = $config->get_player_state($product_id = null);
-```
-
-**Returns:** Array with essential player settings only
-
-**Usage Example:**
-
-```php
-// For player initialization
-$state = $config->get_player_state($product_id);
-wp_localize_script('bfp-engine', 'bfp_player_' . $product_id, $state);
-```
-
-**When to Use:**
-- Localizing data for JavaScript
-- Minimizing data sent to frontend
-- Player initialization
-
-#### **get_admin_form_settings() - Admin Form Data**
-
-**Purpose:** Get all settings with proper type casting for admin forms
-
-```php
-$form_settings = $config->get_admin_form_settings();
-```
-
-**Returns:** Array with type-cast values suitable for form fields
-
-**Usage Example:**
-
-```php
-// In admin views
-$settings = $config->get_admin_form_settings();
-$checked = $settings['_bfp_enable_player'] ? 'checked' : '';
-```
-
-**When to Use:**
-- Admin settings pages
-- Product meta boxes
-- Anywhere form data is displayed
-
-## Implementation Rules by Component
-
-### Player Components (`player.php`)
-
-```php
-class BFP_Player {
-    public function include_main_player($product = '') {
-        // ✅ CORRECT: Use get_state for single values
-        $show_in = $this->main_plugin->get_config()->get_state('_bfp_show_in', 'all', $product_id);
-        
-        // ✅ CORRECT: Use get_states for multiple values
-        $settings = $this->main_plugin->get_config()->get_states(array(
-            '_bfp_preload',
-            '_bfp_player_layout',
-            '_bfp_player_volume'
-        ), $product_id);
-        
-        // ❌ WRONG: Direct database access
-        // $enable = get_post_meta($product_id, '_bfp_enable_player', true);
-    }
+if ($this->main_plugin->get_config()->is_module_enabled('cloud-engine')) {
+    // Cloud engine is enabled
 }
 ```
 
-### Audio Processing (`audio.php`)
+## Component Dependencies
 
+### Initialization Order (Critical)
+1. `BFP_Config` - Must be first
+2. `BFP_File_Handler` - Creates directories
+3. `BFP_Player_Manager` - Player functionality
+4. `BFP_Audio_Engine` - Audio processing
+5. `BFP_WooCommerce` - WooCommerce integration
+6. `BFP_Hooks` - Hook registration
+7. `BFP_Player_Renderer` - Player rendering
+8. `BFP_Cover_Renderer` - Cover overlays
+9. `BFP_Analytics` - Analytics tracking
+10. `BFP_Preview` - Preview handling
+11. `BFP_Admin` - Admin interface (only if is_admin())
+
+### Component Access
+All components are accessed through the main plugin instance:
 ```php
-class BFP_Audio_Engine {
-    public function process_audio($product_id) {
-        // ✅ CORRECT: Bulk fetch related settings
-        $demo_settings = $this->main_plugin->get_config()->get_states(array(
-            '_bfp_secure_player',
-            '_bfp_file_percent',
-            '_bfp_fade_out'
-        ), $product_id);
-        
-        if ($demo_settings['_bfp_secure_player']) {
-            $this->create_demo($demo_settings['_bfp_file_percent']);
-        }
-    }
-}
+$config = $this->main_plugin->get_config();
+$audio = $this->main_plugin->get_audio_core();
+$player = $this->main_plugin->get_player_manager();
 ```
 
-### WooCommerce Integration (`woocommerce.php`)
+## Best Practices
 
+1. **Always use state manager** for settings retrieval
+2. **Use bulk fetch** (`get_states()`) when retrieving multiple values
+3. **Check module status** before using optional features
+4. **Access components** through main plugin getters
+5. **Never access** post meta or options directly
+6. **Context matters** - some settings are global-only
+7. **Cache in memory** - state manager caches values during request
+
+## Module System
+
+### Available Modules
+- `audio-engine` - Audio engine selector (always enabled)
+- `cloud-engine` - Cloud storage integration
+
+### Module State Management
 ```php
-class BFP_WooCommerce {
-    public function check_purchase($product_id) {
-        // ✅ CORRECT: Global setting check
-        $purchased_enabled = $this->main_plugin->get_config()->get_state('_bfp_purchased', false);
-        
-        if (!$purchased_enabled) {
-            return false;
-        }
-        
-        // Check user purchases...
-    }
-}
+// Check if enabled
+$enabled = $config->is_module_enabled('cloud-engine');
+
+// Enable/disable module
+$config->set_module_state('cloud-engine', true);
 ```
 
-### Admin Interface (`admin.php`)
-
-```php
-class BFP_Admin {
-    public function render_settings_form() {
-        // ✅ CORRECT: Get form-ready settings
-        $settings = $this->main_plugin->get_config()->get_admin_form_settings();
-        
-        // Settings are already type-cast for forms
-        echo '<input type="checkbox" ' . ($settings['_bfp_enable_player'] ? 'checked' : '') . '>';
-    }
-    
-    public function save_settings() {
-        // ✅ CORRECT: Bulk update through state manager
-        $this->main_plugin->get_config()->update_global_attrs($_POST);
-    }
-}
-```
-
-### Utility Classes (`utils/*.php`)
-
-```php
-class BFP_Analytics {
-    public function should_track() {
-        // ✅ CORRECT: Simple state check
-        return $this->main_plugin->get_config()->get_state('_bfp_analytics_property', '') !== '';
-    }
-}
-```
-
-### Views (`views/*.php`)
-
-```php
-// views/product-options.php
-// ✅ CORRECT: Bulk fetch for form
-$settings = $GLOBALS['BandfrontPlayer']->get_config()->get_states(array(
-    '_bfp_enable_player',
-    '_bfp_audio_engine',
-    '_bfp_secure_player',
-    // ... other settings
-), $post->ID);
-
-// Use individual settings
-$enable_player = $settings['_bfp_enable_player'];
-```
-
-## Setting Categories
-
-### Global-Only Settings
-
-These settings cannot be overridden at the product level:
-
-```php
-$global_only = array(
-    '_bfp_show_in',                    // Where to display players
-    '_bfp_player_layout',              // Player skin
-    '_bfp_player_controls',            // Control type
-    '_bfp_player_title',               // Show titles
-    '_bfp_on_cover',                   // Cover overlay
-    '_bfp_force_main_player_in_title', // Title integration
-    '_bfp_players_in_cart',            // Cart display
-    '_bfp_play_simultaneously',        // Simultaneous playback
-    '_bfp_registered_only',            // Access control
-    '_bfp_purchased',                  // Purchase requirement
-    '_bfp_message',                    // Demo message
-    '_bfp_fade_out',                   // Fade effect
-    // ... etc
-);
-```
-
-### Overridable Settings
-
-These can be customized per product:
-
-```php
-$overridable = array(
-    '_bfp_enable_player',      // Enable/disable
-    '_bfp_audio_engine',       // Audio engine
-    '_bfp_single_player',      // Single player mode
-    '_bfp_merge_in_grouped',   // Merge grouped
-    '_bfp_play_all',           // Sequential play
-    '_bfp_loop',               // Loop playback
-    '_bfp_preload',            // Preload strategy
-    '_bfp_player_volume',      // Volume
-    '_bfp_secure_player',      // Demo mode
-    '_bfp_file_percent',       // Demo percentage
-    // ... etc
-);
-```
-
-## Performance Best Practices
-
-### 1. **Bulk Fetch When Possible**
-
-```php
-// ❌ POOR: Multiple single calls
-$layout = $config->get_state('_bfp_player_layout');
-$controls = $config->get_state('_bfp_player_controls');
-$volume = $config->get_state('_bfp_player_volume');
-
-// ✅ GOOD: Single bulk call
-$settings = $config->get_states(array(
-    '_bfp_player_layout',
-    '_bfp_player_controls',
-    '_bfp_player_volume'
-));
-```
-
-### 2. **Cache Results in Local Variables**
-
-```php
-// ✅ GOOD: Cache for reuse
-$enable_player = $config->get_state('_bfp_enable_player', false, $product_id);
-if ($enable_player) {
-    // Use $enable_player multiple times
-}
-```
-
-### 3. **Use Appropriate Context**
-
-```php
-// ✅ GOOD: Product context when needed
-$settings = $config->get_states($keys, $product_id);
-
-// ✅ GOOD: No context for global settings
-$global_settings = $config->get_states($global_keys);
-```
-
-## Type Safety
-
-### Expected Types by Setting
-
-```php
-// Booleans (stored as 0/1, returned as bool)
-'_bfp_enable_player' => bool
-'_bfp_secure_player' => bool
-'_bfp_ios_controls' => bool
-
-// Integers
-'_bfp_file_percent' => int (0-100)
-'_bfp_single_player' => int (0/1)
-
-// Floats
-'_bfp_player_volume' => float (0.0-1.0)
-
-// Strings
-'_bfp_player_layout' => string ('dark'|'light'|'custom')
-'_bfp_audio_engine' => string ('mediaelement'|'wavesurfer')
-'_bfp_preload' => string ('none'|'metadata'|'auto')
-
-// Arrays
-'_bfp_demos_list' => array
-'_bfp_modules_enabled' => array
-```
-
-### Type Casting in Admin Forms
-
-```php
-// The get_admin_form_settings() method handles type casting
-$settings = $config->get_admin_form_settings();
-
-// Checkboxes get boolean to int conversion
-echo '<input type="checkbox" value="1" ' . ($settings['_bfp_enable_player'] ? 'checked' : '') . '>';
-
-// Numbers are properly cast
-echo '<input type="number" value="' . esc_attr($settings['_bfp_file_percent']) . '">';
-```
-
-## Migration Guide
-
-### Converting Legacy Code
-
-```php
-// ❌ OLD: Direct database access
-$enable = get_post_meta($product_id, '_bfp_enable_player', true);
-$global = get_option('_bfp_player_layout', 'dark');
-$attr = $this->main_plugin->get_global_attr('_bfp_audio_engine');
-
-// ✅ NEW: State manager access
-$enable = $this->main_plugin->get_config()->get_state('_bfp_enable_player', false, $product_id);
-$global = $this->main_plugin->get_config()->get_state('_bfp_player_layout', 'dark');
-$attr = $this->main_plugin->get_config()->get_state('_bfp_audio_engine');
-```
-
-### Adding New Settings
-
-1. **Define in state-manager.php:**
-```php
-// Add to appropriate array
-private $_overridable_settings = array(
-    // ...
-    '_bfp_new_setting' => 'default_value',
-);
-// OR
-private $_global_only_settings = array(
-    // ...
-    '_bfp_new_global' => 'default',
-);
-```
-
-2. **Use in your code:**
-```php
-$value = $config->get_state('_bfp_new_setting', 'default', $product_id);
-```
-
-3. **Add to admin forms as needed**
-
-## Common Patterns
-
-### Conditional Feature Enable
-
-```php
-if ($config->get_state('_bfp_enable_visualizations') && 
-    $config->get_state('_bfp_audio_engine') === 'wavesurfer') {
-    // Enable waveforms
-}
-```
-
-### Settings-Based Class Names
-
-```php
-$classes = array(
-    'bfp-player',
-    'bfp-' . $config->get_state('_bfp_player_layout', 'dark'),
-    $config->get_state('_bfp_single_player', 0, $product_id) ? 'bfp-single' : 'bfp-multiple'
-);
-echo '<div class="' . esc_attr(implode(' ', $classes)) . '">';
-```
-
-### Module Status Check
-
-```php
-if ($config->is_module_enabled('cloud-engine')) {
-    // Load cloud features
-}
-```
-
-## Debugging
-
-### Check Setting Values
-
-```php
-// Debug single value
-error_log('Setting value: ' . print_r($config->get_state('_bfp_enable_player', false, 123), true));
-
-// Debug all settings for a product
-error_log('Product settings: ' . print_r($config->get_all_settings(123), true));
-
-// Debug global settings
-error_log('Global settings: ' . print_r($config->get_all_global_attrs(), true));
-```
-
-### Clear Cache
-
-```php
-// Clear product cache
-$config->clear_product_attrs_cache($product_id);
-
-// Clear all caches
-$config->clear_product_attrs_cache();
-```
-
-## Anti-Patterns to Avoid
-
-### ❌ **Direct Database Access**
-```php
-// NEVER do this for plugin settings
-$value = get_post_meta($id, '_bfp_setting', true);
-$option = get_option('bfp_global_settings');
-```
-
-### ❌ **Bypassing Inheritance**
-```php
-// WRONG: Always checking global
-$setting = $config->get_global_attr('_bfp_setting');
-
-// RIGHT: Let inheritance work
-$setting = $config->get_state('_bfp_setting', null, $product_id);
-```
-
-### ❌ **Individual Fetches in Loops**
-```php
-// WRONG: Multiple queries
-foreach ($products as $product_id) {
-    $enable = $config->get_state('_bfp_enable_player', false, $product_id);
-    $engine = $config->get_state('_bfp_audio_engine', 'mediaelement', $product_id);
-}
-
-// RIGHT: Bulk fetch outside loop if possible
-```
-
-### ❌ **Assuming Setting Location**
-```php
-// WRONG: Assuming it's always global
-$layout = $config->get_global_attr('_bfp_player_layout');
-
-// RIGHT: Use get_state for proper inheritance
-$layout = $config->get_state('_bfp_player_layout');
-```
-
-## Summary
-
-The state management system provides a robust, performant, and maintainable way to handle all plugin settings. By following these guidelines, you ensure:
-
-1. **Consistency** - All settings accessed the same way
-2. **Performance** - Optimized queries and caching
-3. **Flexibility** - Easy to add new settings
-4. **Maintainability** - Single source of truth
-5. **Reliability** - Type safety and validation
-
-## Deprecated Settings (Now Automatic)
-
-The following settings have been removed from the UI and are now handled automatically:
-
-### iOS Controls (`_bfp_ios_controls`)
-- **Previous:** Manual checkbox in troubleshooting
-- **Current:** Auto-detected in player.php based on user agent
-- **Implementation:** Local detection in components that need it
-
-### Default Extension (`_bfp_default_extension`)  
-- **Previous:** Manual checkbox for extensionless files
-- **Current:** Always enabled in audio.php
-- **Implementation:** Graceful handling in is_audio() method
-
-### Disable 302 Redirects (`_bfp_disable_302`)
-- **Previous:** Manual checkbox to disable redirects
-- **Current:** Smart detection in audio.php
-- **Implementation:** Local logic in output_file() method
-
-## Active Troubleshooting Settings
-
-Only these settings remain in the troubleshooting section:
-
-### Force Players in Titles (`_bfp_force_main_player_in_title`)
-- **Purpose:** Layout preference for Gutenberg compatibility
-- **Type:** Boolean (checkbox)
-- **Default:** false
-
-### Delete Demo Files (`_bfp_delete_demos`)
-- **Purpose:** One-time action to regenerate demo files
-- **Type:** Action checkbox (not saved)
-- **Default:** N/A
-
-## Auto-Detection in Components
-
-The components now handle detection locally without needing state management:
-
-### iOS Device Detection (player.php)
-```php
-// Local detection in player component
-private function is_ios_device() {
-    return isset($_SERVER['HTTP_USER_AGENT']) && 
-           preg_match('/(iPad|iPhone|iPod)/i', $_SERVER['HTTP_USER_AGENT']);
-}
-```
-
-### File Handling (audio.php)
-```php
-// Always treat extensionless files gracefully
-// Handled directly in is_audio() method
-```
-
-### File Serving (audio.php)
-```php
-// Smart serving decision made locally
-// Based on file type and server configuration
-```
-
-These auto-detections are implemented directly in the components that need them, reducing complexity and improving performance by avoiding unnecessary state lookups.
-// In player.php
-class BFP_Player {
-    private function get_player_config($product_id = null) {
-        $config = array();
-        
-        // Auto-detect iOS and apply native controls
-        if ($this->main_plugin->get_config()->is_ios_device()) {
-            $config['iPadUseNativeControls'] = true;
-            $config['iPhoneUseNativeControls'] = true;
-        }
-        
-        return $config;
-    }
-}
-
-// In audio.php
-class BFP_Audio_Engine {
-    public function is_audio($file_path) {
-        // Always treat extensionless files as audio
-        if ($this->main_plugin->get_config()->should_treat_as_audio()) {
-            return true;
-        }
-    }
-    
-    public function output_file($args) {
-        // Use direct serving for better performance
-        if ($this->main_plugin->get_config()->should_serve_directly()) {
-            $this->serve_file_directly($args['file_path']);
-        }
-    }
-}
-```
+## Performance Optimizations
+
+1. **Bulk Operations**: Use `get_states()` for multiple values
+2. **Memory Caching**: State manager caches retrieved values
+3. **Lazy Loading**: Components initialized only when needed
+4. **Context Awareness**: Hooks registered only where required
+5. **Smart Defaults**: Efficient fallback to defaults
+
+## Security Considerations
+
+1. All user input sanitized through state manager
+2. Nonce verification in admin operations
+3. Capability checks for settings changes
+4. Escaped output in all renderers
+5. File operations restricted to plugin directories
