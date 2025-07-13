@@ -707,3 +707,253 @@ class BFP_Audio_Engine {
         return false;
     }
 }
+
+/**
+ * Audio streaming functionality for Bandfront Player
+ *
+ * @package BandfrontPlayer
+ * @since 0.1
+ */
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
+/**
+ * Handle audio file streaming
+ */
+function bfp_handle_stream_request() {
+    if (!isset($_GET['bfp-stream']) || !isset($_GET['bfp-product']) || !isset($_GET['bfp-file'])) {
+        return;
+    }
+    
+    $product_id = intval($_GET['bfp-product']);
+    $file_id = sanitize_text_field($_GET['bfp-file']);
+    
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('BFP Stream Request: Product=' . $product_id . ', File=' . $file_id);
+    }
+    
+    // Get the product
+    $product = wc_get_product($product_id);
+    if (!$product) {
+        status_header(404);
+        error_log('BFP Stream Error: Product not found - ' . $product_id);
+        die('Product not found');
+    }
+    
+    global $BandfrontPlayer;
+    
+    // Get files for this product
+    $files = $BandfrontPlayer->get_player()->_get_product_files(array(
+        'product' => $product,
+        'file_id' => $file_id
+    ));
+    
+    if (empty($files)) {
+        status_header(404);
+        error_log('BFP Stream Error: File not found - ' . $file_id . ' for product ' . $product_id);
+        die('File not found');
+    }
+    
+    $file = reset($files);
+    $file_url = $file['file'];
+    
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('BFP Stream: Found file URL - ' . $file_url);
+    }
+    
+    // Track play event if analytics is enabled
+    do_action('bfp_play_file', $product_id, $file_url);
+    
+    // Better MIME type detection
+    $mime_type = 'audio/mpeg'; // Default fallback
+    $file_extension = strtolower(pathinfo($file_url, PATHINFO_EXTENSION));
+    
+    if ($file_extension === 'wav') {
+        $mime_type = 'audio/wav';
+    } elseif ($file_extension === 'mp3') {
+        $mime_type = 'audio/mpeg';
+    } elseif ($file_extension === 'ogg') {
+        $mime_type = 'audio/ogg';
+    } elseif ($file_extension === 'm4a') {
+        $mime_type = 'audio/mp4';
+    } elseif ($file_extension === 'flac') {
+        $mime_type = 'audio/flac';
+    } elseif ($file_extension === 'aac') {
+        $mime_type = 'audio/aac';
+    }
+    
+    // Check if secure player is enabled
+    $secure_player = $BandfrontPlayer->get_config()->get_state('_bfp_secure_player', false, $product_id);
+    $file_percent = $BandfrontPlayer->get_config()->get_state('_bfp_file_percent', 100, $product_id);
+    
+    // Check if user has purchased
+    $purchased = false;
+    if ($BandfrontPlayer->get_woocommerce()) {
+        $purchased = $BandfrontPlayer->get_woocommerce()->woocommerce_user_product($product_id);
+    }
+    
+    // Set appropriate headers
+    header("Content-Type: $mime_type");
+    header("Content-Disposition: inline; filename=\"" . basename($file_url) . "\"");
+    header("Accept-Ranges: bytes");
+    
+    // Check if file is local or remote
+    $local_path = bfp_is_local_file($file_url);
+    
+    if ($local_path) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('BFP Stream: Using local file - ' . $local_path);
+        }
+        
+        // Stream local file
+        if (!$purchased && $secure_player && $file_percent < 100) {
+            // Stream partial file
+            bfp_stream_partial_file($local_path, $file_percent);
+        } else {
+            // Stream full file
+            bfp_stream_file($local_path);
+        }
+    } else {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('BFP Stream: Using remote file - ' . $file_url);
+        }
+        
+        // Remote file - redirect or proxy
+        bfp_handle_remote_file($file_url, $secure_player, $file_percent, $purchased);
+    }
+    
+    exit;
+}
+
+/**
+ * Stream a local file
+ */
+function bfp_stream_file($file_path) {
+    if (!file_exists($file_path)) {
+        error_log('BFP Stream Error: File does not exist - ' . $file_path);
+        status_header(404);
+        die('File not found on server');
+    }
+    
+    $filesize = filesize($file_path);
+    
+    // Support for Range requests (important for seeking in audio)
+    $range = isset($_SERVER['HTTP_RANGE']) ? $_SERVER['HTTP_RANGE'] : null;
+    
+    if ($range) {
+        // Extract the range string
+        list($range_type, $range_value) = explode('=', $range, 2);
+        
+        // Make sure the range type is bytes
+        if ($range_type == 'bytes') {
+            // Multiple ranges could be specified at the same time
+            // We'll just handle the first range for now
+            list($range, $extra_ranges) = explode(',', $range_value, 2);
+            
+            // Extract start and end positions
+            list($start, $end) = explode('-', $range, 2);
+            
+            // Handle start position
+            $start = intval($start);
+            
+            // Handle end position
+            $end = empty($end) ? ($filesize - 1) : intval($end);
+            
+            // Calculate length
+            $length = $end - $start + 1;
+            
+            // Send partial content headers
+            header('HTTP/1.1 206 Partial Content');
+            header("Content-Range: bytes $start-$end/$filesize");
+            header("Content-Length: $length");
+            
+            // Open the file
+            $fp = fopen($file_path, 'rb');
+            
+            // Seek to the start position
+            fseek($fp, $start);
+            
+            // Output the data
+            $buffer_size = 8192;
+            $bytes_to_read = $length;
+            
+            while (!feof($fp) && $bytes_to_read > 0) {
+                $buffer = fread($fp, min($buffer_size, $bytes_to_read));
+                echo $buffer;
+                flush();
+                $bytes_to_read -= strlen($buffer);
+            }
+            
+            fclose($fp);
+        }
+    } else {
+        // Normal non-range request
+        header("Content-Length: $filesize");
+        readfile($file_path);
+    }
+}
+
+/**
+ * Stream a partial local file
+ */
+function bfp_stream_partial_file($file_path, $percent) {
+    $filesize = filesize($file_path);
+    $bytes_to_send = floor($filesize * ($percent / 100));
+    
+    header("Content-Length: $bytes_to_send");
+    
+    // Stream only the percentage requested
+    $handle = fopen($file_path, 'rb');
+    $bytes_sent = 0;
+    
+    while (!feof($handle) && $bytes_sent < $bytes_to_send) {
+        $buffer = fread($handle, min(8192, $bytes_to_send - $bytes_sent));
+        echo $buffer;
+        $bytes_sent += strlen($buffer);
+        flush();
+    }
+    
+    fclose($handle);
+}
+
+/**
+ * Handle remote file streaming
+ */
+function bfp_handle_remote_file($url, $secure_player, $file_percent, $purchased) {
+    if (!$purchased && $secure_player && $file_percent < 100) {
+        // Download, truncate and stream
+        $temp_file = tempnam(sys_get_temp_dir(), 'bfp_');
+        
+        $response = wp_remote_get(
+            $url,
+            array(
+                'timeout' => 60,
+                'stream' => true,
+                'filename' => $temp_file
+            )
+        );
+        
+        if (is_wp_error($response)) {
+            status_header(500);
+            die('Error downloading file');
+        }
+        
+        // Truncate file
+        $filesize = filesize($temp_file);
+        $bytes_to_keep = floor($filesize * ($file_percent / 100));
+        
+        $handle = fopen($temp_file, 'r+');
+        ftruncate($handle, $bytes_to_keep);
+        fclose($handle);
+        
+        // Stream truncated file
+        header("Content-Length: $bytes_to_keep");
+        readfile($temp_file);
+        unlink($temp_file);
+    } else {
+        // Redirect to remote URL
+        header("Location: $url");
+    }
+}

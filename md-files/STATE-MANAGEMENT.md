@@ -1,5 +1,32 @@
 # Bandfront Player - State Management Architecture
 
+# State Retrieval System in BFP_Config
+
+state management class implements a hierarchical settings system with multiple ways to access settings:
+
+## Main Access Methods
+
+1. **`get_state()`** - The primary method that implements inheritance:
+   - Product-specific settings (if applicable)
+   - Global settings (fallback)
+   - Default values (final fallback)
+
+2. **`get_states()`** - Bulk fetches multiple settings at once for efficiency
+
+3. **`get_global_attr()`** - Direct access to global settings only
+
+4. **`get_product_attr()`** - Legacy/compatibility method for product-specific settings
+
+5. **`get_all_settings()`** - Retrieves all possible settings for a given context
+
+6. **Special-purpose getters**:
+   - `get_admin_form_settings()` - Formatted for admin UI with type casting
+   - `get_player_state()` - Optimized subset for frontend/runtime
+
+The system follows a clear inheritance pattern as documented: "Product Setting → Global Setting → Default Value", ensuring context-appropriate values while maintaining fallbacks.
+
+Settings are categorized as either "overridable" (can be set per-product) or "global only" (apply site-wide), with validation to ensure proper values.
+
 ## Core Classes Overview
 
 ### 1. **Main Plugin Class**
@@ -268,3 +295,238 @@ $config->set_module_state('cloud-engine', true);
 3. Capability checks for settings changes
 4. Escaped output in all renderers
 5. File operations restricted to plugin directories
+
+# State Management Architecture
+
+## Global State Structure
+
+```javascript
+const PlayerState = {
+    // Player Registry
+    players: new Map([
+        [playerId, {
+            instance: MediaElementPlayer,
+            element: HTMLAudioElement,
+            config: Object,
+            state: 'idle' | 'playing' | 'paused' | 'ended'
+        }]
+    ]),
+    
+    // Active Player Tracking
+    activePlayers: new Set([playerId]),
+    
+    // UI State
+    ui: {
+        playingElements: new Set([element]),
+        overlayPositions: new Map([[productId, {x, y}]]),
+        singlePlayerMode: new Map([[containerId, activeTrack]])
+    },
+    
+    // Playlist State
+    playlists: new Map([
+        [playlistId, {
+            tracks: [playerId],
+            currentIndex: 0,
+            loop: boolean,
+            loopBoundary: element
+        }]
+    ]),
+    
+    // User Permissions
+    permissions: {
+        isRegistered: boolean,
+        purchasedProducts: new Set([productId]),
+        lastChecked: timestamp
+    },
+    
+    // Configuration
+    config: {
+        playAll: boolean,
+        simultaneousPlay: boolean,
+        fadeOut: boolean,
+        fadeOutDuration: 4,
+        volume: 0.7,
+        preload: 'none' | 'metadata' | 'auto'
+    }
+};
+```
+
+## State Management Patterns
+
+### 1. Observer Pattern for State Changes
+```javascript
+class StateObserver {
+    constructor() {
+        this.observers = new Map();
+    }
+    
+    subscribe(stateKey, callback) {
+        if (!this.observers.has(stateKey)) {
+            this.observers.set(stateKey, new Set());
+        }
+        this.observers.get(stateKey).add(callback);
+    }
+    
+    notify(stateKey, newValue, oldValue) {
+        if (this.observers.has(stateKey)) {
+            this.observers.get(stateKey).forEach(callback => {
+                callback(newValue, oldValue);
+            });
+        }
+    }
+}
+```
+
+### 2. State Mutations
+```javascript
+class PlayerStateMutations {
+    static ADD_PLAYER(state, { playerId, instance, element }) {
+        state.players.set(playerId, {
+            instance,
+            element,
+            config: {},
+            state: 'idle'
+        });
+    }
+    
+    static UPDATE_PLAYER_STATE(state, { playerId, playerState }) {
+        const player = state.players.get(playerId);
+        if (player) {
+            player.state = playerState;
+            
+            if (playerState === 'playing') {
+                state.activePlayers.add(playerId);
+            } else {
+                state.activePlayers.delete(playerId);
+            }
+        }
+    }
+    
+    static SET_ACTIVE_TRACK(state, { containerId, trackId }) {
+        state.ui.singlePlayerMode.set(containerId, trackId);
+    }
+}
+```
+
+### 3. State Actions
+```javascript
+class PlayerStateActions {
+    static async playTrack({ commit, state }, { playerId }) {
+        // Check permissions
+        if (!state.permissions.isRegistered && state.config.registeredOnly) {
+            return false;
+        }
+        
+        // Pause others if needed
+        if (!state.config.simultaneousPlay) {
+            state.activePlayers.forEach(activeId => {
+                if (activeId !== playerId) {
+                    commit('UPDATE_PLAYER_STATE', {
+                        playerId: activeId,
+                        playerState: 'paused'
+                    });
+                }
+            });
+        }
+        
+        // Play the track
+        commit('UPDATE_PLAYER_STATE', {
+            playerId,
+            playerState: 'playing'
+        });
+        
+        return true;
+    }
+}
+```
+
+## State Persistence
+
+### Local Storage Schema
+```javascript
+const PersistentState = {
+    // User preferences
+    'wcmp_user_prefs': {
+        volume: number,
+        lastPlayedTrack: string,
+        playbackPosition: Map<trackId, seconds>
+    },
+    
+    // Cache
+    'wcmp_cache': {
+        filePermissions: Map<productId, boolean>,
+        demoFiles: Map<fileUrl, demoUrl>,
+        cacheExpiry: timestamp
+    }
+};
+```
+
+### Session Storage Schema
+```javascript
+const SessionState = {
+    // Temporary UI state
+    'wcmp_session': {
+        activePlayerId: string,
+        scrollPosition: number,
+        expandedPlaylists: Set<playlistId>
+    }
+};
+```
+
+## State Synchronization
+
+### Cross-Tab Communication
+```javascript
+class StateSynchronizer {
+    constructor() {
+        this.channel = new BroadcastChannel('wcmp_state_sync');
+        this.channel.onmessage = this.handleMessage.bind(this);
+    }
+    
+    broadcast(action, payload) {
+        this.channel.postMessage({ action, payload });
+    }
+    
+    handleMessage({ data }) {
+        const { action, payload } = data;
+        // Apply state changes from other tabs
+    }
+}
+```
+
+### AJAX State Updates
+```javascript
+class RemoteStateSync {
+    static async syncPurchasedProducts() {
+        const response = await fetch('/wp-admin/admin-ajax.php', {
+            method: 'POST',
+            body: new URLSearchParams({
+                action: 'wcmp_get_purchased_products'
+            })
+        });
+        
+        const products = await response.json();
+        PlayerState.permissions.purchasedProducts = new Set(products);
+    }
+}
+```
+
+## State Debugging
+
+### Development Tools
+```javascript
+if (process.env.NODE_ENV === 'development') {
+    window.__WCMP_STATE__ = PlayerState;
+    
+    window.__WCMP_STATE_HISTORY__ = [];
+    
+    // Log all state changes
+    StateObserver.subscribe('*', (newValue, oldValue) => {
+        window.__WCMP_STATE_HISTORY__.push({
+            timestamp: Date.now(),
+            change: { newValue, oldValue },
+            stack: new Error().stack
+        });
+    });
+}
+```

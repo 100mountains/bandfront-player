@@ -144,9 +144,6 @@ function initWaveSurferPlayer(container, audioUrl, options) {
         bfp_global_settings.audio_engine : 'mediaelement';
     window.fadeOut = (typeof bfp_global_settings !== 'undefined') ? 
         (1 * bfp_global_settings.fade_out) : true;
-    
-    // Define the missing groupedSelector variable
-    var groupedSelector = '.merge_in_grouped_products';
 
     // FIX: Ensure MediaElement.js compatibility
     function smoothFadeOutMediaElement(mediaElement, fadeTime) {
@@ -436,70 +433,11 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     pauseOtherPlayers: pauseOthers,
                     iPadUseNativeControls: iosNativeControls,
                     iPhoneUseNativeControls: iosNativeControls,
-                    
-                    // Add source chooser to handle multiple sources
-                    features: ['playpause', 'current', 'progress', 'duration', 'volume', 'sourcechooser'],
-                    
-                    // Improved error handling
-                    error: function(media, originalNode) {
-                        console.error('MediaElement.js initialization failed for:', originalNode);
-                        
-                        // Log source information for debugging
-                        var $node = $(originalNode);
-                        var sources = $node.find('source');
-                        
-                        if (sources.length === 0) {
-                            console.error('No source elements found in audio tag');
-                        } else {
-                            sources.each(function() {
-                                var src = $(this).attr('src');
-                                var type = $(this).attr('type');
-                                console.log('Source:', src, 'Type:', type);
-                                
-                                // Convert action URL to streaming URL if needed
-                                if (src && src.indexOf('bfp-action=play') !== -1) {
-                                    var matches = src.match(/bfp-product=(\d+).*?bfp-file=([^&]+)/);
-                                    if (matches && matches.length >= 3) {
-                                        var productId = matches[1];
-                                        var fileId = matches[2];
-                                        var fixedUrl = window.location.protocol + '//' + 
-                                            window.location.host + '/?bfp-stream=1&bfp-product=' + 
-                                            productId + '&bfp-file=' + fileId;
-                                        
-                                        console.log('Converting action URL to streaming URL:', fixedUrl);
-                                        
-                                        // Try to update the source
-                                        $(this).attr('src', fixedUrl);
-                                        if (media.setSrc) {
-                                            media.setSrc(fixedUrl);
-                                            media.load();
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                        
-                        // Try fallback to native HTML5 audio
-                        try {
-                            console.log('Attempting fallback to native HTML5 audio');
-                            originalNode.controls = true;
-                            originalNode.style.display = 'block';
-                            originalNode.style.width = '100%';
-                        } catch (e) {
-                            console.error('Fallback failed:', e);
-                        }
-                    },
-                    
                     success: function(mediaElement, originalNode) {
                         var $node = $(originalNode);
                         var duration = $node.data("duration");
                         var estimatedDuration = $node.data("estimated_duration");
                         var playerNumber = $node.attr("playernumber");
-                        
-                        // Debug: Log source loading
-                        console.log('MediaElement initialized:', 
-                                   'ID:', originalNode.id, 
-                                   'Source:', $node.find('source').attr('src'));
                         
                         // Handle estimated duration
                         if (typeof estimatedDuration !== 'undefined') {
@@ -620,40 +558,9 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                                 _playNext(currentPlayerNumber, $loopElement.length > 0);
                             }
                         });
-                        
-                        // Improved source handling
-                        mediaElement.addEventListener('error', function(e) {
-                            console.error('Media error:', e);
-                            var $node = $(originalNode);
-                            var sources = $node.find('source');
-                            
-                            if (sources.length > 0) {
-                                sources.each(function() {
-                                    var src = $(this).attr('src');
-                                    
-                                    // Convert action URL to streaming URL if needed
-                                    if (src && src.indexOf('bfp-action=play') !== -1) {
-                                        var matches = src.match(/bfp-product=(\d+).*?bfp-file=([^&]+)/);
-                                        if (matches && matches.length >= 3) {
-                                            var productId = matches[1];
-                                            var fileId = matches[2];
-                                            var fixedUrl = window.location.protocol + '//' + 
-                                                window.location.host + '/?bfp-stream=1&bfp-product=' + 
-                                                productId + '&bfp-file=' + fileId;
-                                            
-                                            console.log('Converting action URL to streaming URL on error:', fixedUrl);
-                                            
-                                            // Update source and reload
-                                            $(this).attr('src', fixedUrl);
-                                            if (mediaElement.setSrc) {
-                                                mediaElement.setSrc(fixedUrl);
-                                                mediaElement.load();
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-                        });
+                    },
+                    error: function(media, originalNode) {
+                        console.error('MediaElement.js initialization failed for:', originalNode);
                     }
                 };
 
@@ -663,19 +570,12 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     $player.attr("playernumber", bfp_player_counter);
                     mejsOptions.audioVolume = "vertical";
                     
-                    // Verify source before initialization
-                    var $source = $player.find('source');
-                    if ($source.length === 0 || !$source.attr('src')) {
-                        console.error('No valid source found for player:', $player.attr('id'));
-                    }
-                    
                     try {
                         bfp_players[bfp_player_counter] = new MediaElementPlayer($player[0], mejsOptions);
                     } catch (error) {
                         console.error('MediaElement.js player creation failed:', error);
                         // Fallback to basic HTML5 audio
                         bfp_players[bfp_player_counter] = $player[0];
-                        $player[0].controls = true;
                     }
                     bfp_player_counter++;
                 });
@@ -857,13 +757,8 @@ function initWaveSurferPlayer(container, audioUrl, options) {
     );
     
     jQuery(document).ready(function($) {
-        // Use localized settings
-        var audioEngine = bfp_global_settings.audio_engine;
-        var playSim = bfp_global_settings.play_simultaneously;
-        var onCover = bfp_global_settings.on_cover;
-        
         // Play button on cover functionality
-        if (onCover == '1') {
+        if (bfp_global_settings.on_cover == '1') {
             $(document).on('click', '.bfp-play-on-cover', function(e) {
                 e.preventDefault();
                 e.stopPropagation();

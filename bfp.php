@@ -236,14 +236,14 @@ class BandfrontPlayer {
      * This provides a convenient shortcut from the main plugin instance
      */
     public function get_state($key, $default = null, $product_id = null, $options = array()) {
-        return $this->config->get_state($key, $default, $product_id, $options);
+        return $this->_config->get_state($key, $default, $product_id, $options);
     }
     
     /**
      * Check if module is enabled - delegates to config
      */
     public function is_module_enabled($module_name) {
-        return $this->config->is_module_enabled($module_name);
+        return $this->_config->is_module_enabled($module_name);
     }
     
     // Remove these legacy methods if they exist:

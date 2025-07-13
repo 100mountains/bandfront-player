@@ -20,6 +20,20 @@
 
 ## Critical Rules
 
+- [ ] All settings use the state manager (`BFP_Config`)
+- [ ] Components are accessed via main plugin getters (not direct instantiation)
+- [ ] Context is checked before registering hooks
+- [ ] All user input is sanitized
+- [ ] All output is properly escaped
+- [ ] Nonces are verified for all actions
+- [ ] User capabilities are checked before privileged actions
+- [ ] Bulk fetch methods are used where appropriate
+- [ ] Resources (scripts/styles) are enqueued only when needed
+
+**Note:**  
+- Do **not** modify `.md` files unless explicitly instructed  
+- Do **not** use inline CSS in code 
+
 ### 1. State Access Patterns
 
 ```php
@@ -159,17 +173,6 @@ if ($this->main_plugin->get_config()->is_module_enabled('cloud-engine')) {
 4. **Never output without escaping**
 5. **Never trust user input** - always sanitize
 
-## Testing Checklist
-
-- [ ] State manager used for all settings?
-- [ ] Components accessed via getters?
-- [ ] Context checked before hooks?
-- [ ] Input sanitized?
-- [ ] Output escaped?
-- [ ] Nonces verified?
-- [ ] Capabilities checked?
-- [ ] Bulk fetch used where appropriate?
-- [ ] Resources enqueued conditionally?
 
 ## Quick Reference
 
@@ -259,6 +262,237 @@ private $_overridable_settings = array(
     '_bfp_new_feature_enabled' => false,
 );
 ```
+
+# AI Code Generation Rules
+
+## General Principles
+
+1. **Preserve Backward Compatibility**
+   - Maintain existing global functions (window.generate_the_wcmp, window.wcmp_force_init)
+   - Keep jQuery dependency for WordPress compatibility
+   - Support all existing data attributes and CSS classes
+
+2. **Progressive Enhancement**
+   - New features should not break existing functionality
+   - Use feature detection before using modern APIs
+   - Provide fallbacks for older browsers
+
+## Code Structure Rules
+
+### JavaScript Patterns
+
+1. **Module Pattern**
+```javascript
+// Wrap in IIFE to avoid global pollution
+(function($) {
+    'use strict';
+    
+    // Private variables
+    const _private = {};
+    
+    // Public API
+    window.WCMPPlayer = {
+        init: function() {},
+        destroy: function() {}
+    };
+    
+})(jQuery);
+```
+
+2. **Class Naming**
+- PascalCase for classes: `PlayerManager`, `EventHandler`
+- camelCase for instances: `playerManager`, `eventHandler`
+- UPPER_CASE for constants: `DEFAULT_VOLUME`, `FADE_DURATION`
+
+3. **Event Naming**
+- Prefix custom events: `wcmp:player:ready`, `wcmp:track:ended`
+- Use past tense for completed actions: `played`, `paused`, `ended`
+
+### State Management
+
+1. **Immutable Updates**
+```javascript
+// Bad
+state.players.push(player);
+
+// Good
+state.players = [...state.players, player];
+```
+
+2. **Pure Functions**
+```javascript
+// Bad
+function updateVolume(player) {
+    player.volume = 0.5;
+    return player;
+}
+
+// Good
+function updateVolume(player, volume) {
+    return { ...player, volume };
+}
+```
+
+### Error Handling
+
+1. **Graceful Degradation**
+```javascript
+try {
+    const player = new MediaElementPlayer(element, config);
+    registry.add(player);
+} catch (error) {
+    console.warn('WCMP: Failed to initialize player', error);
+    // Fallback to native controls
+    element.controls = true;
+}
+```
+
+2. **Validation**
+```javascript
+function validateConfig(config) {
+    const errors = [];
+    
+    if (config.volume < 0 || config.volume > 1) {
+        errors.push('Volume must be between 0 and 1');
+    }
+    
+    if (errors.length) {
+        throw new ValidationError(errors);
+    }
+    
+    return true;
+}
+```
+
+## WordPress Integration
+
+### Hook Usage
+```javascript
+// Always check if element exists
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// WordPress admin detection
+if (document.body.classList.contains('wp-admin')) {
+    return;
+}
+```
+
+### AJAX Compatibility
+```javascript
+// Listen for common AJAX events
+const ajaxEvents = [
+    'wpfAjaxSuccess',
+    'woof_ajax_done',
+    'yith-wcan-ajax-filtered'
+];
+
+ajaxEvents.forEach(event => {
+    document.addEventListener(event, reinitializePlayers);
+});
+```
+
+## Performance Rules
+
+1. **Debounce Expensive Operations**
+```javascript
+const debouncedResize = debounce(() => {
+    players.forEach(player => player.updatePosition());
+}, 250);
+
+window.addEventListener('resize', debouncedResize);
+```
+
+2. **Lazy Loading**
+```javascript
+// Only initialize visible players
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            initializePlayer(entry.target);
+            observer.unobserve(entry.target);
+        }
+    });
+});
+```
+
+## Security Rules
+
+1. **Sanitize User Input**
+```javascript
+function sanitizeProductId(id) {
+    return id.replace(/[^0-9]/g, '');
+}
+```
+
+2. **Validate URLs**
+```javascript
+function isValidAudioUrl(url) {
+    try {
+        const parsed = new URL(url);
+        return ['http:', 'https:'].includes(parsed.protocol);
+    } catch {
+        return false;
+    }
+}
+```
+
+## Testing Patterns
+
+1. **Testable Functions**
+```javascript
+// Bad - Hard to test
+function playNext() {
+    const current = document.querySelector('.playing');
+    const next = current.nextElementSibling;
+    next.click();
+}
+
+// Good - Testable
+function getNextTrack(currentId, tracks) {
+    const index = tracks.findIndex(t => t.id === currentId);
+    return tracks[index + 1] || tracks[0];
+}
+```
+
+2. **Mock-friendly Architecture**
+```javascript
+class PlayerService {
+    constructor(mediaElementFactory = MediaElementPlayer) {
+        this.factory = mediaElementFactory;
+    }
+    
+    createPlayer(element, config) {
+        return new this.factory(element, config);
+    }
+}
+```
+
+## Documentation Standards
+
+1. **JSDoc Comments**
+```javascript
+/**
+ * Initializes a music player for the given audio element
+ * @param {HTMLAudioElement} element - The audio element
+ * @param {Object} config - Player configuration
+ * @param {number} config.volume - Initial volume (0-1)
+ * @param {boolean} config.autoplay - Start playing automatically
+ * @returns {MediaElementPlayer} The initialized player instance
+ * @throws {Error} If element is not an audio element
+ */
+function initializePlayer(element, config) {
+    // Implementation
+}
+```
+
+2. **Inline Comments**
+- Explain "why", not "what"
+- Document workarounds and browser quirks
+- Reference issue numbers for bug fixes
 
 
 

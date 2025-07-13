@@ -39,7 +39,7 @@ class BFP_Player {
         // Use state manager for default player style instead of constant
         $player_style = isset($args['player_style']) ? $args['player_style'] : $this->main_plugin->get_state('_bfp_player_layout');
         $media_type = isset($args['media_type']) ? $args['media_type'] : 'mp3';
-        $id = isset($args['id']) ? $args['id'] : 0;
+        $id = isset($args['id']) ? $args['id'] : 0; // Ensure id parameter is used
         $duration = isset($args['duration']) ? $args['duration'] : false;
         $preload = isset($args['preload']) ? $args['preload'] : 'none';
         $volume = isset($args['volume']) ? $args['volume'] : 1;
@@ -50,13 +50,40 @@ class BFP_Player {
         // Generate unique player ID
         $player_id = 'bfp-player-' . $product_id . '-' . $id . '-' . uniqid();
         
+        // Validate audio URL
+        if (empty($audio_url)) {
+            error_log('BFP: Empty audio URL for product ' . $product_id . ', file index ' . $id);
+            return '<div class="bfp-error">Audio source not available</div>';
+        }
+        
+        // Convert action URLs to direct streaming URLs
+        if (strpos($audio_url, 'bfp-action=play') !== false && $product_id && $id) {
+            // This is an action URL, convert to a direct streaming URL
+            $audio_url = site_url('?bfp-stream=1&bfp-product=' . $product_id . '&bfp-file=' . $id);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('BFP: Converted action URL to streaming URL: ' . $audio_url);
+            }
+        }
+        
+        // Improved MIME type detection
+        $media_type = isset($args['media_type']) ? $args['media_type'] : 'mp3';
+        if (strpos($audio_url, '.wav') !== false) {
+            $media_type = 'wav';
+        } elseif (strpos($audio_url, '.ogg') !== false) {
+            $media_type = 'ogg';
+        } elseif (strpos($audio_url, '.mp3') !== false) {
+            $media_type = 'mp3';
+        } elseif (strpos($audio_url, '.m4a') !== false) {
+            $media_type = 'mp4';
+        }
+        
         // Build player HTML
         $player_html = '<audio id="' . esc_attr($player_id) . '" ';
         $player_html .= 'class="bfp-player ' . esc_attr($player_style) . '" ';
         $player_html .= 'data-product-id="' . esc_attr($product_id) . '" ';
         $player_html .= 'data-file-index="' . esc_attr($id) . '" ';
         $player_html .= 'preload="' . esc_attr($preload) . '" ';
-        $player_html .= 'data-volume="' . esc_attr($volume) . '" ';
+        $player_html .= 'volume="' . esc_attr($volume) . '" ';
         
         if ($player_controls) {
             $player_html .= 'data-controls="' . esc_attr($player_controls) . '" ';
@@ -67,7 +94,28 @@ class BFP_Player {
         }
         
         $player_html .= '>';
+        
+        // Add primary source with proper MIME type
         $player_html .= '<source src="' . esc_url($audio_url) . '" type="audio/' . esc_attr($media_type) . '" />';
+        
+        // Add fallback sources for better browser compatibility
+        if ($media_type === 'mp3') {
+            // No need for fallbacks - MP3 is widely supported
+        } elseif ($media_type === 'wav') {
+            // WAV files may need MP3 fallback if available
+            if (isset($args['mp3_fallback_url'])) {
+                $player_html .= '<source src="' . esc_url($args['mp3_fallback_url']) . '" type="audio/mpeg" />';
+            }
+        } elseif ($media_type === 'ogg') {
+            // Ogg files may need MP3 fallback
+            if (isset($args['mp3_fallback_url'])) {
+                $player_html .= '<source src="' . esc_url($args['mp3_fallback_url']) . '" type="audio/mpeg" />';
+            }
+        }
+        
+        // Add detailed fallback message
+        $player_html .= '<p>Your browser does not support HTML5 audio or the audio format provided. Please try another browser or download the audio file directly.</p>';
+        
         $player_html .= '</audio>';
         
         return apply_filters('bfp_player_html', $player_html, $audio_url, $args);
@@ -242,8 +290,14 @@ class BFP_Player {
                     $file            = reset( $files );
                     $index           = key( $files );
                     $duration        = $this->main_plugin->get_audio_core()->get_duration_by_url( $file['file'] );
-                    $audio_url       = $this->main_plugin->get_audio_core()->generate_audio_url( $id, $index, $file );
-                    $audio_tag       = apply_filters(
+                    
+                    // Debug audio URL generation
+                    $audio_url = $this->main_plugin->get_audio_core()->generate_audio_url( $id, $index, $file );
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('BFP: Generated audio URL for product ' . $id . ', file index ' . $index . ': ' . $audio_url);
+                    }
+                    
+                    $audio_tag = apply_filters(
                         'bfp_audio_tag',
                         $this->get_player(
                             $audio_url,
@@ -255,6 +309,7 @@ class BFP_Player {
                                 'duration'        => $duration,
                                 'preload'         => $settings['_bfp_preload'],
                                 'volume'          => $settings['_bfp_player_volume'],
+                                'id'              => $index, // Add missing id parameter
                             )
                         ),
                         $id,
@@ -327,6 +382,7 @@ class BFP_Player {
                         'duration'        => $duration,
                         'preload'         => $settings['_bfp_preload'],
                         'volume'          => $settings['_bfp_player_volume'],
+                        'id'              => $index, // Add missing id parameter
                     )
                 ),
                 $product_id,
