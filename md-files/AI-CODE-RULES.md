@@ -33,6 +33,9 @@
 **Note:**  
 - Do **not** modify `.md` files unless explicitly instructed  
 - Do **not** use inline CSS in code 
+- Do **not** lose existing functionality
+- Do **not** redesign to fix an upstream bug you dont know about. 
+- Stop and ask if unsure.
 
 ### 1. State Access Patterns
 
