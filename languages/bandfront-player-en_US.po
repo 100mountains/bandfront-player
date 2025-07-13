@@ -16,6 +16,10 @@ msgstr ""
 #. Plugin Name of the plugin
 #: bfp.php
 #: builders/backup/builders.php:88
+#: builders/backup/CSS-REFACTOR/builders/builders.php:88
+#: builders/backup/CSS-REFACTOR/builders/elementor/elementor.pb.php:36
+#: builders/backup/CSS-REFACTOR/builders/elementor/elementor.pb.php:43
+#: builders/backup/CSS-REFACTOR/includes/class-bfp-admin.php:48
 #: builders/backup/old-code/bandfront-worky27/includes/class-bfp-admin.php:48
 #: builders/backup/old-code/bandfront-worky27/pagebuilders/builders.php:63
 #: builders/backup/old-code/bandfront-worky27/pagebuilders/elementor/elementor.pb.php:36
@@ -36,9 +40,6 @@ msgstr ""
 #: builders/backup/refactor4-fail/builders/elementor/elementor.pb.php:36
 #: builders/backup/refactor4-fail/builders/elementor/elementor.pb.php:43
 #: builders/backup/refactor4-fail/includes/admin.php:119
-#: builders/backup/yesterday-builders-only/builders.php:88
-#: builders/backup/yesterday-builders-only/elementor/elementor.pb.php:36
-#: builders/backup/yesterday-builders-only/elementor/elementor.pb.php:43
 #: builders/backup/yesterday/builders/builders.php:88
 #: builders/backup/yesterday/builders/elementor/elementor.pb.php:36
 #: builders/backup/yesterday/builders/elementor/elementor.pb.php:43
@@ -50,6 +51,7 @@ msgstr ""
 msgid "Bandfront Player"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/includes/class-bfp-admin.php:71
 #: builders/backup/old-code/bandfront-worky27/includes/class-bfp-admin.php:71
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/includes/class-bfp-admin.php:71
 #: builders/backup/refactor4-fail/builders/backup/yesterday/includes/class-bfp-admin.php:128
@@ -59,6 +61,7 @@ msgstr ""
 msgid "Playback Counter"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/includes/class-bfp-woocommerce.php:82
 #: builders/backup/old-code/bandfront-worky27/includes/class-bfp-woocommerce.php:82
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/includes/class-bfp-woocommerce.php:82
 #: builders/backup/refactor4-fail/builders/backup/yesterday/includes/class-bfp-woocommerce.php:82
@@ -68,50 +71,53 @@ msgstr ""
 msgid "download"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/builders/elementor/elementor.pb.php:46
 #: builders/backup/old-code/bandfront-worky27/pagebuilders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/pagebuilders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/yesterday-builders-only/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/yesterday/builders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/elementor/elementor.pb.php:46
-#: builders/backup/yesterday-builders-only/elementor/elementor.pb.php:46
 #: builders/backup/yesterday/builders/elementor/elementor.pb.php:46
 #: builders/elementor/elementor.pb.php:46
 msgid "To include specific products in the playlist enter their IDs in the products_ids attributes, separated by comma symbols (,)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/builders/elementor/elementor.pb.php:46
 #: builders/backup/old-code/bandfront-worky27/pagebuilders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/pagebuilders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/yesterday-builders-only/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/yesterday/builders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/elementor/elementor.pb.php:46
-#: builders/backup/yesterday-builders-only/elementor/elementor.pb.php:46
 #: builders/backup/yesterday/builders/elementor/elementor.pb.php:46
 #: builders/elementor/elementor.pb.php:46
 msgid "If you are editing the products template, to load the player of the current product, delete the products_ids attribute from the shortcode"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/builders/elementor/elementor.pb.php:46
 #: builders/backup/old-code/bandfront-worky27/pagebuilders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/pagebuilders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/yesterday-builders-only/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/yesterday/builders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/elementor/elementor.pb.php:46
-#: builders/backup/yesterday-builders-only/elementor/elementor.pb.php:46
 #: builders/backup/yesterday/builders/elementor/elementor.pb.php:46
 #: builders/elementor/elementor.pb.php:46
 msgid "More information visiting the follwing link: "
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/builders/elementor/elementor.pb.php:46
 #: builders/backup/old-code/bandfront-worky27/pagebuilders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/pagebuilders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/yesterday-builders-only/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/backup/yesterday/builders/elementor/elementor.pb.php:46
 #: builders/backup/refactor4-fail/builders/elementor/elementor.pb.php:46
-#: builders/backup/yesterday-builders-only/elementor/elementor.pb.php:46
 #: builders/backup/yesterday/builders/elementor/elementor.pb.php:46
 #: builders/elementor/elementor.pb.php:46
 msgid "CLICK HERE"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:11
+#: builders/backup/CSS-REFACTOR/views/product-options.php:23
+#: builders/backup/CSS-REFACTOR/views/product-options.php:191
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:11
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:10
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:203
@@ -133,6 +139,9 @@ msgstr ""
 msgid "File Name"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:12
+#: builders/backup/CSS-REFACTOR/views/product-options.php:24
+#: builders/backup/CSS-REFACTOR/views/product-options.php:197
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:12
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:11
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:209
@@ -154,6 +163,9 @@ msgstr ""
 msgid "Choose file"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:13
+#: builders/backup/CSS-REFACTOR/views/product-options.php:25
+#: builders/backup/CSS-REFACTOR/views/product-options.php:200
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:13
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:12
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:212
@@ -175,6 +187,8 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:14
+#: builders/backup/CSS-REFACTOR/views/product-options.php:26
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:14
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:13
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:14
@@ -190,6 +204,8 @@ msgstr ""
 msgid "Select audio file"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:15
+#: builders/backup/CSS-REFACTOR/views/product-options.php:27
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:15
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:14
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:15
@@ -205,6 +221,7 @@ msgstr ""
 msgid "Select Item"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:72
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:70
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:70
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:72
@@ -214,6 +231,7 @@ msgstr ""
 msgid "Bandfront Player - Global Settings"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:78
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:76
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:76
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:78
@@ -223,6 +241,7 @@ msgstr ""
 msgid "Tips On How To Setup Bandfront [+|-]"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:84
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:82
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:82
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:84
@@ -232,6 +251,7 @@ msgstr ""
 msgid "Getting Started"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:86
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:84
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:84
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:86
@@ -241,6 +261,7 @@ msgstr ""
 msgid "New to Bandfront? Start here for a complete setup guide."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:89
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:87
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:87
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:89
@@ -250,6 +271,7 @@ msgstr ""
 msgid "How To Start Guide →"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:94
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:92
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:92
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:94
@@ -259,6 +281,7 @@ msgstr ""
 msgid "Shortcodes"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:96
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:94
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:94
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:96
@@ -268,6 +291,7 @@ msgstr ""
 msgid "Advanced users can embed players anywhere with shortcodes."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:99
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:97
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:97
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:99
@@ -277,6 +301,7 @@ msgstr ""
 msgid "Shortcode Reference →"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:104
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:102
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:102
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:104
@@ -286,6 +311,7 @@ msgstr ""
 msgid "Customization"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:106
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:104
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:104
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:106
@@ -295,6 +321,7 @@ msgstr ""
 msgid "Make your players match your brand with custom CSS and styling."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:109
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:107
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:107
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:109
@@ -304,6 +331,7 @@ msgstr ""
 msgid "Customization Guide →"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:116
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:114
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:114
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:116
@@ -313,6 +341,7 @@ msgstr ""
 msgid "Pro Tip: Combine all three for maximum Bandcamp replacement!"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:131
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:127
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:127
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:131
@@ -322,6 +351,7 @@ msgstr ""
 msgid "General Settings"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:138
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:133
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:133
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:138
@@ -331,6 +361,7 @@ msgstr ""
 msgid "Registered users only"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:139
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:134
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:134
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:139
@@ -340,6 +371,7 @@ msgstr ""
 msgid "Include the players only for registered users"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:140
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:135
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:135
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:140
@@ -349,6 +381,7 @@ msgstr ""
 msgid "Only show audio players to logged-in users"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:143
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:138
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:138
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:143
@@ -358,6 +391,7 @@ msgstr ""
 msgid "Full tracks for buyers"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:145
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:140
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:140
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:145
@@ -367,6 +401,7 @@ msgstr ""
 msgid "For buyers, play the purchased audio files instead of the truncated files for demo"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:146
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:141
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:141
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:146
@@ -376,6 +411,7 @@ msgstr ""
 msgid "Let buyers hear full tracks instead of demos"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:147
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:142
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:142
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:147
@@ -385,6 +421,7 @@ msgstr ""
 msgid "Reset access"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:148
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:143
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:143
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:148
@@ -394,6 +431,7 @@ msgstr ""
 msgid "Reset files interval"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:150
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:145
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:145
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:150
@@ -403,6 +441,7 @@ msgstr ""
 msgid "daily"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:152
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:147
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:147
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:152
@@ -412,6 +451,7 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:157
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:155
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:155
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:157
@@ -421,6 +461,7 @@ msgstr ""
 msgid "Smooth fade out"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:158
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:156
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:156
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:158
@@ -430,6 +471,7 @@ msgstr ""
 msgid "Apply fade out to playing audio when possible"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:159
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:157
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:157
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:159
@@ -439,6 +481,7 @@ msgstr ""
 msgid "Gradually fade out audio when switching tracks"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:162
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:160
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:160
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:162
@@ -448,6 +491,7 @@ msgstr ""
 msgid "Purchase count text"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:163
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:161
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:161
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:163
@@ -457,6 +501,7 @@ msgstr ""
 msgid "Purchased times text"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:164
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:162
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:162
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:164
@@ -467,6 +512,7 @@ msgstr ""
 msgid "Text shown in playlists when displaying purchase counts (use %d for the number)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:181
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:172
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:172
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:181
@@ -476,6 +522,7 @@ msgstr ""
 msgid "Player Settings"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:188
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:174
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:174
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:188
@@ -485,6 +532,7 @@ msgstr ""
 msgid "Enable players on all products"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:189
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:175
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:175
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:189
@@ -494,6 +542,8 @@ msgstr ""
 msgid "Players will show for downloadable products with audio files, or products where you've added custom audio files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:189
+#: builders/backup/CSS-REFACTOR/views/product-options.php:83
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:175
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:95
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:175
@@ -509,6 +559,7 @@ msgstr ""
 msgid "Enable player"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:192
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:178
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:178
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:192
@@ -518,6 +569,7 @@ msgstr ""
 msgid "Show players on"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:194
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:180
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:180
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:194
@@ -527,6 +579,7 @@ msgstr ""
 msgid "Single entry pages"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:195
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:181
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:181
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:195
@@ -536,6 +589,7 @@ msgstr ""
 msgid "Product pages only"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:197
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:183
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:183
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:197
@@ -545,6 +599,7 @@ msgstr ""
 msgid "Multiple entry pages"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:198
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:184
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:184
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:198
@@ -554,6 +609,7 @@ msgstr ""
 msgid "Shop and archive pages only"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:200
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:186
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:186
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:200
@@ -563,6 +619,7 @@ msgstr ""
 msgid "Single and multiple entry pages"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:201
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:187
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:187
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:201
@@ -572,6 +629,7 @@ msgstr ""
 msgid "All pages (shop, archives, and product pages)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:205
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:191
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:191
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:205
@@ -581,6 +639,7 @@ msgstr ""
 msgid "Show players in cart"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:207
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:193
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:193
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:207
@@ -590,6 +649,8 @@ msgstr ""
 msgid "Include players in cart"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:211
+#: builders/backup/CSS-REFACTOR/views/product-options.php:86
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:197
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:98
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:197
@@ -605,6 +666,8 @@ msgstr ""
 msgid "Merge grouped products"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:212
+#: builders/backup/CSS-REFACTOR/views/product-options.php:87
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:198
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:99
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:198
@@ -620,6 +683,8 @@ msgstr ""
 msgid "Merge in grouped products"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:212
+#: builders/backup/CSS-REFACTOR/views/product-options.php:87
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:198
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:99
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:198
@@ -635,6 +700,7 @@ msgstr ""
 msgid "Show \"Add to cart\" buttons and quantity fields within player rows for grouped products"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:215
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:201
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:201
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:215
@@ -644,6 +710,8 @@ msgstr ""
 msgid "Player appearance"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:220
+#: builders/backup/CSS-REFACTOR/views/product-options.php:93
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:220
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:105
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:220
@@ -659,6 +727,8 @@ msgstr ""
 msgid "Show a single player instead of one player per audio file."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:221
+#: builders/backup/CSS-REFACTOR/views/product-options.php:94
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:221
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:106
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:221
@@ -674,6 +744,8 @@ msgstr ""
 msgid "Single player mode (one player for all tracks)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:226
+#: builders/backup/CSS-REFACTOR/views/product-options.php:100
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:229
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:112
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:229
@@ -689,6 +761,8 @@ msgstr ""
 msgid "Preload behavior"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:229
+#: builders/backup/CSS-REFACTOR/views/product-options.php:103
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:232
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:115
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:232
@@ -704,6 +778,8 @@ msgstr ""
 msgid "Preload - none"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:231
+#: builders/backup/CSS-REFACTOR/views/product-options.php:105
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:234
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:117
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:234
@@ -719,6 +795,8 @@ msgstr ""
 msgid "Preload - metadata"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:233
+#: builders/backup/CSS-REFACTOR/views/product-options.php:107
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:236
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:119
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:236
@@ -734,6 +812,8 @@ msgstr ""
 msgid "Preload - auto"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:239
+#: builders/backup/CSS-REFACTOR/views/product-options.php:113
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:242
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:125
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:242
@@ -749,6 +829,9 @@ msgstr ""
 msgid "Auto-play next track"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:242
+#: builders/backup/CSS-REFACTOR/views/product-options.php:116
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:115
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:245
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:128
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:102
@@ -769,6 +852,8 @@ msgstr ""
 msgid "Play all"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:248
+#: builders/backup/CSS-REFACTOR/views/product-options.php:122
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:251
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:134
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:251
@@ -784,6 +869,8 @@ msgstr ""
 msgid "Loop tracks"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:251
+#: builders/backup/CSS-REFACTOR/views/product-options.php:125
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:254
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:137
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:254
@@ -799,6 +886,7 @@ msgstr ""
 msgid "Loop"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:257
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:260
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:260
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:257
@@ -808,6 +896,7 @@ msgstr ""
 msgid "Allow multiple players"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:260
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:263
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:263
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:260
@@ -817,6 +906,7 @@ msgstr ""
 msgid "Allow multiple players to play simultaneously"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:263
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:266
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:266
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:263
@@ -826,6 +916,8 @@ msgstr ""
 msgid "Let multiple players play at the same time instead of stopping others when one starts"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:268
+#: builders/backup/CSS-REFACTOR/views/product-options.php:130
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:271
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:142
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:271
@@ -841,6 +933,8 @@ msgstr ""
 msgid "Default volume (0.0 to 1.0)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:270
+#: builders/backup/CSS-REFACTOR/views/product-options.php:132
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:273
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:144
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:273
@@ -856,6 +950,10 @@ msgstr ""
 msgid "Player volume"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:275
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:278
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:279
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:280
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:277
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:277
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:275
@@ -877,6 +975,7 @@ msgstr ""
 msgid "Player controls"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:278
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:279
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:279
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:278
@@ -886,6 +985,7 @@ msgstr ""
 msgid "Play/pause button only"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:279
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:280
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:280
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:279
@@ -895,6 +995,7 @@ msgstr ""
 msgid "Full controls (progress bar, volume, etc.)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:280
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:281
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:281
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:280
@@ -904,6 +1005,7 @@ msgstr ""
 msgid "Smart controls (minimal on shop, full on product pages)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:284
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:296
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:296
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:284
@@ -913,6 +1015,7 @@ msgstr ""
 msgid "Show track titles"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:286
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:298
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:298
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:286
@@ -922,6 +1025,8 @@ msgstr ""
 msgid "Display the player title"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:308
+#: builders/backup/CSS-REFACTOR/views/product-options.php:141
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:307
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:153
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:307
@@ -937,6 +1042,8 @@ msgstr ""
 msgid "Protect the file"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:309
+#: builders/backup/CSS-REFACTOR/views/product-options.php:142
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:308
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:154
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:308
@@ -950,6 +1057,7 @@ msgstr ""
 msgid "Create demo versions to prevent unauthorized downloading"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:145
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:311
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:157
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:311
@@ -963,6 +1071,7 @@ msgstr ""
 msgid "Demo length (% of original)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:147
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:313
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:159
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:313
@@ -976,6 +1085,7 @@ msgstr ""
 msgid "Percent of audio used for protected playbacks"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:148
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:314
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:160
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:314
@@ -989,6 +1099,7 @@ msgstr ""
 msgid "How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:313
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:319
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:319
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:313
@@ -998,6 +1109,7 @@ msgstr ""
 msgid "Demo notice text"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:316
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:322
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:322
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:316
@@ -1007,6 +1119,7 @@ msgstr ""
 msgid "Explaining that demos are partial versions of the original files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:317
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:323
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:323
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:317
@@ -1025,6 +1138,7 @@ msgstr ""
 msgid "Use FFmpeg for demos"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:560
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:334
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:334
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:560
@@ -1034,6 +1148,7 @@ msgstr ""
 msgid "Truncate the audio files for demo with ffmpeg"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:561
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:335
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:335
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:561
@@ -1043,6 +1158,7 @@ msgstr ""
 msgid "Requires FFmpeg to be installed on your server"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:564
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:338
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:338
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:564
@@ -1052,6 +1168,7 @@ msgstr ""
 msgid "FFmpeg path"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:566
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:340
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:340
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:566
@@ -1061,6 +1178,7 @@ msgstr ""
 msgid "ffmpeg path"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:571
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:345
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:345
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:571
@@ -1070,6 +1188,7 @@ msgstr ""
 msgid "Audio watermark"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:573
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:347
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:347
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:573
@@ -1079,6 +1198,7 @@ msgstr ""
 msgid "Watermark audio"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:573
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:347
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:347
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:573
@@ -1088,6 +1208,7 @@ msgstr ""
 msgid "Select"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:331
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:373
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:373
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:331
@@ -1097,6 +1218,7 @@ msgstr ""
 msgid "Analytics"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:339
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:377
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:377
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:339
@@ -1106,6 +1228,7 @@ msgstr ""
 msgid "Show \"playback Counter\" in the WooCommerce products list"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:340
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:378
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:378
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:340
@@ -1115,6 +1238,7 @@ msgstr ""
 msgid "Show playback counter in products list"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:345
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:383
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:383
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:345
@@ -1124,6 +1248,7 @@ msgstr ""
 msgid "Connect with Google Analytics to track when songs are played. Events include the audio file URL and product ID."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:346
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:384
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:384
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:346
@@ -1133,6 +1258,7 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:346
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:384
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:384
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:346
@@ -1142,6 +1268,7 @@ msgstr ""
 msgid "If preload is set to \"Metadata\" or \"Auto\", events are tracked when files load, not just when they play."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:351
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:389
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:389
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:351
@@ -1151,6 +1278,7 @@ msgstr ""
 msgid "Universal Analytics"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:352
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:390
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:390
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:352
@@ -1160,6 +1288,7 @@ msgstr ""
 msgid "Measurement Protocol (Google Analytics 4)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:357
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:395
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:395
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:357
@@ -1169,6 +1298,7 @@ msgstr ""
 msgid "Measurement ID"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:358
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:396
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:396
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:358
@@ -1178,6 +1308,8 @@ msgstr ""
 msgid "Measurement id"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:363
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:364
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:401
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:402
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:401
@@ -1193,6 +1325,7 @@ msgstr ""
 msgid "API Secret"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:588
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:426
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:426
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:588
@@ -1202,6 +1335,7 @@ msgstr ""
 msgid "Troubleshooting"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:598
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:432
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:432
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:598
@@ -1209,6 +1343,7 @@ msgstr ""
 msgid "Players not working on iPads or iPhones?"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:601
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:435
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:435
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:601
@@ -1216,6 +1351,7 @@ msgstr ""
 msgid "On iPads and iPhones, use native controls"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:603
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:437
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:437
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:603
@@ -1223,6 +1359,7 @@ msgstr ""
 msgid "Use native iOS controls for better compatibility"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:611
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:445
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:445
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:611
@@ -1230,6 +1367,7 @@ msgstr ""
 msgid "Cache or optimizer plugins causing problems?"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:614
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:448
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:448
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:614
@@ -1237,6 +1375,7 @@ msgstr ""
 msgid "Loading players in the onload event"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:616
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:450
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:450
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:616
@@ -1244,6 +1383,7 @@ msgstr ""
 msgid "Load players after page fully loads"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:624
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:458
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:458
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:624
@@ -1251,6 +1391,7 @@ msgstr ""
 msgid "Files missing extensions or stored in cloud?"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:627
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:461
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:461
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:627
@@ -1258,6 +1399,7 @@ msgstr ""
 msgid "For files whose extensions cannot be determined handle them as mp3 files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:629
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:463
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:463
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:629
@@ -1265,6 +1407,7 @@ msgstr ""
 msgid "Treat unrecognized files as MP3 audio"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:637
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:471
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:471
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:637
@@ -1274,6 +1417,7 @@ msgstr ""
 msgid "Gutenberg blocks hiding your players?"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:640
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:474
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:474
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:640
@@ -1283,6 +1427,7 @@ msgstr ""
 msgid "For the WooCommerce Gutenberg Blocks, include the main player in the products titles"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:642
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:476
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:476
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:642
@@ -1292,6 +1437,7 @@ msgstr ""
 msgid "Force players to appear in product titles"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:650
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:484
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:484
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:650
@@ -1299,6 +1445,7 @@ msgstr ""
 msgid "Players visible but not working?"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:653
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:487
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:487
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:653
@@ -1306,6 +1453,7 @@ msgstr ""
 msgid "Disable 302 redirection"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:655
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:489
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:489
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:655
@@ -1313,6 +1461,7 @@ msgstr ""
 msgid "Load files directly instead of using redirects"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:662
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:496
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:496
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:662
@@ -1322,6 +1471,7 @@ msgstr ""
 msgid "Demo files corrupted or outdated?"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:664
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:498
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:498
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:664
@@ -1331,6 +1481,7 @@ msgstr ""
 msgid "Delete the demo files generated previously"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:665
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:499
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:499
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:665
@@ -1338,6 +1489,7 @@ msgstr ""
 msgid "Delete old demo files (local files only)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:671
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:505
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:505
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:671
@@ -1345,6 +1497,7 @@ msgstr ""
 msgid "Pro Tip!"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:671
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:505
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:505
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:671
@@ -1354,6 +1507,7 @@ msgstr ""
 msgid "After changing troubleshooting settings, clear your website and browser caches for best results."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:678
 #: builders/backup/old-code/bandfront-worky27/views/global_options.php:512
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/global_options.php:512
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:678
@@ -1363,6 +1517,7 @@ msgstr ""
 msgid "Save settings"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:71
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:63
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:63
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:71
@@ -1372,6 +1527,7 @@ msgstr ""
 msgid "Product Music Player Settings"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:82
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:94
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:94
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:82
@@ -1381,6 +1537,7 @@ msgstr ""
 msgid "Include music player"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:83
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:95
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:95
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:83
@@ -1390,6 +1547,7 @@ msgstr ""
 msgid "Player shows only if product is downloadable with audio files, or you've selected custom audio files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:90
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:102
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:102
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:90
@@ -1399,6 +1557,7 @@ msgstr ""
 msgid "Player behavior"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:163
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:175
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:175
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:163
@@ -1408,6 +1567,7 @@ msgstr ""
 msgid "Custom Demo Files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:167
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:179
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:179
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:167
@@ -1417,6 +1577,7 @@ msgstr ""
 msgid "Own demo files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:168
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:180
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:180
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:168
@@ -1426,6 +1587,7 @@ msgstr ""
 msgid "Use my own custom demo files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:170
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:182
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:182
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:170
@@ -1435,6 +1597,7 @@ msgstr ""
 msgid "Upload your own demo versions instead of auto-generating them from the original files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:176
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:188
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:188
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:176
@@ -1444,6 +1607,7 @@ msgstr ""
 msgid "Demo files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:180
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:192
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:192
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:180
@@ -1453,6 +1617,8 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:181
+#: builders/backup/CSS-REFACTOR/views/product-options.php:194
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:193
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:206
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:193
@@ -1468,6 +1634,7 @@ msgstr ""
 msgid "File URL"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:191
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:203
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:203
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:191
@@ -1477,6 +1644,7 @@ msgstr ""
 msgid "File name"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:210
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:222
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:222
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:210
@@ -1486,6 +1654,7 @@ msgstr ""
 msgid "Add File"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:219
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:231
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:231
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:219
@@ -1495,6 +1664,7 @@ msgstr ""
 msgid "Load directly the original demo files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:220
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:232
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:232
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:220
@@ -1504,6 +1674,7 @@ msgstr ""
 msgid "Load demo files directly (no preprocessing)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/product-options.php:222
 #: builders/backup/old-code/bandfront-worky27/views/player_options.php:234
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/views/player_options.php:234
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:222
@@ -1513,6 +1684,7 @@ msgstr ""
 msgid "Skip processing and use your demo files exactly as uploaded"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:80
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:67
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:67
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:80
@@ -1521,6 +1693,7 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:83
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:70
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:70
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:83
@@ -1529,6 +1702,7 @@ msgstr ""
 msgid "Products IDs"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:83
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:70
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:70
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:83
@@ -1537,6 +1711,7 @@ msgstr ""
 msgid "Products IDs separated by comma, or a * for all"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:87
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:74
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:74
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:87
@@ -1545,6 +1720,7 @@ msgstr ""
 msgid "Enter the ID of products separated by comma, or a * symbol to includes all products in the playlist."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:91
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:78
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:78
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:91
@@ -1553,6 +1729,7 @@ msgstr ""
 msgid "Volume (enter a number between 0 and 1)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:94
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:81
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:81
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:94
@@ -1561,6 +1738,7 @@ msgstr ""
 msgid "Playlist layout"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:97
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:84
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:84
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:97
@@ -1569,6 +1747,7 @@ msgstr ""
 msgid "New layout"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:100
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:87
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:87
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:100
@@ -1577,6 +1756,7 @@ msgstr ""
 msgid "Original layout"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:103
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:90
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:90
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:103
@@ -1585,6 +1765,7 @@ msgstr ""
 msgid "Player layout"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:119
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:106
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:106
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:119
@@ -1593,6 +1774,7 @@ msgstr ""
 msgid "Preload"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:125
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:112
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:112
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:125
@@ -1601,6 +1783,7 @@ msgstr ""
 msgid "Highlight the current product"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:128
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:115
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:115
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:128
@@ -1609,6 +1792,7 @@ msgstr ""
 msgid "Continue playing after navigate"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/widgets/playlist_widget.php:132
 #: builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:119
 #: builders/backup/refactor4-fail/builders/backup/old-code/bandfront-worky27/widgets/playlist_widget.php:119
 #: builders/backup/refactor4-fail/builders/backup/yesterday/widgets/playlist_widget.php:132
@@ -1617,6 +1801,8 @@ msgstr ""
 msgid "Continue playing the same song at same position after navigate. You can experiment some delay because the music player should to load the audio file again, and in some mobiles devices, where the action of the user is required, the player cannot starting playing automatically."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:29
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:548
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:43
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:548
 #: builders/backup/refactor4-fail/modules/audio-engine.php:53
@@ -1632,6 +1818,7 @@ msgstr ""
 msgid "Audio Engine"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:219
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:219
 #: builders/backup/refactor4-fail/views/global-admin-options.php:208
 #: builders/backup/yesterday/views/global-admin-options.php:219
@@ -1639,6 +1826,8 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:300
+#: builders/backup/CSS-REFACTOR/views/product-options.php:138
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:300
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:138
 #: builders/backup/refactor4-fail/views/product-options.php:132
@@ -1648,6 +1837,8 @@ msgstr ""
 msgid "File Truncation"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:307
+#: builders/backup/CSS-REFACTOR/views/product-options.php:140
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:307
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/product-options.php:140
 #: builders/backup/refactor4-fail/views/product-options.php:134
@@ -1657,6 +1848,7 @@ msgstr ""
 msgid "Truncate audio files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:385
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:385
 #: builders/backup/refactor4-fail/views/global-admin-options.php:377
 #: builders/backup/yesterday/views/global-admin-options.php:385
@@ -1664,6 +1856,7 @@ msgstr ""
 msgid "Cloud Storage"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:393
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:393
 #: builders/backup/refactor4-fail/views/global-admin-options.php:385
 #: builders/backup/yesterday/views/global-admin-options.php:393
@@ -1671,6 +1864,7 @@ msgstr ""
 msgid "Automatically upload demo files to cloud storage to save server storage and bandwidth. Files are streamed directly from the cloud."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:398
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:398
 #: builders/backup/refactor4-fail/views/global-admin-options.php:392
 #: builders/backup/yesterday/views/global-admin-options.php:398
@@ -1678,6 +1872,7 @@ msgstr ""
 msgid "Google Drive"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:401
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:401
 #: builders/backup/refactor4-fail/views/global-admin-options.php:395
 #: builders/backup/yesterday/views/global-admin-options.php:401
@@ -1685,6 +1880,7 @@ msgstr ""
 msgid "Dropbox"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:404
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:404
 #: builders/backup/refactor4-fail/views/global-admin-options.php:398
 #: builders/backup/yesterday/views/global-admin-options.php:404
@@ -1692,6 +1888,7 @@ msgstr ""
 msgid "AWS S3"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:407
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:407
 #: builders/backup/refactor4-fail/views/global-admin-options.php:401
 #: builders/backup/yesterday/views/global-admin-options.php:407
@@ -1699,6 +1896,8 @@ msgstr ""
 msgid "Azure Blob"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:416
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:417
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:416
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:417
 #: builders/backup/refactor4-fail/views/global-admin-options.php:410
@@ -1710,6 +1909,7 @@ msgstr ""
 msgid "Store demo files on Google Drive"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:421
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:421
 #: builders/backup/refactor4-fail/views/global-admin-options.php:415
 #: builders/backup/yesterday/views/global-admin-options.php:421
@@ -1717,6 +1917,7 @@ msgstr ""
 msgid "Import OAuth Client JSON File"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:422
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:422
 #: builders/backup/refactor4-fail/views/global-admin-options.php:416
 #: builders/backup/yesterday/views/global-admin-options.php:422
@@ -1724,6 +1925,7 @@ msgstr ""
 msgid "Required to upload demo files to Google Drive"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:425
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:425
 #: builders/backup/refactor4-fail/views/global-admin-options.php:419
 #: builders/backup/yesterday/views/global-admin-options.php:425
@@ -1731,6 +1933,7 @@ msgstr ""
 msgid "OAuth Client JSON file"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:428
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:428
 #: builders/backup/refactor4-fail/views/global-admin-options.php:422
 #: builders/backup/yesterday/views/global-admin-options.php:428
@@ -1738,6 +1941,7 @@ msgstr ""
 msgid "OAuth Client Available ✅"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:433
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:433
 #: builders/backup/refactor4-fail/views/global-admin-options.php:427
 #: builders/backup/yesterday/views/global-admin-options.php:433
@@ -1745,6 +1949,8 @@ msgstr ""
 msgid "To create an OAuth 2.0 client ID:"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:436
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:469
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:436
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:469
 #: builders/backup/refactor4-fail/views/global-admin-options.php:430
@@ -1756,6 +1962,8 @@ msgstr ""
 msgid "Go to the"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:436
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:469
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:436
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:469
 #: builders/backup/refactor4-fail/views/global-admin-options.php:430
@@ -1767,6 +1975,8 @@ msgstr ""
 msgid "Google Cloud Platform Console"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:437
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:470
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:437
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:470
 #: builders/backup/refactor4-fail/views/global-admin-options.php:431
@@ -1778,6 +1988,8 @@ msgstr ""
 msgid "From the projects list, select a project or create a new one."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:438
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:471
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:438
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:471
 #: builders/backup/refactor4-fail/views/global-admin-options.php:432
@@ -1789,6 +2001,8 @@ msgstr ""
 msgid "If the APIs & services page isn't already open, open the console left side menu and select APIs & services."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:439
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:472
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:439
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:472
 #: builders/backup/refactor4-fail/views/global-admin-options.php:433
@@ -1800,6 +2014,7 @@ msgstr ""
 msgid "On the left, click Credentials."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:440
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:440
 #: builders/backup/refactor4-fail/views/global-admin-options.php:434
 #: builders/backup/yesterday/views/global-admin-options.php:440
@@ -1807,6 +2022,7 @@ msgstr ""
 msgid "Click + CREATE CREDENTIALS, then select OAuth client ID."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:441
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:441
 #: builders/backup/refactor4-fail/views/global-admin-options.php:435
 #: builders/backup/yesterday/views/global-admin-options.php:441
@@ -1814,6 +2030,7 @@ msgstr ""
 msgid "Select the application type Web application."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:442
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:442
 #: builders/backup/refactor4-fail/views/global-admin-options.php:436
 #: builders/backup/yesterday/views/global-admin-options.php:442
@@ -1821,6 +2038,7 @@ msgstr ""
 msgid "Enter BandFront Player in the Name field."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:443
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:443
 #: builders/backup/refactor4-fail/views/global-admin-options.php:437
 #: builders/backup/yesterday/views/global-admin-options.php:443
@@ -1828,6 +2046,7 @@ msgstr ""
 msgid "Enter the URL below as the Authorized redirect URIs:"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:449
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:449
 #: builders/backup/refactor4-fail/views/global-admin-options.php:443
 #: builders/backup/yesterday/views/global-admin-options.php:449
@@ -1835,6 +2054,7 @@ msgstr ""
 msgid "Press the Create button."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:450
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:450
 #: builders/backup/refactor4-fail/views/global-admin-options.php:444
 #: builders/backup/yesterday/views/global-admin-options.php:450
@@ -1842,6 +2062,7 @@ msgstr ""
 msgid "In the OAuth client created dialog, press the DOWNLOAD JSON button and store it on your computer, and press the Ok button."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:451
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:451
 #: builders/backup/refactor4-fail/views/global-admin-options.php:445
 #: builders/backup/yesterday/views/global-admin-options.php:451
@@ -1849,6 +2070,8 @@ msgstr ""
 msgid "Finally, select the downloaded file through the Import OAuth Client JSON File field above."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:459
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:463
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:459
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:463
 #: builders/backup/refactor4-fail/views/global-admin-options.php:453
@@ -1860,6 +2083,7 @@ msgstr ""
 msgid "API Key"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:460
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:460
 #: builders/backup/refactor4-fail/views/global-admin-options.php:454
 #: builders/backup/yesterday/views/global-admin-options.php:460
@@ -1867,6 +2091,7 @@ msgstr ""
 msgid "Required to read audio files from players"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:466
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:466
 #: builders/backup/refactor4-fail/views/global-admin-options.php:460
 #: builders/backup/yesterday/views/global-admin-options.php:466
@@ -1874,6 +2099,7 @@ msgstr ""
 msgid "Get API Key:"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:473
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:473
 #: builders/backup/refactor4-fail/views/global-admin-options.php:467
 #: builders/backup/yesterday/views/global-admin-options.php:473
@@ -1881,6 +2107,7 @@ msgstr ""
 msgid "Click + CREATE CREDENTIALS, then select API Key."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:474
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:474
 #: builders/backup/refactor4-fail/views/global-admin-options.php:468
 #: builders/backup/yesterday/views/global-admin-options.php:474
@@ -1888,6 +2115,7 @@ msgstr ""
 msgid "Copy the API Key."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:475
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:475
 #: builders/backup/refactor4-fail/views/global-admin-options.php:469
 #: builders/backup/yesterday/views/global-admin-options.php:475
@@ -1895,6 +2123,7 @@ msgstr ""
 msgid "Finally, paste it in the API Key field above."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:487
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:487
 #: builders/backup/refactor4-fail/views/global-admin-options.php:481
 #: builders/backup/yesterday/views/global-admin-options.php:487
@@ -1902,6 +2131,7 @@ msgstr ""
 msgid "Dropbox Integration"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:488
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:488
 #: builders/backup/refactor4-fail/views/global-admin-options.php:482
 #: builders/backup/yesterday/views/global-admin-options.php:488
@@ -1909,6 +2139,9 @@ msgstr ""
 msgid "Coming soon! Dropbox integration will allow you to store your demo files on Dropbox with automatic syncing and bandwidth optimization."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:490
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:507
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:524
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:490
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:507
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:524
@@ -1924,6 +2157,7 @@ msgstr ""
 msgid "Planned Features:"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:492
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:492
 #: builders/backup/refactor4-fail/views/global-admin-options.php:486
 #: builders/backup/yesterday/views/global-admin-options.php:492
@@ -1931,6 +2165,7 @@ msgstr ""
 msgid "Automatic file upload to Dropbox"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:493
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:493
 #: builders/backup/refactor4-fail/views/global-admin-options.php:487
 #: builders/backup/yesterday/views/global-admin-options.php:493
@@ -1938,6 +2173,7 @@ msgstr ""
 msgid "Real-time synchronization"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:494
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:494
 #: builders/backup/refactor4-fail/views/global-admin-options.php:488
 #: builders/backup/yesterday/views/global-admin-options.php:494
@@ -1945,6 +2181,7 @@ msgstr ""
 msgid "Bandwidth usage analytics"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:495
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:495
 #: builders/backup/refactor4-fail/views/global-admin-options.php:489
 #: builders/backup/yesterday/views/global-admin-options.php:495
@@ -1952,6 +2189,7 @@ msgstr ""
 msgid "Advanced security controls"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:504
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:504
 #: builders/backup/refactor4-fail/views/global-admin-options.php:498
 #: builders/backup/yesterday/views/global-admin-options.php:504
@@ -1959,6 +2197,7 @@ msgstr ""
 msgid "Amazon S3 Storage"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:505
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:505
 #: builders/backup/refactor4-fail/views/global-admin-options.php:499
 #: builders/backup/yesterday/views/global-admin-options.php:505
@@ -1966,6 +2205,7 @@ msgstr ""
 msgid "Enterprise-grade cloud storage with AWS S3. Perfect for high-traffic websites requiring maximum reliability and global CDN distribution."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:509
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:509
 #: builders/backup/refactor4-fail/views/global-admin-options.php:503
 #: builders/backup/yesterday/views/global-admin-options.php:509
@@ -1973,6 +2213,7 @@ msgstr ""
 msgid "Global CDN with CloudFront integration"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:510
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:510
 #: builders/backup/refactor4-fail/views/global-admin-options.php:504
 #: builders/backup/yesterday/views/global-admin-options.php:510
@@ -1980,6 +2221,7 @@ msgstr ""
 msgid "Lightning-fast file delivery"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:511
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:511
 #: builders/backup/refactor4-fail/views/global-admin-options.php:505
 #: builders/backup/yesterday/views/global-admin-options.php:511
@@ -1987,6 +2229,7 @@ msgstr ""
 msgid "Cost-effective storage pricing"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:512
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:512
 #: builders/backup/refactor4-fail/views/global-admin-options.php:506
 #: builders/backup/yesterday/views/global-admin-options.php:512
@@ -1994,6 +2237,7 @@ msgstr ""
 msgid "Enterprise security and encryption"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:521
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:521
 #: builders/backup/refactor4-fail/views/global-admin-options.php:515
 #: builders/backup/yesterday/views/global-admin-options.php:521
@@ -2001,6 +2245,7 @@ msgstr ""
 msgid "Microsoft Azure Blob Storage"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:522
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:522
 #: builders/backup/refactor4-fail/views/global-admin-options.php:516
 #: builders/backup/yesterday/views/global-admin-options.php:522
@@ -2008,6 +2253,7 @@ msgstr ""
 msgid "Microsoft Azure Blob Storage integration for seamless file management and global distribution with enterprise-level security."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:526
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:526
 #: builders/backup/refactor4-fail/views/global-admin-options.php:520
 #: builders/backup/yesterday/views/global-admin-options.php:526
@@ -2015,6 +2261,7 @@ msgstr ""
 msgid "Enterprise Active Directory integration"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:527
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:527
 #: builders/backup/refactor4-fail/views/global-admin-options.php:521
 #: builders/backup/yesterday/views/global-admin-options.php:527
@@ -2022,6 +2269,7 @@ msgstr ""
 msgid "Global edge locations"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:528
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:528
 #: builders/backup/refactor4-fail/views/global-admin-options.php:522
 #: builders/backup/yesterday/views/global-admin-options.php:528
@@ -2029,6 +2277,7 @@ msgstr ""
 msgid "Advanced analytics and monitoring"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:529
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:529
 #: builders/backup/refactor4-fail/views/global-admin-options.php:523
 #: builders/backup/yesterday/views/global-admin-options.php:529
@@ -2036,30 +2285,31 @@ msgstr ""
 msgid "Compliance-ready security features"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/builders/gutenberg/block.json
 #: builders/backup/gutenberg/block.json
 #: builders/backup/refactor4-fail/builders/backup/gutenberg/block.json
 #: builders/backup/refactor4-fail/builders/backup/yesterday-builders-only/gutenberg/block.json
 #: builders/backup/refactor4-fail/builders/backup/yesterday/builders/gutenberg/block.json
 #: builders/backup/refactor4-fail/builders/gutenberg/block.json
-#: builders/backup/yesterday-builders-only/gutenberg/block.json
 #: builders/backup/yesterday/builders/gutenberg/block.json
 #: builders/gutenberg/block.json
 msgctxt "block title"
 msgid "Bandfront Player Playlist"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/builders/gutenberg/block.json
 #: builders/backup/gutenberg/block.json
 #: builders/backup/refactor4-fail/builders/backup/gutenberg/block.json
 #: builders/backup/refactor4-fail/builders/backup/yesterday-builders-only/gutenberg/block.json
 #: builders/backup/refactor4-fail/builders/backup/yesterday/builders/gutenberg/block.json
 #: builders/backup/refactor4-fail/builders/gutenberg/block.json
-#: builders/backup/yesterday-builders-only/gutenberg/block.json
 #: builders/backup/yesterday/builders/gutenberg/block.json
 #: builders/gutenberg/block.json
 msgctxt "block description"
 msgid "Display a Bandfront Player playlist."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:217
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:217
 #: builders/backup/refactor4-fail/views/global-admin-options.php:206
 #: builders/backup/yesterday/views/global-admin-options.php:217
@@ -2067,6 +2317,7 @@ msgstr ""
 msgid "Dark"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:218
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:218
 #: builders/backup/refactor4-fail/views/global-admin-options.php:207
 #: builders/backup/yesterday/views/global-admin-options.php:218
@@ -2074,6 +2325,7 @@ msgstr ""
 msgid "Light"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:574
 #: builders/backup/refactor4-fail/builders/backup/yesterday/views/global-admin-options.php:574
 #: builders/backup/refactor4-fail/views/global-admin-options.php:577
 #: builders/backup/yesterday/views/global-admin-options.php:574
@@ -2524,67 +2776,80 @@ msgstr ""
 msgid "Regenerate demo files"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:24
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:38
 #: builders/backup/yesterday/modules/audio-engine.php:38
 msgid "Choose the audio processing engine for your players. WaveSurfer.js provides enhanced features like waveforms and smoother fades."
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:33
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:47
 #: builders/backup/yesterday/modules/audio-engine.php:47
 msgid "Audio Engine Selection"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:41
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:55
 #: builders/backup/yesterday/modules/audio-engine.php:55
 msgid "MediaElement.js (Default)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:44
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:58
 #: builders/backup/yesterday/modules/audio-engine.php:58
 msgid "Reliable HTML5 audio with broad browser compatibility"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:53
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:67
 #: builders/backup/yesterday/modules/audio-engine.php:67
 msgid "WaveSurfer.js (Experimental)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:56
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:70
 #: builders/backup/yesterday/modules/audio-engine.php:70
 msgid "Web Audio API with waveforms and enhanced effects"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:65
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:79
 #: builders/backup/yesterday/modules/audio-engine.php:79
 msgid "Enable waveform visualizations"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:68
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:82
 #: builders/backup/yesterday/modules/audio-engine.php:82
 msgid "Show visual waveforms for audio tracks (may impact performance)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:98
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:123
 #: builders/backup/yesterday/modules/audio-engine.php:123
 msgid "Audio Engine Override"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:102
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:127
 #: builders/backup/yesterday/modules/audio-engine.php:127
 msgid "Audio Engine for this Product"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:105
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:130
 #: builders/backup/yesterday/modules/audio-engine.php:130
 msgid "Audio engine for this product"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:107
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:132
 #: builders/backup/yesterday/modules/audio-engine.php:132
 #, php-format
 msgid "Use Global Setting (%s)"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:110
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:135
 #: builders/backup/refactor4-fail/views/product-options.php:124
 #: builders/backup/yesterday/modules/audio-engine.php:135
@@ -2592,6 +2857,7 @@ msgstr ""
 msgid "MediaElement.js"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:113
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:138
 #: builders/backup/refactor4-fail/views/product-options.php:125
 #: builders/backup/yesterday/modules/audio-engine.php:138
@@ -2599,6 +2865,7 @@ msgstr ""
 msgid "WaveSurfer.js"
 msgstr ""
 
+#: builders/backup/CSS-REFACTOR/modules/audio-engine.php:116
 #: builders/backup/refactor4-fail/builders/backup/yesterday/modules/audio-engine.php:141
 #: builders/backup/yesterday/modules/audio-engine.php:141
 msgid "Override the global audio engine setting for this specific product"
@@ -2607,4 +2874,8 @@ msgstr ""
 #: builders/backup/refactor4-fail/views/product-options.php:123
 #: views/product-options.php:123
 msgid "Use Global Setting"
+msgstr ""
+
+#: builders/backup/CSS-REFACTOR/views/global-admin-options.php:559
+msgid "Use FFmpeg"
 msgstr ""

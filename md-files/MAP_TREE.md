@@ -8,7 +8,101 @@
 │   ├── update-translations.sh
 │   └── update-wavesurfer.sh
 ├── builders
+│   ├── ORIG-GUTS.md
+│   ├── REFACTOR-GUTS.md
 │   ├── backup
+│   │   ├── CSS-REFACTOR
+│   │   │   ├── .gitignore
+│   │   │   ├── .gitmodules
+│   │   │   ├── README.md
+│   │   │   ├── bfp.php
+│   │   │   ├── build
+│   │   │   │   ├── build.sh
+│   │   │   │   ├── update-translations.sh
+│   │   │   │   └── update-wavesurfer.sh
+│   │   │   ├── builders
+│   │   │   │   ├── builders.php
+│   │   │   │   ├── elementor
+│   │   │   │   │   ├── elementor.pb.php
+│   │   │   │   │   └── elementor_category.pb.php
+│   │   │   │   └── gutenberg
+│   │   │   │       ├── block.json
+│   │   │   │       ├── gutenberg.css
+│   │   │   │       ├── gutenberg.js
+│   │   │   │       ├── gutenberg.js.backup-20250708-052521
+│   │   │   │       ├── wcblocks.css
+│   │   │   │       └── wcblocks.js
+│   │   │   ├── css
+│   │   │   │   ├── skins
+│   │   │   │   │   ├── custom.css
+│   │   │   │   │   ├── dark.css
+│   │   │   │   │   └── light.css
+│   │   │   │   ├── style.admin.css
+│   │   │   │   └── style.css
+│   │   │   ├── demo
+│   │   │   │   └── demo.mp3
+│   │   │   ├── includes
+│   │   │   │   ├── class-bfp-addons-loader.php
+│   │   │   │   ├── class-bfp-admin.php
+│   │   │   │   ├── class-bfp-analytics.php
+│   │   │   │   ├── class-bfp-audio-processor.php
+│   │   │   │   ├── class-bfp-auto-updater.php
+│   │   │   │   ├── class-bfp-cache-manager.php
+│   │   │   │   ├── class-bfp-cloud-tools.php
+│   │   │   │   ├── class-bfp-config.php
+│   │   │   │   ├── class-bfp-file-handler.php
+│   │   │   │   ├── class-bfp-hooks-manager.php
+│   │   │   │   ├── class-bfp-player-manager.php
+│   │   │   │   ├── class-bfp-player-renderer.php
+│   │   │   │   ├── class-bfp-playlist-renderer.php
+│   │   │   │   ├── class-bfp-preview-manager.php
+│   │   │   │   ├── class-bfp-utils.php
+│   │   │   │   └── class-bfp-woocommerce.php
+│   │   │   ├── js
+│   │   │   │   ├── admin.js
+│   │   │   │   ├── engine.js
+│   │   │   │   └── wavesurfer.js
+│   │   │   ├── languages
+│   │   │   │   ├── bandfront-player-en_US.mo
+│   │   │   │   ├── bandfront-player-en_US.po
+│   │   │   │   ├── bandfront-player-en_US.pot
+│   │   │   │   ├── bandfront-player.pot
+│   │   │   │   └── messages.mo
+│   │   │   ├── md-files
+│   │   │   │   ├── BandFront_Media_Players_Modernization_Guide.md
+│   │   │   │   ├── Bandfront_WordPress_Modernization_Report.md
+│   │   │   │   ├── CLOUD_STORAGE.md
+│   │   │   │   ├── ERRORS.md
+│   │   │   │   ├── JOBz.md
+│   │   │   │   ├── MAP.md
+│   │   │   │   └── MAP_TREE.md
+│   │   │   ├── modules
+│   │   │   │   ├── audio-engine.php
+│   │   │   │   └── cloud-engine.php
+│   │   │   ├── test
+│   │   │   │   ├── test_mp3_class.php
+│   │   │   │   └── test_plugin.php
+│   │   │   ├── vendors
+│   │   │   │   ├── php-mp3
+│   │   │   │   │   └── class.mp3.php
+│   │   │   │   └── wavesurfer
+│   │   │   │       ├── plugins
+│   │   │   │       │   ├── minimap.min.js
+│   │   │   │       │   ├── regions.min.js
+│   │   │   │       │   └── timeline.min.js
+│   │   │   │       ├── version.txt
+│   │   │   │       ├── wavesurfer.esm.js
+│   │   │   │       └── wavesurfer.min.js
+│   │   │   ├── views
+│   │   │   │   ├── global-admin-options.php
+│   │   │   │   └── product-options.php
+│   │   │   └── widgets
+│   │   │       ├── playlist_widget
+│   │   │       │   ├── css
+│   │   │       │   │   └── style.css
+│   │   │       │   └── js
+│   │   │       │       └── public.js
+│   │   │       └── playlist_widget.php
 │   │   ├── builders.php
 │   │   ├── gutenberg
 │   │   │   ├── block.json
@@ -593,110 +687,98 @@
 │   │   │   └── views
 │   │   │       ├── global-admin-options.php
 │   │   │       └── product-options.php
-│   │   ├── yesterday
-│   │   │   ├── .gitignore
-│   │   │   ├── .gitmodules
-│   │   │   ├── README.md
-│   │   │   ├── bfp.php
-│   │   │   ├── build
-│   │   │   │   ├── build.sh
-│   │   │   │   ├── update-translations.sh
-│   │   │   │   └── update-wavesurfer.sh
-│   │   │   ├── builders
-│   │   │   │   ├── builders.php
-│   │   │   │   ├── elementor
-│   │   │   │   │   ├── elementor.pb.php
-│   │   │   │   │   └── elementor_category.pb.php
-│   │   │   │   └── gutenberg
-│   │   │   │       ├── block.json
-│   │   │   │       ├── gutenberg.css
-│   │   │   │       ├── gutenberg.js
-│   │   │   │       ├── gutenberg.js.backup-20250708-052521
-│   │   │   │       ├── wcblocks.css
-│   │   │   │       └── wcblocks.js
-│   │   │   ├── css
-│   │   │   │   ├── skins
-│   │   │   │   │   ├── custom.css
-│   │   │   │   │   ├── dark.css
-│   │   │   │   │   └── light.css
-│   │   │   │   ├── style.admin.css
-│   │   │   │   └── style.css
-│   │   │   ├── demo
-│   │   │   │   └── demo.mp3
-│   │   │   ├── includes
-│   │   │   │   ├── class-bfp-admin.php
-│   │   │   │   ├── class-bfp-analytics.php
-│   │   │   │   ├── class-bfp-audio-processor.php
-│   │   │   │   ├── class-bfp-auto-updater.php
-│   │   │   │   ├── class-bfp-cache-manager.php
-│   │   │   │   ├── class-bfp-cloud-tools.php
-│   │   │   │   ├── class-bfp-config.php
-│   │   │   │   ├── class-bfp-file-handler.php
-│   │   │   │   ├── class-bfp-hooks-manager.php
-│   │   │   │   ├── class-bfp-player-manager.php
-│   │   │   │   ├── class-bfp-player-renderer.php
-│   │   │   │   ├── class-bfp-playlist-renderer.php
-│   │   │   │   ├── class-bfp-preview-manager.php
-│   │   │   │   ├── class-bfp-utils.php
-│   │   │   │   └── class-bfp-woocommerce.php
-│   │   │   ├── js
-│   │   │   │   ├── admin.js
-│   │   │   │   ├── engine.js
-│   │   │   │   └── wavesurfer.js
-│   │   │   ├── languages
-│   │   │   │   ├── bandfront-player-en_US.mo
-│   │   │   │   ├── bandfront-player-en_US.po
-│   │   │   │   ├── bandfront-player-en_US.pot
-│   │   │   │   ├── bandfront-player.pot
-│   │   │   │   └── messages.mo
-│   │   │   ├── md-files
-│   │   │   │   ├── BandFront_Media_Players_Modernization_Guide.md
-│   │   │   │   ├── Bandfront_WordPress_Modernization_Report.md
-│   │   │   │   ├── CLOUD_STORAGE.md
-│   │   │   │   ├── ERRORS.md
-│   │   │   │   ├── JOBz.md
-│   │   │   │   ├── MAP.md
-│   │   │   │   ├── MAP_OVERVIEW.md
-│   │   │   │   └── MAP_TREE.md
-│   │   │   ├── modules
-│   │   │   │   ├── audio-engine.php
-│   │   │   │   └── cloud-engine.php
-│   │   │   ├── test
-│   │   │   │   ├── test_mp3_class.php
-│   │   │   │   └── test_plugin.php
-│   │   │   ├── vendors
-│   │   │   │   ├── php-mp3
-│   │   │   │   │   └── class.mp3.php
-│   │   │   │   └── wavesurfer
-│   │   │   │       ├── plugins
-│   │   │   │       │   ├── minimap.min.js
-│   │   │   │       │   ├── regions.min.js
-│   │   │   │       │   └── timeline.min.js
-│   │   │   │       ├── version.txt
-│   │   │   │       ├── wavesurfer.esm.js
-│   │   │   │       └── wavesurfer.min.js
-│   │   │   ├── views
-│   │   │   │   ├── global-admin-options.php
-│   │   │   │   └── product-options.php
-│   │   │   └── widgets
-│   │   │       ├── playlist_widget
-│   │   │       │   ├── css
-│   │   │       │   │   └── style.css
-│   │   │       │   └── js
-│   │   │       │       └── public.js
-│   │   │       └── playlist_widget.php
-│   │   └── yesterday-builders-only
-│   │       ├── builders.php
-│   │       ├── elementor
-│   │       │   ├── elementor.pb.php
-│   │       │   └── elementor_category.pb.php
-│   │       └── gutenberg
-│   │           ├── block.json
-│   │           ├── gutenberg.css
-│   │           ├── gutenberg.js
-│   │           ├── gutenberg.js.backup-20250708-052521
-│   │           ├── wcblocks.css
-│   │           └── wcblocks.js
+│   │   └── yesterday
+│   │       ├── .gitignore
+│   │       ├── .gitmodules
+│   │       ├── README.md
+│   │       ├── bfp.php
+│   │       ├── build
+│   │       │   ├── build.sh
+│   │       │   ├── update-translations.sh
+│   │       │   └── update-wavesurfer.sh
+│   │       ├── builders
+│   │       │   ├── builders.php
+│   │       │   ├── elementor
+│   │       │   │   ├── elementor.pb.php
+│   │       │   │   └── elementor_category.pb.php
+│   │       │   └── gutenberg
+│   │       │       ├── block.json
+│   │       │       ├── gutenberg.css
+│   │       │       ├── gutenberg.js
+│   │       │       ├── gutenberg.js.backup-20250708-052521
+│   │       │       ├── wcblocks.css
+│   │       │       └── wcblocks.js
+│   │       ├── css
+│   │       │   ├── skins
+│   │       │   │   ├── custom.css
+│   │       │   │   ├── dark.css
+│   │       │   │   └── light.css
+│   │       │   ├── style.admin.css
+│   │       │   └── style.css
+│   │       ├── demo
+│   │       │   └── demo.mp3
+│   │       ├── includes
+│   │       │   ├── class-bfp-admin.php
+│   │       │   ├── class-bfp-analytics.php
+│   │       │   ├── class-bfp-audio-processor.php
+│   │       │   ├── class-bfp-auto-updater.php
+│   │       │   ├── class-bfp-cache-manager.php
+│   │       │   ├── class-bfp-cloud-tools.php
+│   │       │   ├── class-bfp-config.php
+│   │       │   ├── class-bfp-file-handler.php
+│   │       │   ├── class-bfp-hooks-manager.php
+│   │       │   ├── class-bfp-player-manager.php
+│   │       │   ├── class-bfp-player-renderer.php
+│   │       │   ├── class-bfp-playlist-renderer.php
+│   │       │   ├── class-bfp-preview-manager.php
+│   │       │   ├── class-bfp-utils.php
+│   │       │   └── class-bfp-woocommerce.php
+│   │       ├── js
+│   │       │   ├── admin.js
+│   │       │   ├── engine.js
+│   │       │   └── wavesurfer.js
+│   │       ├── languages
+│   │       │   ├── bandfront-player-en_US.mo
+│   │       │   ├── bandfront-player-en_US.po
+│   │       │   ├── bandfront-player-en_US.pot
+│   │       │   ├── bandfront-player.pot
+│   │       │   └── messages.mo
+│   │       ├── md-files
+│   │       │   ├── BandFront_Media_Players_Modernization_Guide.md
+│   │       │   ├── Bandfront_WordPress_Modernization_Report.md
+│   │       │   ├── CLOUD_STORAGE.md
+│   │       │   ├── ERRORS.md
+│   │       │   ├── JOBz.md
+│   │       │   ├── MAP.md
+│   │       │   ├── MAP_OVERVIEW.md
+│   │       │   └── MAP_TREE.md
+│   │       ├── modules
+│   │       │   ├── audio-engine.php
+│   │       │   └── cloud-engine.php
+│   │       ├── test
+│   │       │   ├── test_mp3_class.php
+│   │       │   └── test_plugin.php
+│   │       ├── vendors
+│   │       │   ├── php-mp3
+│   │       │   │   └── class.mp3.php
+│   │       │   └── wavesurfer
+│   │       │       ├── plugins
+│   │       │       │   ├── minimap.min.js
+│   │       │       │   ├── regions.min.js
+│   │       │       │   └── timeline.min.js
+│   │       │       ├── version.txt
+│   │       │       ├── wavesurfer.esm.js
+│   │       │       └── wavesurfer.min.js
+│   │       ├── views
+│   │       │   ├── global-admin-options.php
+│   │       │   └── product-options.php
+│   │       └── widgets
+│   │           ├── playlist_widget
+│   │           │   ├── css
+│   │           │   │   └── style.css
+│   │           │   └── js
+│   │           │       └── public.js
+│   │           └── playlist_widget.php
 │   ├── builders.php
 │   ├── elementor
 │   │   ├── elementor.pb.php
@@ -723,7 +805,7 @@
 │   ├── audio.php
 │   ├── cover-renderer.php
 │   ├── hooks.php
-│   ├── player-html.php
+│   ├── player-render.php
 │   ├── player.php
 │   ├── state-manager.php
 │   ├── utils
@@ -737,7 +819,9 @@
 │   └── woocommerce.php
 ├── js
 │   ├── admin.js
+│   ├── engine-full.js
 │   ├── engine.js
+│   ├── engine.js.older
 │   └── wavesurfer.js
 ├── languages
 │   ├── bandfront-player-en_US.mo
@@ -755,11 +839,16 @@
 │   ├── HOOKS.md
 │   ├── JOBz.md
 │   ├── MAP.md
+│   ├── MAP.md.older
 │   ├── MAP_OVERVIEW.md
 │   ├── MAP_STATE_CONFIG_&_VARIABLES.md
+│   ├── MAP_STATE_CONFIG_&_VARIABLES.md.older
 │   ├── MAP_TREE.md
 │   ├── REFACTOR_CONSTANTS.md
 │   ├── REFACTOR_GUTENBERG.md
+│   ├── REFACTOR_PLAYER.md
+│   ├── REFACTOR_PSR4.md
+│   ├── REFACTOR_PSR4_RULES.md
 │   ├── REFACTOR_STATE_MANAGEMENT.md
 │   ├── REFACTOR_compare-rules.md
 │   ├── REFACTOR_extract-rules.md
@@ -797,4 +886,4 @@
     │       └── widget.js
     └── playlist_widget.php
 
-227 directories, 571 files
+247 directories, 640 files

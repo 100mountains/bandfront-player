@@ -335,40 +335,44 @@ class BFP_Audio_Engine {
     public function generate_audio_url($product_id, $file_index, $file_data = array()) {
         if (!empty($file_data['file'])) {
             $file_url = $file_data['file'];
+            
+            // For playlists and direct play sources, return the URL as-is
             if (!empty($file_data['play_src']) || $this->is_playlist($file_url)) {
                 return $file_url;
             }
 
             // Use get_state for single value retrieval
             $_bfp_analytics_property = trim($this->main_plugin->get_config()->get_state('_bfp_analytics_property', ''));
+            
+            // For Google Drive files stored in meta
             if ('' == $_bfp_analytics_property) {
                 $files = get_post_meta($product_id, '_bfp_drive_files', true);
                 $key = md5($file_url);
                 if (!empty($files) && isset($files[$key])) {
                     return $files[$key]['url'];
                 }
-
-                $file_name = $this->demo_file_name($file_url);
-                $o_file_name = 'o_' . $file_name;
-
-                $purchased = $this->main_plugin->woocommerce_user_product($product_id);
-                if (false !== $purchased) {
-                    $o_file_name = 'purchased/o_' . $purchased . $file_name;
-                    $file_name = 'purchased/' . $purchased . '_' . $file_name;
-                }
-
-                $file_path = $this->main_plugin->get_files_directory_path() . $file_name;
-                $o_file_path = $this->main_plugin->get_files_directory_path() . $o_file_name;
-
-                if ($this->valid_demo($file_path)) {
-                    return 'http' . ((is_ssl()) ? 's:' : ':') . $this->main_plugin->get_files_directory_url() . $file_name;
-                } elseif ($this->valid_demo($o_file_path)) {
-                    return 'http' . ((is_ssl()) ? 's:' : ':') . $this->main_plugin->get_files_directory_url() . $o_file_name;
-                }
+            }
+            
+            // Check if demo files exist
+            $file_name = $this->demo_file_name($file_url);
+            $purchased = $this->main_plugin->woocommerce_user_product($product_id);
+            
+            if (false !== $purchased) {
+                $file_name = 'purchased/' . $purchased . '_' . $file_name;
+            }
+            
+            $file_path = $this->main_plugin->get_files_directory_path() . $file_name;
+            
+            // If demo file exists, return its URL
+            if ($this->valid_demo($file_path)) {
+                return $this->main_plugin->get_files_directory_url() . $file_name;
             }
         }
-        $url = BFP_WEBSITE_URL;
-        $url .= ((strpos($url, '?') === false) ? '?' : '&') . 'bfp-action=play&bfp-product=' . $product_id . '&bfp-file=' . $file_index;
+        
+        // Generate streaming URL instead of action URL
+        $url = site_url('/');
+        $url .= '?bfp-stream=1&bfp-product=' . $product_id . '&bfp-file=' . $file_index;
+        
         return $url;
     }
     

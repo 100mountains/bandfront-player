@@ -51,10 +51,10 @@ Each player follows this HTML structure:
 
 <!-- Single player mode structure -->
 <div class="bfp-single-player">
-    <div class="bfp-player-container bfp-first-player" data-wcfm-pair="0">
+    <div class="bfp-player-container bfp-first-player" data-bfp-pair="0">
         <!-- First/visible player -->
     </div>
-    <div class="bfp-player-container" data-wcfm-pair="1" style="display:none;">
+    <div class="bfp-player-container" data-bfp-pair="1" style="display:none;">
         <!-- Hidden players -->
     </div>
 </div>
@@ -117,8 +117,8 @@ media.addEventListener('playing', function(evt) {
     
     // Single player UI update
     if(s.length) {
-        c = e.closest('.bfp-player-container').attr('data-wcfm-pair');
-        s.find('.bfp-player-title[data-wcfm-pair="'+c+'"]').addClass('bfp-playing');
+        c = e.closest('.bfp-player-container').attr('data-bfp-pair');
+        s.find('.bfp-player-title[data-bfp-pair="'+c+'"]').addClass('bfp-playing');
     }
 });
 ```
@@ -243,7 +243,7 @@ function _setOverImage(p) {
 
 ```javascript
 // Playing state management
-$(document).on('click', '[data-wcfm-pair]', function() {
+$(document).on('click', '[data-bfp-pair]', function() {
     let e = $(this);
     let s = e.closest('.bfp-single-player');
     
@@ -252,12 +252,12 @@ $(document).on('click', '[data-wcfm-pair]', function() {
         $('.bfp-player-title').removeClass('bfp-playing');
         
         // Set current as playing
-        let c = e.attr('data-wcfm-pair');
+        let c = e.attr('data-bfp-pair');
         e.addClass('bfp-playing');
         
         // Show corresponding player
         _hideShowPlayersAndPositioning(
-            s.find('.bfp-player-container[data-wcfm-pair="'+c+'"]')
+            s.find('.bfp-player-container[data-bfp-pair="'+c+'"]')
         );
     }
 });
@@ -322,7 +322,7 @@ function _playNext(playernumber, loop) {
 // Product title filter integration
 public function woocommerce_product_title($title, $product) {
     global $wp;
-    if(!empty($wp->query_vars['wcfm-products-manage'])) return $title;
+    if(!empty($wp->query_vars['bfp-products-manage'])) return $title;
     
     $player = '';
     if(false === stripos($title, '<audio')) {

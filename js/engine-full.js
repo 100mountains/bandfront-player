@@ -1,350 +1,350 @@
 /**
- * Bandfront Player Engine
- * Handles audio player functionality on the frontend
- *
+ * Bandfront Player Engine - Minimal Implementation
  */
-// Polyfill for Array.prototype.find (for older browsers)
-if (!Array.prototype.find) {
-    Array.prototype.find = function(predicate) {
-        if (this == null) {
-            throw new TypeError('Array.prototype.find called on null or undefined');
-        }
-        if (typeof predicate !== 'function') {
-            throw new TypeError('predicate must be a function');
-        }
-        var list = Object(this);
-        var length = list.length >>> 0;
-        var thisArg = arguments[1];
-        var value;
-
-        for (var i = 0; i < length; i++) {
-            value = list[i];
-            if (predicate.call(thisArg, value, i, list)) {
-                return value;
-            }
-        }
-        return undefined;
-    };
-}
-
-// WaveSurfer.js specific functions
-function smoothFadeOut(mediaElement, fadeTime) {
-    fadeTime = fadeTime || 2000;
-    
-    if (!mediaElement.bkVolume) {
-        mediaElement.bkVolume = mediaElement.volume;
-    }
-    
-    var startVolume = mediaElement.volume;
-    var startTime = Date.now();
-    
-    function fadeStep() {
-        var elapsed = Date.now() - startTime;
-        var progress = Math.min(elapsed / fadeTime, 1);
-        var easedProgress = 1 - Math.pow(1 - progress, 3);
-        var currentVolume = startVolume * (1 - easedProgress);
-        
-        mediaElement.setVolume(Math.max(currentVolume, 0));
-        
-        if (progress < 1) {
-            requestAnimationFrame(fadeStep);
-        }
-    }
-    
-    requestAnimationFrame(fadeStep);
-}
-
-function initWaveSurferPlayer(container, audioUrl, options) {
-    options = options || {};
-    
-    var $audio = jQuery(container).find('audio');
-    var audioId = $audio.attr('id') || 'wavesurfer-' + Math.random().toString(36).substr(2, 9);
-    var volume = parseFloat($audio.attr('volume')) || 1;
-    
-    $audio.hide();
-    
-    var waveformId = 'waveform-' + audioId;
-    var $waveform = jQuery('<div id="' + waveformId + '" class="bfp-waveform"></div>');
-    jQuery(container).append($waveform);
-    
-    var wavesurfer = WaveSurfer.create({
-        container: '#' + waveformId,
-        waveColor: '#999',
-        progressColor: '#000',
-        cursorColor: '#333',
-        backend: 'WebAudio',
-        normalize: true,
-        responsive: true,
-        height: 60,
-        barWidth: 2,
-        barGap: 1,
-        volume: volume
-    });
-
-    wavesurfer.load(audioUrl);
-    wavesurfer.bkVolume = volume;
-
-    // Add MediaElement-compatible interface
-    wavesurfer.play = function() { wavesurfer.play(); };
-    wavesurfer.pause = function() { wavesurfer.pause(); };
-    wavesurfer.setVolume = function(v) { wavesurfer.setVolume(v); };
-    wavesurfer.setMuted = function(m) { wavesurfer.setMute(m); };
-    
-    // Smooth fade for WaveSurfer
-    wavesurfer.on('audioprocess', function() {
-        if (wavesurfer.isPlaying()) {
-            var remaining = wavesurfer.getDuration() - wavesurfer.getCurrentTime();
-            
-            if (window.fadeOut && remaining < 4 && remaining > 0 && !wavesurfer.fadeStarted) {
-                wavesurfer.fadeStarted = true;
-                var fadeTime = remaining * 1000;
-                var startVolume = wavesurfer.getVolume();
-                var startTime = Date.now();
-                
-                function fade() {
-                    var elapsed = Date.now() - startTime;
-                    var progress = Math.min(elapsed / fadeTime, 1);
-                    var easedProgress = 1 - Math.pow(1 - progress, 3);
-                    var currentVolume = startVolume * (1 - easedProgress);
-                    
-                    wavesurfer.setVolume(Math.max(currentVolume, 0));
-                    
-                    if (progress < 1 && wavesurfer.isPlaying()) {
-                        requestAnimationFrame(fade);
-                    }
-                }
-                
-                requestAnimationFrame(fade);
-            }
-        }
-    });
-
-    wavesurfer.on('seek', function() {
-        wavesurfer.fadeStarted = false;
-        if (wavesurfer.bkVolume) {
-            wavesurfer.setVolume(wavesurfer.bkVolume);
-        }
-    });
-    
-    wavesurfer.on('play', function() {
-        wavesurfer.fadeStarted = false;
-        if (wavesurfer.bkVolume && wavesurfer.getCurrentTime() < 1) {
-            wavesurfer.setVolume(wavesurfer.bkVolume);
-        }
-    });
-    
-    return wavesurfer;
-}
 
 (function() {
-    // Global variables
+    'use strict';
+    
+    // Global state
+    var bfp_initialized = false;
     var bfp_players = [];
     var bfp_player_counter = 0;
-    var audioEngine = (typeof bfp_global_settings !== 'undefined') ? 
-        bfp_global_settings.audio_engine : 'mediaelement';
-    window.fadeOut = (typeof bfp_global_settings !== 'undefined') ? 
-        (1 * bfp_global_settings.fade_out) : true;
     
-    // Define the missing groupedSelector variable
+    // Define missing variable
     var groupedSelector = '.merge_in_grouped_products';
-
-    // FIX: Ensure MediaElement.js compatibility
-    function smoothFadeOutMediaElement(mediaElement, fadeTime) {
-        fadeTime = fadeTime || 2000;
-        
-        if (!mediaElement.bkVolume) {
-            mediaElement.bkVolume = mediaElement.volume || 1;
-        }
-        
-        var startVolume = mediaElement.volume || mediaElement.bkVolume;
-        var startTime = Date.now();
-        
-        function fadeStep() {
-            var elapsed = Date.now() - startTime;
-            var progress = Math.min(elapsed / fadeTime, 1);
-            var easedProgress = 1 - Math.pow(1 - progress, 3);
-            var currentVolume = startVolume * (1 - easedProgress);
-            
-            // Use setVolume method if available, otherwise direct property
-            if (typeof mediaElement.setVolume === 'function') {
-                mediaElement.setVolume(Math.max(currentVolume, 0));
-            } else {
-                mediaElement.volume = Math.max(currentVolume, 0);
-            }
-            
-            if (progress < 1) {
-                requestAnimationFrame(fadeStep);
-            }
-        }
-        
-        requestAnimationFrame(fadeStep);
-    }
-
+    
     /**
-     * Main initialization function for BFP players
+     * Get audio source from element
+     */
+    function getAudioSource($audio) {
+        // Check for source element first
+        var $source = $audio.find('source').first();
+        if ($source.length && $source.attr('src')) {
+            return $source.attr('src');
+        }
+        
+        // Check audio element src
+        if ($audio.attr('src')) {
+            return $audio.attr('src');
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Initialize single player mode
+     */
+    function initSinglePlayerMode() {
+        jQuery(document).on('click', '.bfp-single-player .bfp-player-title', function(e) {
+            e.preventDefault();
+            var $title = jQuery(this);
+            var $singlePlayer = $title.closest('.bfp-single-player');
+            
+            // Stop all players
+            jQuery('audio').each(function() {
+                if (!this.paused) {
+                    this.pause();
+                }
+            });
+            
+            // Remove all playing classes
+            $singlePlayer.find('.bfp-player-title').removeClass('bfp-playing');
+            
+            // Add playing class to clicked title
+            $title.addClass('bfp-playing');
+            
+            // Find corresponding player container
+            var targetPlayerId = $title.attr('data-player-id');
+            var $targetContainer = $singlePlayer.find('.bfp-player-container[data-player-id="' + targetPlayerId + '"]');
+            
+            if ($targetContainer.length === 0) {
+                // Fallback to index
+                var index = $singlePlayer.find('.bfp-player-title').index($title);
+                $targetContainer = $singlePlayer.find('.bfp-player-container').eq(index);
+            }
+            
+            // Hide all containers and show target
+            $singlePlayer.find('.bfp-player-container').hide();
+            $targetContainer.show();
+            
+            // Play the audio
+            var audio = $targetContainer.find('audio')[0];
+            if (audio) {
+                var src = getAudioSource(jQuery(audio));
+                if (src) {
+                    audio.play().catch(function(err) {
+                        console.warn('BFP: Could not play audio:', err);
+                    });
+                }
+            }
+        });
+    }
+    
+    /**
+     * Main initialization function
      */
     window.generate_the_bfp = function(forceInit) {
-        /**
-         * Hide/show players and handle positioning for single player mode
-         */
-        function _hideShowPlayersAndPositioning(playerContainer) {
-            var singlePlayerContainer = playerContainer.closest(".bfp-single-player");
-            var firstPlayer = singlePlayerContainer.find(".bfp-first-player");
+        // Prevent duplicate initialization
+        if (bfp_initialized && !forceInit) {
+            return;
+        }
+        
+        console.log('BFP: Initializing players...');
+        
+        // Reset state
+        bfp_initialized = true;
+        bfp_players = [];
+        bfp_player_counter = 0;
+        
+        // Initialize track buttons
+        jQuery('.bfp-player.track:not([data-bfp-initialized]), audio.track:not([data-bfp-initialized])').each(function() {
+            var $this = jQuery(this);
+            var $audio = $this.is('audio') ? $this : $this.find('audio').first();
             
-            // Pause all audio elements
-            jQuery("audio").each(function() {
-                this.pause();
-                this.currentTime = 0;
-            });
+            if (!$audio.length) return;
             
-            // Hide all player containers except the first
-            singlePlayerContainer
-                .find(".bfp-player-container:not(.bfp-first-player)")
-                .hide();
-                
-            // If not the first player, show and position it
-            if (!playerContainer.hasClass(".bfp-first-player")) {
-                playerContainer
-                    .show()
-                    .offset(firstPlayer.offset())
-                    .outerWidth(firstPlayer.outerWidth());
-                playerContainer.find("audio")[0].play();
+            // Mark as initialized
+            $audio.attr('data-bfp-initialized', 'true');
+            $audio.attr('playernumber', bfp_player_counter);
+            
+            // Check if audio has valid source
+            var audioUrl = getAudioSource($audio);
+            if (!audioUrl) {
+                console.warn('BFP: No audio source found for track button');
+                return;
             }
-        }
-
-        /**
-         * Play next player in sequence
-         */
-        function _playNext(playernumber, loop) {
-            if (playernumber + 1 < bfp_player_counter || loop) {
-                var toPlay = playernumber + 1;
+            
+            // Store reference
+            bfp_players[bfp_player_counter] = $audio[0];
+            
+            // Click handler for track buttons
+            var $clickTarget = $this.is('audio') ? $this.parent() : $this;
+            $clickTarget.off('click.bfp').on('click.bfp', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                // Handle looping
-                if (loop && (
-                    toPlay == bfp_player_counter ||
-                    jQuery('[playernumber="' + toPlay + '"]').closest("[data-loop]").length == 0 ||
-                    jQuery('[playernumber="' + toPlay + '"]').closest("[data-loop]")[0] != 
-                    jQuery('[playernumber="' + playernumber + '"]').closest("[data-loop]")[0]
-                )) {
-                    toPlay = jQuery('[playernumber="' + playernumber + '"]')
-                        .closest("[data-loop]")
-                        .find("[playernumber]:first")
-                        .attr("playernumber");
-                }
-
-                // Handle button players (track controls)
-                if (bfp_players[toPlay] instanceof jQuery && bfp_players[toPlay].is("a")) {
-                    if (bfp_players[toPlay].closest(".bfp-single-player").length) {
-                        _hideShowPlayersAndPositioning(bfp_players[toPlay].closest(".bfp-player-container"));
-                    } else if (bfp_players[toPlay].is(":visible")) {
-                        bfp_players[toPlay].trigger("click");
-                    } else {
-                        _playNext(playernumber + 1, loop);
-                    }
-                } 
-                // Handle full players
-                else {
-                    if (jQuery(bfp_players[toPlay].domNode).closest(".bfp-single-player").length) {
-                        _hideShowPlayersAndPositioning(jQuery(bfp_players[toPlay].domNode).closest(".bfp-player-container"));
-                    } else if (jQuery(bfp_players[toPlay].domNode).closest(".bfp-player-container").is(":visible")) {
-                        bfp_players[toPlay].domNode.play();
-                    } else {
-                        _playNext(playernumber + 1, loop);
-                    }
-                }
-            }
-        }
-
-        /**
-         * Play previous player in sequence
-         */
-        function _playPrev(playernumber, loop) {
-            if (playernumber - 1 >= 0 || loop) {
-                var toPlay = playernumber - 1;
-
-                // Handle looping
-                if (loop && (
-                    toPlay < 0 ||
-                    jQuery('[playernumber="' + toPlay + '"]').closest('[data-loop]').length == 0 ||
-                    jQuery('[playernumber="' + toPlay + '"]').closest('[data-loop]')[0] != 
-                    jQuery('[playernumber="' + playernumber + '"]').closest('[data-loop]')[0]
-                )) {
-                    toPlay = jQuery('[playernumber="' + playernumber + '"]')
-                        .closest('[data-loop]')
-                        .find('[playernumber]:last')
-                        .attr('playernumber');
-                }
-
-                // Handle button players
-                if (bfp_players[toPlay] instanceof jQuery && bfp_players[toPlay].is('a')) {
-                    if (bfp_players[toPlay].closest('.bfp-single-player').length) {
-                        _hideShowPlayersAndPositioning(bfp_players[toPlay].closest('.bfp-player-container'));
-                    } else if (bfp_players[toPlay].is(':visible')) {
-                        bfp_players[toPlay].trigger('click');
-                    } else {
-                        _playPrev(playernumber - 1, loop);
-                    }
-                }
-                // Handle full players
-                else {
-                    if (jQuery(bfp_players[toPlay].domNode).closest('.bfp-single-player').length) {
-                        _hideShowPlayersAndPositioning(jQuery(bfp_players[toPlay].domNode).closest('.bfp-player-container'));
-                    } else if (jQuery(bfp_players[toPlay].domNode).closest('.bfp-player-container').is(':visible')) {
-                        bfp_players[toPlay].domNode.play();
-                    } else {
-                        _playPrev(playernumber - 1, loop);
-                    }
-                }
-            }
-        }
-
-        /**
-         * Position player over product image
-         */
-        function _setOverImage(player) {
-            var productId = player.data('product');
-            jQuery('[data-product="' + productId + '"]').each(function() {
-                var element = jQuery(this);
-                var product = element.closest('.product');
-                var productImage = product.find('img.product-' + productId);
-                
-                if (productImage.length && 
-                    product.closest('.bfp-player-list').length == 0 &&
-                    product.find('.bfp-player-list').length == 0) {
-                    
-                    var imageOffset = productImage.offset();
-                    var playerDiv = product.find('div.bfp-player');
-
-                    if (playerDiv.length) {
-                        playerDiv.css({
-                            'position': 'absolute', 
-                            'z-index': 999999
-                        }).offset({
-                            'left': imageOffset.left + (productImage.width() - playerDiv.width()) / 2, 
-                            'top': imageOffset.top + (productImage.height() - playerDiv.height()) / 2
+                var audio = $audio[0];
+                if (audio.paused) {
+                    // Pause others if needed
+                    if (typeof bfp_global_settings !== 'undefined' && !bfp_global_settings.play_simultaneously) {
+                        jQuery('audio').each(function() {
+                            if (this !== audio && !this.paused) {
+                                this.pause();
+                            }
                         });
                     }
+                    
+                    audio.play().catch(function(err) {
+                        console.warn('BFP: Error playing audio:', err);
+                    });
+                    $clickTarget.addClass('bfp-playing');
+                } else {
+                    audio.pause();
+                    $clickTarget.removeClass('bfp-playing');
                 }
             });
+            
+            // Audio events
+            $audio[0].addEventListener('play', function() {
+                $clickTarget.addClass('bfp-playing');
+            });
+            
+            $audio[0].addEventListener('pause', function() {
+                $clickTarget.removeClass('bfp-playing');
+            });
+            
+            $audio[0].addEventListener('ended', function() {
+                $clickTarget.removeClass('bfp-playing');
+            });
+            
+            bfp_player_counter++;
+        });
+        
+        // Initialize full players (not track style)
+        jQuery('audio.bfp-player:not(.track):not([data-bfp-initialized])').each(function() {
+            var $player = jQuery(this);
+            var playerNumber = bfp_player_counter;
+            
+            // Mark as initialized
+            $player.attr('data-bfp-initialized', 'true');
+            $player.attr('playernumber', playerNumber);
+            
+            // Check for valid source
+            var audioUrl = getAudioSource($player);
+            if (!audioUrl) {
+                console.warn('BFP: No audio source found for player', $player[0]);
+                return;
+            }
+            
+            // Check if it's a button-style player
+            var controls = $player.attr('data-controls');
+            if (controls === 'track') {
+                // Simple player without MediaElement
+                bfp_players[playerNumber] = $player[0];
+                
+                $player[0].addEventListener('play', function() {
+                    $player.addClass('bfp-playing');
+                    $player.closest('.bfp-player-container').addClass('bfp-playing');
+                });
+                
+                $player[0].addEventListener('pause', function() {
+                    $player.removeClass('bfp-playing');
+                    $player.closest('.bfp-player-container').removeClass('bfp-playing');
+                });
+                
+                $player[0].addEventListener('ended', function() {
+                    $player.removeClass('bfp-playing');
+                    $player.closest('.bfp-player-container').removeClass('bfp-playing');
+                });
+            } else if (typeof MediaElementPlayer !== 'undefined') {
+                // Initialize MediaElement player
+                try {
+                    var mePlayer = new MediaElementPlayer($player[0], {
+                        pauseOtherPlayers: !(typeof bfp_global_settings !== 'undefined' && bfp_global_settings.play_simultaneously),
+                        features: ['playpause', 'progress', 'current', 'duration', 'volume'],
+                        audioVolume: 'horizontal',
+                        startVolume: parseFloat($player.attr('data-volume')) || 0.7,
+                        success: function(mediaElement, domObject) {
+                            console.log('BFP: MediaElement initialized for player', playerNumber);
+                            
+                            bfp_players[playerNumber] = mediaElement;
+                            
+                            // Set volume
+                            var volume = parseFloat($player.attr('data-volume')) || 0.7;
+                            mediaElement.setVolume(volume);
+                            
+                            // Events
+                            mediaElement.addEventListener('play', function() {
+                                $player.addClass('bfp-playing');
+                                $player.closest('.bfp-player-container').addClass('bfp-playing');
+                                
+                                // Pause others if needed
+                                if (typeof bfp_global_settings !== 'undefined' && !bfp_global_settings.play_simultaneously) {
+                                    for (var i = 0; i < bfp_players.length; i++) {
+                                        if (i !== playerNumber && bfp_players[i]) {
+                                            if (typeof bfp_players[i].pause === 'function') {
+                                                bfp_players[i].pause();
+                                            } else if (bfp_players[i].pause) {
+                                                bfp_players[i].pause();
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                            
+                            mediaElement.addEventListener('pause', function() {
+                                $player.removeClass('bfp-playing');
+                                $player.closest('.bfp-player-container').removeClass('bfp-playing');
+                            });
+                            
+                            mediaElement.addEventListener('ended', function() {
+                                $player.removeClass('bfp-playing');
+                                $player.closest('.bfp-player-container').removeClass('bfp-playing');
+                            });
+                        },
+                        error: function(e) {
+                            console.error('BFP: MediaElement error:', e);
+                            // Fallback to native controls
+                            $player.attr('controls', 'controls');
+                        }
+                    });
+                } catch (e) {
+                    console.error('BFP: Failed to initialize MediaElement:', e);
+                    $player.attr('controls', 'controls');
+                }
+            } else {
+                // No MediaElement.js, use native controls
+                $player.attr('controls', 'controls');
+                bfp_players[playerNumber] = $player[0];
+            }
+            
+            bfp_player_counter++;
+        });
+        
+        // Initialize single player mode
+        initSinglePlayerMode();
+        
+        // Initialize play on cover
+        jQuery(document).on('click.bfp', '.bfp-play-on-cover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var $this = jQuery(this);
+            var productId = $this.data('product-id');
+            
+            if (!productId) return;
+            
+            // Find player for this product
+            var $player = jQuery('audio[data-product-id="' + productId + '"]:first, audio[data-product="' + productId + '"]:first');
+            
+            if ($player.length) {
+                var player = $player[0];
+                if (player.paused) {
+                    player.play().catch(function(err) {
+                        console.warn('BFP: Error playing from cover:', err);
+                    });
+                } else {
+                    player.pause();
+                }
+            }
+        });
+        
+        console.log('BFP: Initialized ' + bfp_player_counter + ' players');
+    };
+    
+    /**
+     * Force re-initialization
+     */
+    window.bfp_force_init = function() {
+        console.log('BFP: Force reinitializing...');
+        
+        // Clear initialization markers
+        jQuery('[data-bfp-initialized]').removeAttr('data-bfp-initialized');
+        jQuery('[playernumber]').removeAttr('playernumber');
+        
+        // Clear click handlers
+        jQuery(document).off('click.bfp');
+        jQuery('.bfp-player, .track').off('click.bfp');
+        
+        // Reset state
+        bfp_initialized = false;
+        
+        // Destroy MediaElement players
+        if (window.bfp_players) {
+            for (var i = 0; i < window.bfp_players.length; i++) {
+                if (window.bfp_players[i] && typeof window.bfp_players[i].remove === 'function') {
+                    try {
+                        window.bfp_players[i].remove();
+                    } catch (e) {
+                        console.warn('BFP: Error removing player:', e);
+                    }
+                }
+            }
         }
+        
+        // Reinitialize
+        window.generate_the_bfp(true);
+    };
+    
+    // Initialize on document ready
+    jQuery(document).ready(function() {
+        // Small delay to ensure everything is loaded
+        setTimeout(function() {
+            window.generate_the_bfp();
+        }, 100);
+    });
+    
+    // Handle AJAX content
+    jQuery(document).on('wpfAjaxSuccess woof_ajax_done yith-wcan-ajax-filtered', function() {
+        setTimeout(function() {
+            // Only reinitialize if there are uninitialized players
+            if (jQuery('audio.bfp-player:not([data-bfp-initialized])').length) {
+                window.bfp_force_init();
+            }
+        }, 200);
+    });
 
-        // Check if already initialized or if we should skip initialization
-        if (!(typeof forceInit !== 'boolean' && 
-            typeof bfp_global_settings !== 'undefined' && 
-            1 * bfp_global_settings.onload) && 
-            typeof generated_the_bfp === 'undefined') {
-            
-            generated_the_bfp = true;
-            var $ = jQuery;
-            
-            // Prevent clicks from bubbling up from player container
-            $(".bfp-player-container")
-                .on("click", "*", function(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return false;
-                })
-                .parent()
+})();
                 .removeAttr("title");
                 
             // Add regex pseudo selector for jQuery
@@ -901,4 +901,3 @@ function initWaveSurferPlayer(container, audioUrl, options) {
         }
     });
 })();
-
