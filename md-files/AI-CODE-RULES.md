@@ -1,16 +1,36 @@
-# AI Code Rules for Bandfront Player
+# AI Code Rules for Bandfront
+
+## Plugin Suite 
+
+Part of a suite of plugins that form a music commerce website
+
+- bandfront-analytics: (lightweight analytics stores details of views etc)
+- bandfront-members: (gives access to a subscription or backer only page)
+sends info to bandfront-analytics
+- bandfront-player: (main js and woocommerce integration)
+sends plays and info to bandfront-analytics
+- bandfront: (child theme)
+- server-setup: ( installer )
 
 ## Core Standards
 - WordPress 2025 Compliant
 - PSR-4 Compliant
 - PHP 7.4+ features required
+- REST API
+- DRY PRINCIPLES
+- bandfront-analytics core: lightweight and driven by API and db queries
+- bandfront-members core: super lightweight
+- bandfront-player core: html5, mediaelement, wavesurfer
+- bandfront core: lightweight theme giving additional functions
+- server-setup: one command install for bandfront
+- All Settings and Analytics sent through API 
 
 AUDIO PLAYBACK 
 Uses WordPress REST API - Standard, secure, and extensible
 Leverages WordPress authentication - Built-in permission checks
 Supports range requests - Proper audio seeking support
 Uses transients for caching - WordPress-native caching
-Cleaner URLs - /wp-json/bandfront-player/v1/stream/123/0 or with rewrite rules: /bfp-stream/123/0
+Clean URLs - /wp-json/bandfront-player/v1/stream/123/0 or with rewrite rules: /bfp-stream/123/0
 No complex URL generation - Just use rest_url()
 Proper error handling - REST API handles errors gracefully
 Easy to extend - Add more endpoints as needed
@@ -25,7 +45,6 @@ Easy to extend - Add more endpoints as needed
 - Do NOT hardcode settings values
 - Do NOT assume WooCommerce is active
 - Do NOT output without escaping
-- Do NOT trust user input
 
 ## State Management Rules
 1. All settings MUST use Config class methods
