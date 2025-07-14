@@ -12,6 +12,8 @@ GLOBAL-ADMIN-OPTIONS AJAX.
 TWO AJAX NOTIFICATIONS AFTER MOVING FILE TO STATE MANAGEMENT 
 controlling the form does not seem to stop the error, it seems to be with how the wordpress thing is called twice. 
 
+this is the dedoubling thing mentioned in the members conversation i think
+
 
 100mountains: is this analysis/conversation about why our play engine is going wrong any good? the backup in the yesterday/ folder had the player working with just only CSS display ok but we refactored everything to use state management now so a lot changed
 
