@@ -186,7 +186,7 @@ bandfront-player/
 ├── js/                    # Frontend scripts
 ├── css/                   # Stylesheets
 │   └── skins/            # Theme variations
-└── vendors/              # Third-party libraries
+└── vendor/              # Third-party libraries
 ```
 
 ## Support

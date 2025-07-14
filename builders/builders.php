@@ -1,103 +1,129 @@
 <?php
+namespace bfp\Builders;
+
 /**
- * BFP_BUILDERS class
+ * Page builders integration for Bandfront Player
+ *
+ * @package BandfrontPlayer
+ * @since 0.1
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-if ( ! class_exists( 'BFP_BUILDERS' ) ) {
-    class BFP_BUILDERS {
+/**
+ * Builders Integration Class
+ * Handles Gutenberg and Elementor page builder integrations
+ */
+class BuildersManager {
 
-        private static $_instance;
+    private static ?self $instance = null;
 
-        private function __construct(){}
-        
-        private static function instance() {
-            if ( ! isset( self::$_instance ) ) {
-                self::$_instance = new self();
-            }
-            return self::$_instance;
-        } // End instance
-
-        public static function run() {
-            $instance = self::instance();
-            add_action( 'init', array( $instance, 'init' ), 10 );
+    /**
+     * Private constructor for singleton pattern
+     */
+    private function __construct() {}
+    
+    /**
+     * Get singleton instance
+     */
+    private static function instance(): self {
+        if (self::$instance === null) {
+            self::$instance = new self();
         }
+        return self::$instance;
+    }
 
-        public function init() {
-            $instance = self::instance();
+    /**
+     * Initialize builders integration
+     */
+    public static function run(): void {
+        $instance = self::instance();
+        add_action('init', [$instance, 'init'], 10);
+    }
 
-            // Gutenberg - register with higher priority to ensure dependencies are loaded
-            $instance->gutenberg_editor();
+    /**
+     * Initialize builders on WordPress init
+     */
+    public function init(): void {
+        // Gutenberg - register with higher priority to ensure dependencies are loaded
+        $this->gutenbergEditor();
 
-            // Elementor
-            add_action( 'elementor/widgets/register', array( $instance, 'elementor_editor' ) );
-            add_action( 'elementor/elements/categories_registered', array( $instance, 'elementor_editor_category' ) );
+        // Elementor
+        add_action('elementor/widgets/register', [$this, 'elementorEditor']);
+        add_action('elementor/elements/categories_registered', [$this, 'elementorEditorCategory']);
+    }
 
-        } // End init
-
-        public function gutenberg_editor() {
-            // Check if block editor is available
-            if ( ! function_exists( 'register_block_type' ) ) {
-                return;
-            }
+    /**
+     * Register Gutenberg block
+     */
+    public function gutenbergEditor(): void {
+        // Check if block editor is available
+        if (!function_exists('register_block_type')) {
+            return;
+        }
+        
+        // Register block type from block.json
+        $blockJsonFile = plugin_dir_path(__FILE__) . 'gutenberg/block.json';
+        if (file_exists($blockJsonFile)) {
+            $result = register_block_type($blockJsonFile);
             
-            // Register block type from block.json
-            $block_json_file = plugin_dir_path( __FILE__ ) . 'gutenberg/block.json';
-            if ( file_exists( $block_json_file ) ) {
-                $result = register_block_type( $block_json_file );
-                
-                if ( is_wp_error( $result ) ) {
-                    error_log( 'BFP Block Registration Error: ' . $result->get_error_message() );
-                } else {
-                    // Add localization after block registration
-                    add_action( 'enqueue_block_editor_assets', array( $this, 'localize_block_editor' ), 20 );
-                }
+            if (is_wp_error($result)) {
+                error_log('BFP Block Registration Error: ' . $result->get_error_message());
             } else {
-                error_log( 'BFP Block JSON file not found: ' . $block_json_file );
+                // Add localization after block registration
+                add_action('enqueue_block_editor_assets', [$this, 'localizeBlockEditor'], 20);
             }
-        } // End gutenberg_editor
+        } else {
+            error_log('BFP Block JSON file not found: ' . $blockJsonFile);
+        }
+    }
 
-        public function localize_block_editor() {
-            // First check if our script is enqueued
-            if ( ! wp_script_is( 'bfp-bandfront-player-playlist-editor-script', 'enqueued' ) ) {
-                error_log( 'BFP Editor script not enqueued' );
-                return;
-            }
-            
-            // Localize script for the block editor
-            wp_localize_script(
-                'bfp-bandfront-player-playlist-editor-script',
-                'bfp_gutenberg_editor_config',
-                array(
-                    'url' => admin_url( 'admin-ajax.php' ),
-                    'ids_attr_description' => __( 'Comma-separated product IDs. Use "*" for all products.', 'bandfront-player' ),
-                    'categories_attr_description' => __( 'Comma-separated product category slugs.', 'bandfront-player' ),
-                    'tags_attr_description' => __( 'Comma-separated product tag slugs.', 'bandfront-player' ),
-                    'more_details' => __( 'See documentation for more shortcode options.', 'bandfront-player' )
-                )
-            );
-        } // End localize_block_editor
+    /**
+     * Localize Gutenberg block editor script
+     */
+    public function localizeBlockEditor(): void {
+        // First check if our script is enqueued
+        if (!wp_script_is('bfp-bandfront-player-playlist-editor-script', 'enqueued')) {
+            error_log('BFP Editor script not enqueued');
+            return;
+        }
+        
+        // Localize script for the block editor
+        wp_localize_script(
+            'bfp-bandfront-player-playlist-editor-script',
+            'bfp_gutenberg_editor_config',
+            [
+                'url' => admin_url('admin-ajax.php'),
+                'ids_attr_description' => __('Comma-separated product IDs. Use "*" for all products.', 'bandfront-player'),
+                'categories_attr_description' => __('Comma-separated product category slugs.', 'bandfront-player'),
+                'tags_attr_description' => __('Comma-separated product tag slugs.', 'bandfront-player'),
+                'more_details' => __('See documentation for more shortcode options.', 'bandfront-player')
+            ]
+        );
+    }
 
-        public function elementor_editor() {
-            include_once plugin_dir_path( __FILE__ ) . 'elementor/elementor.pb.php';
-        } // End elementor_editor
+    /**
+     * Register Elementor widget
+     */
+    public function elementorEditor(): void {
+        include_once plugin_dir_path(__FILE__) . 'elementor/elementor.pb.php';
+    }
 
-        public function elementor_editor_category( $elements_manager ) {
-            $elements_manager->add_category(
-                'bandfront-player-cat',
-                array(
-                    'title' => __( 'Bandfront Player', 'bandfront-player' ),
-                    'icon'  => 'fa fa-music',
-                )
-            );
-        } // End elementor_editor_category
-
-    } // End class
-} // End if
-
+    /**
+     * Register Elementor category
+     */
+    public function elementorEditorCategory(\Elementor\Elements_Manager $elementsManager): void {
+        $elementsManager->add_category(
+            'bandfront-player-cat',
+            [
+                'title' => __('Bandfront Player', 'bandfront-player'),
+                'icon'  => 'fa fa-music',
+            ]
+        );
+    }
+}
 
 // Initialize builders
-BFP_BUILDERS::run();
+BuildersManager::run();

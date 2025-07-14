@@ -1,59 +1,268 @@
-# PSR-4 Complete Rewrite Guide for Bandfront Player
+# PSR-4 & WordPress Best Practices Rules (2025)
 
-## Current Structure Analysis
+## Core PSR-4 Rules
 
-Looking at your codebase, you have the following actual structure:
+### 1. Namespace Structure
+- **Root namespace**: `bfp\` (short, memorable, unique)
+- **Sub-namespaces**: Match directory structure exactly
+  - `bfp\Utils` → `src/Utils/`
+  - `bfp\Modules` → `src/Modules/`
+  - `bfp\Views` → `src/Views/`
 
-```
-/includes/
-├── admin.php              # BFP_Admin class
-├── audio.php              # BFP_Audio_Engine class
-├── cover-renderer.php     # BFP_Cover_Renderer class
-├── hooks.php              # BFP_Hooks class
-├── player-render.php      # BFP_Player_Renderer class
-├── player.php             # BFP_Player class
-├── state-manager.php      # BFP_Config class
-├── woocommerce.php        # BFP_WooCommerce class
-└── utils/
-    ├── analytics.php      # BFP_Analytics class
-    ├── cache.php          # BFP_Cache class
-    ├── cloud.php          # BFP_Cloud_Tools class
-    ├── files.php          # BFP_File_Handler class
-    ├── preview.php        # BFP_Preview class
-    ├── update.php         # BFP_Updater class
-    └── utils.php          # BFP_Utils class
-```
+### 2. File Naming
+- **One class per file** - No exceptions
+- **Filename matches class name** - `Config.php` contains `class Config`
+- **PascalCase for files and classes** - No underscores or hyphens
 
-## Phase 1: Setup Autoloader with YOUR Structure
+### 3. Class Structure
+```php
+<?php
+namespace bfp;
 
-**1. Create composer.json**
-````json
-{
-    "name": "bandfront/player",
-    "description": "Audio player for WooCommerce products",
-    "type": "wordpress-plugin",
-    "autoload": {
-        "psr-4": {
-            "BandfrontPlayer\\": "includes/"
-        }
-    },
-    "require": {
-        "php": ">=8.0"
+use bfp\Utils\Cache;
+
+/**
+ * Class description (PHPDoc still valuable for WordPress hooks)
+ */
+class ClassName {
+    // Properties first, typed and initialized
+    private Plugin $mainPlugin;
+    private array $data = [];
+    
+    // Constructor with dependency injection
+    public function __construct(Plugin $mainPlugin) {
+        $this->mainPlugin = $mainPlugin;
     }
+    
+    // Public methods
+    public function publicMethod(): void {}
+    
+    // Protected methods
+    protected function protectedMethod(): void {}
+    
+    // Private methods last
+    private function privateMethod(): void {}
 }
-````
-
-**2. Your structure with PSR-4 namespaces**
 ```
-/includes/
-├── Plugin.php                 # Main plugin (was bfp.php content)
-├── Config.php                 # (was state-manager.php - BFP_Config)
-├── Player.php                 # (was player.php - BFP_Player) 
-├── Audio.php                  # (was audio.php - BFP_Audio_Engine)
-├── WooCommerce.php            # (was woocommerce.php - BFP_WooCommerce)
-├── Admin.php                  # (was admin.php - BFP_Admin)
-├── Hooks.php                  # (was hooks.php - BFP_Hooks)
-├── CoverRenderer.php          # (was cover-renderer.php - BFP_Cover_Renderer)
+
+## WordPress Integration Rules
+
+### 4. Plugin Bootstrap
+- Keep main plugin file minimal - just bootstrap
+- No business logic in main file
+- Use constants for plugin metadata
+
+### 5. Hook Registration
+```php
+// Good: Hooks in dedicated methods
+public function registerHooks(): void {
+    add_action('init', [$this, 'init']);
+    add_filter('the_content', [$this, 'filterContent']);
+}
+
+// Bad: Hooks in constructor
+public function __construct() {
+    add_action('init', [$this, 'init']); // Don't do this
+}
+```
+
+### 6. Asset Management
+- Keep CSS/JS where build tools expect them
+- Use WordPress enqueue system properly
+- Version assets with plugin version constant
+
+### 7. Template Loading
+```php
+// Use full paths for templates
+include plugin_dir_path(__DIR__) . 'Views/template.php';
+
+// Pass data explicitly
+$templateData = ['key' => 'value'];
+include $this->getTemplatePath('audio-engine-template.php');
+```
+
+## Modern PHP Rules (2025 Standards)
+
+### 8. Type Declarations
+- **Always use property types**: `private array $items`
+- **Always use parameter types**: `function process(int $id, ?string $name = null)`
+- **Always use return types**: `function getName(): string`
+- **Use union types when needed**: `function getId(): int|string`
+
+### 9. Null Safety
+```php
+// Good: Explicit null handling
+public function getConfig(): ?Config {
+    return $this->config ?? null;
+}
+
+// Good: Null coalescing
+$value = $array['key'] ?? 'default';
+
+// Good: Nullsafe operator (PHP 8)
+$name = $user?->getProfile()?->getName() ?? 'Anonymous';
+```
+
+### 10. Array Operations
+```php
+// Always use short array syntax
+$array = ['key' => 'value'];
+
+// Use spread operator
+$merged = [...$array1, ...$array2];
+
+// Use array destructuring
+[$first, $second] = $array;
+```
+
+## Code Quality Rules
+
+### 11. Method Complexity
+- **Max 20 lines per method** - Extract to private methods
+- **Max 4 parameters** - Use value objects or arrays
+- **Single responsibility** - One method, one job
+
+### 12. Dependency Management
+```php
+// Good: Inject dependencies
+public function __construct(
+    private Config $config,
+    private Player $player
+) {}
+
+// Bad: Create dependencies
+public function __construct() {
+    $this->config = new Config(); // Don't do this
+}
+```
+
+### 13. Error Handling
+```php
+// Use exceptions for exceptional cases
+if (!$this->isValid($data)) {
+    throw new \InvalidArgumentException('Invalid data provided');
+}
+
+// Use WordPress error system for user-facing errors
+if (is_wp_error($result)) {
+    return new \WP_Error('bfp_error', __('Operation failed', 'bandfront-player'));
+}
+```
+
+## WordPress Specific Best Practices
+
+### 14. Database Operations
+- Use `$wpdb` with prepared statements
+- Prefix custom tables with `$wpdb->prefix`
+- Use WordPress transients for caching
+
+### 15. Security
+```php
+// Always escape output
+echo esc_html($userInput);
+echo esc_url($url);
+echo esc_attr($attribute);
+
+// Always validate/sanitize input
+$id = absint($_GET['id'] ?? 0);
+$text = sanitize_text_field($_POST['text'] ?? '');
+
+// Check capabilities
+if (!current_user_can('manage_options')) {
+    wp_die(__('Unauthorized', 'bandfront-player'));
+}
+```
+
+### 16. Internationalization
+```php
+// Always make strings translatable
+$message = __('Hello World', 'bandfront-player');
+$formatted = sprintf(
+    /* translators: %s: user name */
+    __('Welcome, %s!', 'bandfront-player'),
+    $userName
+);
+```
+
+### 17. Ajax Handlers
+```php
+// Proper Ajax setup
+public function registerAjax(): void {
+    add_action('wp_ajax_bfp_action', [$this, 'handleAjax']);
+    add_action('wp_ajax_nopriv_bfp_action', [$this, 'handleAjax']);
+}
+
+public function handleAjax(): void {
+    check_ajax_referer('bfp_nonce', 'nonce');
+    
+    $response = $this->processAjaxRequest();
+    
+    wp_send_json_success($response);
+}
+```
+
+## Performance Rules
+
+### 18. Lazy Loading
+```php
+// Good: Load only when needed
+public function getWooCommerce(): ?WooCommerce {
+    if (!isset($this->woocommerce) && class_exists('WooCommerce')) {
+        $this->woocommerce = new WooCommerce($this);
+    }
+    return $this->woocommerce;
+}
+```
+
+### 19. Caching
+```php
+// Use transients for expensive operations
+$data = get_transient('bfp_expensive_data');
+if (false === $data) {
+    $data = $this->calculateExpensiveData();
+    set_transient('bfp_expensive_data', $data, HOUR_IN_SECONDS);
+}
+```
+
+## Testing & Quality
+
+### 20. Testability
+- Keep methods pure when possible
+- Inject dependencies for mocking
+- Separate WordPress hooks from business logic
+
+### 21. Documentation
+```php
+/**
+ * Process audio file for streaming
+ * 
+ * @param int    $productId Product ID
+ * @param string $fileUrl   URL to audio file
+ * @param array  $options   Optional settings
+ * 
+ * @return bool Success status
+ * @throws \RuntimeException If file cannot be processed
+ * 
+ * @since 2.0.0
+ */
+public function processAudioFile(int $productId, string $fileUrl, array $options = []): bool {
+    // Implementation
+}
+```
+
+## Migration Checklist
+- [ ] All classes use PSR-4 namespaces
+- [ ] No underscore prefixes in methods/properties
+- [ ] All methods use camelCase
+- [ ] Type declarations everywhere
+- [ ] Modern PHP syntax (8.0+)
+- [ ] WordPress coding standards for security
+- [ ] Proper internationalization
+- [ ] Dependency injection pattern
+- [ ] Separation of concerns
+- [ ] Build tools still work
+
+These rules ensure your code is modern, secure, performant, and maintainable for WordPress development in 2025.
 ├── PlayerRenderer.php         # (was player-render.php - BFP_Player_Renderer)
 └── Utils/
     ├── Analytics.php          # (was analytics.php - BFP_Analytics)
@@ -835,3 +1044,178 @@ These updated documents now accurately reflect:
 3. The proper mapping between old and new names
 4. Specific method names from your actual codebase
 5. Clear conversion examples using your real classes
+
+
+
+// ...existing code...
+
+## Migration-Specific Rules
+
+### 22. Component Initialization Order
+```php
+// Components must be initialized in dependency order
+private function initComponents(): void {
+    // 1. Core components (no dependencies)
+    $this->config = new Config($this);
+    $this->fileHandler = new Utils\Files($this);
+    
+    // 2. Components that depend on core
+    $this->player = new Player($this);
+    $this->audioCore = new Audio($this);
+    
+    // 3. Optional integrations
+    if (class_exists('WooCommerce')) {
+        $this->woocommerce = new WooCommerce($this);
+    }
+    
+    // 4. Components that depend on others
+    $this->hooks = new Hooks($this);
+    
+    // 5. Admin-only components
+    if (is_admin()) {
+        $this->admin = new Admin($this);
+    }
+}
+```
+
+### 23. Legacy Data Migration
+```php
+// Handle old meta keys during transition
+public function migrateLegacyData(): void {
+    $oldKey = 'bfp_setting';
+    $newKey = '_bfp_setting';
+    
+    if (metadata_exists('post', $postId, $oldKey)) {
+        $value = get_post_meta($postId, $oldKey, true);
+        update_post_meta($postId, $newKey, $value);
+        delete_post_meta($postId, $oldKey);
+    }
+}
+```
+
+### 24. File Organization Standards
+```
+src/                           # All PHP classes
+├── Plugin.php                 # Main plugin class
+├── Config.php                 # Settings management
+├── Player.php                 # Player functionality
+├── Audio.php                  # Audio processing
+├── WooCommerce.php           # WooCommerce integration
+├── Admin.php                 # Admin interface
+├── Hooks.php                 # WordPress hooks
+├── CoverRenderer.php         # Cover display
+├── PlayerRenderer.php        # Player display
+├── Utils/                    # Utility classes
+│   ├── Analytics.php
+│   ├── Cache.php
+│   ├── Cloud.php
+│   ├── Files.php
+│   ├── Preview.php
+│   ├── Update.php
+│   └── Utils.php
+├── Modules/                  # Optional modules
+│   ├── AudioEngine.php
+│   └── CloudEngine.php
+└── Traits/                   # Shared functionality
+    ├── Singleton.php
+    └── AjaxHandler.php
+```
+
+### 25. Interface Contracts
+```php
+// Define interfaces for extensibility
+namespace bfp\Contracts;
+
+interface Renderable {
+    public function render(): string;
+}
+
+interface Configurable {
+    public function configure(array $options): void;
+}
+
+interface Hookable {
+    public function registerHooks(): void;
+}
+```
+
+### 26. Trait Usage
+```php
+namespace bfp\Traits;
+
+trait AjaxHandler {
+    protected function registerAjax(string $action, string $method): void {
+        add_action("wp_ajax_{$action}", [$this, $method]);
+        add_action("wp_ajax_nopriv_{$action}", [$this, $method]);
+    }
+    
+    protected function verifyAjaxNonce(string $action): bool {
+        return wp_verify_nonce($_POST['nonce'] ?? '', $action);
+    }
+}
+```
+
+### 27. Constants Management
+```php
+// Group all constants in the main plugin file
+namespace bfp;
+
+class Constants {
+    public const VERSION = '2.0.0';
+    public const DB_VERSION = '1.0';
+    public const OPTION_PREFIX = '_bfp_';
+    public const NONCE_KEY = 'bfp_nonce';
+    public const CAPABILITY = 'manage_options';
+}
+```
+
+### 28. Error Handling Strategy
+```php
+namespace bfp\Exceptions;
+
+class ConfigException extends \Exception {}
+class AudioException extends \Exception {}
+class ValidationException extends \Exception {}
+
+// Usage
+try {
+    $this->processAudio($file);
+} catch (AudioException $e) {
+    error_log('BFP Audio Error: ' . $e->getMessage());
+    return new \WP_Error('bfp_audio_error', $e->getMessage());
+}
+```
+
+### 29. Plugin Activation/Deactivation
+```php
+// In main plugin file
+register_activation_hook(__FILE__, function() {
+    require_once plugin_dir_path(__FILE__) . 'src/Activator.php';
+    \bfp\Activator::activate();
+});
+
+register_deactivation_hook(__FILE__, function() {
+    require_once plugin_dir_path(__FILE__) . 'src/Deactivator.php';
+    \bfp\Deactivator::deactivate();
+});
+```
+
+### 30. Development vs Production
+```php
+// Environment-aware configuration
+namespace bfp;
+
+class Environment {
+    public static function isDevelopment(): bool {
+        return defined('WP_DEBUG') && WP_DEBUG;
+    }
+    
+    public static function isProduction(): bool {
+        return !self::isDevelopment();
+    }
+    
+    public static function getLogLevel(): string {
+        return self::isDevelopment() ? 'debug' : 'error';
+    }
+}
+```

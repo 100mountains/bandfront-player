@@ -30,7 +30,7 @@ mkdir -p "$LANGUAGES_DIR"
 echo "📝 Generating POT file..."
 wp i18n make-pot . "$LANGUAGES_DIR/bandfront-player.pot" \
     --domain="bandfront-player" \
-    --exclude="vendors,node_modules,tests,build" 2>/dev/null
+    --exclude="vendor,node_modules,tests,build" 2>/dev/null
 
 if [ $? -eq 0 ]; then
     echo "✅ POT file generated successfully"

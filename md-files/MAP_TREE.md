@@ -1,784 +1,13 @@
-.
+/var/www/html/wp-content/plugins/bandfront-player
 ├── .gitignore
 ├── .gitmodules
-├── README.md
-├── bfp.php
+├── BandfrontPlayer.php
 ├── build
 │   ├── build.sh
+│   ├── composer.sh
 │   ├── update-translations.sh
 │   └── update-wavesurfer.sh
 ├── builders
-│   ├── ORIG-GUTS.md
-│   ├── REFACTOR-GUTS.md
-│   ├── backup
-│   │   ├── CSS-REFACTOR
-│   │   │   ├── .gitignore
-│   │   │   ├── .gitmodules
-│   │   │   ├── README.md
-│   │   │   ├── bfp.php
-│   │   │   ├── build
-│   │   │   │   ├── build.sh
-│   │   │   │   ├── update-translations.sh
-│   │   │   │   └── update-wavesurfer.sh
-│   │   │   ├── builders
-│   │   │   │   ├── builders.php
-│   │   │   │   ├── elementor
-│   │   │   │   │   ├── elementor.pb.php
-│   │   │   │   │   └── elementor_category.pb.php
-│   │   │   │   └── gutenberg
-│   │   │   │       ├── block.json
-│   │   │   │       ├── gutenberg.css
-│   │   │   │       ├── gutenberg.js
-│   │   │   │       ├── gutenberg.js.backup-20250708-052521
-│   │   │   │       ├── wcblocks.css
-│   │   │   │       └── wcblocks.js
-│   │   │   ├── css
-│   │   │   │   ├── skins
-│   │   │   │   │   ├── custom.css
-│   │   │   │   │   ├── dark.css
-│   │   │   │   │   └── light.css
-│   │   │   │   ├── style.admin.css
-│   │   │   │   └── style.css
-│   │   │   ├── demo
-│   │   │   │   └── demo.mp3
-│   │   │   ├── includes
-│   │   │   │   ├── class-bfp-addons-loader.php
-│   │   │   │   ├── class-bfp-admin.php
-│   │   │   │   ├── class-bfp-analytics.php
-│   │   │   │   ├── class-bfp-audio-processor.php
-│   │   │   │   ├── class-bfp-auto-updater.php
-│   │   │   │   ├── class-bfp-cache-manager.php
-│   │   │   │   ├── class-bfp-cloud-tools.php
-│   │   │   │   ├── class-bfp-config.php
-│   │   │   │   ├── class-bfp-file-handler.php
-│   │   │   │   ├── class-bfp-hooks-manager.php
-│   │   │   │   ├── class-bfp-player-manager.php
-│   │   │   │   ├── class-bfp-player-renderer.php
-│   │   │   │   ├── class-bfp-playlist-renderer.php
-│   │   │   │   ├── class-bfp-preview-manager.php
-│   │   │   │   ├── class-bfp-utils.php
-│   │   │   │   └── class-bfp-woocommerce.php
-│   │   │   ├── js
-│   │   │   │   ├── admin.js
-│   │   │   │   ├── engine.js
-│   │   │   │   └── wavesurfer.js
-│   │   │   ├── languages
-│   │   │   │   ├── bandfront-player-en_US.mo
-│   │   │   │   ├── bandfront-player-en_US.po
-│   │   │   │   ├── bandfront-player-en_US.pot
-│   │   │   │   ├── bandfront-player.pot
-│   │   │   │   └── messages.mo
-│   │   │   ├── md-files
-│   │   │   │   ├── BandFront_Media_Players_Modernization_Guide.md
-│   │   │   │   ├── Bandfront_WordPress_Modernization_Report.md
-│   │   │   │   ├── CLOUD_STORAGE.md
-│   │   │   │   ├── ERRORS.md
-│   │   │   │   ├── JOBz.md
-│   │   │   │   ├── MAP.md
-│   │   │   │   └── MAP_TREE.md
-│   │   │   ├── modules
-│   │   │   │   ├── audio-engine.php
-│   │   │   │   └── cloud-engine.php
-│   │   │   ├── test
-│   │   │   │   ├── test_mp3_class.php
-│   │   │   │   └── test_plugin.php
-│   │   │   ├── vendors
-│   │   │   │   ├── php-mp3
-│   │   │   │   │   └── class.mp3.php
-│   │   │   │   └── wavesurfer
-│   │   │   │       ├── plugins
-│   │   │   │       │   ├── minimap.min.js
-│   │   │   │       │   ├── regions.min.js
-│   │   │   │       │   └── timeline.min.js
-│   │   │   │       ├── version.txt
-│   │   │   │       ├── wavesurfer.esm.js
-│   │   │   │       └── wavesurfer.min.js
-│   │   │   ├── views
-│   │   │   │   ├── global-admin-options.php
-│   │   │   │   └── product-options.php
-│   │   │   └── widgets
-│   │   │       ├── playlist_widget
-│   │   │       │   ├── css
-│   │   │       │   │   └── style.css
-│   │   │       │   └── js
-│   │   │       │       └── public.js
-│   │   │       └── playlist_widget.php
-│   │   ├── builders.php
-│   │   ├── gutenberg
-│   │   │   ├── block.json
-│   │   │   ├── gutenberg.css
-│   │   │   ├── gutenberg.js
-│   │   │   ├── gutenberg.js.backup-20250708-052521
-│   │   │   ├── wcblocks.css
-│   │   │   └── wcblocks.js
-│   │   ├── old-code
-│   │   │   ├── bandfront-worky27
-│   │   │   │   ├── BandFront_MediaElement_Player_Modernization_Guide.md
-│   │   │   │   ├── Bandfront_WordPress_Modernization_Report.md
-│   │   │   │   ├── README.md
-│   │   │   │   ├── addons
-│   │   │   │   │   ├── ap-compact-audio-player.addon.php
-│   │   │   │   │   ├── ap-cp-media-player
-│   │   │   │   │   │   └── style.css
-│   │   │   │   │   ├── ap-cp-media-player.addon.php
-│   │   │   │   │   ├── ap-html5-audio-player
-│   │   │   │   │   │   └── style.css
-│   │   │   │   │   ├── ap-html5-audio-player.addon.php
-│   │   │   │   │   ├── ap-mp3-jplayer
-│   │   │   │   │   │   └── style.css
-│   │   │   │   │   └── ap-mp3-jplayer.addon.php
-│   │   │   │   ├── backup_plugin.sh
-│   │   │   │   ├── backup_plugin_make_downloadable.sh
-│   │   │   │   ├── bfp.php
-│   │   │   │   ├── css
-│   │   │   │   │   ├── style.admin.css
-│   │   │   │   │   └── style.css
-│   │   │   │   ├── inc
-│   │   │   │   │   ├── auto_update.inc.php
-│   │   │   │   │   └── cache.inc.php
-│   │   │   │   ├── includes
-│   │   │   │   │   ├── class-bfp-admin.php
-│   │   │   │   │   ├── class-bfp-audio-processor.php
-│   │   │   │   │   ├── class-bfp-config.php
-│   │   │   │   │   ├── class-bfp-file-handler.php
-│   │   │   │   │   ├── class-bfp-hooks-manager.php
-│   │   │   │   │   ├── class-bfp-player-manager.php
-│   │   │   │   │   ├── class-bfp-player-renderer.php
-│   │   │   │   │   └── class-bfp-woocommerce.php
-│   │   │   │   ├── js
-│   │   │   │   │   ├── admin.js
-│   │   │   │   │   ├── public un-minimised.js
-│   │   │   │   │   ├── public.js
-│   │   │   │   │   └── public_src.js
-│   │   │   │   ├── languages
-│   │   │   │   │   ├── bandfront-player-en_US.mo
-│   │   │   │   │   ├── bandfront-player-en_US.po
-│   │   │   │   │   ├── bandfront-player-en_US.pot
-│   │   │   │   │   └── messages.mo
-│   │   │   │   ├── pagebuilders
-│   │   │   │   │   ├── builders.php
-│   │   │   │   │   ├── elementor
-│   │   │   │   │   │   ├── elementor.pb.php
-│   │   │   │   │   │   └── elementor_category.pb.php
-│   │   │   │   │   └── gutenberg
-│   │   │   │   │       ├── gutenberg.css
-│   │   │   │   │       ├── gutenberg.js
-│   │   │   │   │       ├── wcblocks.css
-│   │   │   │   │       └── wcblocks.js
-│   │   │   │   ├── test_mp3_class.php
-│   │   │   │   ├── test_outputs
-│   │   │   │   │   ├── demo_cut_10percent.mp3
-│   │   │   │   │   └── demo_cut_10percent_new.mp3
-│   │   │   │   ├── test_plugin.php
-│   │   │   │   ├── update-translations.sh
-│   │   │   │   ├── vendors
-│   │   │   │   │   ├── demo
-│   │   │   │   │   │   └── demo.mp3
-│   │   │   │   │   ├── mejs-skins
-│   │   │   │   │   │   ├── Guifx_v2_Transports.woff
-│   │   │   │   │   │   ├── controls-ted.png
-│   │   │   │   │   │   ├── controls-wmp-bg.png
-│   │   │   │   │   │   ├── controls-wmp.png
-│   │   │   │   │   │   ├── mejs-skins.css
-│   │   │   │   │   │   └── mejs-skins.min.css
-│   │   │   │   │   └── php-mp3
-│   │   │   │   │       └── class.mp3.php
-│   │   │   │   ├── views
-│   │   │   │   │   ├── assets
-│   │   │   │   │   │   ├── skin1.png
-│   │   │   │   │   │   ├── skin1_btn.png
-│   │   │   │   │   │   ├── skin2.png
-│   │   │   │   │   │   ├── skin2_btn.png
-│   │   │   │   │   │   ├── skin3.png
-│   │   │   │   │   │   └── skin3_btn.png
-│   │   │   │   │   ├── global_options.php
-│   │   │   │   │   └── player_options.php
-│   │   │   │   └── widgets
-│   │   │   │       ├── playlist_widget
-│   │   │   │       │   ├── css
-│   │   │   │       │   │   └── style.css
-│   │   │   │       │   └── js
-│   │   │   │       │       └── public.js
-│   │   │   │       └── playlist_widget.php
-│   │   │   └── woocommerce-music-player
-│   │   │       ├── addons
-│   │   │       │   ├── ap-compact-audio-player.addon.php
-│   │   │       │   ├── ap-cp-media-player
-│   │   │       │   │   └── style.css
-│   │   │       │   ├── ap-cp-media-player.addon.php
-│   │   │       │   ├── ap-html5-audio-player
-│   │   │       │   │   └── style.css
-│   │   │       │   ├── ap-html5-audio-player.addon.php
-│   │   │       │   ├── ap-mp3-jplayer
-│   │   │       │   │   └── style.css
-│   │   │       │   ├── ap-mp3-jplayer.addon.php
-│   │   │       │   ├── dokan
-│   │   │       │   │   ├── player_options.php
-│   │   │       │   │   ├── script.js
-│   │   │       │   │   └── style.css
-│   │   │       │   ├── dokan.addon.php
-│   │   │       │   ├── google-drive.addon.php
-│   │   │       │   ├── mvx.addon.php
-│   │   │       │   ├── wcfm
-│   │   │       │   │   ├── script.js
-│   │   │       │   │   └── style.css
-│   │   │       │   ├── wcfm.addon.php
-│   │   │       │   ├── wcv
-│   │   │       │   │   └── style.css
-│   │   │       │   └── wcv.addon.php
-│   │   │       ├── auto_update.inc.php
-│   │   │       ├── banner.php
-│   │   │       ├── css
-│   │   │       │   ├── style.admin.css
-│   │   │       │   └── style.css
-│   │   │       ├── inc
-│   │   │       │   ├── cache.inc.php
-│   │   │       │   ├── skingenerator.inc.php
-│   │   │       │   └── tools.inc.php
-│   │   │       ├── js
-│   │   │       │   ├── admin.js
-│   │   │       │   ├── public.js
-│   │   │       │   └── public_src.js
-│   │   │       ├── languages
-│   │   │       │   ├── music-player-for-woocommerce-en_US.mo
-│   │   │       │   └── music-player-for-woocommerce-en_US.po
-│   │   │       ├── pagebuilders
-│   │   │       │   ├── beaverbuilder
-│   │   │       │   │   ├── wcmp
-│   │   │       │   │   │   ├── includes
-│   │   │       │   │   │   │   └── frontend.php
-│   │   │       │   │   │   └── wcmp.pb.php
-│   │   │       │   │   └── wcmp.inc.php
-│   │   │       │   ├── builders.php
-│   │   │       │   ├── divi
-│   │   │       │   │   ├── divi.js
-│   │   │       │   │   └── divi.pb.php
-│   │   │       │   ├── elementor
-│   │   │       │   │   ├── elementor.pb.php
-│   │   │       │   │   └── elementor_category.pb.php
-│   │   │       │   ├── gutenberg
-│   │   │       │   │   ├── gutenberg.css
-│   │   │       │   │   ├── gutenberg.js
-│   │   │       │   │   ├── wcblocks.css
-│   │   │       │   │   └── wcblocks.js
-│   │   │       │   ├── siteorigin
-│   │   │       │   │   └── siteorigin-wcmp
-│   │   │       │   │       ├── assets
-│   │   │       │   │       │   └── banner.svg
-│   │   │       │   │       ├── siteorigin-wcmp.php
-│   │   │       │   │       └── tpl
-│   │   │       │   │           └── siteorigin-wcmp-shortcode.php
-│   │   │       │   └── visualcomposer
-│   │   │       │       └── WCMPplaylist
-│   │   │       │           ├── WCMPplaylist
-│   │   │       │           │   └── public
-│   │   │       │           │       ├── wcmp-preview.png
-│   │   │       │           │       └── wcmp-thumbnail.png
-│   │   │       │           ├── manifest.json
-│   │   │       │           └── public
-│   │   │       │               └── dist
-│   │   │       │                   └── element.bundle.js
-│   │   │       ├── readme.txt
-│   │   │       ├── vendors
-│   │   │       │   ├── demo
-│   │   │       │   │   └── demo.mp3
-│   │   │       │   ├── mejs-skins
-│   │   │       │   │   ├── Guifx_v2_Transports.woff
-│   │   │       │   │   ├── controls-ted.png
-│   │   │       │   │   ├── controls-wmp-bg.png
-│   │   │       │   │   ├── controls-wmp.png
-│   │   │       │   │   ├── mejs-skins.css
-│   │   │       │   │   └── mejs-skins.min.css
-│   │   │       │   └── php-mp3
-│   │   │       │       └── class.mp3.php
-│   │   │       ├── views
-│   │   │       │   ├── assets
-│   │   │       │   │   ├── skin1.png
-│   │   │       │   │   ├── skin1_btn.png
-│   │   │       │   │   ├── skin2.png
-│   │   │       │   │   ├── skin2_btn.png
-│   │   │       │   │   ├── skin3.png
-│   │   │       │   │   └── skin3_btn.png
-│   │   │       │   ├── global_options.php
-│   │   │       │   └── player_options.php
-│   │   │       ├── wcmp.php
-│   │   │       └── widgets
-│   │   │           ├── playlist_widget
-│   │   │           │   ├── css
-│   │   │           │   │   └── style.css
-│   │   │           │   └── js
-│   │   │           │       └── public.js
-│   │   │           └── playlist_widget.php
-│   │   ├── refactor4-fail
-│   │   │   ├── builders
-│   │   │   │   ├── backup
-│   │   │   │   │   ├── builders.php
-│   │   │   │   │   ├── gutenberg
-│   │   │   │   │   │   ├── block.json
-│   │   │   │   │   │   ├── gutenberg.css
-│   │   │   │   │   │   ├── gutenberg.js
-│   │   │   │   │   │   ├── gutenberg.js.backup-20250708-052521
-│   │   │   │   │   │   ├── wcblocks.css
-│   │   │   │   │   │   └── wcblocks.js
-│   │   │   │   │   ├── old-code
-│   │   │   │   │   │   ├── bandfront-worky27
-│   │   │   │   │   │   │   ├── BandFront_MediaElement_Player_Modernization_Guide.md
-│   │   │   │   │   │   │   ├── Bandfront_WordPress_Modernization_Report.md
-│   │   │   │   │   │   │   ├── README.md
-│   │   │   │   │   │   │   ├── addons
-│   │   │   │   │   │   │   │   ├── ap-compact-audio-player.addon.php
-│   │   │   │   │   │   │   │   ├── ap-cp-media-player
-│   │   │   │   │   │   │   │   │   └── style.css
-│   │   │   │   │   │   │   │   ├── ap-cp-media-player.addon.php
-│   │   │   │   │   │   │   │   ├── ap-html5-audio-player
-│   │   │   │   │   │   │   │   │   └── style.css
-│   │   │   │   │   │   │   │   ├── ap-html5-audio-player.addon.php
-│   │   │   │   │   │   │   │   ├── ap-mp3-jplayer
-│   │   │   │   │   │   │   │   │   └── style.css
-│   │   │   │   │   │   │   │   └── ap-mp3-jplayer.addon.php
-│   │   │   │   │   │   │   ├── backup_plugin.sh
-│   │   │   │   │   │   │   ├── backup_plugin_make_downloadable.sh
-│   │   │   │   │   │   │   ├── bfp.php
-│   │   │   │   │   │   │   ├── css
-│   │   │   │   │   │   │   │   ├── style.admin.css
-│   │   │   │   │   │   │   │   └── style.css
-│   │   │   │   │   │   │   ├── inc
-│   │   │   │   │   │   │   │   ├── auto_update.inc.php
-│   │   │   │   │   │   │   │   └── cache.inc.php
-│   │   │   │   │   │   │   ├── includes
-│   │   │   │   │   │   │   │   ├── class-bfp-admin.php
-│   │   │   │   │   │   │   │   ├── class-bfp-audio-processor.php
-│   │   │   │   │   │   │   │   ├── class-bfp-config.php
-│   │   │   │   │   │   │   │   ├── class-bfp-file-handler.php
-│   │   │   │   │   │   │   │   ├── class-bfp-hooks-manager.php
-│   │   │   │   │   │   │   │   ├── class-bfp-player-manager.php
-│   │   │   │   │   │   │   │   ├── class-bfp-player-renderer.php
-│   │   │   │   │   │   │   │   └── class-bfp-woocommerce.php
-│   │   │   │   │   │   │   ├── js
-│   │   │   │   │   │   │   │   ├── admin.js
-│   │   │   │   │   │   │   │   ├── public un-minimised.js
-│   │   │   │   │   │   │   │   ├── public.js
-│   │   │   │   │   │   │   │   └── public_src.js
-│   │   │   │   │   │   │   ├── languages
-│   │   │   │   │   │   │   │   ├── bandfront-player-en_US.mo
-│   │   │   │   │   │   │   │   ├── bandfront-player-en_US.po
-│   │   │   │   │   │   │   │   ├── bandfront-player-en_US.pot
-│   │   │   │   │   │   │   │   └── messages.mo
-│   │   │   │   │   │   │   ├── pagebuilders
-│   │   │   │   │   │   │   │   ├── builders.php
-│   │   │   │   │   │   │   │   ├── elementor
-│   │   │   │   │   │   │   │   │   ├── elementor.pb.php
-│   │   │   │   │   │   │   │   │   └── elementor_category.pb.php
-│   │   │   │   │   │   │   │   └── gutenberg
-│   │   │   │   │   │   │   │       ├── gutenberg.css
-│   │   │   │   │   │   │   │       ├── gutenberg.js
-│   │   │   │   │   │   │   │       ├── wcblocks.css
-│   │   │   │   │   │   │   │       └── wcblocks.js
-│   │   │   │   │   │   │   ├── test_mp3_class.php
-│   │   │   │   │   │   │   ├── test_outputs
-│   │   │   │   │   │   │   │   ├── demo_cut_10percent.mp3
-│   │   │   │   │   │   │   │   └── demo_cut_10percent_new.mp3
-│   │   │   │   │   │   │   ├── test_plugin.php
-│   │   │   │   │   │   │   ├── update-translations.sh
-│   │   │   │   │   │   │   ├── vendors
-│   │   │   │   │   │   │   │   ├── demo
-│   │   │   │   │   │   │   │   │   └── demo.mp3
-│   │   │   │   │   │   │   │   ├── mejs-skins
-│   │   │   │   │   │   │   │   │   ├── Guifx_v2_Transports.woff
-│   │   │   │   │   │   │   │   │   ├── controls-ted.png
-│   │   │   │   │   │   │   │   │   ├── controls-wmp-bg.png
-│   │   │   │   │   │   │   │   │   ├── controls-wmp.png
-│   │   │   │   │   │   │   │   │   ├── mejs-skins.css
-│   │   │   │   │   │   │   │   │   └── mejs-skins.min.css
-│   │   │   │   │   │   │   │   └── php-mp3
-│   │   │   │   │   │   │   │       └── class.mp3.php
-│   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   ├── assets
-│   │   │   │   │   │   │   │   │   ├── skin1.png
-│   │   │   │   │   │   │   │   │   ├── skin1_btn.png
-│   │   │   │   │   │   │   │   │   ├── skin2.png
-│   │   │   │   │   │   │   │   │   ├── skin2_btn.png
-│   │   │   │   │   │   │   │   │   ├── skin3.png
-│   │   │   │   │   │   │   │   │   └── skin3_btn.png
-│   │   │   │   │   │   │   │   ├── global_options.php
-│   │   │   │   │   │   │   │   └── player_options.php
-│   │   │   │   │   │   │   └── widgets
-│   │   │   │   │   │   │       ├── playlist_widget
-│   │   │   │   │   │   │       │   ├── css
-│   │   │   │   │   │   │       │   │   └── style.css
-│   │   │   │   │   │   │       │   └── js
-│   │   │   │   │   │   │       │       └── public.js
-│   │   │   │   │   │   │       └── playlist_widget.php
-│   │   │   │   │   │   └── woocommerce-music-player
-│   │   │   │   │   │       ├── addons
-│   │   │   │   │   │       │   ├── ap-compact-audio-player.addon.php
-│   │   │   │   │   │       │   ├── ap-cp-media-player
-│   │   │   │   │   │       │   │   └── style.css
-│   │   │   │   │   │       │   ├── ap-cp-media-player.addon.php
-│   │   │   │   │   │       │   ├── ap-html5-audio-player
-│   │   │   │   │   │       │   │   └── style.css
-│   │   │   │   │   │       │   ├── ap-html5-audio-player.addon.php
-│   │   │   │   │   │       │   ├── ap-mp3-jplayer
-│   │   │   │   │   │       │   │   └── style.css
-│   │   │   │   │   │       │   ├── ap-mp3-jplayer.addon.php
-│   │   │   │   │   │       │   ├── dokan
-│   │   │   │   │   │       │   │   ├── player_options.php
-│   │   │   │   │   │       │   │   ├── script.js
-│   │   │   │   │   │       │   │   └── style.css
-│   │   │   │   │   │       │   ├── dokan.addon.php
-│   │   │   │   │   │       │   ├── google-drive.addon.php
-│   │   │   │   │   │       │   ├── mvx.addon.php
-│   │   │   │   │   │       │   ├── wcfm
-│   │   │   │   │   │       │   │   ├── script.js
-│   │   │   │   │   │       │   │   └── style.css
-│   │   │   │   │   │       │   ├── wcfm.addon.php
-│   │   │   │   │   │       │   ├── wcv
-│   │   │   │   │   │       │   │   └── style.css
-│   │   │   │   │   │       │   └── wcv.addon.php
-│   │   │   │   │   │       ├── auto_update.inc.php
-│   │   │   │   │   │       ├── banner.php
-│   │   │   │   │   │       ├── css
-│   │   │   │   │   │       │   ├── style.admin.css
-│   │   │   │   │   │       │   └── style.css
-│   │   │   │   │   │       ├── inc
-│   │   │   │   │   │       │   ├── cache.inc.php
-│   │   │   │   │   │       │   ├── skingenerator.inc.php
-│   │   │   │   │   │       │   └── tools.inc.php
-│   │   │   │   │   │       ├── js
-│   │   │   │   │   │       │   ├── admin.js
-│   │   │   │   │   │       │   ├── public.js
-│   │   │   │   │   │       │   └── public_src.js
-│   │   │   │   │   │       ├── languages
-│   │   │   │   │   │       │   ├── music-player-for-woocommerce-en_US.mo
-│   │   │   │   │   │       │   └── music-player-for-woocommerce-en_US.po
-│   │   │   │   │   │       ├── pagebuilders
-│   │   │   │   │   │       │   ├── beaverbuilder
-│   │   │   │   │   │       │   │   ├── wcmp
-│   │   │   │   │   │       │   │   │   ├── includes
-│   │   │   │   │   │       │   │   │   │   └── frontend.php
-│   │   │   │   │   │       │   │   │   └── wcmp.pb.php
-│   │   │   │   │   │       │   │   └── wcmp.inc.php
-│   │   │   │   │   │       │   ├── builders.php
-│   │   │   │   │   │       │   ├── divi
-│   │   │   │   │   │       │   │   ├── divi.js
-│   │   │   │   │   │       │   │   └── divi.pb.php
-│   │   │   │   │   │       │   ├── elementor
-│   │   │   │   │   │       │   │   ├── elementor.pb.php
-│   │   │   │   │   │       │   │   └── elementor_category.pb.php
-│   │   │   │   │   │       │   ├── gutenberg
-│   │   │   │   │   │       │   │   ├── gutenberg.css
-│   │   │   │   │   │       │   │   ├── gutenberg.js
-│   │   │   │   │   │       │   │   ├── wcblocks.css
-│   │   │   │   │   │       │   │   └── wcblocks.js
-│   │   │   │   │   │       │   ├── siteorigin
-│   │   │   │   │   │       │   │   └── siteorigin-wcmp
-│   │   │   │   │   │       │   │       ├── assets
-│   │   │   │   │   │       │   │       │   └── banner.svg
-│   │   │   │   │   │       │   │       ├── siteorigin-wcmp.php
-│   │   │   │   │   │       │   │       └── tpl
-│   │   │   │   │   │       │   │           └── siteorigin-wcmp-shortcode.php
-│   │   │   │   │   │       │   └── visualcomposer
-│   │   │   │   │   │       │       └── WCMPplaylist
-│   │   │   │   │   │       │           ├── WCMPplaylist
-│   │   │   │   │   │       │           │   └── public
-│   │   │   │   │   │       │           │       ├── wcmp-preview.png
-│   │   │   │   │   │       │           │       └── wcmp-thumbnail.png
-│   │   │   │   │   │       │           ├── manifest.json
-│   │   │   │   │   │       │           └── public
-│   │   │   │   │   │       │               └── dist
-│   │   │   │   │   │       │                   └── element.bundle.js
-│   │   │   │   │   │       ├── readme.txt
-│   │   │   │   │   │       ├── vendors
-│   │   │   │   │   │       │   ├── demo
-│   │   │   │   │   │       │   │   └── demo.mp3
-│   │   │   │   │   │       │   ├── mejs-skins
-│   │   │   │   │   │       │   │   ├── Guifx_v2_Transports.woff
-│   │   │   │   │   │       │   │   ├── controls-ted.png
-│   │   │   │   │   │       │   │   ├── controls-wmp-bg.png
-│   │   │   │   │   │       │   │   ├── controls-wmp.png
-│   │   │   │   │   │       │   │   ├── mejs-skins.css
-│   │   │   │   │   │       │   │   └── mejs-skins.min.css
-│   │   │   │   │   │       │   └── php-mp3
-│   │   │   │   │   │       │       └── class.mp3.php
-│   │   │   │   │   │       ├── views
-│   │   │   │   │   │       │   ├── assets
-│   │   │   │   │   │       │   │   ├── skin1.png
-│   │   │   │   │   │       │   │   ├── skin1_btn.png
-│   │   │   │   │   │       │   │   ├── skin2.png
-│   │   │   │   │   │       │   │   ├── skin2_btn.png
-│   │   │   │   │   │       │   │   ├── skin3.png
-│   │   │   │   │   │       │   │   └── skin3_btn.png
-│   │   │   │   │   │       │   ├── global_options.php
-│   │   │   │   │   │       │   └── player_options.php
-│   │   │   │   │   │       ├── wcmp.php
-│   │   │   │   │   │       └── widgets
-│   │   │   │   │   │           ├── playlist_widget
-│   │   │   │   │   │           │   ├── css
-│   │   │   │   │   │           │   │   └── style.css
-│   │   │   │   │   │           │   └── js
-│   │   │   │   │   │           │       └── public.js
-│   │   │   │   │   │           └── playlist_widget.php
-│   │   │   │   │   ├── refactor4-fail
-│   │   │   │   │   ├── yesterday
-│   │   │   │   │   │   ├── .gitignore
-│   │   │   │   │   │   ├── .gitmodules
-│   │   │   │   │   │   ├── README.md
-│   │   │   │   │   │   ├── bfp.php
-│   │   │   │   │   │   ├── build
-│   │   │   │   │   │   │   ├── build.sh
-│   │   │   │   │   │   │   ├── update-translations.sh
-│   │   │   │   │   │   │   └── update-wavesurfer.sh
-│   │   │   │   │   │   ├── builders
-│   │   │   │   │   │   │   ├── builders.php
-│   │   │   │   │   │   │   ├── elementor
-│   │   │   │   │   │   │   │   ├── elementor.pb.php
-│   │   │   │   │   │   │   │   └── elementor_category.pb.php
-│   │   │   │   │   │   │   └── gutenberg
-│   │   │   │   │   │   │       ├── block.json
-│   │   │   │   │   │   │       ├── gutenberg.css
-│   │   │   │   │   │   │       ├── gutenberg.js
-│   │   │   │   │   │   │       ├── gutenberg.js.backup-20250708-052521
-│   │   │   │   │   │   │       ├── wcblocks.css
-│   │   │   │   │   │   │       └── wcblocks.js
-│   │   │   │   │   │   ├── css
-│   │   │   │   │   │   │   ├── skins
-│   │   │   │   │   │   │   │   ├── custom.css
-│   │   │   │   │   │   │   │   ├── dark.css
-│   │   │   │   │   │   │   │   └── light.css
-│   │   │   │   │   │   │   ├── style.admin.css
-│   │   │   │   │   │   │   └── style.css
-│   │   │   │   │   │   ├── demo
-│   │   │   │   │   │   │   └── demo.mp3
-│   │   │   │   │   │   ├── includes
-│   │   │   │   │   │   │   ├── class-bfp-admin.php
-│   │   │   │   │   │   │   ├── class-bfp-analytics.php
-│   │   │   │   │   │   │   ├── class-bfp-audio-processor.php
-│   │   │   │   │   │   │   ├── class-bfp-auto-updater.php
-│   │   │   │   │   │   │   ├── class-bfp-cache-manager.php
-│   │   │   │   │   │   │   ├── class-bfp-cloud-tools.php
-│   │   │   │   │   │   │   ├── class-bfp-config.php
-│   │   │   │   │   │   │   ├── class-bfp-file-handler.php
-│   │   │   │   │   │   │   ├── class-bfp-hooks-manager.php
-│   │   │   │   │   │   │   ├── class-bfp-player-manager.php
-│   │   │   │   │   │   │   ├── class-bfp-player-renderer.php
-│   │   │   │   │   │   │   ├── class-bfp-playlist-renderer.php
-│   │   │   │   │   │   │   ├── class-bfp-preview-manager.php
-│   │   │   │   │   │   │   ├── class-bfp-utils.php
-│   │   │   │   │   │   │   └── class-bfp-woocommerce.php
-│   │   │   │   │   │   ├── js
-│   │   │   │   │   │   │   ├── admin.js
-│   │   │   │   │   │   │   ├── engine.js
-│   │   │   │   │   │   │   └── wavesurfer.js
-│   │   │   │   │   │   ├── languages
-│   │   │   │   │   │   │   ├── bandfront-player-en_US.mo
-│   │   │   │   │   │   │   ├── bandfront-player-en_US.po
-│   │   │   │   │   │   │   ├── bandfront-player-en_US.pot
-│   │   │   │   │   │   │   ├── bandfront-player.pot
-│   │   │   │   │   │   │   └── messages.mo
-│   │   │   │   │   │   ├── md-files
-│   │   │   │   │   │   │   ├── BandFront_Media_Players_Modernization_Guide.md
-│   │   │   │   │   │   │   ├── Bandfront_WordPress_Modernization_Report.md
-│   │   │   │   │   │   │   ├── CLOUD_STORAGE.md
-│   │   │   │   │   │   │   ├── ERRORS.md
-│   │   │   │   │   │   │   ├── JOBz.md
-│   │   │   │   │   │   │   ├── MAP.md
-│   │   │   │   │   │   │   ├── MAP_OVERVIEW.md
-│   │   │   │   │   │   │   └── MAP_TREE.md
-│   │   │   │   │   │   ├── modules
-│   │   │   │   │   │   │   ├── audio-engine.php
-│   │   │   │   │   │   │   └── cloud-engine.php
-│   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   ├── test_mp3_class.php
-│   │   │   │   │   │   │   └── test_plugin.php
-│   │   │   │   │   │   ├── vendors
-│   │   │   │   │   │   │   ├── php-mp3
-│   │   │   │   │   │   │   │   └── class.mp3.php
-│   │   │   │   │   │   │   └── wavesurfer
-│   │   │   │   │   │   │       ├── plugins
-│   │   │   │   │   │   │       │   ├── minimap.min.js
-│   │   │   │   │   │   │       │   ├── regions.min.js
-│   │   │   │   │   │   │       │   └── timeline.min.js
-│   │   │   │   │   │   │       ├── version.txt
-│   │   │   │   │   │   │       ├── wavesurfer.esm.js
-│   │   │   │   │   │   │       └── wavesurfer.min.js
-│   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   ├── global-admin-options.php
-│   │   │   │   │   │   │   └── product-options.php
-│   │   │   │   │   │   └── widgets
-│   │   │   │   │   │       ├── playlist_widget
-│   │   │   │   │   │       │   ├── css
-│   │   │   │   │   │       │   │   └── style.css
-│   │   │   │   │   │       │   └── js
-│   │   │   │   │   │       │       └── public.js
-│   │   │   │   │   │       └── playlist_widget.php
-│   │   │   │   │   └── yesterday-builders-only
-│   │   │   │   │       ├── builders.php
-│   │   │   │   │       ├── elementor
-│   │   │   │   │       │   ├── elementor.pb.php
-│   │   │   │   │       │   └── elementor_category.pb.php
-│   │   │   │   │       └── gutenberg
-│   │   │   │   │           ├── block.json
-│   │   │   │   │           ├── gutenberg.css
-│   │   │   │   │           ├── gutenberg.js
-│   │   │   │   │           ├── gutenberg.js.backup-20250708-052521
-│   │   │   │   │           ├── wcblocks.css
-│   │   │   │   │           └── wcblocks.js
-│   │   │   │   ├── builders.php
-│   │   │   │   ├── elementor
-│   │   │   │   │   ├── elementor.pb.php
-│   │   │   │   │   └── elementor_category.pb.php
-│   │   │   │   └── gutenberg
-│   │   │   │       ├── block.json
-│   │   │   │       ├── gutenberg.css
-│   │   │   │       ├── gutenberg.js
-│   │   │   │       ├── render.php
-│   │   │   │       ├── wcblocks.css
-│   │   │   │       └── wcblocks.js
-│   │   │   ├── demo
-│   │   │   │   └── demo.mp3
-│   │   │   ├── includes
-│   │   │   │   ├── admin.php
-│   │   │   │   ├── audio.php
-│   │   │   │   ├── cover-renderer.php
-│   │   │   │   ├── hooks.php
-│   │   │   │   ├── player-html.php
-│   │   │   │   ├── player.php
-│   │   │   │   ├── state-manager.php
-│   │   │   │   ├── utils
-│   │   │   │   │   ├── analytics.php
-│   │   │   │   │   ├── cache.php
-│   │   │   │   │   ├── cloud.php
-│   │   │   │   │   ├── files.php
-│   │   │   │   │   ├── preview.php
-│   │   │   │   │   ├── update.php
-│   │   │   │   │   └── utils.php
-│   │   │   │   └── woocommerce.php
-│   │   │   ├── js
-│   │   │   │   ├── admin.js
-│   │   │   │   ├── engine.js
-│   │   │   │   └── wavesurfer.js
-│   │   │   ├── languages
-│   │   │   │   ├── bandfront-player-en_US.mo
-│   │   │   │   ├── bandfront-player-en_US.po
-│   │   │   │   ├── bandfront-player-en_US.pot
-│   │   │   │   ├── bandfront-player.pot
-│   │   │   │   └── messages.mo
-│   │   │   ├── modules
-│   │   │   │   ├── audio-engine.php
-│   │   │   │   └── cloud-engine.php
-│   │   │   ├── test
-│   │   │   │   ├── backup_plugin.sh
-│   │   │   │   ├── backup_plugin_make_downloadable.sh
-│   │   │   │   ├── clear_opcache.sh
-│   │   │   │   ├── test_mp3_class.php
-│   │   │   │   ├── test_outputs
-│   │   │   │   └── test_plugin.php
-│   │   │   ├── vendors
-│   │   │   │   ├── php-mp3
-│   │   │   │   │   └── class.mp3.php
-│   │   │   │   └── wavesurfer
-│   │   │   │       ├── plugins
-│   │   │   │       │   ├── minimap.min.js
-│   │   │   │       │   ├── regions.min.js
-│   │   │   │       │   └── timeline.min.js
-│   │   │   │       ├── version.txt
-│   │   │   │       ├── wavesurfer.esm.js
-│   │   │   │       └── wavesurfer.min.js
-│   │   │   └── views
-│   │   │       ├── global-admin-options.php
-│   │   │       └── product-options.php
-│   │   └── yesterday
-│   │       ├── .gitignore
-│   │       ├── .gitmodules
-│   │       ├── README.md
-│   │       ├── bfp.php
-│   │       ├── build
-│   │       │   ├── build.sh
-│   │       │   ├── update-translations.sh
-│   │       │   └── update-wavesurfer.sh
-│   │       ├── builders
-│   │       │   ├── builders.php
-│   │       │   ├── elementor
-│   │       │   │   ├── elementor.pb.php
-│   │       │   │   └── elementor_category.pb.php
-│   │       │   └── gutenberg
-│   │       │       ├── block.json
-│   │       │       ├── gutenberg.css
-│   │       │       ├── gutenberg.js
-│   │       │       ├── gutenberg.js.backup-20250708-052521
-│   │       │       ├── wcblocks.css
-│   │       │       └── wcblocks.js
-│   │       ├── css
-│   │       │   ├── skins
-│   │       │   │   ├── custom.css
-│   │       │   │   ├── dark.css
-│   │       │   │   └── light.css
-│   │       │   ├── style.admin.css
-│   │       │   └── style.css
-│   │       ├── demo
-│   │       │   └── demo.mp3
-│   │       ├── includes
-│   │       │   ├── class-bfp-admin.php
-│   │       │   ├── class-bfp-analytics.php
-│   │       │   ├── class-bfp-audio-processor.php
-│   │       │   ├── class-bfp-auto-updater.php
-│   │       │   ├── class-bfp-cache-manager.php
-│   │       │   ├── class-bfp-cloud-tools.php
-│   │       │   ├── class-bfp-config.php
-│   │       │   ├── class-bfp-file-handler.php
-│   │       │   ├── class-bfp-hooks-manager.php
-│   │       │   ├── class-bfp-player-manager.php
-│   │       │   ├── class-bfp-player-renderer.php
-│   │       │   ├── class-bfp-playlist-renderer.php
-│   │       │   ├── class-bfp-preview-manager.php
-│   │       │   ├── class-bfp-utils.php
-│   │       │   └── class-bfp-woocommerce.php
-│   │       ├── js
-│   │       │   ├── admin.js
-│   │       │   ├── engine.js
-│   │       │   └── wavesurfer.js
-│   │       ├── languages
-│   │       │   ├── bandfront-player-en_US.mo
-│   │       │   ├── bandfront-player-en_US.po
-│   │       │   ├── bandfront-player-en_US.pot
-│   │       │   ├── bandfront-player.pot
-│   │       │   └── messages.mo
-│   │       ├── md-files
-│   │       │   ├── BandFront_Media_Players_Modernization_Guide.md
-│   │       │   ├── Bandfront_WordPress_Modernization_Report.md
-│   │       │   ├── CLOUD_STORAGE.md
-│   │       │   ├── ERRORS.md
-│   │       │   ├── JOBz.md
-│   │       │   ├── MAP.md
-│   │       │   ├── MAP_OVERVIEW.md
-│   │       │   └── MAP_TREE.md
-│   │       ├── modules
-│   │       │   ├── audio-engine.php
-│   │       │   └── cloud-engine.php
-│   │       ├── test
-│   │       │   ├── test_mp3_class.php
-│   │       │   └── test_plugin.php
-│   │       ├── vendors
-│   │       │   ├── php-mp3
-│   │       │   │   └── class.mp3.php
-│   │       │   └── wavesurfer
-│   │       │       ├── plugins
-│   │       │       │   ├── minimap.min.js
-│   │       │       │   ├── regions.min.js
-│   │       │       │   └── timeline.min.js
-│   │       │       ├── version.txt
-│   │       │       ├── wavesurfer.esm.js
-│   │       │       └── wavesurfer.min.js
-│   │       ├── views
-│   │       │   ├── global-admin-options.php
-│   │       │   └── product-options.php
-│   │       └── widgets
-│   │           ├── playlist_widget
-│   │           │   ├── css
-│   │           │   │   └── style.css
-│   │           │   └── js
-│   │           │       └── public.js
-│   │           └── playlist_widget.php
 │   ├── builders.php
 │   ├── elementor
 │   │   ├── elementor.pb.php
@@ -790,6 +19,8 @@
 │       ├── render.php
 │       ├── wcblocks.css
 │       └── wcblocks.js
+├── composer.json
+├── composer.lock
 ├── css
 │   ├── admin-notices.css
 │   ├── skins
@@ -797,32 +28,15 @@
 │   │   ├── dark.css
 │   │   └── light.css
 │   ├── style-admin.css
-│   └── style.css
-├── demo
-│   └── demo.mp3
-├── includes
-│   ├── admin.php
-│   ├── audio.php
-│   ├── cover-renderer.php
-│   ├── hooks.php
-│   ├── player-render.php
-│   ├── player.php
-│   ├── state-manager.php
-│   ├── utils
-│   │   ├── analytics.php
-│   │   ├── cache.php
-│   │   ├── cloud.php
-│   │   ├── files.php
-│   │   ├── preview.php
-│   │   ├── update.php
-│   │   └── utils.php
-│   └── woocommerce.php
+│   ├── style.css
+│   └── widget-style.css
 ├── js
 │   ├── admin.js
 │   ├── engine-full.js
 │   ├── engine.js
 │   ├── engine.js.older
-│   └── wavesurfer.js
+│   ├── wavesurfer.js
+│   └── widget.js
 ├── languages
 │   ├── bandfront-player-en_US.mo
 │   ├── bandfront-player-en_US.po
@@ -830,60 +44,572 @@
 │   ├── bandfront-player.pot
 │   └── messages.mo
 ├── md-files
-│   ├── AI-CODE-RULES.md
-│   ├── BandFront_Media_Players_Modernization_Guide.md
-│   ├── Bandfront_WordPress_Modernization_Report.md
-│   ├── CLOUD_STORAGE.md
-│   ├── COMMIT-RULES.md
-│   ├── ERRORS.md
-│   ├── HOOKS.md
-│   ├── JOBz.md
-│   ├── MAP.md
 │   ├── MAP.md.older
-│   ├── MAP_OVERVIEW.md
-│   ├── MAP_STATE_CONFIG_&_VARIABLES.md
 │   ├── MAP_STATE_CONFIG_&_VARIABLES.md.older
-│   ├── MAP_TREE.md
-│   ├── REFACTOR_CONSTANTS.md
-│   ├── REFACTOR_GUTENBERG.md
-│   ├── REFACTOR_PLAYER.md
-│   ├── REFACTOR_PSR4.md
-│   ├── REFACTOR_PSR4_RULES.md
-│   ├── REFACTOR_STATE_MANAGEMENT.md
-│   ├── REFACTOR_compare-rules.md
-│   ├── REFACTOR_extract-rules.md
-│   ├── REFACTOR_troubleshooting.md
-│   └── STATE-MANAGEMENT.md
-├── modules
-│   ├── audio-engine.php
-│   └── cloud-engine.php
+│   └── REFACTORS
+├── src
+│   ├── Admin.php
+│   ├── Audio.php
+│   ├── Config.php
+│   ├── CoverRenderer.php
+│   ├── Hooks.php
+│   ├── Modules
+│   │   ├── Dropbox
+│   │   └── GoogleDrive
+│   │       ├── GoogleDriveClient.php
+│   │       └── google-api-php-client
+│   │           ├── src
+│   │           │   └── Google
+│   │           │       ├── AccessToken
+│   │           │       │   ├── Revoke.php
+│   │           │       │   └── Verify.php
+│   │           │       ├── AuthHandler
+│   │           │       │   ├── AuthHandlerFactory.php
+│   │           │       │   ├── Guzzle5AuthHandler.php
+│   │           │       │   └── Guzzle6AuthHandler.php
+│   │           │       ├── Client.php
+│   │           │       ├── Collection.php
+│   │           │       ├── Exception.php
+│   │           │       ├── Http
+│   │           │       │   ├── Batch.php
+│   │           │       │   ├── MediaFileUpload.php
+│   │           │       │   └── REST.php
+│   │           │       ├── Model.php
+│   │           │       ├── Service
+│   │           │       │   ├── Exception.php
+│   │           │       │   └── Resource.php
+│   │           │       ├── Service.php
+│   │           │       ├── Task
+│   │           │       │   ├── Exception.php
+│   │           │       │   ├── Retryable.php
+│   │           │       │   └── Runner.php
+│   │           │       ├── Utils
+│   │           │       │   └── UriTemplate.php
+│   │           │       └── autoload.php
+│   │           └── vendor
+│   │               ├── autoload.php
+│   │               ├── composer
+│   │               │   ├── ClassLoader.php
+│   │               │   ├── InstalledVersions.php
+│   │               │   ├── LICENSE
+│   │               │   ├── autoload_classmap.php
+│   │               │   ├── autoload_files.php
+│   │               │   ├── autoload_namespaces.php
+│   │               │   ├── autoload_psr4.php
+│   │               │   ├── autoload_real.php
+│   │               │   ├── autoload_static.php
+│   │               │   ├── installed.json
+│   │               │   ├── installed.php
+│   │               │   └── platform_check.php
+│   │               ├── google
+│   │               │   ├── apiclient
+│   │               │   │   └── src
+│   │               │   │       ├── AccessToken
+│   │               │   │       │   ├── Revoke.php
+│   │               │   │       │   └── Verify.php
+│   │               │   │       ├── AuthHandler
+│   │               │   │       │   ├── AuthHandlerFactory.php
+│   │               │   │       │   ├── Guzzle5AuthHandler.php
+│   │               │   │       │   ├── Guzzle6AuthHandler.php
+│   │               │   │       │   └── Guzzle7AuthHandler.php
+│   │               │   │       ├── Client.php
+│   │               │   │       ├── Collection.php
+│   │               │   │       ├── Exception.php
+│   │               │   │       ├── Http
+│   │               │   │       │   ├── Batch.php
+│   │               │   │       │   ├── MediaFileUpload.php
+│   │               │   │       │   └── REST.php
+│   │               │   │       ├── Model.php
+│   │               │   │       ├── Service
+│   │               │   │       │   ├── Exception.php
+│   │               │   │       │   └── Resource.php
+│   │               │   │       ├── Service.php
+│   │               │   │       ├── Task
+│   │               │   │       │   ├── Composer.php
+│   │               │   │       │   ├── Exception.php
+│   │               │   │       │   ├── Retryable.php
+│   │               │   │       │   └── Runner.php
+│   │               │   │       ├── Utils
+│   │               │   │       │   └── UriTemplate.php
+│   │               │   │       └── aliases.php
+│   │               │   ├── apiclient-services
+│   │               │   │   └── src
+│   │               │   │       └── Google
+│   │               │   │           └── Service
+│   │               │   │               ├── Drive
+│   │               │   │               │   ├── About.php
+│   │               │   │               │   ├── AboutDriveThemes.php
+│   │               │   │               │   ├── AboutStorageQuota.php
+│   │               │   │               │   ├── AboutTeamDriveThemes.php
+│   │               │   │               │   ├── Change.php
+│   │               │   │               │   ├── ChangeList.php
+│   │               │   │               │   ├── Channel.php
+│   │               │   │               │   ├── Comment.php
+│   │               │   │               │   ├── CommentList.php
+│   │               │   │               │   ├── CommentQuotedFileContent.php
+│   │               │   │               │   ├── ContentRestriction.php
+│   │               │   │               │   ├── Drive.php
+│   │               │   │               │   ├── DriveBackgroundImageFile.php
+│   │               │   │               │   ├── DriveCapabilities.php
+│   │               │   │               │   ├── DriveFile.php
+│   │               │   │               │   ├── DriveFileCapabilities.php
+│   │               │   │               │   ├── DriveFileContentHints.php
+│   │               │   │               │   ├── DriveFileContentHintsThumbnail.php
+│   │               │   │               │   ├── DriveFileImageMediaMetadata.php
+│   │               │   │               │   ├── DriveFileImageMediaMetadataLocation.php
+│   │               │   │               │   ├── DriveFileShortcutDetails.php
+│   │               │   │               │   ├── DriveFileVideoMediaMetadata.php
+│   │               │   │               │   ├── DriveList.php
+│   │               │   │               │   ├── DriveRestrictions.php
+│   │               │   │               │   ├── FileList.php
+│   │               │   │               │   ├── GeneratedIds.php
+│   │               │   │               │   ├── Permission.php
+│   │               │   │               │   ├── PermissionList.php
+│   │               │   │               │   ├── PermissionPermissionDetails.php
+│   │               │   │               │   ├── PermissionTeamDrivePermissionDetails.php
+│   │               │   │               │   ├── Reply.php
+│   │               │   │               │   ├── ReplyList.php
+│   │               │   │               │   ├── Resource
+│   │               │   │               │   │   ├── About.php
+│   │               │   │               │   │   ├── Changes.php
+│   │               │   │               │   │   ├── Channels.php
+│   │               │   │               │   │   ├── Comments.php
+│   │               │   │               │   │   ├── Drives.php
+│   │               │   │               │   │   ├── Files.php
+│   │               │   │               │   │   ├── Permissions.php
+│   │               │   │               │   │   ├── Replies.php
+│   │               │   │               │   │   ├── Revisions.php
+│   │               │   │               │   │   └── Teamdrives.php
+│   │               │   │               │   ├── Revision.php
+│   │               │   │               │   ├── RevisionList.php
+│   │               │   │               │   ├── StartPageToken.php
+│   │               │   │               │   ├── TeamDrive.php
+│   │               │   │               │   ├── TeamDriveBackgroundImageFile.php
+│   │               │   │               │   ├── TeamDriveCapabilities.php
+│   │               │   │               │   ├── TeamDriveList.php
+│   │               │   │               │   ├── TeamDriveRestrictions.php
+│   │               │   │               │   └── User.php
+│   │               │   │               ├── Drive.php
+│   │               │   │               ├── Oauth2
+│   │               │   │               │   ├── Resource
+│   │               │   │               │   │   ├── Userinfo.php
+│   │               │   │               │   │   ├── UserinfoV2.php
+│   │               │   │               │   │   └── UserinfoV2Me.php
+│   │               │   │               │   ├── Tokeninfo.php
+│   │               │   │               │   └── Userinfo.php
+│   │               │   │               └── Oauth2.php
+│   │               │   └── auth
+│   │               │       ├── autoload.php
+│   │               │       └── src
+│   │               │           ├── AccessToken.php
+│   │               │           ├── ApplicationDefaultCredentials.php
+│   │               │           ├── Cache
+│   │               │           │   ├── InvalidArgumentException.php
+│   │               │           │   ├── Item.php
+│   │               │           │   ├── MemoryCacheItemPool.php
+│   │               │           │   └── SysVCacheItemPool.php
+│   │               │           ├── CacheTrait.php
+│   │               │           ├── Credentials
+│   │               │           │   ├── AppIdentityCredentials.php
+│   │               │           │   ├── GCECredentials.php
+│   │               │           │   ├── IAMCredentials.php
+│   │               │           │   ├── InsecureCredentials.php
+│   │               │           │   ├── ServiceAccountCredentials.php
+│   │               │           │   ├── ServiceAccountJwtAccessCredentials.php
+│   │               │           │   └── UserRefreshCredentials.php
+│   │               │           ├── CredentialsLoader.php
+│   │               │           ├── FetchAuthTokenCache.php
+│   │               │           ├── FetchAuthTokenInterface.php
+│   │               │           ├── GCECache.php
+│   │               │           ├── GetQuotaProjectInterface.php
+│   │               │           ├── HttpHandler
+│   │               │           │   ├── Guzzle5HttpHandler.php
+│   │               │           │   ├── Guzzle6HttpHandler.php
+│   │               │           │   ├── Guzzle7HttpHandler.php
+│   │               │           │   ├── HttpClientCache.php
+│   │               │           │   └── HttpHandlerFactory.php
+│   │               │           ├── Iam.php
+│   │               │           ├── Middleware
+│   │               │           │   ├── AuthTokenMiddleware.php
+│   │               │           │   ├── ScopedAccessTokenMiddleware.php
+│   │               │           │   └── SimpleMiddleware.php
+│   │               │           ├── OAuth2.php
+│   │               │           ├── ProjectIdProviderInterface.php
+│   │               │           ├── ServiceAccountSignerTrait.php
+│   │               │           ├── SignBlobInterface.php
+│   │               │           ├── Subscriber
+│   │               │           │   ├── AuthTokenSubscriber.php
+│   │               │           │   ├── ScopedAccessTokenSubscriber.php
+│   │               │           │   └── SimpleSubscriber.php
+│   │               │           └── UpdateMetadataInterface.php
+│   │               ├── guzzlehttp
+│   │               │   ├── guzzle
+│   │               │   │   └── src
+│   │               │   │       ├── BodySummarizer.php
+│   │               │   │       ├── BodySummarizerInterface.php
+│   │               │   │       ├── Client.php
+│   │               │   │       ├── ClientInterface.php
+│   │               │   │       ├── ClientTrait.php
+│   │               │   │       ├── Cookie
+│   │               │   │       │   ├── CookieJar.php
+│   │               │   │       │   ├── CookieJarInterface.php
+│   │               │   │       │   ├── FileCookieJar.php
+│   │               │   │       │   ├── SessionCookieJar.php
+│   │               │   │       │   └── SetCookie.php
+│   │               │   │       ├── Exception
+│   │               │   │       │   ├── BadResponseException.php
+│   │               │   │       │   ├── ClientException.php
+│   │               │   │       │   ├── ConnectException.php
+│   │               │   │       │   ├── GuzzleException.php
+│   │               │   │       │   ├── InvalidArgumentException.php
+│   │               │   │       │   ├── RequestException.php
+│   │               │   │       │   ├── ServerException.php
+│   │               │   │       │   ├── TooManyRedirectsException.php
+│   │               │   │       │   └── TransferException.php
+│   │               │   │       ├── Handler
+│   │               │   │       │   ├── CurlFactory.php
+│   │               │   │       │   ├── CurlFactoryInterface.php
+│   │               │   │       │   ├── CurlHandler.php
+│   │               │   │       │   ├── CurlMultiHandler.php
+│   │               │   │       │   ├── EasyHandle.php
+│   │               │   │       │   ├── MockHandler.php
+│   │               │   │       │   ├── Proxy.php
+│   │               │   │       │   └── StreamHandler.php
+│   │               │   │       ├── HandlerStack.php
+│   │               │   │       ├── MessageFormatter.php
+│   │               │   │       ├── MessageFormatterInterface.php
+│   │               │   │       ├── Middleware.php
+│   │               │   │       ├── Pool.php
+│   │               │   │       ├── PrepareBodyMiddleware.php
+│   │               │   │       ├── RedirectMiddleware.php
+│   │               │   │       ├── RequestOptions.php
+│   │               │   │       ├── RetryMiddleware.php
+│   │               │   │       ├── TransferStats.php
+│   │               │   │       ├── Utils.php
+│   │               │   │       ├── functions.php
+│   │               │   │       └── functions_include.php
+│   │               │   ├── promises
+│   │               │   │   ├── .php_cs.dist
+│   │               │   │   ├── LICENSE
+│   │               │   │   ├── Makefile
+│   │               │   │   ├── composer.json
+│   │               │   │   ├── phpstan-baseline.neon
+│   │               │   │   ├── phpstan.neon.dist
+│   │               │   │   ├── psalm.xml
+│   │               │   │   └── src
+│   │               │   │       ├── AggregateException.php
+│   │               │   │       ├── CancellationException.php
+│   │               │   │       ├── Coroutine.php
+│   │               │   │       ├── Create.php
+│   │               │   │       ├── Each.php
+│   │               │   │       ├── EachPromise.php
+│   │               │   │       ├── FulfilledPromise.php
+│   │               │   │       ├── Is.php
+│   │               │   │       ├── Promise.php
+│   │               │   │       ├── PromiseInterface.php
+│   │               │   │       ├── PromisorInterface.php
+│   │               │   │       ├── RejectedPromise.php
+│   │               │   │       ├── RejectionException.php
+│   │               │   │       ├── TaskQueue.php
+│   │               │   │       ├── TaskQueueInterface.php
+│   │               │   │       ├── Utils.php
+│   │               │   │       ├── functions.php
+│   │               │   │       └── functions_include.php
+│   │               │   └── psr7
+│   │               │       └── src
+│   │               │           ├── AppendStream.php
+│   │               │           ├── BufferStream.php
+│   │               │           ├── CachingStream.php
+│   │               │           ├── DroppingStream.php
+│   │               │           ├── FnStream.php
+│   │               │           ├── Header.php
+│   │               │           ├── InflateStream.php
+│   │               │           ├── LazyOpenStream.php
+│   │               │           ├── LimitStream.php
+│   │               │           ├── Message.php
+│   │               │           ├── MessageTrait.php
+│   │               │           ├── MimeType.php
+│   │               │           ├── MultipartStream.php
+│   │               │           ├── NoSeekStream.php
+│   │               │           ├── PumpStream.php
+│   │               │           ├── Query.php
+│   │               │           ├── Request.php
+│   │               │           ├── Response.php
+│   │               │           ├── Rfc7230.php
+│   │               │           ├── ServerRequest.php
+│   │               │           ├── Stream.php
+│   │               │           ├── StreamDecoratorTrait.php
+│   │               │           ├── StreamWrapper.php
+│   │               │           ├── UploadedFile.php
+│   │               │           ├── Uri.php
+│   │               │           ├── UriNormalizer.php
+│   │               │           ├── UriResolver.php
+│   │               │           ├── Utils.php
+│   │               │           ├── functions.php
+│   │               │           └── functions_include.php
+│   │               ├── monolog
+│   │               │   └── monolog
+│   │               │       └── src
+│   │               │           └── Monolog
+│   │               │               ├── DateTimeImmutable.php
+│   │               │               ├── ErrorHandler.php
+│   │               │               ├── Formatter
+│   │               │               │   ├── ChromePHPFormatter.php
+│   │               │               │   ├── ElasticaFormatter.php
+│   │               │               │   ├── ElasticsearchFormatter.php
+│   │               │               │   ├── FlowdockFormatter.php
+│   │               │               │   ├── FluentdFormatter.php
+│   │               │               │   ├── FormatterInterface.php
+│   │               │               │   ├── GelfMessageFormatter.php
+│   │               │               │   ├── HtmlFormatter.php
+│   │               │               │   ├── JsonFormatter.php
+│   │               │               │   ├── LineFormatter.php
+│   │               │               │   ├── LogglyFormatter.php
+│   │               │               │   ├── LogmaticFormatter.php
+│   │               │               │   ├── LogstashFormatter.php
+│   │               │               │   ├── MongoDBFormatter.php
+│   │               │               │   ├── NormalizerFormatter.php
+│   │               │               │   ├── ScalarFormatter.php
+│   │               │               │   └── WildfireFormatter.php
+│   │               │               ├── Handler
+│   │               │               │   ├── AbstractHandler.php
+│   │               │               │   ├── AbstractProcessingHandler.php
+│   │               │               │   ├── AbstractSyslogHandler.php
+│   │               │               │   ├── AmqpHandler.php
+│   │               │               │   ├── BrowserConsoleHandler.php
+│   │               │               │   ├── BufferHandler.php
+│   │               │               │   ├── ChromePHPHandler.php
+│   │               │               │   ├── CouchDBHandler.php
+│   │               │               │   ├── CubeHandler.php
+│   │               │               │   ├── Curl
+│   │               │               │   │   └── Util.php
+│   │               │               │   ├── DeduplicationHandler.php
+│   │               │               │   ├── DoctrineCouchDBHandler.php
+│   │               │               │   ├── DynamoDbHandler.php
+│   │               │               │   ├── ElasticaHandler.php
+│   │               │               │   ├── ElasticsearchHandler.php
+│   │               │               │   ├── ErrorLogHandler.php
+│   │               │               │   ├── FallbackGroupHandler.php
+│   │               │               │   ├── FilterHandler.php
+│   │               │               │   ├── FingersCrossed
+│   │               │               │   │   ├── ActivationStrategyInterface.php
+│   │               │               │   │   ├── ChannelLevelActivationStrategy.php
+│   │               │               │   │   └── ErrorLevelActivationStrategy.php
+│   │               │               │   ├── FingersCrossedHandler.php
+│   │               │               │   ├── FirePHPHandler.php
+│   │               │               │   ├── FleepHookHandler.php
+│   │               │               │   ├── FlowdockHandler.php
+│   │               │               │   ├── FormattableHandlerInterface.php
+│   │               │               │   ├── FormattableHandlerTrait.php
+│   │               │               │   ├── GelfHandler.php
+│   │               │               │   ├── GroupHandler.php
+│   │               │               │   ├── Handler.php
+│   │               │               │   ├── HandlerInterface.php
+│   │               │               │   ├── HandlerWrapper.php
+│   │               │               │   ├── IFTTTHandler.php
+│   │               │               │   ├── InsightOpsHandler.php
+│   │               │               │   ├── LogEntriesHandler.php
+│   │               │               │   ├── LogglyHandler.php
+│   │               │               │   ├── LogmaticHandler.php
+│   │               │               │   ├── MailHandler.php
+│   │               │               │   ├── MandrillHandler.php
+│   │               │               │   ├── MissingExtensionException.php
+│   │               │               │   ├── MongoDBHandler.php
+│   │               │               │   ├── NativeMailerHandler.php
+│   │               │               │   ├── NewRelicHandler.php
+│   │               │               │   ├── NoopHandler.php
+│   │               │               │   ├── NullHandler.php
+│   │               │               │   ├── OverflowHandler.php
+│   │               │               │   ├── PHPConsoleHandler.php
+│   │               │               │   ├── ProcessHandler.php
+│   │               │               │   ├── ProcessableHandlerInterface.php
+│   │               │               │   ├── ProcessableHandlerTrait.php
+│   │               │               │   ├── PsrHandler.php
+│   │               │               │   ├── PushoverHandler.php
+│   │               │               │   ├── RedisHandler.php
+│   │               │               │   ├── RollbarHandler.php
+│   │               │               │   ├── RotatingFileHandler.php
+│   │               │               │   ├── SamplingHandler.php
+│   │               │               │   ├── SendGridHandler.php
+│   │               │               │   ├── Slack
+│   │               │               │   │   └── SlackRecord.php
+│   │               │               │   ├── SlackHandler.php
+│   │               │               │   ├── SlackWebhookHandler.php
+│   │               │               │   ├── SocketHandler.php
+│   │               │               │   ├── SqsHandler.php
+│   │               │               │   ├── StreamHandler.php
+│   │               │               │   ├── SwiftMailerHandler.php
+│   │               │               │   ├── SyslogHandler.php
+│   │               │               │   ├── SyslogUdp
+│   │               │               │   │   └── UdpSocket.php
+│   │               │               │   ├── SyslogUdpHandler.php
+│   │               │               │   ├── TelegramBotHandler.php
+│   │               │               │   ├── TestHandler.php
+│   │               │               │   ├── WebRequestRecognizerTrait.php
+│   │               │               │   ├── WhatFailureGroupHandler.php
+│   │               │               │   └── ZendMonitorHandler.php
+│   │               │               ├── Logger.php
+│   │               │               ├── Processor
+│   │               │               │   ├── GitProcessor.php
+│   │               │               │   ├── HostnameProcessor.php
+│   │               │               │   ├── IntrospectionProcessor.php
+│   │               │               │   ├── MemoryPeakUsageProcessor.php
+│   │               │               │   ├── MemoryProcessor.php
+│   │               │               │   ├── MemoryUsageProcessor.php
+│   │               │               │   ├── MercurialProcessor.php
+│   │               │               │   ├── ProcessIdProcessor.php
+│   │               │               │   ├── ProcessorInterface.php
+│   │               │               │   ├── PsrLogMessageProcessor.php
+│   │               │               │   ├── TagProcessor.php
+│   │               │               │   ├── UidProcessor.php
+│   │               │               │   └── WebProcessor.php
+│   │               │               ├── Registry.php
+│   │               │               ├── ResettableInterface.php
+│   │               │               ├── SignalHandler.php
+│   │               │               ├── Test
+│   │               │               │   └── TestCase.php
+│   │               │               └── Utils.php
+│   │               ├── phpseclib
+│   │               │   └── phpseclib
+│   │               │       ├── AUTHORS
+│   │               │       ├── LICENSE
+│   │               │       ├── appveyor.yml
+│   │               │       ├── composer.json
+│   │               │       └── phpseclib
+│   │               │           ├── Crypt
+│   │               │           │   ├── AES.php
+│   │               │           │   ├── Base.php
+│   │               │           │   ├── Blowfish.php
+│   │               │           │   ├── DES.php
+│   │               │           │   ├── Hash.php
+│   │               │           │   ├── RC2.php
+│   │               │           │   ├── RC4.php
+│   │               │           │   ├── RSA.php
+│   │               │           │   ├── Random.php
+│   │               │           │   ├── Rijndael.php
+│   │               │           │   ├── TripleDES.php
+│   │               │           │   └── Twofish.php
+│   │               │           ├── File
+│   │               │           │   ├── ANSI.php
+│   │               │           │   ├── ASN1
+│   │               │           │   │   └── Element.php
+│   │               │           │   ├── ASN1.php
+│   │               │           │   └── X509.php
+│   │               │           ├── Math
+│   │               │           │   └── BigInteger.php
+│   │               │           ├── Net
+│   │               │           │   ├── SCP.php
+│   │               │           │   ├── SFTP
+│   │               │           │   │   └── Stream.php
+│   │               │           │   ├── SFTP.php
+│   │               │           │   ├── SSH1.php
+│   │               │           │   └── SSH2.php
+│   │               │           ├── System
+│   │               │           │   └── SSH
+│   │               │           │       ├── Agent
+│   │               │           │       │   └── Identity.php
+│   │               │           │       └── Agent.php
+│   │               │           ├── bootstrap.php
+│   │               │           └── openssl.cnf
+│   │               ├── psr
+│   │               │   ├── cache
+│   │               │   │   ├── LICENSE.txt
+│   │               │   │   ├── composer.json
+│   │               │   │   └── src
+│   │               │   │       ├── CacheException.php
+│   │               │   │       ├── CacheItemInterface.php
+│   │               │   │       ├── CacheItemPoolInterface.php
+│   │               │   │       └── InvalidArgumentException.php
+│   │               │   ├── http-client
+│   │               │   │   ├── LICENSE
+│   │               │   │   ├── composer.json
+│   │               │   │   └── src
+│   │               │   │       ├── ClientExceptionInterface.php
+│   │               │   │       ├── ClientInterface.php
+│   │               │   │       ├── NetworkExceptionInterface.php
+│   │               │   │       └── RequestExceptionInterface.php
+│   │               │   ├── http-message
+│   │               │   │   ├── LICENSE
+│   │               │   │   ├── composer.json
+│   │               │   │   └── src
+│   │               │   │       ├── MessageInterface.php
+│   │               │   │       ├── RequestInterface.php
+│   │               │   │       ├── ResponseInterface.php
+│   │               │   │       ├── ServerRequestInterface.php
+│   │               │   │       ├── StreamInterface.php
+│   │               │   │       ├── UploadedFileInterface.php
+│   │               │   │       └── UriInterface.php
+│   │               │   └── log
+│   │               │       ├── LICENSE
+│   │               │       ├── Psr
+│   │               │       │   └── Log
+│   │               │       │       ├── AbstractLogger.php
+│   │               │       │       ├── InvalidArgumentException.php
+│   │               │       │       ├── LogLevel.php
+│   │               │       │       ├── LoggerAwareInterface.php
+│   │               │       │       ├── LoggerAwareTrait.php
+│   │               │       │       ├── LoggerInterface.php
+│   │               │       │       ├── LoggerTrait.php
+│   │               │       │       ├── NullLogger.php
+│   │               │       │       └── Test
+│   │               │       │           ├── DummyTest.php
+│   │               │       │           ├── LoggerInterfaceTest.php
+│   │               │       │           └── TestLogger.php
+│   │               │       └── composer.json
+│   │               └── ralouphie
+│   │                   └── getallheaders
+│   │                       ├── LICENSE
+│   │                       ├── composer.json
+│   │                       └── src
+│   │                           └── getallheaders.php
+│   ├── Player.php
+│   ├── Plugin.php
+│   ├── Utils
+│   │   ├── Analytics.php
+│   │   ├── Cache.php
+│   │   ├── Cloud.php
+│   │   ├── Files.php
+│   │   ├── Preview.php
+│   │   ├── Update.php
+│   │   └── Utils.php
+│   ├── Views
+│   │   ├── audio-engine-settings.php
+│   │   ├── global-admin-options.php
+│   │   └── product-options.php
+│   ├── Widgets
+│   │   └── PlaylistWidget.php
+│   └── WooCommerce.php
 ├── test
+│   ├── Woocommerce.php
 │   ├── backup_plugin.sh
 │   ├── backup_plugin_make_downloadable.sh
 │   ├── clear_opcache.sh
+│   ├── demo
+│   │   └── demo.mp3
 │   ├── test_mp3_class.php
 │   ├── test_outputs
 │   └── test_plugin.php
-├── vendors
-│   ├── php-mp3
-│   │   └── class.mp3.php
-│   └── wavesurfer
-│       ├── plugins
-│       │   ├── minimap.min.js
-│       │   ├── regions.min.js
-│       │   └── timeline.min.js
-│       ├── version.txt
-│       ├── wavesurfer.esm.js
-│       └── wavesurfer.min.js
-├── views
-│   ├── global-admin-options.php
-│   └── product-options.php
-└── widgets
-    ├── playlist_widget
-    │   ├── css
-    │   │   └── style.css
-    │   └── js
-    │       └── widget.js
-    └── playlist_widget.php
+└── vendor
+    ├── autoload.php
+    ├── composer
+    │   ├── ClassLoader.php
+    │   ├── LICENSE
+    │   ├── autoload_classmap.php
+    │   ├── autoload_files.php
+    │   ├── autoload_namespaces.php
+    │   ├── autoload_psr4.php
+    │   ├── autoload_real.php
+    │   ├── autoload_static.php
+    │   └── platform_check.php
+    ├── php-mp3
+    │   └── class.mp3.php
+    └── wavesurfer
+        ├── plugins
+        │   ├── minimap.min.js
+        │   ├── regions.min.js
+        │   └── timeline.min.js
+        ├── version.txt
+        ├── wavesurfer.esm.js
+        └── wavesurfer.min.js
 
-247 directories, 640 files
+109 directories, 504 files

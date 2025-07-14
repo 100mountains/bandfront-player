@@ -1,501 +1,181 @@
 # AI Code Rules for Bandfront Player
 
-## Core Principles
-
-1. **State Management First**
-   - All settings MUST go through the state manager (`BFP_Config`)
-   - Never access post meta or options directly
-   - Use bulk fetch (`get_states()`) when retrieving multiple values
-   - Respect the inheritance hierarchy: Product → Global → Default
-
-2. **Component Access**
-   - Always access components through the main plugin instance getters
-   - Never instantiate components directly
-   - Follow initialization order (see STATE-MANAGEMENT.md)
-
-3. **Class Architecture**
-   - **Refer to STATE-MANAGEMENT.md for all class information**
-   - No need to define classes here - they're documented in the state management file
-   - Focus on implementation patterns and rules
-
-## Critical Rules
-
-- [ ] All settings use the state manager (`BFP_Config`)
-- [ ] Components are accessed via main plugin getters (not direct instantiation)
-- [ ] Context is checked before registering hooks
-- [ ] All user input is sanitized
-- [ ] All output is properly escaped
-- [ ] Nonces are verified for all actions
-- [ ] User capabilities are checked before privileged actions
-- [ ] Bulk fetch methods are used where appropriate
-- [ ] Resources (scripts/styles) are enqueued only when needed
-
-**Note:**  
-- Do **not** modify `.md` files unless explicitly instructed  
-- Do **not** use inline CSS in code 
-- Do **not** lose existing functionality
-- Do **not** redesign to fix an upstream bug you dont know about. 
-- Stop and ask if unsure.
-
-### 1. State Access Patterns
-
-```php
-// ✅ CORRECT - Single value
-$value = $this->main_plugin->get_config()->get_state('_bfp_audio_engine', 'mediaelement', $product_id);
-
-// ✅ CORRECT - Multiple values (PREFERRED)
-$settings = $this->main_plugin->get_config()->get_states(array(
-    '_bfp_audio_engine',
-    '_bfp_play_simultaneously',
-    '_bfp_fade_out'
-), $product_id);
-
-// ❌ WRONG - Direct meta access
-$value = get_post_meta($product_id, '_bfp_audio_engine', true);
-
-// ❌ WRONG - Direct option access
-$value = get_option('_bfp_audio_engine');
-```
-
-### 2. Component Access
-
-```php
-// ✅ CORRECT
-$audio_core = $this->main_plugin->get_audio_core();
-$player = $this->main_plugin->get_player_manager();
-
-// ❌ WRONG
-$audio_core = new BFP_Audio_Engine($this->main_plugin);
-```
-
-### 3. Context Awareness
-
-```php
-// Check context before registering hooks
-if (function_exists('is_product') && is_product()) {
-    // Single product page logic
-} else {
-    // Archive/shop page logic
-}
-```
-
-### 4. File Naming Convention
-
-- Core classes: `/includes/{function}.php` (e.g., `player.php`, `audio.php`)
-- Utilities: `/includes/utils/{utility}.php` (e.g., `files.php`, `cache.php`)
-- Modules: `/modules/{module-name}.php` (e.g., `audio-engine.php`)
-- No `class-` prefix in filenames
-
-### 5. Security Rules
-
-```php
-// Always sanitize input
-$value = sanitize_text_field(wp_unslash($_POST['field']));
-
-// Always verify nonces
-if (!wp_verify_nonce($_POST['nonce'], 'action')) {
-    return;
-}
-
-// Always check capabilities
-if (!current_user_can('manage_options')) {
-    return;
-}
-
-// Always escape output
-echo esc_html($value);
-echo esc_attr($attribute);
-echo esc_url($url);
-```
-
-### 6. Performance Rules
-
-1. **Use bulk operations** when dealing with multiple settings
-2. **Enqueue resources only when needed** (check context first)
-3. **Cache expensive operations** in class properties
-4. **Lazy load components** - initialize only when needed
-
-### 7. Hook Registration
-
-```php
-// Dynamic hook registration based on context
-public function register_dynamic_hooks() {
-    $hooks_config = $this->get_hooks_config();
-    
-    foreach ($hooks_config['main_player'] as $hook => $priority) {
-        add_action($hook, array($this->main_plugin->get_player(), 'include_main_player'), $priority);
-    }
-}
-```
-
-### 8. Error Handling
-
-```php
-// Graceful degradation
-if (!$product) {
-    return '';  // Return empty string, not false or null
-}
-
-// Check method existence
-if (method_exists($object, 'method_name')) {
-    $object->method_name();
-}
-
-// Array bounds checking
-if (isset($array[$key])) {
-    $value = $array[$key];
-}
-```
-
-### 9. Data Attributes
-
-```html
-<!-- Player MUST have these attributes -->
-<audio 
-    class="bfp-player {style} {track-class-if-button}"
-    data-product="{product-id}"
-    data-file-index="{index}"
-    data-audio-engine="{engine}"
->
-```
-
-### 10. Module System
-
-```php
-// Check module status before using features
-if ($this->main_plugin->get_config()->is_module_enabled('cloud-engine')) {
-    // Cloud features available
-}
-```
-
-## Common Pitfalls to Avoid
-
-1. **Never use legacy methods** like `get_global_attr()` or `get_product_attr()`
-2. **Never hardcode settings** - always use state manager
-3. **Never assume WooCommerce is active** - check first
-4. **Never output without escaping**
-5. **Never trust user input** - always sanitize
-
-
-## Quick Reference
-
-For detailed class information, methods, and architecture:
-- See `STATE-MANAGEMENT.md` for complete class reference
-- See `MAP.md` for detailed code flow
-- See `MAP_OVERVIEW.md` for high-level architecture
-1. **Create dedicated class** in `/includes/`
-2. **Register in main plugin** class
-3. **Add hooks via Hooks Manager**
-4. **Store settings via Config class**
-5. **Add admin UI in Admin class**
-
-### 16. Renderer Pattern
-For any UI output, create a dedicated renderer:
-```php
-class BFP_Feature_Renderer {
-    private $main_plugin;
-    
-    public function __construct($main_plugin) {
-        $this->main_plugin = $main_plugin;
-    }
-    
-    public function render($args = array()) {
-        // Get settings via state manager
-        $settings = $this->main_plugin->get_state('_bfp_feature_setting');
-        
-        // Output HTML
-        ?>
-        <div class="bfp-feature">
-            <!-- HTML output -->
-        </div>
-        <?php
-    }
-}
-```
-
-### 17. Module System
-Optional features use the module pattern:
-- Check if enabled: `$config->is_module_enabled('module-name')`
-- Load conditionally in `BFP_Admin::load_admin_modules()`
-- Store state in `_bfp_modules_enabled`
-
-### 18. JavaScript Integration
-- **Localize data properly**:
-  ```php
-  wp_localize_script('bfp-script', 'bfp_settings', array(
-      'ajaxurl' => admin_url('admin-ajax.php'),
-      'nonce' => wp_create_nonce('bfp_ajax')
-  ));
-  ```
-- **Use jQuery safely**: `jQuery(function($) { ... });`
-- **Namespace everything**: Avoid global scope pollution
-
-
-## Example: Adding a New Feature
-
-```php
-// 1. Create feature class
-class BFP_New_Feature {
-    private $main_plugin;
-    
-    public function __construct($main_plugin) {
-        $this->main_plugin = $main_plugin;
-    }
-    
-    public function init() {
-        // Feature initialization
-    }
-}
-
-// 2. Register in main plugin
-private function init_components() {
-    // ...existing components...
-    $this->new_feature = new BFP_New_Feature($this);
-}
-
-// 3. Add hooks in Hooks Manager
-private function register_hooks() {
-    // ...existing hooks...
-    add_action('init', array($this->main_plugin->get_new_feature(), 'init'));
-}
-
-// 4. Add settings to Config class
-private $_overridable_settings = array(
-    // ...existing settings...
-    '_bfp_new_feature_enabled' => false,
-);
-```
-
-# AI Code Generation Rules
-
-## General Principles
-
-1. **Preserve Backward Compatibility**
-   - Maintain existing global functions (window.generate_the_wcmp, window.wcmp_force_init)
-   - Keep jQuery dependency for WordPress compatibility
-   - Support all existing data attributes and CSS classes
-
-2. **Progressive Enhancement**
-   - New features should not break existing functionality
-   - Use feature detection before using modern APIs
-   - Provide fallbacks for older browsers
-
-## Code Structure Rules
-
-### JavaScript Patterns
-
-1. **Module Pattern**
-```javascript
-// Wrap in IIFE to avoid global pollution
-(function($) {
-    'use strict';
-    
-    // Private variables
-    const _private = {};
-    
-    // Public API
-    window.WCMPPlayer = {
-        init: function() {},
-        destroy: function() {}
-    };
-    
-})(jQuery);
-```
-
-2. **Class Naming**
-- PascalCase for classes: `PlayerManager`, `EventHandler`
-- camelCase for instances: `playerManager`, `eventHandler`
-- UPPER_CASE for constants: `DEFAULT_VOLUME`, `FADE_DURATION`
-
-3. **Event Naming**
-- Prefix custom events: `wcmp:player:ready`, `wcmp:track:ended`
-- Use past tense for completed actions: `played`, `paused`, `ended`
-
-### State Management
-
-1. **Immutable Updates**
-```javascript
-// Bad
-state.players.push(player);
-
-// Good
-state.players = [...state.players, player];
-```
-
-2. **Pure Functions**
-```javascript
-// Bad
-function updateVolume(player) {
-    player.volume = 0.5;
-    return player;
-}
-
-// Good
-function updateVolume(player, volume) {
-    return { ...player, volume };
-}
-```
-
-### Error Handling
-
-1. **Graceful Degradation**
-```javascript
-try {
-    const player = new MediaElementPlayer(element, config);
-    registry.add(player);
-} catch (error) {
-    console.warn('WCMP: Failed to initialize player', error);
-    // Fallback to native controls
-    element.controls = true;
-}
-```
-
-2. **Validation**
-```javascript
-function validateConfig(config) {
-    const errors = [];
-    
-    if (config.volume < 0 || config.volume > 1) {
-        errors.push('Volume must be between 0 and 1');
-    }
-    
-    if (errors.length) {
-        throw new ValidationError(errors);
-    }
-    
-    return true;
-}
-```
-
-## WordPress Integration
-
-### Hook Usage
-```javascript
-// Always check if element exists
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
-
-// WordPress admin detection
-if (document.body.classList.contains('wp-admin')) {
-    return;
-}
-```
-
-### AJAX Compatibility
-```javascript
-// Listen for common AJAX events
-const ajaxEvents = [
-    'wpfAjaxSuccess',
-    'woof_ajax_done',
-    'yith-wcan-ajax-filtered'
-];
-
-ajaxEvents.forEach(event => {
-    document.addEventListener(event, reinitializePlayers);
-});
-```
-
-## Performance Rules
-
-1. **Debounce Expensive Operations**
-```javascript
-const debouncedResize = debounce(() => {
-    players.forEach(player => player.updatePosition());
-}, 250);
-
-window.addEventListener('resize', debouncedResize);
-```
-
-2. **Lazy Loading**
-```javascript
-// Only initialize visible players
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            initializePlayer(entry.target);
-            observer.unobserve(entry.target);
-        }
-    });
-});
-```
-
-## Security Rules
-
-1. **Sanitize User Input**
-```javascript
-function sanitizeProductId(id) {
-    return id.replace(/[^0-9]/g, '');
-}
-```
-
-2. **Validate URLs**
-```javascript
-function isValidAudioUrl(url) {
-    try {
-        const parsed = new URL(url);
-        return ['http:', 'https:'].includes(parsed.protocol);
-    } catch {
-        return false;
-    }
-}
-```
-
-## Testing Patterns
-
-1. **Testable Functions**
-```javascript
-// Bad - Hard to test
-function playNext() {
-    const current = document.querySelector('.playing');
-    const next = current.nextElementSibling;
-    next.click();
-}
-
-// Good - Testable
-function getNextTrack(currentId, tracks) {
-    const index = tracks.findIndex(t => t.id === currentId);
-    return tracks[index + 1] || tracks[0];
-}
-```
-
-2. **Mock-friendly Architecture**
-```javascript
-class PlayerService {
-    constructor(mediaElementFactory = MediaElementPlayer) {
-        this.factory = mediaElementFactory;
-    }
-    
-    createPlayer(element, config) {
-        return new this.factory(element, config);
-    }
-}
-```
+## Core Standards
+- WordPress 2025 Compliant
+- PSR-4 Compliant
+- PHP 7.4+ features required
+
+AUDIO PLAYBACK 
+Uses WordPress REST API - Standard, secure, and extensible
+Leverages WordPress authentication - Built-in permission checks
+Supports range requests - Proper audio seeking support
+Uses transients for caching - WordPress-native caching
+Cleaner URLs - /wp-json/bandfront-player/v1/stream/123/0 or with rewrite rules: /bfp-stream/123/0
+No complex URL generation - Just use rest_url()
+Proper error handling - REST API handles errors gracefully
+Easy to extend - Add more endpoints as needed
+
+## Critical DO NOTs
+- Do NOT modify `.md` files unless explicitly instructed
+- Do NOT use inline CSS in code
+- Do NOT lose existing functionality
+- Do NOT redesign to fix unknown upstream bugs
+- Do NOT access post meta or options directly
+- Do NOT instantiate components directly
+- Do NOT hardcode settings values
+- Do NOT assume WooCommerce is active
+- Do NOT output without escaping
+- Do NOT trust user input
+
+## State Management Rules
+1. All settings MUST use Config class methods
+2. Use `getState()` for single values
+3. Use `getStates()` for multiple values (preferred)
+4. Respect inheritance: Product → Global → Default
+5. Check `isOverridable()` before saving product-level settings
+6. Use `isGlobalOnly()` to determine setting scope
+7. Clear cache after updates with `clearProductAttrsCache()`
+
+## Component Access Rules
+1. Access components only through Plugin class getters
+2. Follow initialization order from Plugin::initComponents()
+3. Check component existence before use
+4. Never create new instances of core components
+
+## Security Requirements
+1. Sanitize all input with appropriate WordPress functions
+2. Verify nonces for all form submissions and AJAX
+3. Check user capabilities before privileged actions
+4. Escape all output (esc_html, esc_attr, esc_url)
+5. Validate file uploads and URLs
+6. Use prepared statements for direct database queries
+
+## Performance Requirements
+1. Use bulk fetch methods when retrieving multiple values
+2. Enqueue assets only when needed (check context first)
+3. Cache expensive operations in class properties
+4. Lazy load components and features
+5. Minimize database queries
+6. Use transients for temporary data
+
+## Code Organization
+1. One class per file
+2. Namespace all classes under `bfp\`
+3. Use type declarations for all parameters and returns
+4. Use typed properties (PHP 7.4+)
+5. Follow PSR-4 autoloading structure
+6. Keep views in Views/ directory
+7. Keep utilities in Utils/ directory
+
+## Naming Conventions
+1. **PHP Classes**: PascalCase - `Config`, `Player`, `CoverRenderer`, `BuildersManager`
+2. **PHP Methods**: camelCase - `getState()`, `enqueueAssets()`, `shouldRender()`
+3. **PHP Properties**: camelCase - `$mainPlugin`, `$globalAttrs`, `$playerLayouts`
+4. **PHP Constants**: UPPER_SNAKE_CASE - `BFP_VERSION`, `BFP_PLUGIN_PATH`
+5. **Database Options**: snake_case with prefix - `_bfp_enable_player`, `_bfp_audio_engine`
+6. **CSS Classes**: kebab-case with prefix - `bfp-player`, `bfp-playlist-widget`
+7. **JavaScript Variables**: camelCase - `playerInstance`, `audioEngine`, `isPlaying`
+8. **File Names**: Match class name - `Config.php`, `PlaylistWidget.php`
+
+## Hook Management
+1. Register hooks through Hooks class
+2. Check context before registering conditional hooks
+3. Use proper priority values
+4. Remove hooks when components are destroyed
+5. Document non-obvious hook usage
+
+## Error Handling
+1. Return empty strings instead of false/null for display functions
+2. Use try-catch for external API calls
+3. Log errors to error_log for debugging
+4. Provide user-friendly messages for failures
+5. Gracefully degrade when features unavailable
+
+## JavaScript Rules
+1. Namespace all global variables under `bfp`
+2. Use jQuery safely with proper no-conflict handling
+3. Localize all data passed to JavaScript
+4. Include nonces for all AJAX requests
+5. Support WordPress admin bar and responsive design
+
+## Data Attributes
+1. Players must have: `data-product`, `data-file-index`, `data-audio-engine`
+2. Use `data-` prefix for all custom attributes
+3. Keep attribute names consistent across PHP and JS
+
+## Module System
+1. Check module status with `isModuleEnabled()`
+2. Modules are optional features that can be toggled
+3. Core functionality must work without any modules
+4. Modules stored in `_bfp_modules_enabled` setting
+
+## Testing Requirements
+1. Verify functionality in WordPress admin and frontend
+2. Test with WooCommerce active and inactive
+3. Check all user permission levels
+4. Validate with multiple products and variations
+5. Test bulk operations and edge cases
 
 ## Documentation Standards
 
-1. **JSDoc Comments**
-```javascript
+### PHP Documentation
+1. **PHPDoc blocks for all classes and public methods**
+```php
 /**
- * Initializes a music player for the given audio element
- * @param {HTMLAudioElement} element - The audio element
- * @param {Object} config - Player configuration
- * @param {number} config.volume - Initial volume (0-1)
- * @param {boolean} config.autoplay - Start playing automatically
- * @returns {MediaElementPlayer} The initialized player instance
- * @throws {Error} If element is not an audio element
+ * Configuration and State Management
+ * 
+ * Provides context-aware state management with automatic inheritance:
+ * Product Setting → Global Setting → Default Value
+ * 
+ * @package BandfrontPlayer
+ * @since 0.1
  */
-function initializePlayer(element, config) {
-    // Implementation
-}
 ```
 
-2. **Inline Comments**
-- Explain "why", not "what"
-- Document workarounds and browser quirks
-- Reference issue numbers for bug fixes
+2. **Method documentation with types**
+```php
+/**
+ * Get configuration state value with inheritance
+ * 
+ * @param string $key Setting key to retrieve
+ * @param mixed $default Default value if not found
+ * @param int|null $productId Product ID for context
+ * @return mixed The setting value
+ */
+```
 
+3. **Inline comments only for complex logic**
+   - Explain "why", not "what"
+   - Document workarounds and browser quirks
+   - Reference issue/ticket numbers: `// Fix for #123: Safari audio context`
+   - Keep comments concise and meaningful
 
+### JavaScript Documentation
+1. **JSDoc for public functions**
+```javascript
+/**
+ * Initialize player for audio element
+ * @param {HTMLAudioElement} element - Target audio element
+ * @param {Object} config - Player configuration
+ * @returns {MediaElementPlayer} Player instance
+ */
+```
 
+2. **Document jQuery plugin methods**
+3. **Explain browser-specific workarounds**
+4. **Reference WordPress hooks being used**
+
+## Quick Reference Hierarchy
+1. Check `Config.php` for all settings and defaults
+2. Check `Plugin.php` for component initialization
+3. Check `Hooks.php` for action/filter registration
+4. Check `Admin.php` for backend functionality
+5. Check individual feature classes for implementation
+
+## When Adding Features
+1. Create dedicated class in appropriate directory
+2. Register in Plugin::initComponents()
+3. Add hooks via Hooks::registerHooks()
+4. Store settings via Config class
+5. Add admin UI in Admin class or view template
+6. Update documentation and changelog

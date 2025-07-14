@@ -137,14 +137,58 @@ echo "================================================"
 if command_exists "tree"; then
     print_status "info" "Generating directory tree map..."
     
-    # Generate tree map excluding .git, node_modules, *.log, *.tmp, and modules/google-drive directories
-if tree -a -I '.git|node_modules|google-drive|*.log|*.tmp' > "$PLUGIN_DIR/md-files/MAP_TREE.md" 2>/dev/null; then
-        print_status "success" "Tree map generated at MAP_TREE.md"
+    # Create md-files directory if it doesn't exist
+    mkdir -p "$PLUGIN_DIR/md-files"
+    
+    # Generate tree map excluding .git, node_modules, *.log, *.tmp, builders/backup/* and modules/google-drive directories
+    if tree -a -I '.git|node_modules|google-drive|*.log|*.tmp|*.md|backup' "$PLUGIN_DIR" 2>/dev/null | grep -v "builders/backup" > "$PLUGIN_DIR/md-files/MAP_TREE.md"; then
+        print_status "success" "Tree map generated at md-files/MAP_TREE.md"
     else
         print_status "info" "Tree map generation failed (non-critical)"
     fi
 else
     print_status "info" "tree command not found (skipping directory map)"
+fi
+
+echo ""
+
+
+echo "================================================"
+echo "Task 5: PHP Syntax Validation"
+echo "================================================"
+
+if command_exists "php"; then
+    print_status "info" "Checking PHP syntax for all PHP files in src/..."
+
+    PHP_ERROR_COUNT=0
+    PHP_FILE_COUNT=0
+
+    while IFS= read -r -d '' php_file; do
+        PHP_FILE_COUNT=$((PHP_FILE_COUNT + 1))
+        if php -l "$php_file" >/dev/null 2>&1; then
+            STATUS="OK"
+        else
+            STATUS="FAIL"
+            PHP_ERROR_COUNT=$((PHP_ERROR_COUNT + 1))
+        fi
+        # Print status on one line, truncate path for readability
+        SHORT_FILE=$(basename "$php_file")
+        echo -ne "Checked: $((PHP_FILE_COUNT - PHP_ERROR_COUNT)) OK, $PHP_ERROR_COUNT FAIL | $SHORT_FILE\r"
+    done < <(find "$PLUGIN_DIR/src" -name "*.php" -type f -print0 2>/dev/null)
+
+    # Print a newline after the loop
+    echo ""
+
+    if [ $PHP_ERROR_COUNT -eq 0 ]; then
+        print_status "success" "All $PHP_FILE_COUNT PHP files in src/ passed syntax check"
+        PHP_SYNTAX_SUCCESS=true
+    else
+        print_status "error" "$PHP_ERROR_COUNT out of $PHP_FILE_COUNT PHP files in src/ have syntax errors"
+        PHP_SYNTAX_SUCCESS=false
+    fi
+else
+    print_status "info" "PHP command not found (skipping syntax check)"
+    PHP_SYNTAX_SUCCESS=true
 fi
 
 echo ""
@@ -155,7 +199,7 @@ echo "Build Summary"
 echo "================================================"
 
 # Check results
-if [ -d "$PLUGIN_DIR/vendors/wavesurfer" ]; then
+if [ -d "$PLUGIN_DIR/vendor/wavesurfer" ]; then
     print_status "success" "WaveSurfer.js files present"
     BUILD_SUCCESS=true
 else
@@ -170,10 +214,20 @@ else
 fi
 
 # Check if tree map was generated
-if [ -f "$PLUGIN_DIR/MAP_TREE.md" ]; then
+if [ -f "$PLUGIN_DIR/md-files/MAP_TREE.md" ]; then
     print_status "success" "Directory tree map present"
 else
     print_status "info" "Directory tree map not generated (non-critical)"
+fi
+
+# Check PHP syntax results
+if [ -n "$PHP_SYNTAX_SUCCESS" ]; then
+    if [ "$PHP_SYNTAX_SUCCESS" = true ]; then
+        print_status "success" "PHP syntax validation passed"
+    else
+        print_status "error" "PHP syntax validation failed"
+        BUILD_SUCCESS=false
+    fi
 fi
 
 # Count translation files
@@ -186,8 +240,10 @@ print_status "info" "Build completed at: $(date)"
 
 echo ""
 if [ "$BUILD_SUCCESS" = true ]; then
-    print_status "success" "Build process completed!"
+    print_status "success" "Build process completed successfully!"
+    exit 0
 else
     print_status "error" "Build process failed - critical components missing"
+    exit 1
 fi
 echo "================================================"

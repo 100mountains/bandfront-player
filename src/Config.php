@@ -1,0 +1,447 @@
+<?php
+namespace bfp;
+
+/**
+ * Configuration and State Management
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Configuration and State Management
+ * 
+ * Provides context-aware state management with automatic inheritance:
+ * Product Setting → Global Setting → Default Value
+ */
+class Config {
+    
+    private Plugin $mainPlugin;
+    private array $productsAttrs = [];
+    private array $globalAttrs = [];
+    private array $playerLayouts = ['dark', 'light', 'custom'];
+    private array $playerControls = ['button', 'all', 'default'];
+
+    private array $overridableSettings = [
+        '_bfp_enable_player' => false,
+        '_bfp_audio_engine' => 'mediaelement',
+        '_bfp_single_player' => 0,
+        '_bfp_merge_in_grouped' => 0,
+        '_bfp_play_all' => 0,
+        '_bfp_loop' => 0,
+        '_bfp_preload' => 'none',
+        '_bfp_player_volume' => 1.0,
+        '_bfp_secure_player' => false,
+        '_bfp_file_percent' => 50,
+        '_bfp_own_demos' => 0,
+        '_bfp_direct_own_demos' => 0,
+        '_bfp_demos_list' => [],
+    ];
+
+    private array $globalOnlySettings = [
+        '_bfp_show_in' => 'all',
+        '_bfp_player_layout' => 'dark',
+        '_bfp_player_controls' => 'default',
+        '_bfp_player_title' => 1,
+        '_bfp_on_cover' => 1,
+        '_bfp_force_main_player_in_title' => 1,
+        '_bfp_players_in_cart' => false,
+        '_bfp_play_simultaneously' => 0,
+        '_bfp_registered_only' => 0,
+        '_bfp_purchased' => 0,
+        '_bfp_reset_purchased_interval' => 'daily',
+        '_bfp_fade_out' => 0,
+        '_bfp_purchased_times_text' => '- purchased %d time(s)',
+        '_bfp_message' => '',
+        '_bfp_ffmpeg' => 0,
+        '_bfp_ffmpeg_path' => '',
+        '_bfp_ffmpeg_watermark' => '',
+        '_bfp_onload' => false,
+        '_bfp_playback_counter_column' => 1,
+        '_bfp_analytics_integration' => 'ua',
+        '_bfp_analytics_property' => '',
+        '_bfp_analytics_api_secret' => '',
+        '_bfp_enable_visualizations' => 0,
+        '_bfp_modules_enabled' => [
+            'audio-engine' => true,
+            'cloud-engine' => true,
+        ],
+        '_bfp_cloud_active_tab' => 'google-drive',
+        '_bfp_cloud_dropbox' => [
+            'enabled' => false,
+            'access_token' => '',
+            'folder_path' => '/bandfront-demos',
+        ],
+        '_bfp_cloud_s3' => [
+            'enabled' => false,
+            'access_key' => '',
+            'secret_key' => '',
+            'bucket' => '',
+            'region' => 'us-east-1',
+            'path_prefix' => 'bandfront-demos/',
+        ],
+        '_bfp_cloud_azure' => [
+            'enabled' => false,
+            'account_name' => '',
+            'account_key' => '',
+            'container' => '',
+            'path_prefix' => 'bandfront-demos/',
+        ],
+    ];
+
+    public function __construct(Plugin $mainPlugin) {
+        $this->mainPlugin = $mainPlugin;
+    }
+
+    public function getState(string $key, mixed $default = null, ?int $productId = null, array $options = []): mixed {
+        if ($default === null) {
+            $default = $this->getDefaultValue($key);
+        }
+
+        if ($this->isGlobalOnly($key) || !empty($options['force_global'])) {
+            return $this->getGlobalAttr($key, $default);
+        }
+
+        if ($productId && $this->isOverridable($key)) {
+            if (isset($this->productsAttrs[$productId][$key])) {
+                $value = $this->productsAttrs[$productId][$key];
+                if ($this->isValidOverride($value, $key)) {
+                    return apply_filters('bfp_state_value', $value, $key, $productId, 'product');
+                }
+            }
+
+            if (metadata_exists('post', $productId, $key)) {
+                $value = get_post_meta($productId, $key, true);
+
+                $this->productsAttrs[$productId] ??= [];
+
+                $this->productsAttrs[$productId][$key] = $value;
+
+                if ($this->isValidOverride($value, $key)) {
+                    return apply_filters('bfp_state_value', $value, $key, $productId, 'product');
+                }
+            }
+        }
+
+        return $this->getGlobalAttr($key, $default);
+    }
+
+    private function isValidOverride(mixed $value, string $key): bool {
+        if ($key === '_bfp_audio_engine') {
+            return !empty($value) &&
+                   $value !== 'global' &&
+                   in_array($value, ['mediaelement', 'wavesurfer']);
+        }
+
+        if (in_array($key, ['_bfp_enable_player', '_bfp_secure_player', '_bfp_merge_in_grouped',
+                                 '_bfp_single_player', '_bfp_play_all', '_bfp_loop', '_bfp_own_demos',
+                                 '_bfp_direct_own_demos'])) {
+            return $value === '1' || $value === 1 || $value === true;
+        }
+
+        if ($key === '_bfp_preload') {
+            return in_array($value, ['none', 'metadata', 'auto']);
+        }
+
+        if ($key === '_bfp_file_percent') {
+            return is_numeric($value) && $value >= 0 && $value <= 100;
+        }
+
+        if ($key === '_bfp_player_volume') {
+            return is_numeric($value) && $value >= 0 && $value <= 1;
+        }
+
+        if (is_numeric($value)) {
+            return true;
+        }
+
+        if (is_array($value)) {
+            return !empty($value);
+        }
+
+        return !empty($value) && $value !== 'global' && $value !== 'default';
+    }
+
+    private function getDefaultValue(string $key): mixed {
+        if (isset($this->overridableSettings[$key])) {
+            return $this->overridableSettings[$key];
+        }
+        if (isset($this->globalOnlySettings[$key])) {
+            return $this->globalOnlySettings[$key];
+        }
+        return false;
+    }
+
+    private function isGlobalOnly(string $key): bool {
+        return isset($this->globalOnlySettings[$key]);
+    }
+
+    private function isOverridable(string $key): bool {
+        return isset($this->overridableSettings[$key]);
+    }
+
+    private function getGlobalAttr(string $key, mixed $default = null): mixed {
+        if (empty($this->globalAttrs)) {
+            $this->globalAttrs = get_option('bfp_global_settings', []);
+        }
+        if (!isset($this->globalAttrs[$key])) {
+            $this->globalAttrs[$key] = $this->getDefaultValue($key) !== false ? 
+                                          $this->getDefaultValue($key) : $default;
+        }
+        return apply_filters('bfp_global_attr', $this->globalAttrs[$key], $key);
+    }
+
+    public function getAllSettings(?int $productId = null): array {
+        $settings = [];
+        $allKeys = array_merge(
+            array_keys($this->globalOnlySettings),
+            array_keys($this->overridableSettings)
+        );
+
+        foreach ($allKeys as $key) {
+            $settings[$key] = $this->getState($key, null, $productId);
+        }
+
+        return apply_filters('bfp_all_settings', $settings, $productId);
+    }
+
+    /**
+     * Bulk get multiple settings efficiently
+     */
+    public function getStates(array $keys, ?int $productId = null): array {
+        $values = [];
+        
+        foreach ($keys as $key) {
+            $values[$key] = $this->getState($key, null, $productId);
+        }
+        
+        return $values;
+    }
+    
+    /**
+     * Update state value
+     */
+    public function updateState(string $key, mixed $value, ?int $productId = null): void {
+        if ($productId && $this->isOverridable($key)) {
+            update_post_meta($productId, $key, $value);
+            // Clear cache
+            if (isset($this->productsAttrs[$productId][$key])) {
+                $this->productsAttrs[$productId][$key] = $value;
+            }
+        } elseif (!$productId || $this->isGlobalOnly($key)) {
+            $this->globalAttrs[$key] = $value;
+            // Update in database will be handled by save method
+        }
+    }
+    
+    /**
+     * Delete state value (remove override)
+     */
+    public function deleteState(string $key, int $productId): void {
+        if ($this->isOverridable($key)) {
+            delete_post_meta($productId, $key);
+            // Clear cache
+            if (isset($this->productsAttrs[$productId][$key])) {
+                unset($this->productsAttrs[$productId][$key]);
+            }
+        }
+    }
+    
+    /**
+     * Save all global settings to database
+     */
+    public function saveGlobalSettings(): void {
+        update_option('bfp_global_settings', $this->globalAttrs);
+    }
+    
+    /**
+     * Get all settings for admin forms with proper formatting
+     */
+    public function getAdminFormSettings(): array {
+        // Define all settings with their defaults
+        $settingsConfig = [
+            // FFmpeg settings
+            'ffmpeg' => ['key' => '_bfp_ffmpeg', 'type' => 'bool'],
+            'ffmpeg_path' => ['key' => '_bfp_ffmpeg_path', 'type' => 'string'],
+            'ffmpeg_watermark' => ['key' => '_bfp_ffmpeg_watermark', 'type' => 'string'],
+            
+            // Troubleshooting settings
+            'force_main_player_in_title' => ['key' => '_bfp_force_main_player_in_title', 'type' => 'int'],
+            'troubleshoot_onload' => ['key' => '_bfp_onload', 'type' => 'bool'],
+            
+            // Player settings
+            'enable_player' => ['key' => '_bfp_enable_player', 'type' => 'bool'],
+            'show_in' => ['key' => '_bfp_show_in', 'type' => 'string'],
+            'players_in_cart' => ['key' => '_bfp_players_in_cart', 'type' => 'bool'],
+            'player_style' => ['key' => '_bfp_player_layout', 'type' => 'string'],
+            'volume' => ['key' => '_bfp_player_volume', 'type' => 'float'],
+            'player_controls' => ['key' => '_bfp_player_controls', 'type' => 'string'],
+            'single_player' => ['key' => '_bfp_single_player', 'type' => 'bool'],
+            'secure_player' => ['key' => '_bfp_secure_player', 'type' => 'bool'],
+            'file_percent' => ['key' => '_bfp_file_percent', 'type' => 'int'],
+            'player_title' => ['key' => '_bfp_player_title', 'type' => 'int'],
+            'merge_grouped' => ['key' => '_bfp_merge_in_grouped', 'type' => 'int'],
+            'play_simultaneously' => ['key' => '_bfp_play_simultaneously', 'type' => 'int'],
+            'play_all' => ['key' => '_bfp_play_all', 'type' => 'int'],
+            'loop' => ['key' => '_bfp_loop', 'type' => 'int'],
+            'on_cover' => ['key' => '_bfp_on_cover', 'type' => 'int'],
+            'preload' => ['key' => '_bfp_preload', 'type' => 'string'],
+            
+            // Analytics settings
+            'playback_counter_column' => ['key' => '_bfp_playback_counter_column', 'type' => 'int'],
+            'analytics_integration' => ['key' => '_bfp_analytics_integration', 'type' => 'string'],
+            'analytics_property' => ['key' => '_bfp_analytics_property', 'type' => 'string'],
+            'analytics_api_secret' => ['key' => '_bfp_analytics_api_secret', 'type' => 'string'],
+            
+            // General settings
+            'message' => ['key' => '_bfp_message', 'type' => 'string'],
+            'registered_only' => ['key' => '_bfp_registered_only', 'type' => 'int'],
+            'purchased' => ['key' => '_bfp_purchased', 'type' => 'int'],
+            'reset_purchased_interval' => ['key' => '_bfp_reset_purchased_interval', 'type' => 'string'],
+            'fade_out' => ['key' => '_bfp_fade_out', 'type' => 'int'],
+            'purchased_times_text' => ['key' => '_bfp_purchased_times_text', 'type' => 'string'],
+            'apply_to_all_players' => ['key' => '_bfp_apply_to_all_players', 'type' => 'int'],
+            
+            // Audio engine settings
+            'audio_engine' => ['key' => '_bfp_audio_engine', 'type' => 'string'],
+            'enable_visualizations' => ['key' => '_bfp_enable_visualizations', 'type' => 'int'],
+        ];
+        
+        // Get all keys
+        $keys = [];
+        foreach ($settingsConfig as $config) {
+            $keys[] = $config['key'];
+        }
+        
+        // Bulk fetch
+        $rawSettings = $this->getStates($keys);
+        
+        // Format settings with the _bfp_ prefix for form compatibility
+        $formattedSettings = [];
+        foreach ($settingsConfig as $name => $config) {
+            $value = $rawSettings[$config['key']] ?? null;
+            
+            // Apply type casting
+            switch ($config['type']) {
+                case 'bool':
+                    $value = (bool) $value;
+                    break;
+                case 'int':
+                    $value = intval($value);
+                    break;
+                case 'float':
+                    $value = floatval($value);
+                    break;
+                case 'trim_int':
+                    $value = intval(trim($value));
+                    break;
+                case 'string':
+                default:
+                    $value = (string) $value;
+                    break;
+            }
+            
+            // Use the full key with _bfp_ prefix for form field names
+            $formattedSettings[$config['key']] = $value;
+        }
+        
+        // Force on_cover to 1
+        $formattedSettings['_bfp_on_cover'] = 1;
+        
+        return $formattedSettings;
+    }
+    
+    /**
+     * Get minimal player state for frontend/runtime use
+     */
+    public function getPlayerState(?int $productId = null): array {
+        // Define the essential player settings needed for runtime
+        $playerKeys = [
+            '_bfp_enable_player',
+            '_bfp_player_layout',
+            '_bfp_player_controls',
+            '_bfp_player_volume',
+            '_bfp_single_player',
+            '_bfp_secure_player',
+            '_bfp_file_percent',
+            '_bfp_play_all',
+            '_bfp_loop',
+            '_bfp_preload',
+            '_bfp_audio_engine',
+            '_bfp_merge_in_grouped',
+        ];
+        
+        // Use bulk fetch for efficiency
+        $playerState = $this->getStates($playerKeys, $productId);
+        
+        // Apply any runtime-specific filters
+        return apply_filters('bfp_player_state', $playerState, $productId);
+    }
+    
+    /**
+     * Update global attributes cache
+     */
+    public function updateGlobalAttrs(array $attrs): void {
+        $this->globalAttrs = $attrs;
+    }
+    
+    /**
+     * Clear product attributes cache
+     */
+    public function clearProductAttrsCache(?int $productId = null): void {
+        if ($productId === null) {
+            $this->productsAttrs = [];
+        } else {
+            unset($this->productsAttrs[$productId]);
+        }
+    }
+    
+    /**
+     * Get all global attributes
+     */
+    public function getAllGlobalAttrs(): array {
+        if (empty($this->globalAttrs)) {
+            $this->globalAttrs = get_option('bfp_global_settings', []);
+        }
+        return $this->globalAttrs;
+    }
+    
+    /**
+     * Get available player layouts
+     */
+    public function getPlayerLayouts(): array {
+        return $this->playerLayouts;
+    }
+    
+    /**
+     * Get available player controls
+     */
+    public function getPlayerControls(): array {
+        return $this->playerControls;
+    }
+    
+    /**
+     * Check if a module is enabled
+     */
+    public function isModuleEnabled(string $moduleName): bool {
+        $modulesEnabled = $this->getState('_bfp_modules_enabled');
+        return isset($modulesEnabled[$moduleName]) ? $modulesEnabled[$moduleName] : false;
+    }
+    
+    /**
+     * Enable or disable a module
+     */
+    public function setModuleState(string $moduleName, bool $enabled): void {
+        $modulesEnabled = $this->getState('_bfp_modules_enabled');
+        $modulesEnabled[$moduleName] = $enabled;
+        $this->updateState('_bfp_modules_enabled', $modulesEnabled);
+    }
+    
+    /**
+     * Get all available modules and their states
+     */
+    public function getAllModules(): array {
+        return $this->getState('_bfp_modules_enabled');
+    }
+}

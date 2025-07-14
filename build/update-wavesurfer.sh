@@ -12,11 +12,11 @@ echo "Updating WaveSurfer.js..."
 # Change to plugin directory
 cd "$PLUGIN_DIR" || exit 1
 
-# Create vendors/wavesurfer directory if it doesn't exist
-mkdir -p vendors/wavesurfer
+# Create vendor/wavesurfer directory if it doesn't exist
+mkdir -p vendor/wavesurfer
 
 # Change to the wavesurfer directory
-cd vendors/wavesurfer || exit 1
+cd vendor/wavesurfer || exit 1
 
 # Download the latest WaveSurfer.js files
 echo "Downloading WaveSurfer.js core files..."
@@ -66,7 +66,7 @@ echo "Updated: $(date)" >> version.txt
 
 echo ""
 echo "✅ WaveSurfer.js updated successfully!"
-echo "📁 Files downloaded to: $PLUGIN_DIR/vendors/wavesurfer/"
+echo "📁 Files downloaded to: $PLUGIN_DIR/vendor/wavesurfer/"
 echo ""
 echo "Available plugins:"
 echo "  ✓ regions.min.js (for audio regions/selections)"
