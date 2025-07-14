@@ -3,13 +3,6 @@
 
 The Bandfront Player is showing up but not playing audio files and not displaying titles properly on the product pages. 
 
-### Files to Modify:
-
-engine.js
-player.php
-bfp.php
-audio.php
-
 
 ### Expected Behavior After Changes:
 1. No more JavaScript errors in console
