@@ -456,22 +456,51 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                                 var type = $(this).attr('type');
                                 console.log('Source:', src, 'Type:', type);
                                 
-                                // Convert action URL to streaming URL if needed
+                                // Validate the URL
+                                if (!src || src === 'undefined' || src === 'null') {
+                                    console.error('Invalid source URL detected');
+                                    return;
+                                }
+                                
+                                // Check if it's a REST API URL
+                                if (src && src.indexOf('/wp-json/bandfront-player/') !== -1) {
+                                    console.log('REST API URL detected:', src);
+                                    
+                                    // Validate the REST API URL
+                                    $.ajax({
+                                        url: src,
+                                        type: 'HEAD',
+                                        success: function() {
+                                            console.log('REST API URL is valid');
+                                        },
+                                        error: function(xhr) {
+                                            console.error('REST API URL validation failed:', xhr.status, xhr.statusText);
+                                            
+                                            // Log more details
+                                            if (xhr.status === 404) {
+                                                console.error('File not found on server');
+                                            } else if (xhr.status === 403) {
+                                                console.error('Access forbidden - check permissions');
+                                            }
+                                        }
+                                    });
+                                }
+                                
+                                // Convert old action URLs to REST API URLs
                                 if (src && src.indexOf('bfp-action=play') !== -1) {
                                     var matches = src.match(/bfp-product=(\d+).*?bfp-file=([^&]+)/);
                                     if (matches && matches.length >= 3) {
                                         var productId = matches[1];
                                         var fileId = matches[2];
-                                        var fixedUrl = window.location.protocol + '//' + 
-                                            window.location.host + '/?bfp-stream=1&bfp-product=' + 
-                                            productId + '&bfp-file=' + fileId;
+                                        var restUrl = wpApiSettings.root + 'bandfront-player/v1/stream/' + 
+                                            productId + '/' + fileId;
                                         
-                                        console.log('Converting action URL to streaming URL:', fixedUrl);
+                                        console.log('Converting action URL to REST API URL:', restUrl);
                                         
-                                        // Try to update the source
-                                        $(this).attr('src', fixedUrl);
+                                        // Update the source
+                                        $(this).attr('src', restUrl);
                                         if (media.setSrc) {
-                                            media.setSrc(fixedUrl);
+                                            media.setSrc(restUrl);
                                             media.load();
                                         }
                                     }
@@ -485,6 +514,13 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                             originalNode.controls = true;
                             originalNode.style.display = 'block';
                             originalNode.style.width = '100%';
+                            
+                            // Try to load the source directly
+                            var firstSource = sources.first();
+                            if (firstSource.length && firstSource.attr('src')) {
+                                originalNode.src = firstSource.attr('src');
+                                originalNode.load();
+                            }
                         } catch (e) {
                             console.error('Fallback failed:', e);
                         }

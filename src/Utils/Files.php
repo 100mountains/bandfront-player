@@ -353,292 +353,85 @@ class Files {
      * @return string Processed URL
      */
     public function processCloudUrl(string $url): string {
-        // Google Drive
         if (strpos($url, 'drive.google.com') !== false) {
-            preg_match('/\/d\/(.*?)\//', $url, $matches);
-            if (!empty($matches[1])) {
-                $fileId = $matches[1];
-                return "https://drive.google.com/uc?export=download&id={$fileId}";
-            }
+            return Utils\Cloud::getGoogleDriveDownloadUrl($url);
         }
-        
-        // Add other cloud storage handlers here
-        
         return $url;
     }
     
     /**
-     * Get file path for a product file
+     * Check if URL is local and return path
      * 
-     * @param int $productId Product ID
-     * @param string $fileIndex File index
-     * @return string File path
-     */
-    public function getFilePath(int $productId, string $fileIndex): string {
-        $files = $this->getProductFiles($productId);
-        
-        if (!isset($files[$fileIndex])) {
-            return '';
-        }
-        
-        $fileUrl = $files[$fileIndex]['file'];
-        
-        // Process cloud URLs if needed
-        if (strpos($fileUrl, 'http') === 0) {
-            $fileUrl = $this->processCloudUrl($fileUrl);
-        }
-        
-        // Convert URL to path for local files
-        if (strpos($fileUrl, site_url()) === 0) {
-            $fileUrl = str_replace(site_url('/'), ABSPATH, $fileUrl);
-        }
-        
-        return $fileUrl;
-    }
-    
-    /**
-     * Get or create demo file
-     * 
-     * @param string $originalPath Original file path
-     * @param int $percent Percentage of file to include
-     * @return string Demo file path
-     */
-    public function getDemoFile(string $originalPath, int $percent): string {
-        // Generate demo filename
-        $demoFilename = md5($originalPath) . '.mp3';
-        $uploadsDir = wp_upload_dir();
-        $demoPath = $uploadsDir['basedir'] . '/bfp-demos/' . $demoFilename;
-        
-        // Create directory if needed
-        wp_mkdir_p(dirname($demoPath));
-        
-        // Check if demo already exists
-        if (file_exists($demoPath) && filesize($demoPath) > 0) {
-            return $demoPath;
-        }
-        
-        // Create demo file
-        $this->createDemoFile($originalPath, $demoPath, $percent);
-        
-        return $demoPath;
-    }
-    
-    /**
-     * Generate demo file name from URL
-     * 
-     * @param string $url The URL to generate filename from
-     * @return string The generated filename
-     */
-    public function generateDemoFileName(string $url): string {
-        $fileExtension = pathinfo($url, PATHINFO_EXTENSION);
-        $fileName = md5($url) . ((!empty($fileExtension) && preg_match('/^[a-z\d]{3,4}$/i', $fileExtension)) ? '.' . $fileExtension : '.mp3');
-        return $fileName;
-    }
-    
-    /**
-     * Check if demo file is valid
-     * 
-     * @param string $filePath Path to the demo file
-     * @return bool True if valid, false otherwise
-     */
-    public function isValidDemo(string $filePath): bool {
-        if (!file_exists($filePath) || filesize($filePath) == 0) {
-            return false;
-        }
-        if (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME);
-            return substr(finfo_file($finfo, $filePath), 0, 4) !== 'text';
-        }
-        return true;
-    }
-    
-    /**
-     * Truncate file to a percentage of its size
-     * 
-     * @param string $filePath Path to the file
-     * @param int $filePercent Percentage to keep
-     * @return void
-     */
-    public function truncateFile(string $filePath, int $filePercent): void {
-        $h = fopen($filePath, 'r+');
-        ftruncate($h, intval(filesize($filePath) * $filePercent / 100));
-        fclose($h);
-    }
-    
-    /**
-     * Fix URL for local files
-     * 
-     * @param string $url URL to fix
-     * @return string Fixed URL
-     */
-    public function fixUrl(string $url): string {
-        if (file_exists($url)) {
-            return $url;
-        }
-        if (strpos($url, '//') === 0) {
-            $urlFixed = 'http' . (is_ssl() ? 's:' : ':') . $url;
-        } elseif (strpos($url, '/') === 0) {
-            $urlFixed = rtrim(BFP_WEBSITE_URL, '/') . $url;
-        } else {
-            $urlFixed = $url;
-        }
-        return $urlFixed;
-    }
-    
-    /**
-     * Check if file is local and return path
-     * 
-     * @param string $url URL to check
+     * @param string $url File URL
      * @return string|false Local path or false
      */
     public function isLocal(string $url): string|false {
-        $filePath = false;
-        if (file_exists($url)) {
-            $filePath = $url;
-        }
-
-        if (false === $filePath) {
-            $attachmentId = attachment_url_to_postid($url);
-            if ($attachmentId) {
-                $attachmentPath = get_attached_file($attachmentId);
-                if ($attachmentPath && file_exists($attachmentPath)) {
-                    $filePath = $attachmentPath;
-                }
+        $uploadDir = wp_upload_dir();
+        
+        // Check if URL is within upload directory
+        if (strpos($url, $uploadDir['baseurl']) === 0) {
+            $relativePath = str_replace($uploadDir['baseurl'], '', $url);
+            $localPath = $uploadDir['basedir'] . $relativePath;
+            
+            if (file_exists($localPath)) {
+                return $localPath;
             }
         }
-
-        if (false === $filePath && defined('ABSPATH')) {
-            $pathComponent = parse_url($url, PHP_URL_PATH);
-            $path = rtrim(ABSPATH, '/') . '/' . ltrim($pathComponent, '/');
-            if (file_exists($path)) {
-                $filePath = $path;
-            }
-
-            if (false === $filePath) {
-                $siteUrl = get_site_url(get_current_blog_id());
-                $filePath = str_ireplace($siteUrl . '/', ABSPATH, $url);
-                if (!file_exists($filePath)) {
-                    $filePath = false;
-                }
+        
+        // Check if it's a relative path
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            $localPath = ABSPATH . ltrim($url, '/');
+            if (file_exists($localPath)) {
+                return $localPath;
             }
         }
-
-        return apply_filters('bfp_is_local', $filePath, $url);
-    }
-    
-    /**
-     * Check if the file is an audio file and return its type or false
-     * 
-     * @param string $filePath File path to check
-     * @return string|false Audio type or false
-     */
-    public function isAudio(string $filePath): string|false {
-        $aux = function($filePath) {
-            if (preg_match('/\.(mp3|ogg|oga|wav|wma|mp4)$/i', $filePath, $match)) {
-                return $match[1];
-            }
-            if (preg_match('/\.m4a$/i', $filePath)) {
-                return 'mp4';
-            }
-            if ($this->isPlaylist($filePath)) {
-                return 'hls';
-            }
-            return false;
-        };
-
-        $fileName = $this->generateDemoFileName($filePath);
-        $demoFilePath = $this->filesDirectoryPath . $fileName;
-        if ($this->isValidDemo($demoFilePath)) return $aux($demoFilePath);
-
-        $ext = $aux($filePath);
-        if ($ext) return $ext;
-
-        // Always handle extensionless files gracefully (smart default)
-        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-        if (empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) {
-            // Check if it's a cloud URL or has audio MIME type
-            if ($this->isCloudUrl($filePath) || $this->hasAudioMimeType($filePath)) {
-                return 'mp3';
-            }
-        }
-
+        
         return false;
     }
     
     /**
-     * Check if the file is a video file and return its type or false
+     * Get MIME type for file
      * 
-     * @param string $filePath File path to check
-     * @return string|false Video type or false
+     * @param string $filePath File path
+     * @return string MIME type
      */
-    public function isVideo(string $filePath): string|false {
-        $aux = function($filePath) {
-            if (preg_match('/\.(mp4|mov|avi|wmv|mkv)$/i', $filePath, $match)) {
-                return $match[1];
-            }
-            return false;
-        };
-
-        $fileName = $this->generateDemoFileName($filePath);
-        $demoFilePath = $this->filesDirectoryPath . $fileName;
-        if ($this->isValidDemo($demoFilePath)) return $aux($demoFilePath);
-
-        $ext = $aux($filePath);
-        if ($ext) return $ext;
-
-        // Smart default for extensionless video files
-        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-        if (empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) {
-            // Check if it's a cloud URL with video MIME type
-            if ($this->isCloudUrl($filePath) && $this->hasVideoMimeType($filePath)) {
-                return 'mp4';
-            }
+    public function getMimeType(string $filePath): string {
+        $mimeType = 'audio/mpeg'; // Default
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        
+        switch ($extension) {
+            case 'wav':
+                $mimeType = 'audio/wav';
+                break;
+            case 'ogg':
+            case 'oga':
+                $mimeType = 'audio/ogg';
+                break;
+            case 'm4a':
+                $mimeType = 'audio/mp4';
+                break;
+            case 'flac':
+                $mimeType = 'audio/flac';
+                break;
+            case 'mp3':
+            default:
+                $mimeType = 'audio/mpeg';
+                break;
         }
-
-        return false;
+        
+        return $mimeType;
     }
     
     /**
-     * Check if the file is an image file and return its type or false
+     * Check if URL is a playlist
      * 
-     * @param string $filePath File path to check
-     * @return string|false Image type or false
+     * @param string $url URL to check
+     * @return bool
      */
-    public function isImage(string $filePath): string|false {
-        $aux = function($filePath) {
-            if (preg_match('/\.(jpg|jpeg|png|gif|bmp|webp)$/i', $filePath, $match)) {
-                return $match[1];
-            }
-            return false;
-        };
-
-        $fileName = $this->generateDemoFileName($filePath);
-        $demoFilePath = $this->filesDirectoryPath . $fileName;
-        if ($this->isValidDemo($demoFilePath)) return $aux($demoFilePath);
-
-        $ext = $aux($filePath);
-        if ($ext) return $ext;
-
-        // Smart default for extensionless image files
-        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-        if (empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) {
-            // Check if it's a cloud URL with image MIME type
-            if ($this->isCloudUrl($filePath) && $this->hasImageMimeType($filePath)) {
-                return 'jpg';
-            }
-        }
-
-        return false;
-    }
-    
-    /**
-     * Check if the file is a playlist
-     * 
-     * @param string $filePath File path to check
-     * @return bool True if playlist, false otherwise
-     */
-    public function isPlaylist(string $filePath): bool {
-        return preg_match('/\.(m3u|m3u8)$/i', $filePath);
+    public function isPlaylist(string $url): bool {
+        $playlistExtensions = ['m3u', 'm3u8', 'pls', 'xspf'];
+        $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
+        return in_array($extension, $playlistExtensions);
     }
     
     /**
@@ -657,23 +450,39 @@ class Files {
     }
     
     /**
-     * Check if URL is from a cloud service
+     * Check if file is audio and return media type
      * 
-     * @param string $url URL to check
-     * @return bool True if cloud URL, false otherwise
+     * @param string $file File URL or path
+     * @return string|false Media type or false if not audio
      */
-    private function isCloudUrl(string $url): bool {
-        $cloudPatterns = [
-            'drive.google.com',
-            'dropbox.com',
-            'onedrive.live.com',
-            's3.amazonaws.com',
-            'blob.core.windows.net'
+    public function isAudio(string $file): string|false {
+        $audioExtensions = [
+            'mp3' => 'mp3',
+            'ogg' => 'ogg',
+            'oga' => 'ogg',
+            'wav' => 'wav',
+            'm4a' => 'mp4',
+            'mp4' => 'mp4',
+            'flac' => 'flac',
+            'webm' => 'webm',
+            'weba' => 'webm'
         ];
         
-        foreach ($cloudPatterns as $pattern) {
-            if (stripos($url, $pattern) !== false) {
-                return true;
+        $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        
+        if (isset($audioExtensions[$extension])) {
+            return $audioExtensions[$extension];
+        }
+        
+        // Check for cloud URLs without extensions
+        if ($this->isCloudUrl($file)) {
+            return 'mp3'; // Default for cloud URLs
+        }
+        
+        // Check actual MIME type if local file
+        if ($localPath = $this->isLocal($file)) {
+            if ($this->hasAudioMimeType($localPath)) {
+                return 'mp3'; // Default media type
             }
         }
         
@@ -681,147 +490,247 @@ class Files {
     }
     
     /**
-     * Check if file has audio MIME type
+     * Check if file is video
      * 
-     * @param string $filePath File path to check
-     * @return bool True if audio MIME type, false otherwise
+     * @param string $file File URL or path
+     * @return bool True if video file
      */
-    private function hasAudioMimeType(string $filePath): bool {
-        if (!file_exists($filePath)) {
-            return false;
+    public function isVideo(string $file): bool {
+        $videoExtensions = ['mp4', 'webm', 'ogv', 'mov', 'avi', 'wmv', 'flv', 'm4v'];
+        $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        
+        if (in_array($extension, $videoExtensions)) {
+            return true;
         }
         
-        if (function_exists('mime_content_type')) {
-            $mime = mime_content_type($filePath);
-            return strpos($mime, 'audio/') === 0;
+        // Check actual MIME type if local file
+        if ($localPath = $this->isLocal($file)) {
+            return $this->hasVideoMimeType($localPath);
         }
         
         return false;
     }
     
     /**
-     * Check if file has video MIME type
+     * Check if file is image
      * 
-     * @param string $filePath File path to check
-     * @return bool True if video MIME type, false otherwise
+     * @param string $file File URL or path
+     * @return bool True if image file
      */
-    private function hasVideoMimeType(string $filePath): bool {
-        if (!file_exists($filePath)) {
-            return false;
+    public function isImage(string $file): bool {
+        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+        $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        
+        if (in_array($extension, $imageExtensions)) {
+            return true;
         }
         
-        if (function_exists('mime_content_type')) {
-            $mime = mime_content_type($filePath);
-            return strpos($mime, 'video/') === 0;
+        // Check actual MIME type if local file
+        if ($localPath = $this->isLocal($file)) {
+            return $this->hasImageMimeType($localPath);
         }
         
         return false;
     }
     
     /**
-     * Check if file has image MIME type
+     * Fix URL encoding and format
      * 
-     * @param string $filePath File path to check
-     * @return bool True if image MIME type, false otherwise
+     * @param string $url URL to fix
+     * @return string Fixed URL
      */
-    private function hasImageMimeType(string $filePath): bool {
-        if (!file_exists($filePath)) {
-            return false;
+    public function fixUrl(string $url): string {
+        // Decode any HTML entities
+        $url = html_entity_decode($url);
+        
+        // Fix double encoding
+        if (strpos($url, '%25') !== false) {
+            $url = urldecode($url);
         }
         
-        if (function_exists('mime_content_type')) {
-            $mime = mime_content_type($filePath);
-            return strpos($mime, 'image/') === 0;
+        // Ensure proper encoding for spaces
+        $url = str_replace(' ', '%20', $url);
+        
+        // Handle protocol-relative URLs
+        if (strpos($url, '//') === 0) {
+            $url = (is_ssl() ? 'https:' : 'http:') . $url;
         }
         
-        return false;
+        return $url;
     }
     
     /**
-     * Handle OAuth file upload
-     * 
-     * @param array $uploadedFile Uploaded file info
-     * @param string $optionName Option name to save to
-     * @return bool Success status
-     */
-    public function handleOAuthFileUpload(array $uploadedFile, string $optionName): bool {
-        // Validate file type
-        if ($uploadedFile['type'] !== 'application/json') {
-            return false;
-        }
-        
-        // Read and validate JSON structure
-        $jsonContent = file_get_contents($uploadedFile['tmp_name']);
-        $credentials = json_decode($jsonContent, true);
-        
-        if (!$credentials || !isset($credentials['web'])) {
-            return false;
-        }
-        
-        // Save to WordPress options
-        update_option($optionName, $credentials);
-        
-        return true;
-    }
-    
-    /**
-     * Create demo file from URL
+     * Generate demo file name from URL
      * 
      * @param string $url Source URL
-     * @param string $filePath Target file path
+     * @return string Generated filename
+     */
+    public function generateDemoFileName(string $url): string {
+        $ext = pathinfo($url, PATHINFO_EXTENSION);
+        $ext = strtolower($ext);
+        
+        // Clean extension of query parameters
+        if (strpos($ext, '?') !== false) {
+            $ext = substr($ext, 0, strpos($ext, '?'));
+        }
+        
+        // Default to mp3 if no valid extension
+        if (!in_array($ext, ['mp3', 'wav', 'ogg', 'mp4', 'm4a', 'flac'])) {
+            $ext = 'mp3';
+        }
+        
+        return md5($url) . '.' . $ext;
+    }
+    
+    /**
+     * Truncate file to percentage (simple implementation)
+     * 
+     * @param string $filePath File to truncate
+     * @param int $percent Percentage to keep
      * @return bool Success status
      */
-    public function createDemoFile(string $url, string $filePath): bool {
+    public function truncateFile(string $filePath, int $percent): bool {
+        if (!file_exists($filePath) || !is_readable($filePath)) {
+            return false;
+        }
+        
+        $filesize = filesize($filePath);
+        $newSize = floor($filesize * ($percent / 100));
+        
+        // Create truncated copy
+        $tempFile = $filePath . '.tmp';
+        
         try {
-            $urlFixed = $this->fixUrl($url);
+            $source = fopen($filePath, 'rb');
+            $dest = fopen($tempFile, 'wb');
             
-            if (false !== ($path = $this->isLocal($urlFixed))) {
-                return copy($path, $filePath);
-            } else {
-                $response = wp_remote_get(
-                    $urlFixed,
-                    [
-                        'timeout' => BFP_REMOTE_TIMEOUT,
-                        'stream' => true,
-                        'filename' => $filePath,
-                    ]
-                );
-                if (!is_wp_error($response) && 200 == $response['response']['code']) {
-                    return true;
-                }
+            $written = 0;
+            while (!feof($source) && $written < $newSize) {
+                $chunk = fread($source, min(8192, $newSize - $written));
+                fwrite($dest, $chunk);
+                $written += strlen($chunk);
             }
-        } catch (\Exception $err) {
-            error_log($err->getMessage());
+            
+            fclose($source);
+            fclose($dest);
+            
+            // Replace original with truncated version
+            if (file_exists($tempFile)) {
+                unlink($filePath);
+                rename($tempFile, $filePath);
+                return true;
+            }
+        } catch (\Exception $e) {
+            error_log('BFP truncateFile error: ' . $e->getMessage());
+            if (file_exists($tempFile)) {
+                @unlink($tempFile);
+            }
         }
         
         return false;
     }
     
     /**
-     * Get MIME type for file
+     * Get file path for a product file
      * 
-     * @param string $filePath File path
-     * @return string MIME type
+     * @param int $productId Product ID
+     * @param string $fileIndex File index
+     * @return string|null File path or null if not found
      */
-    public function getMimeType(string $filePath): string {
-        if (!function_exists('mime_content_type') || false === ($mimeType = mime_content_type($filePath))) {
-            // Fallback based on extension
-            $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-            $mimeTypes = [
-                'mp3' => 'audio/mpeg',
-                'wav' => 'audio/wav',
-                'ogg' => 'audio/ogg',
-                'oga' => 'audio/ogg',
-                'mp4' => 'audio/mp4',
-                'm4a' => 'audio/mp4',
-                'wma' => 'audio/x-ms-wma',
-                'm3u' => 'audio/x-mpegurl',
-                'm3u8' => 'application/x-mpegurl',
-            ];
-            
-            $mimeType = $mimeTypes[$ext] ?? 'audio/mpeg';
+    public function getFilePath(int $productId, string $fileIndex): ?string {
+        $files = $this->getProductFiles($productId);
+        
+        if (isset($files[$fileIndex]) && !empty($files[$fileIndex]['file'])) {
+            return $files[$fileIndex]['file'];
         }
         
-        return $mimeType;
+        return null;
+    }
+    
+    /**
+     * Get or create demo file
+     * 
+     * @param string $originalPath Original file path
+     * @param int $percent Percentage for demo
+     * @return string Demo file path
+     */
+    public function getDemoFile(string $originalPath, int $percent): string {
+        $demoFileName = 'demo_' . $percent . '_' . $this->generateDemoFileName($originalPath);
+        $demoPath = $this->filesDirectoryPath . $demoFileName;
+        
+        // Check if demo already exists
+        if (file_exists($demoPath)) {
+            return $demoPath;
+        }
+        
+        // Create demo file
+        if ($this->createDemoFile($originalPath, $demoPath)) {
+            // Truncate to percentage
+            $this->truncateFile($demoPath, $percent);
+            return $demoPath;
+        }
+        
+        // Return original if demo creation failed
+        return $originalPath;
+    }
+    
+    /**
+     * Stream file with range request support
+     * 
+     * @param string $filePath File to stream
+     * @param array $options Streaming options
+     * @return void
+     */
+    public function streamFile(string $filePath, array $options = []): void {
+        if (!file_exists($filePath) || !is_readable($filePath)) {
+            status_header(404);
+            exit;
+        }
+        
+        $mimeType = $this->getMimeType($filePath);
+        $filesize = filesize($filePath);
+        
+        // Basic headers
+        header("Content-Type: $mimeType");
+        header("Accept-Ranges: bytes");
+        header("Cache-Control: no-cache, must-revalidate");
+        
+        // Handle range requests
+        if (isset($_SERVER['HTTP_RANGE'])) {
+            $range = $_SERVER['HTTP_RANGE'];
+            list($rangeType, $rangeValue) = explode('=', $range, 2);
+            
+            if ($rangeType === 'bytes') {
+                list($start, $end) = explode('-', $rangeValue, 2);
+                $start = intval($start);
+                $end = empty($end) ? ($filesize - 1) : intval($end);
+                $length = $end - $start + 1;
+                
+                header("HTTP/1.1 206 Partial Content");
+                header("Content-Range: bytes $start-$end/$filesize");
+                header("Content-Length: $length");
+                
+                $fp = fopen($filePath, 'rb');
+                fseek($fp, $start);
+                
+                $bufferSize = 8192;
+                $bytesToRead = $length;
+                
+                while (!feof($fp) && $bytesToRead > 0) {
+                    $buffer = fread($fp, min($bufferSize, $bytesToRead));
+                    echo $buffer;
+                    flush();
+                    $bytesToRead -= strlen($buffer);
+                }
+                
+                fclose($fp);
+            }
+        } else {
+            // No range request - send whole file
+            header("Content-Length: $filesize");
+            readfile($filePath);
+        }
+        
+        exit;
     }
 }

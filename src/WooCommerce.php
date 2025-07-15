@@ -78,76 +78,37 @@ class WooCommerce {
      * @return string|false MD5 hash of user email if purchased, false otherwise
      */
     public function woocommerceUserProduct(int $productId): string|false {
-        // Reset the purchased flag
-        $this->mainPlugin->setPurchasedProductFlag(false);
-        
-        $purchasedEnabled = $this->mainPlugin->getConfig()->getState('_bfp_purchased', false);
-        $forcePurchased = $this->mainPlugin->getForcePurchasedFlag();
-        
-        // Early return if user is not logged in or purchased content check is disabled
-        if (!is_user_logged_in() || (!$purchasedEnabled && empty($forcePurchased))) {
-            /**
-             * Allow plugins to override the purchased check result
-             * 
-             * @param false|string $result The result of the purchase check
-             * @param int $productId The product ID being checked
-             * @param bool $purchasedEnabled Whether purchased check is enabled
-             * @param bool $forcePurchased Whether force purchased flag is set
-             */
-            return apply_filters('bfp_user_purchased_product_early', false, $productId, $purchasedEnabled, $forcePurchased);
-        }
-
-        $currentUser = wp_get_current_user();
-        $userEmail = $currentUser->user_email;
-        $userId = $currentUser->ID;
-        
-        // Check standard purchase
-        $hasPurchased = wc_customer_bought_product($userEmail, $userId, $productId);
-        
-        // Check subscriptions via Subscription Manager class
-        $hasSubscription = false;
-        if (class_exists('WC_Subscriptions_Manager') && 
-            method_exists('WC_Subscriptions_Manager', 'wcs_user_has_subscription')) {
-            $hasSubscription = WC_Subscriptions_Manager::wcs_user_has_subscription($userId, $productId, 'active');
+        if (!is_user_logged_in()) {
+            return false;
         }
         
-        // Check subscriptions via function (newer method)
-        $hasSubscriptionFunc = false;
-        if (function_exists('wcs_user_has_subscription')) {
-            $hasSubscriptionFunc = wcs_user_has_subscription($userId, $productId, 'active');
-        }
+        $userId = get_current_user_id();
         
-        // Allow custom purchase verification
-        $customPurchaseVerification = apply_filters('bfp_purchased_product', false, $productId);
+        // Check if product was purchased
+        $purchased = wc_customer_bought_product('', $userId, $productId);
         
-        // Combined check if any purchase verification passes
-        $hasPurchasedProduct = $hasPurchased || $hasSubscription || $hasSubscriptionFunc || $customPurchaseVerification;
-        
-        /**
-         * Filter the result of the purchase check
-         * 
-         * @param bool $hasPurchasedProduct Whether the user has purchased the product
-         * @param int $productId The product ID
-         * @param int $userId The user ID
-         */
-        $hasPurchasedProduct = apply_filters('bfp_user_purchased_product', $hasPurchasedProduct, $productId, $userId);
-        
-        if ($hasPurchasedProduct) {
-            $this->mainPlugin->setPurchasedProductFlag(true);
+        if ($purchased) {
+            // Try to get the order ID
+            $orders = wc_get_orders([
+                'customer_id' => $userId,
+                'limit' => -1,
+                'status' => ['completed', 'processing'],
+                'meta_query' => [
+                    [
+                        'key' => '_product_id',
+                        'value' => $productId,
+                        'compare' => '='
+                    ]
+                ]
+            ]);
             
-            // Generate verification hash
-            $verificationHash = md5($userEmail);
+            if (!empty($orders)) {
+                return (string) $orders[0]->get_id();
+            }
             
-            /**
-             * Filter the verification hash for purchased products
-             * 
-             * @param string $verificationHash The hash used for verification
-             * @param int $productId The product ID
-             * @param int $userId The user ID
-             */
-            return apply_filters('bfp_purchased_verification_hash', $verificationHash, $productId, $userId);
+            return '1'; // Return '1' for backward compatibility
         }
-
+        
         return false;
     }
     

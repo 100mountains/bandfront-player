@@ -312,6 +312,7 @@ class Audio {
         
         // Use REST API endpoint
         $url = rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}");
+        
         $this->addConsoleLog('generateAudioUrl REST API endpoint', $url);
         return $url;
     }
