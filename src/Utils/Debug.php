@@ -27,11 +27,18 @@ class Debug {
      */
     public static function log(string $message, array $context = []): void {
         if (self::$enabled) {
-            // Log to browser console
-            echo "<script>console.log(" . json_encode(['message' => $message, 'context' => $context]) . ");</script>";
+            // Never output during plugin activation
+            if (!defined('WP_INSTALLING') && !defined('WP_SETUP_CONFIG')) {
+                // Only log to browser console during AJAX or specific actions
+                if (defined('DOING_AJAX') || (isset($_REQUEST['bfp-action']) && $_REQUEST['bfp-action'] === 'play')) {
+                    echo "<script>console.log(" . json_encode(['message' => $message, 'context' => $context]) . ");</script>";
+                }
+            }
 
-            // Optionally log to error log
-            error_log("[DEBUG] " . $message . " " . json_encode($context));
+            // Always safe to log to error log
+            if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+                error_log("[BFP DEBUG] " . $message . " " . json_encode($context));
+            }
         }
     }
 }

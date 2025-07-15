@@ -5,18 +5,14 @@ use bfp\Plugin;
 
 /**
  * Analytics functionality for Bandfront Player
- *
- * @package BandfrontPlayer
- * @since 0.1
  */
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
 }
 
 /**
  * Analytics Class
- * Handles playback tracking and analytics integration
  */
 class Analytics {
     
@@ -44,13 +40,7 @@ class Analytics {
      * Increment playback counter
      */
     public function incrementPlaybackCounter(int $productId): void {
-        // Use getState for single value retrieval
-        if (!$this->mainPlugin->getConfig()->getState('_bfp_playback_counter_column', 1)) {
-            return;
-        }
-        
-        $counter = get_post_meta($productId, '_bfp_playback_counter', true);
-        $counter = empty($counter) ? 1 : intval($counter) + 1;
-        update_post_meta($productId, '_bfp_playback_counter', $counter);
+        $current = (int) get_post_meta($productId, '_bfp_playback_counter', true);
+        update_post_meta($productId, '_bfp_playback_counter', $current + 1);
     }
 }

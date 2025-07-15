@@ -13,7 +13,7 @@ $server = rest_get_server();
 $routes = $server->get_routes();
 
 // Filter for our routes
-$our_routes = array_filter($routes, function($route) {
+$our_routes = array_filter(array_keys($routes), function($route) {
     return strpos($route, 'bandfront-player') !== false;
 });
 
@@ -26,9 +26,9 @@ if (empty($our_routes)) {
 } else {
     echo "Found " . count($our_routes) . " Bandfront Player routes:\n\n";
     
-    foreach ($our_routes as $route => $handlers) {
+    foreach ($our_routes as $route) {
         echo "Route: $route\n";
-        foreach ($handlers as $handler) {
+        foreach ($routes[$route] as $handler) {
             echo "  Methods: " . implode(', ', $handler['methods']) . "\n";
         }
         echo "\n";

@@ -858,29 +858,13 @@ class Audio {
    }
    
    /**
-    * Add console log statement for debugging
-    * 
-    * @param string $message Log message
-    * @param mixed $data Optional data to log
-    * @return void
+    * Add console log for debugging
     */
    private function addConsoleLog(string $message, $data = null): void {
-       // Only add console logs in debug mode to avoid cluttering output
-       if (!defined('WP_DEBUG') || !WP_DEBUG) {
-           return;
+       // Only output console logs when streaming files, not during activation
+       if (defined('DOING_AJAX') || (isset($_REQUEST['bfp-action']) && $_REQUEST['bfp-action'] === 'play')) {
+           echo '<script>console.log("[BFP Audio] ' . esc_js($message) . '", ' . 
+                wp_json_encode($data) . ');</script>';
        }
-       
-       $logData = [
-           'timestamp' => current_time('mysql'),
-           'message' => $message,
-           'class' => 'BFP_Audio'
-       ];
-       
-       if ($data !== null) {
-           $logData['data'] = $data;
-       }
-       
-       // Log to error log instead of console to avoid interfering with audio streaming
-       error_log('BFP Audio Debug: ' . wp_json_encode($logData));
    }
 }

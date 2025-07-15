@@ -878,7 +878,10 @@ class Files {
      * Add console log for debugging
      */
     private function addConsoleLog(string $message, $data = null): void {
-        echo '<script>console.log("[BFP Files] ' . esc_js($message) . '", ' . 
-             wp_json_encode($data) . ');</script>';
+        // Only output console logs when actually processing files, not during activation
+        if (defined('DOING_AJAX') || (isset($_REQUEST['bfp-action']) && $_REQUEST['bfp-action'] === 'play')) {
+            echo '<script>console.log("[BFP Files] ' . esc_js($message) . '", ' . 
+                 wp_json_encode($data) . ');</script>';
+        }
     }
 }
