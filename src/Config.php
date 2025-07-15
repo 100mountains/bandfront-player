@@ -92,21 +92,33 @@ class Config {
 
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
+        $this->addConsoleLog('Config initialized');
     }
 
     public function getState(string $key, mixed $default = null, ?int $productId = null, array $options = []): mixed {
+        $this->addConsoleLog('getState called', [
+            'key' => $key,
+            'productId' => $productId,
+            'options' => $options,
+            'has_default' => $default !== null
+        ]);
+        
         if ($default === null) {
             $default = $this->getDefaultValue($key);
         }
 
         if ($this->isGlobalOnly($key) || !empty($options['force_global'])) {
+            $this->addConsoleLog('getState using global only', $key);
             return $this->getGlobalAttr($key, $default);
         }
 
         if ($productId && $this->isOverridable($key)) {
+            $this->addConsoleLog('getState checking product override', ['productId' => $productId, 'key' => $key]);
+            
             if (isset($this->productsAttrs[$productId][$key])) {
                 $value = $this->productsAttrs[$productId][$key];
                 if ($this->isValidOverride($value, $key)) {
+                    $this->addConsoleLog('getState product cache hit', ['productId' => $productId, 'key' => $key, 'value' => $value]);
                     return apply_filters('bfp_state_value', $value, $key, $productId, 'product');
                 }
             }
@@ -115,52 +127,49 @@ class Config {
                 $value = get_post_meta($productId, $key, true);
 
                 $this->productsAttrs[$productId] ??= [];
-
                 $this->productsAttrs[$productId][$key] = $value;
 
                 if ($this->isValidOverride($value, $key)) {
+                    $this->addConsoleLog('getState product meta override', ['productId' => $productId, 'key' => $key, 'value' => $value]);
                     return apply_filters('bfp_state_value', $value, $key, $productId, 'product');
                 }
             }
+            
+            $this->addConsoleLog('getState no valid product override, falling back to global', ['productId' => $productId, 'key' => $key]);
         }
 
-        return $this->getGlobalAttr($key, $default);
+        $globalValue = $this->getGlobalAttr($key, $default);
+        $this->addConsoleLog('getState returning global value', ['key' => $key, 'value' => $globalValue]);
+        return $globalValue;
     }
 
     private function isValidOverride(mixed $value, string $key): bool {
+        $result = false;
+        
         if ($key === '_bfp_audio_engine') {
-            return !empty($value) &&
+            $result = !empty($value) &&
                    $value !== 'global' &&
                    in_array($value, ['mediaelement', 'wavesurfer']);
-        }
-
-        if (in_array($key, ['_bfp_enable_player', '_bfp_secure_player', '_bfp_merge_in_grouped',
+        } elseif (in_array($key, ['_bfp_enable_player', '_bfp_secure_player', '_bfp_merge_in_grouped',
                                  '_bfp_single_player', '_bfp_play_all', '_bfp_loop', '_bfp_own_demos',
                                  '_bfp_direct_own_demos'])) {
-            return $value === '1' || $value === 1 || $value === true;
+            $result = $value === '1' || $value === 1 || $value === true;
+        } elseif ($key === '_bfp_preload') {
+            $result = in_array($value, ['none', 'metadata', 'auto']);
+        } elseif ($key === '_bfp_file_percent') {
+            $result = is_numeric($value) && $value >= 0 && $value <= 100;
+        } elseif ($key === '_bfp_player_volume') {
+            $result = is_numeric($value) && $value >= 0 && $value <= 1;
+        } elseif (is_numeric($value)) {
+            $result = true;
+        } elseif (is_array($value)) {
+            $result = !empty($value);
+        } else {
+            $result = !empty($value) && $value !== 'global' && $value !== 'default';
         }
-
-        if ($key === '_bfp_preload') {
-            return in_array($value, ['none', 'metadata', 'auto']);
-        }
-
-        if ($key === '_bfp_file_percent') {
-            return is_numeric($value) && $value >= 0 && $value <= 100;
-        }
-
-        if ($key === '_bfp_player_volume') {
-            return is_numeric($value) && $value >= 0 && $value <= 1;
-        }
-
-        if (is_numeric($value)) {
-            return true;
-        }
-
-        if (is_array($value)) {
-            return !empty($value);
-        }
-
-        return !empty($value) && $value !== 'global' && $value !== 'default';
+        
+        $this->addConsoleLog('isValidOverride check', ['key' => $key, 'value' => $value, 'valid' => $result]);
+        return $result;
     }
 
     private function getDefaultValue(string $key): mixed {
@@ -183,26 +192,39 @@ class Config {
 
     private function getGlobalAttr(string $key, mixed $default = null): mixed {
         if (empty($this->globalAttrs)) {
+            $this->addConsoleLog('getGlobalAttr loading global settings from database');
             $this->globalAttrs = get_option('bfp_global_settings', []);
+            $this->addConsoleLog('getGlobalAttr loaded settings', count($this->globalAttrs) . ' settings');
         }
+        
         if (!isset($this->globalAttrs[$key])) {
-            $this->globalAttrs[$key] = $this->getDefaultValue($key) !== false ? 
-                                          $this->getDefaultValue($key) : $default;
+            $defaultValue = $this->getDefaultValue($key) !== false ? 
+                           $this->getDefaultValue($key) : $default;
+            $this->globalAttrs[$key] = $defaultValue;
+            $this->addConsoleLog('getGlobalAttr using default', ['key' => $key, 'default' => $defaultValue]);
+        } else {
+            $this->addConsoleLog('getGlobalAttr cache hit', ['key' => $key, 'value' => $this->globalAttrs[$key]]);
         }
+        
         return apply_filters('bfp_global_attr', $this->globalAttrs[$key], $key);
     }
 
     public function getAllSettings(?int $productId = null): array {
+        $this->addConsoleLog('getAllSettings called', ['productId' => $productId]);
+        
         $settings = [];
         $allKeys = array_merge(
             array_keys($this->globalOnlySettings),
             array_keys($this->overridableSettings)
         );
 
+        $this->addConsoleLog('getAllSettings processing keys', count($allKeys) . ' keys');
+
         foreach ($allKeys as $key) {
             $settings[$key] = $this->getState($key, null, $productId);
         }
 
+        $this->addConsoleLog('getAllSettings completed', count($settings) . ' settings');
         return apply_filters('bfp_all_settings', $settings, $productId);
     }
 
@@ -210,12 +232,15 @@ class Config {
      * Bulk get multiple settings efficiently
      */
     public function getStates(array $keys, ?int $productId = null): array {
+        $this->addConsoleLog('getStates bulk fetch', ['keys' => $keys, 'productId' => $productId]);
+        
         $values = [];
         
         foreach ($keys as $key) {
             $values[$key] = $this->getState($key, null, $productId);
         }
         
+        $this->addConsoleLog('getStates bulk fetch completed', count($values) . ' values');
         return $values;
     }
     
@@ -223,14 +248,18 @@ class Config {
      * Update state value
      */
     public function updateState(string $key, mixed $value, ?int $productId = null): void {
+        $this->addConsoleLog('updateState called', ['key' => $key, 'value' => $value, 'productId' => $productId]);
+        
         if ($productId && $this->isOverridable($key)) {
             update_post_meta($productId, $key, $value);
             // Clear cache
             if (isset($this->productsAttrs[$productId][$key])) {
                 $this->productsAttrs[$productId][$key] = $value;
             }
+            $this->addConsoleLog('updateState product meta updated', ['productId' => $productId, 'key' => $key]);
         } elseif (!$productId || $this->isGlobalOnly($key)) {
             $this->globalAttrs[$key] = $value;
+            $this->addConsoleLog('updateState global setting updated', ['key' => $key]);
             // Update in database will be handled by save method
         }
     }
@@ -239,12 +268,15 @@ class Config {
      * Delete state value (remove override)
      */
     public function deleteState(string $key, int $productId): void {
+        $this->addConsoleLog('deleteState called', ['key' => $key, 'productId' => $productId]);
+        
         if ($this->isOverridable($key)) {
             delete_post_meta($productId, $key);
             // Clear cache
             if (isset($this->productsAttrs[$productId][$key])) {
                 unset($this->productsAttrs[$productId][$key]);
             }
+            $this->addConsoleLog('deleteState product override removed', ['key' => $key, 'productId' => $productId]);
         }
     }
     
@@ -252,13 +284,17 @@ class Config {
      * Save all global settings to database
      */
     public function saveGlobalSettings(): void {
+        $this->addConsoleLog('saveGlobalSettings called', count($this->globalAttrs) . ' settings');
         update_option('bfp_global_settings', $this->globalAttrs);
+        $this->addConsoleLog('saveGlobalSettings completed');
     }
     
     /**
      * Get all settings for admin forms with proper formatting
      */
     public function getAdminFormSettings(): array {
+        $this->addConsoleLog('getAdminFormSettings called');
+        
         // Define all settings with their defaults
         $settingsConfig = [
             // FFmpeg settings
@@ -308,6 +344,8 @@ class Config {
             'enable_visualizations' => ['key' => '_bfp_enable_visualizations', 'type' => 'int'],
         ];
         
+        $this->addConsoleLog('getAdminFormSettings processing settings config', count($settingsConfig) . ' settings');
+        
         // Get all keys
         $keys = [];
         foreach ($settingsConfig as $config) {
@@ -349,6 +387,7 @@ class Config {
         // Force on_cover to 1
         $formattedSettings['_bfp_on_cover'] = 1;
         
+        $this->addConsoleLog('getAdminFormSettings completed', count($formattedSettings) . ' formatted settings');
         return $formattedSettings;
     }
     
@@ -356,6 +395,8 @@ class Config {
      * Get minimal player state for frontend/runtime use
      */
     public function getPlayerState(?int $productId = null): array {
+        $this->addConsoleLog('getPlayerState called', ['productId' => $productId]);
+        
         // Define the essential player settings needed for runtime
         $playerKeys = [
             '_bfp_enable_player',
@@ -372,8 +413,12 @@ class Config {
             '_bfp_merge_in_grouped',
         ];
         
+        $this->addConsoleLog('getPlayerState fetching keys', $playerKeys);
+        
         // Use bulk fetch for efficiency
         $playerState = $this->getStates($playerKeys, $productId);
+        
+        $this->addConsoleLog('getPlayerState completed', $playerState);
         
         // Apply any runtime-specific filters
         return apply_filters('bfp_player_state', $playerState, $productId);
@@ -383,7 +428,9 @@ class Config {
      * Update global attributes cache
      */
     public function updateGlobalAttrs(array $attrs): void {
+        $this->addConsoleLog('updateGlobalAttrs called', count($attrs) . ' attributes');
         $this->globalAttrs = $attrs;
+        $this->addConsoleLog('updateGlobalAttrs cache updated');
     }
     
     /**
@@ -391,8 +438,10 @@ class Config {
      */
     public function clearProductAttrsCache(?int $productId = null): void {
         if ($productId === null) {
+            $this->addConsoleLog('clearProductAttrsCache clearing all product cache');
             $this->productsAttrs = [];
         } else {
+            $this->addConsoleLog('clearProductAttrsCache clearing product cache', ['productId' => $productId]);
             unset($this->productsAttrs[$productId]);
         }
     }
@@ -402,7 +451,10 @@ class Config {
      */
     public function getAllGlobalAttrs(): array {
         if (empty($this->globalAttrs)) {
+            $this->addConsoleLog('getAllGlobalAttrs loading from database');
             $this->globalAttrs = get_option('bfp_global_settings', []);
+        } else {
+            $this->addConsoleLog('getAllGlobalAttrs using cache', count($this->globalAttrs) . ' attributes');
         }
         return $this->globalAttrs;
     }
@@ -425,23 +477,52 @@ class Config {
      * Check if a module is enabled
      */
     public function isModuleEnabled(string $moduleName): bool {
+        $this->addConsoleLog('isModuleEnabled called', $moduleName);
         $modulesEnabled = $this->getState('_bfp_modules_enabled');
-        return isset($modulesEnabled[$moduleName]) ? $modulesEnabled[$moduleName] : false;
+        $enabled = isset($modulesEnabled[$moduleName]) ? $modulesEnabled[$moduleName] : false;
+        $this->addConsoleLog('isModuleEnabled result', ['module' => $moduleName, 'enabled' => $enabled]);
+        return $enabled;
     }
     
     /**
      * Enable or disable a module
      */
     public function setModuleState(string $moduleName, bool $enabled): void {
+        $this->addConsoleLog('setModuleState called', ['module' => $moduleName, 'enabled' => $enabled]);
         $modulesEnabled = $this->getState('_bfp_modules_enabled');
         $modulesEnabled[$moduleName] = $enabled;
         $this->updateState('_bfp_modules_enabled', $modulesEnabled);
+        $this->addConsoleLog('setModuleState updated');
     }
     
     /**
      * Get all available modules and their states
      */
     public function getAllModules(): array {
-        return $this->getState('_bfp_modules_enabled');
+        $this->addConsoleLog('getAllModules called');
+        $modules = $this->getState('_bfp_modules_enabled');
+        $this->addConsoleLog('getAllModules result', $modules);
+        return $modules;
+    }
+    
+    /**
+     * Add console log statement for debugging
+     * 
+     * @param string $message Log message
+     * @param mixed $data Optional data to log
+     * @return void
+     */
+    private function addConsoleLog(string $message, $data = null): void {
+        $logData = [
+            'timestamp' => current_time('mysql'),
+            'message' => $message,
+            'class' => 'BFP_Config'
+        ];
+        
+        if ($data !== null) {
+            $logData['data'] = $data;
+        }
+        
+        echo '<script>console.log("BFP Config Debug:", ' . wp_json_encode($logData) . ');</script>';
     }
 }

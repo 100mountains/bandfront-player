@@ -36,7 +36,10 @@ class Audio {
      * @return void Outputs file content or error
      */
     public function outputFile(array $args): void {
+        $this->addConsoleLog('outputFile started', $args);
+        
         if (empty($args['url'])) {
+            $this->addConsoleLog('outputFile error: Empty file URL');
             $this->sendError(__('Empty file URL', 'bandfront-player'));
             return;
         }
@@ -44,27 +47,35 @@ class Audio {
         $url = do_shortcode($args['url']);
         $urlFixed = $this->mainPlugin->getFiles()->fixUrl($url);
         
+        $this->addConsoleLog('outputFile URLs', ['original' => $url, 'fixed' => $urlFixed]);
+        
         // Fire play event
         do_action('bfp_play_file', $args['product_id'], $url);
 
         // Generate file paths
         $fileInfo = $this->generateFilePaths($args);
+        $this->addConsoleLog('outputFile fileInfo generated', $fileInfo);
         
         // Check cache first
         $cachedPath = $this->getCachedFilePath($fileInfo['fileName']);
         if ($cachedPath) {
+            $this->addConsoleLog('outputFile using cached file', $cachedPath);
             $this->streamFile($cachedPath, $fileInfo['fileName']);
             return;
         }
 
         // Create demo file
         if (!$this->mainPlugin->getFiles()->createDemoFile($urlFixed, $fileInfo['filePath'])) {
+            $this->addConsoleLog('outputFile error: Failed to create demo file', $fileInfo['filePath']);
             $this->sendError(__('Failed to generate demo file', 'bandfront-player'));
             return;
         }
 
+        $this->addConsoleLog('outputFile demo file created', $fileInfo['filePath']);
+
         // Process secure audio if needed
         if ($this->shouldProcessSecure($args, $fileInfo['purchased'])) {
+            $this->addConsoleLog('outputFile processing secure audio', ['file_percent' => $args['file_percent']]);
             $this->processSecureAudio($fileInfo, $args);
         }
 
@@ -72,6 +83,7 @@ class Audio {
         $this->cacheFilePath($fileInfo['fileName'], $fileInfo['filePath']);
         
         // Stream the file
+        $this->addConsoleLog('outputFile streaming file', $fileInfo['filePath']);
         $this->streamFile($fileInfo['filePath'], $fileInfo['fileName']);
     }
     
@@ -87,6 +99,8 @@ class Audio {
         $oFileName = 'o_' . $fileName;
         
         $purchased = $this->mainPlugin->getWooCommerce()?->woocommerceUserProduct($args['product_id']) ?? false;
+        
+        $this->addConsoleLog('generateFilePaths purchase status', ['product_id' => $args['product_id'], 'purchased' => $purchased]);
         
         if (false !== $purchased) {
             $oFileName = 'purchased/o_' . $purchased . $fileName;
@@ -127,20 +141,27 @@ class Audio {
         $filePercent = intval($args['file_percent']);
         $ffmpeg = $this->mainPlugin->getConfig()->getState('_bfp_ffmpeg');
         
+        $this->addConsoleLog('processSecureAudio started', ['filePercent' => $filePercent, 'ffmpeg_enabled' => $ffmpeg]);
+        
         $processed = false;
         
         // Try FFmpeg first if available
         if ($ffmpeg && function_exists('shell_exec')) {
+            $this->addConsoleLog('processSecureAudio trying FFmpeg');
             $processed = $this->processWithFfmpeg($fileInfo['filePath'], $fileInfo['oFilePath'], $filePercent);
+            $this->addConsoleLog('processSecureAudio FFmpeg result', $processed);
         }
         
         // Fall back to PHP processing
         if (!$processed) {
+            $this->addConsoleLog('processSecureAudio trying PHP fallback');
             $processed = $this->processWithPhp($fileInfo['filePath'], $fileInfo['oFilePath'], $filePercent);
+            $this->addConsoleLog('processSecureAudio PHP result', $processed);
         }
         
         // Swap files if processing succeeded
         if ($processed && file_exists($fileInfo['oFilePath'])) {
+            $this->addConsoleLog('processSecureAudio swapping files');
             $this->swapProcessedFile($fileInfo);
         }
         
@@ -163,24 +184,39 @@ class Audio {
         
         $ffmpegPath = $this->prepareFfmpegPath($settings['_bfp_ffmpeg_path']);
         if (!$ffmpegPath) {
+            $this->addConsoleLog('processWithFfmpeg error: Invalid FFmpeg path', $settings['_bfp_ffmpeg_path']);
             return false;
         }
+
+        $this->addConsoleLog('processWithFfmpeg path validated', $ffmpegPath);
 
         // Get duration
         $duration = $this->getFfmpegDuration($ffmpegPath, $inputPath);
         if (!$duration) {
+            $this->addConsoleLog('processWithFfmpeg error: Could not get duration');
             return false;
         }
 
         $targetDuration = apply_filters('bfp_ffmpeg_time', floor($duration * $filePercent / 100));
         
+        $this->addConsoleLog('processWithFfmpeg durations', [
+            'original' => $duration,
+            'target' => $targetDuration,
+            'percent' => $filePercent
+        ]);
+        
         // Build command
         $command = $this->buildFfmpegCommand($ffmpegPath, $inputPath, $outputPath, $targetDuration, $settings['_bfp_ffmpeg_watermark']);
+        
+        $this->addConsoleLog('processWithFfmpeg command', $command);
         
         // Execute
         @shell_exec($command);
         
-        return file_exists($outputPath);
+        $success = file_exists($outputPath);
+        $this->addConsoleLog('processWithFfmpeg execution result', $success);
+        
+        return $success;
     }
     
     /**
@@ -192,13 +228,18 @@ class Audio {
      * @return bool Success status
      */
     private function processWithPhp(string $inputPath, string $outputPath, int $filePercent): bool {
+        $this->addConsoleLog('processWithPhp started', ['input' => $inputPath, 'output' => $outputPath, 'percent' => $filePercent]);
+        
         try {
             require_once dirname(dirname(__FILE__)) . '/vendor/php-mp3/class.mp3.php';
             $mp3 = new \BFPMP3();
             $mp3->cut_mp3($inputPath, $outputPath, 0, $filePercent/100, 'percent', false);
             unset($mp3);
-            return file_exists($outputPath);
+            $success = file_exists($outputPath);
+            $this->addConsoleLog('processWithPhp MP3 processing result', $success);
+            return $success;
         } catch (\Exception | \Error $e) {
+            $this->addConsoleLog('processWithPhp error', $e->getMessage());
             error_log('BFP MP3 processing error: ' . $e->getMessage());
             // Final fallback - simple truncate
             $this->mainPlugin->getFiles()->truncateFile($inputPath, $filePercent);
@@ -217,19 +258,25 @@ class Audio {
         $cacheKey = 'bfp_duration_' . md5($url);
         $cached = get_transient($cacheKey);
         if (false !== $cached) {
+            $this->addConsoleLog('getDurationByUrl using cached duration', ['url' => $url, 'duration' => $cached]);
             return $cached;
         }
+        
+        $this->addConsoleLog('getDurationByUrl cache miss', $url);
         
         // Try WordPress attachment metadata
         $attachmentId = $this->getAttachmentIdByUrl($url);
         if ($attachmentId) {
+            $this->addConsoleLog('getDurationByUrl found attachment', $attachmentId);
             $metadata = wp_get_attachment_metadata($attachmentId);
             if (!empty($metadata['length_formatted'])) {
                 set_transient($cacheKey, $metadata['length_formatted'], DAY_IN_SECONDS);
+                $this->addConsoleLog('getDurationByUrl metadata duration found', $metadata['length_formatted']);
                 return $metadata['length_formatted'];
             }
         }
         
+        $this->addConsoleLog('getDurationByUrl no duration found');
         return false;
     }
     
@@ -242,9 +289,12 @@ class Audio {
      * @return string Audio URL
      */
     public function generateAudioUrl(int $productId, string|int $fileIndex, array $fileData = []): string {
+        $this->addConsoleLog('generateAudioUrl called', ['productId' => $productId, 'fileIndex' => $fileIndex, 'fileData' => $fileData]);
+        
         // Direct play sources bypass streaming
         if (!empty($fileData['play_src']) || 
             (!empty($fileData['file']) && $this->mainPlugin->getFiles()->isPlaylist($fileData['file']))) {
+            $this->addConsoleLog('generateAudioUrl direct play source', $fileData['file']);
             return $fileData['file'];
         }
         
@@ -254,13 +304,16 @@ class Audio {
             if (!empty($files)) {
                 $key = md5($fileData['file']);
                 if (isset($files[$key]['url'])) {
+                    $this->addConsoleLog('generateAudioUrl Google Drive URL', $files[$key]['url']);
                     return $files[$key]['url'];
                 }
             }
         }
         
         // Use REST API endpoint
-        return rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}");
+        $url = rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}");
+        $this->addConsoleLog('generateAudioUrl REST API endpoint', $url);
+        return $url;
     }
     
     /**
@@ -271,6 +324,8 @@ class Audio {
      * @return void
      */
     public function trackingPlayEvent(int $productId, string $fileUrl): void {
+        $this->addConsoleLog('trackingPlayEvent started', ['productId' => $productId, 'fileUrl' => $fileUrl]);
+        
         $settings = $this->mainPlugin->getConfig()->getStates([
             '_bfp_analytics_integration',
             '_bfp_analytics_property',
@@ -278,6 +333,7 @@ class Audio {
         ]);
         
         if (empty($settings['_bfp_analytics_property'])) {
+            $this->addConsoleLog('trackingPlayEvent skipped: no analytics property');
             return;
         }
         
@@ -285,10 +341,19 @@ class Audio {
         $endpoint = $this->getAnalyticsEndpoint($settings);
         $body = $this->buildAnalyticsPayload($settings, $clientId, $productId, $fileUrl);
         
+        $this->addConsoleLog('trackingPlayEvent sending analytics', [
+            'clientId' => $clientId,
+            'endpoint' => $endpoint,
+            'integration' => $settings['_bfp_analytics_integration']
+        ]);
+        
         $response = wp_remote_post($endpoint, $body);
         
         if (is_wp_error($response)) {
+            $this->addConsoleLog('trackingPlayEvent error', $response->get_error_message());
             error_log('BFP Analytics error: ' . $response->get_error_message());
+        } else {
+            $this->addConsoleLog('trackingPlayEvent success', wp_remote_retrieve_response_code($response));
         }
     }
     
@@ -320,12 +385,20 @@ class Audio {
      */
     private function streamFile(string $filePath, string $fileName): void {
         if (!file_exists($filePath)) {
+            $this->addConsoleLog('streamFile error: File not found', $filePath);
             $this->sendError(__('File not found', 'bandfront-player'));
             return;
         }
         
         $mimeType = $this->mainPlugin->getFiles()->getMimeType($filePath);
         $fileSize = filesize($filePath);
+        
+        $this->addConsoleLog('streamFile starting stream', [
+            'filePath' => $filePath,
+            'fileName' => $fileName,
+            'mimeType' => $mimeType,
+            'fileSize' => $fileSize
+        ]);
         
         // Send headers
         header("Content-Type: " . $mimeType);
@@ -377,9 +450,11 @@ class Audio {
         $cached = get_transient($cacheKey);
         
         if ($cached && file_exists($cached)) {
+            $this->addConsoleLog('getCachedFilePath cache hit', ['fileName' => $fileName, 'cachedPath' => $cached]);
             return $cached;
         }
         
+        $this->addConsoleLog('getCachedFilePath cache miss', $fileName);
         return false;
     }
     
@@ -594,5 +669,26 @@ class Audio {
                 ],
             ]),
         ];
+    }
+    
+    /**
+     * Add console log statement for debugging
+     * 
+     * @param string $message Log message
+     * @param mixed $data Optional data to log
+     * @return void
+     */
+    private function addConsoleLog(string $message, $data = null): void {
+        $logData = [
+            'timestamp' => current_time('mysql'),
+            'message' => $message,
+            'class' => 'BFP_Audio'
+        ];
+        
+        if ($data !== null) {
+            $logData['data'] = $data;
+        }
+        
+        echo '<script>console.log("BFP Audio Debug:", ' . wp_json_encode($logData) . ');</script>';
     }
 }
