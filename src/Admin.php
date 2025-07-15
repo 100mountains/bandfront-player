@@ -282,19 +282,7 @@ class Admin {
         
         // Handle Google Drive OAuth file upload
         if (!empty($_FILES['_bfp_drive_key']) && $_FILES['_bfp_drive_key']['error'] == UPLOAD_ERR_OK) {
-            $uploadedFile = $_FILES['_bfp_drive_key'];
-            if ($uploadedFile['type'] == 'application/json') {
-                $jsonContent = file_get_contents($uploadedFile['tmp_name']);
-                $jsonData = json_decode($jsonContent, true);
-                
-                if ($jsonData && isset($jsonData['web'])) {
-                    // Save to the legacy option format for compatibility
-                    $cloudDriveAddon = get_option('_bfp_cloud_drive_addon', []);
-                    $cloudDriveAddon['_bfp_drive'] = $bfpDrive;
-                    $cloudDriveAddon['_bfp_drive_key'] = $jsonContent;
-                    update_option('_bfp_cloud_drive_addon', $cloudDriveAddon);
-                }
-            }
+            $this->mainPlugin->getFiles()->handleOAuthFileUpload($_FILES['_bfp_drive_key']);
         } else {
             // Preserve existing drive key if no new file uploaded
             $existingCloudSettings = get_option('_bfp_cloud_drive_addon', []);

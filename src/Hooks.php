@@ -19,7 +19,6 @@ if (!defined('ABSPATH')) {
 class Hooks {
     
     private Plugin $mainPlugin;
-    private ?CoverRenderer $coverRenderer = null;
     
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
@@ -186,29 +185,19 @@ class Hooks {
     }
 
     /**
-     * Get cover overlay renderer instance
-     *
-     * @return CoverRenderer
-     */
-    private function getCoverRenderer(): CoverRenderer {
-        if (!$this->coverRenderer) {
-            $this->coverRenderer = new CoverRenderer($this->mainPlugin);
-        }
-        return $this->coverRenderer;
-    }
-
-    /**
      * Enqueue assets for on_cover functionality
      */
     public function enqueueOnCoverAssets(): void {
-        $this->getCoverRenderer()->enqueueAssets();
+        // Use the main renderer instead of separate CoverRenderer
+        $this->mainPlugin->getRenderer()->enqueueCoverAssets();
     }
 
     /**
      * Add play button on product cover image
      */
     public function addPlayButtonOnCover(): void {
-        $this->getCoverRenderer()->render();
+        // Use the main renderer instead of separate CoverRenderer
+        $this->mainPlugin->getRenderer()->renderCoverOverlay();
     }
     
     /**

@@ -356,10 +356,31 @@ class Plugin {
     }
     
     /**
+     * Get Files utility instance
+     * 
+     * @return Utils\Files Files utility instance
+     */
+    public function getFiles(): Utils\Files {
+        return $this->fileHandler;
+    }
+    
+    /**
      * Get analytics
      */
     public function getAnalytics(): Utils\Analytics {
         return $this->analytics;
+    }
+    
+    /**
+     * Get renderer instance
+     * This allows components to share the same renderer instance if needed
+     */
+    public function getRenderer(): Renderer {
+        static $renderer = null;
+        if ($renderer === null) {
+            $renderer = new Renderer($this);
+        }
+        return $renderer;
     }
     
     // ===== STATE MANAGEMENT SHORTCUTS =====

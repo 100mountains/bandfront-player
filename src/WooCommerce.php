@@ -16,70 +16,136 @@ if (!defined('ABSPATH')) {
 class WooCommerce {
     
     private Plugin $mainPlugin;
+    private ?Renderer $renderer = null;
     
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
     }
     
     /**
+     * Get renderer instance
+     */
+    private function getRenderer(): Renderer {
+        if ($this->renderer === null) {
+            $this->renderer = new Renderer($this->mainPlugin);
+        }
+        return $this->renderer;
+    }
+    
+    /**
      * Include the shortcode in the product title only if the player is enabled and playlist_watermark is not active
+     * 
+     * @param string $title The product title
+     * @param \WC_Product $product The product object
+     * @return string The modified title
      */
     public function woocommerceProductTitle(string $title, $product): string {
         if (!$product) {
             return $title;
         }
         
-        // Use getState instead of legacy method
-        if (
-            $this->mainPlugin->getConfig()->getState('_bfp_enable_player', false, $product->get_id()) &&
-            $this->mainPlugin->getConfig()->getState('_bfp_force_main_player_in_title') &&
-            !$this->mainPlugin->getPlayer()->getInsertedPlayer()
-        ) {
+        $productId = $product->get_id();
+        $enablePlayer = $this->mainPlugin->getConfig()->getState('_bfp_enable_player', false, $productId);
+        $forceMainPlayer = $this->mainPlugin->getConfig()->getState('_bfp_force_main_player_in_title');
+        $insertedPlayer = $this->mainPlugin->getPlayer()->getInsertedPlayer();
+        
+        // Allow plugins to override player insertion
+        $shouldInsertPlayer = apply_filters('bfp_should_insert_player_in_title', 
+            ($enablePlayer && $forceMainPlayer && !$insertedPlayer),
+            $productId, 
+            $product
+        );
+        
+        if ($shouldInsertPlayer) {
             $this->mainPlugin->getPlayer()->setInsertedPlayer(true);
-            // Use getState for show_in check
-            $showIn = $this->mainPlugin->getConfig()->getState('_bfp_show_in', 'all', $product->get_id());
+            $showIn = $this->mainPlugin->getConfig()->getState('_bfp_show_in', 'all', $productId);
+            
             if (!is_admin() && $showIn !== 'single') {
-                $title = $this->mainPlugin->getPlayer()->includeMainPlayer($product, false) . $title;
+                // Allow filtering the player HTML
+                $playerHtml = $this->mainPlugin->getPlayer()->includeMainPlayer($product, false);
+                $playerHtml = apply_filters('bfp_product_title_player_html', $playerHtml, $productId, $product);
+                $title = $playerHtml . $title;
             }
         }
+        
         return $title;
     }
 
     /**
      * Check if user has purchased a specific product
+     * 
+     * @param int $productId The product ID to check
+     * @return string|false MD5 hash of user email if purchased, false otherwise
      */
     public function woocommerceUserProduct(int $productId): string|false {
+        // Reset the purchased flag
         $this->mainPlugin->setPurchasedProductFlag(false);
         
-        // Use getState instead of legacy method
         $purchasedEnabled = $this->mainPlugin->getConfig()->getState('_bfp_purchased', false);
+        $forcePurchased = $this->mainPlugin->getForcePurchasedFlag();
         
-        if (
-            !is_user_logged_in() ||
-            (
-                !$purchasedEnabled &&
-                empty($this->mainPlugin->getForcePurchasedFlag())
-            )
-        ) {
-            return false;
+        // Early return if user is not logged in or purchased content check is disabled
+        if (!is_user_logged_in() || (!$purchasedEnabled && empty($forcePurchased))) {
+            /**
+             * Allow plugins to override the purchased check result
+             * 
+             * @param false|string $result The result of the purchase check
+             * @param int $productId The product ID being checked
+             * @param bool $purchasedEnabled Whether purchased check is enabled
+             * @param bool $forcePurchased Whether force purchased flag is set
+             */
+            return apply_filters('bfp_user_purchased_product_early', false, $productId, $purchasedEnabled, $forcePurchased);
         }
 
         $currentUser = wp_get_current_user();
-        if (
-            wc_customer_bought_product($currentUser->user_email, $currentUser->ID, $productId) ||
-            (
-                class_exists('WC_Subscriptions_Manager') &&
-                method_exists('WC_Subscriptions_Manager', 'wcs_user_has_subscription') &&
-                WC_Subscriptions_Manager::wcs_user_has_subscription($currentUser->ID, $productId, 'active')
-            ) ||
-            (
-                function_exists('wcs_user_has_subscription') &&
-                wcs_user_has_subscription($currentUser->ID, $productId, 'active')
-            ) ||
-            apply_filters('bfp_purchased_product', false, $productId)
-        ) {
+        $userEmail = $currentUser->user_email;
+        $userId = $currentUser->ID;
+        
+        // Check standard purchase
+        $hasPurchased = wc_customer_bought_product($userEmail, $userId, $productId);
+        
+        // Check subscriptions via Subscription Manager class
+        $hasSubscription = false;
+        if (class_exists('WC_Subscriptions_Manager') && 
+            method_exists('WC_Subscriptions_Manager', 'wcs_user_has_subscription')) {
+            $hasSubscription = WC_Subscriptions_Manager::wcs_user_has_subscription($userId, $productId, 'active');
+        }
+        
+        // Check subscriptions via function (newer method)
+        $hasSubscriptionFunc = false;
+        if (function_exists('wcs_user_has_subscription')) {
+            $hasSubscriptionFunc = wcs_user_has_subscription($userId, $productId, 'active');
+        }
+        
+        // Allow custom purchase verification
+        $customPurchaseVerification = apply_filters('bfp_purchased_product', false, $productId);
+        
+        // Combined check if any purchase verification passes
+        $hasPurchasedProduct = $hasPurchased || $hasSubscription || $hasSubscriptionFunc || $customPurchaseVerification;
+        
+        /**
+         * Filter the result of the purchase check
+         * 
+         * @param bool $hasPurchasedProduct Whether the user has purchased the product
+         * @param int $productId The product ID
+         * @param int $userId The user ID
+         */
+        $hasPurchasedProduct = apply_filters('bfp_user_purchased_product', $hasPurchasedProduct, $productId, $userId);
+        
+        if ($hasPurchasedProduct) {
             $this->mainPlugin->setPurchasedProductFlag(true);
-            return md5($currentUser->user_email);
+            
+            // Generate verification hash
+            $verificationHash = md5($userEmail);
+            
+            /**
+             * Filter the verification hash for purchased products
+             * 
+             * @param string $verificationHash The hash used for verification
+             * @param int $productId The product ID
+             * @param int $userId The user ID
+             */
+            return apply_filters('bfp_purchased_verification_hash', $verificationHash, $productId, $userId);
         }
 
         return false;
@@ -87,60 +153,87 @@ class WooCommerce {
     
     /**
      * Get user download links for a product
+     * 
+     * @param int $productId The product ID
+     * @return string HTML for download link(s)
      */
     public function woocommerceUserDownload(int $productId): string {
         $downloadLinks = [];
+        
         if (is_user_logged_in()) {
+            // Lazy-load the user downloads
             if (empty($this->mainPlugin->getCurrentUserDownloads()) && function_exists('wc_get_customer_available_downloads')) {
                 $currentUser = wp_get_current_user();
-                $this->mainPlugin->setCurrentUserDownloads(wc_get_customer_available_downloads($currentUser->ID));
+                $downloads = wc_get_customer_available_downloads($currentUser->ID);
+                
+                /**
+                 * Filter the user downloads
+                 * 
+                 * @param array $downloads The user's available downloads
+                 * @param int $userId The user ID
+                 */
+                $downloads = apply_filters('bfp_user_downloads', $downloads, $currentUser->ID);
+                
+                $this->mainPlugin->setCurrentUserDownloads($downloads);
             }
 
+            // Find downloads for this product
             foreach ($this->mainPlugin->getCurrentUserDownloads() as $download) {
-                if ($download['product_id'] == $productId) {
+                if ((int)$download['product_id'] === $productId) {
                     $downloadLinks[$download['download_id']] = $download['download_url'];
                 }
             }
+            
+            /**
+             * Filter the download links for a product
+             * 
+             * @param array $downloadLinks The download links
+             * @param int $productId The product ID
+             */
+            $downloadLinks = apply_filters('bfp_product_download_links', $downloadLinks, $productId);
         }
 
         $downloadLinks = array_unique($downloadLinks);
+        
         if (count($downloadLinks)) {
             $downloadLinks = array_values($downloadLinks);
-            return '<a href="javascript:void(0);" data-download-links="' . esc_attr(json_encode($downloadLinks)) . '" class="bfp-download-link">' . esc_html__('download', 'bandfront-player') . '</a>';
+            $linksJson = wp_json_encode($downloadLinks);
+            
+            // Enhanced accessibility with ARIA attributes
+            return sprintf(
+                '<a href="javascript:void(0);" data-download-links="%s" class="bfp-download-link" role="button" aria-label="%s">%s</a>',
+                esc_attr($linksJson),
+                esc_attr(sprintf(__('Download audio for product %d', 'bandfront-player'), $productId)),
+                esc_html__('download', 'bandfront-player')
+            );
         }
+        
         return '';
     }
     
     /**
      * Replace the shortcode to display a playlist with all songs
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string HTML output
      */
     public function replacePlaylistShortcode(array $atts): string {
         if (!class_exists('woocommerce') || is_admin()) {
             return '';
         }
 
-        $getTimes = function(int $productId, array $productsList): int {
-            if (!empty($productsList)) {
-                foreach ($productsList as $product) {
-                    if ($product->product_id == $productId) {
-                        return $product->times;
-                    }
-                }
-            }
-            return 0;
-        };
-
         global $post;
 
         $output = '';
+        
+        // Check if player insertion is enabled
         if (!$this->mainPlugin->getPlayer()->getInsertPlayer()) {
             return $output;
         }
 
-        if (!is_array($atts)) {
-            $atts = [];
-        }
+        $atts = is_array($atts) ? $atts : [];
         
+        // Handle special case for post with player enabled
         $postTypes = $this->mainPlugin->getPostTypes();
         if (
             empty($atts['products_ids']) &&
@@ -148,443 +241,322 @@ class WooCommerce {
             empty($atts['product_categories']) &&
             empty($atts['product_tags']) &&
             !empty($post) &&
-            in_array($post->post_type, $postTypes)
+            in_array($post->post_type, $postTypes, true)
         ) {
             try {
                 ob_start();
-                $this->mainPlugin->getPlayer()->includeAllPlayers($post->ID);
-                $output = ob_get_contents();
-                ob_end_clean();
+                
+                // Allow plugins to modify the post ID
+                $postId = apply_filters('bfp_playlist_post_id', $post->ID);
+                
+                $this->mainPlugin->getPlayer()->includeAllPlayers($postId);
+                $output = ob_get_clean();
 
-                $class = esc_attr(isset($atts['class']) ? $atts['class'] : '');
+                $class = isset($atts['class']) ? esc_attr($atts['class']) : '';
 
-                return strpos($output, 'bfp-player-list') !== false ?
-                       str_replace('bfp-player-container', $class . ' bfp-player-container', $output) : $output;
+                if (strpos($output, 'bfp-player-list') !== false) {
+                    return str_replace('bfp-player-container', $class . ' bfp-player-container', $output);
+                }
+                
+                return $output;
             } catch (\Exception $err) {
+                // Log the error using WordPress logging
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('BandFront Player Error: ' . $err->getMessage());
+                }
+                
                 $atts['products_ids'] = $post->ID;
             }
         }
 
-        $atts = shortcode_atts(
-            [
-                'title'                     => '',
-                'products_ids'              => '*',
-                'purchased_products'        => 0,
-                'highlight_current_product' => 0,
-                'continue_playing'          => 0,
-                // Use getState for default value
-                'player_style'              => $this->mainPlugin->getConfig()->getState('_bfp_player_layout'),
-                'controls'                  => 'track',
-                'layout'                    => 'new',
-                'cover'                     => 0,
-                'volume'                    => 1,
-                'purchased_only'            => 0,
-                'hide_purchase_buttons'     => 0,
-                'class'                     => '',
-                'loop'                      => 0,
-                'purchased_times'           => 0,
-                'hide_message'              => 0,
-                'download_links'            => 0,
-                'duration'                  => 1,
-                'product_categories'        => '',
-                'product_tags'              => '',
-            ],
-            $atts
-        );
-
-        $playlistTitle            = trim($atts['title']);
-        $productsIds              = $atts['products_ids'];
-        $productCategories        = $atts['product_categories'];
-        $productTags              = $atts['product_tags'];
-        $purchasedProducts        = $atts['purchased_products'];
-        $highlightCurrentProduct  = $atts['highlight_current_product'];
-        $continuePlaying          = $atts['continue_playing'];
-        $playerStyle              = $atts['player_style'];
-        $controls                 = $atts['controls'];
-        $layout                   = $atts['layout'];
-        $cover                    = $atts['cover'];
-        $volume                   = $atts['volume'];
-        $purchasedOnly            = $atts['purchased_only'];
-        $hidePurchaseButtons      = $atts['hide_purchase_buttons'];
-        $class                    = $atts['class'];
-        $loop                     = $atts['loop'];
-        $purchasedTimes           = $atts['purchased_times'];
-        $downloadLinksFlag        = $atts['download_links'];
-
-        // Typecasting variables
-        $cover                    = is_numeric($cover) ? intval($cover) : 0;
-        $volume                   = is_numeric($volume) ? floatval($volume) : 0;
-        $purchasedProducts        = is_numeric($purchasedProducts) ? intval($purchasedProducts) : 0;
-        $highlightCurrentProduct  = is_numeric($highlightCurrentProduct) ? intval($highlightCurrentProduct) : 0;
-        $continuePlaying          = is_numeric($continuePlaying) ? intval($continuePlaying) : 0;
-        $purchasedOnly            = is_numeric($purchasedOnly) ? intval($purchasedOnly) : 0;
-        $hidePurchaseButtons      = is_numeric($hidePurchaseButtons) ? intval($hidePurchaseButtons) : 0;
-        $loop                     = is_numeric($loop) ? intval($loop) : 0;
-        $purchasedTimes           = is_numeric($purchasedTimes) ? intval($purchasedTimes) : 0;
-
-        // Load the purchased products only
-        $this->mainPlugin->setForcePurchasedFlag($purchasedOnly);
-
-        // get the products ids
-        $productsIds = preg_replace('/[^\d\,\*]/', '', $productsIds);
-        $productsIds = preg_replace('/\,+/', ',', $productsIds);
-        $productsIds = trim($productsIds, ',');
-
-        // get the product categories
-        $productCategories = preg_replace('/\s*\,\s*/', ',', $productCategories);
-        $productCategories = preg_replace('/\,+/', ',', $productCategories);
-        $productCategories = trim($productCategories, ',');
-
-        // get the product tags
-        $productTags = preg_replace('/\s*\,\s*/', ',', $productTags);
-        $productTags = preg_replace('/\,+/', ',', $productTags);
-        $productTags = trim($productTags, ',');
-
+        // Process shortcode attributes with defaults
+        $atts = $this->processShortcodeAttributes($atts);
+        
+        // Extract and validate attributes
+        $productsIds = $this->validateProductIds($atts['products_ids']);
+        $productCategories = $this->validateTaxonomyTerms($atts['product_categories']);
+        $productTags = $this->validateTaxonomyTerms($atts['product_tags']);
+        
+        // Set force purchased flag
+        $this->mainPlugin->setForcePurchasedFlag((int)$atts['purchased_only']);
+        
+        // Check if we have valid query parameters
         if (
-            strlen($productsIds) == 0 &&
-            strlen($productCategories) == 0 &&
-            strlen($productTags) == 0
+            empty($productsIds) &&
+            empty($productCategories) &&
+            empty($productTags)
         ) {
             return $output;
         }
 
-        return $this->buildPlaylistOutput($productsIds, $productCategories, $productTags, $purchasedProducts, $atts, $output);
+        // Build and return the playlist
+        return $this->buildPlaylistOutput($productsIds, $productCategories, $productTags, (int)$atts['purchased_products'], $atts, $output);
+    }
+    
+    /**
+     * Process and sanitize shortcode attributes
+     * 
+     * @param array $atts Raw shortcode attributes
+     * @return array Processed attributes with defaults
+     */
+    private function processShortcodeAttributes(array $atts): array {
+        $defaults = [
+            'title'                     => '',
+            'products_ids'              => '*',
+            'purchased_products'        => 0,
+            'highlight_current_product' => 0,
+            'continue_playing'          => 0,
+            'player_style'              => $this->mainPlugin->getConfig()->getState('_bfp_player_layout'),
+            'controls'                  => 'track',
+            'layout'                    => 'new',
+            'cover'                     => 0,
+            'volume'                    => 1,
+            'purchased_only'            => 0,
+            'hide_purchase_buttons'     => 0,
+            'class'                     => '',
+            'loop'                      => 0,
+            'purchased_times'           => 0,
+            'hide_message'              => 0,
+            'download_links'            => 0,
+            'duration'                  => 1,
+            'product_categories'        => '',
+            'product_tags'              => '',
+        ];
+        
+        /**
+         * Filter the default shortcode attributes
+         * 
+         * @param array $defaults The default attributes
+         */
+        $defaults = apply_filters('bfp_playlist_shortcode_defaults', $defaults);
+        
+        // Merge defaults with provided attributes
+        $atts = shortcode_atts($defaults, $atts, 'bfp-playlist');
+        
+        // Sanitize and type cast numeric values
+        $numericFields = [
+            'cover', 'volume', 'purchased_products', 'highlight_current_product',
+            'continue_playing', 'purchased_only', 'hide_purchase_buttons',
+            'loop', 'purchased_times'
+        ];
+        
+        foreach ($numericFields as $field) {
+            if ($field === 'volume') {
+                $atts[$field] = is_numeric($atts[$field]) ? floatval($atts[$field]) : 0;
+            } else {
+                $atts[$field] = is_numeric($atts[$field]) ? intval($atts[$field]) : 0;
+            }
+        }
+        
+        /**
+         * Filter the processed shortcode attributes
+         * 
+         * @param array $atts The processed attributes
+         */
+        return apply_filters('bfp_playlist_shortcode_atts', $atts);
+    }
+    
+    /**
+     * Validate and sanitize product IDs
+     * 
+     * @param string $productsIds Comma-separated product IDs or "*"
+     * @return string Sanitized product IDs
+     */
+    private function validateProductIds(string $productsIds): string {
+        $productsIds = preg_replace('/[^\d\,\*]/', '', $productsIds);
+        $productsIds = preg_replace('/\,+/', ',', $productsIds);
+        return trim($productsIds, ',');
+    }
+    
+    /**
+     * Validate and sanitize taxonomy terms
+     * 
+     * @param string $terms Comma-separated taxonomy terms
+     * @return string Sanitized taxonomy terms
+     */
+    private function validateTaxonomyTerms(string $terms): string {
+        $terms = preg_replace('/\s*\,\s*/', ',', $terms);
+        $terms = preg_replace('/\,+/', ',', $terms);
+        return trim($terms, ',');
     }
     
     /**
      * Build the playlist output HTML
+     * 
+     * @param string $productsIds Comma-separated product IDs
+     * @param string $productCategories Comma-separated product categories
+     * @param string $productTags Comma-separated product tags
+     * @param int $purchasedProducts Whether to show only purchased products
+     * @param array $atts Shortcode attributes
+     * @param string $output Existing output
+     * @return string Final HTML output
      */
     private function buildPlaylistOutput(string $productsIds, string $productCategories, string $productTags, int $purchasedProducts, array $atts, string $output): string {
         global $wpdb, $post;
 
         $currentPostId = !empty($post) ? (is_int($post) ? $post : $post->ID) : -1;
 
+        // Allow plugins to modify the query
+        $customQuery = apply_filters('bfp_playlist_products_query', null, $productsIds, $productCategories, $productTags, $purchasedProducts, $atts);
+        
+        if ($customQuery !== null) {
+            $products = $wpdb->get_results($customQuery);
+        } else {
+            // Build standard query
+            $query = $this->buildProductsQuery($productsIds, $productCategories, $productTags, $purchasedProducts);
+            $products = $wpdb->get_results($query);
+        }
+
+        /**
+         * Filter the products for the playlist
+         * 
+         * @param array $products The products to display
+         * @param array $atts The shortcode attributes
+         * @param int $currentPostId The current post ID
+         */
+        $products = apply_filters('bfp_playlist_products', $products, $atts, $currentPostId);
+
+        if (!empty($products)) {
+            return $this->getRenderer()->renderPlaylistProducts($products, $atts, $currentPostId, $output);
+        }
+
+        $this->mainPlugin->setForcePurchasedFlag(0);
+        return $output;
+    }
+    
+    /**
+     * Build the SQL query for products
+     * 
+     * @param string $productsIds Comma-separated product IDs
+     * @param string $productCategories Comma-separated product categories
+     * @param string $productTags Comma-separated product tags
+     * @param int $purchasedProducts Whether to show only purchased products
+     * @return string SQL query
+     */
+    private function buildProductsQuery(string $productsIds, string $productCategories, string $productTags, int $purchasedProducts): string {
+        global $wpdb;
+        
+        // Base query
         $query = 'SELECT posts.ID, posts.post_title FROM ' . $wpdb->posts . ' AS posts, ' . $wpdb->postmeta . ' as postmeta WHERE posts.post_status="publish" AND posts.post_type IN (' . $this->mainPlugin->getPostTypes(true) . ') AND posts.ID = postmeta.post_id AND postmeta.meta_key="_bfp_enable_player" AND (postmeta.meta_value="yes" OR postmeta.meta_value="1")';
 
         if (!empty($purchasedProducts)) {
-            $hidePurchaseButtons = 1;
-            $currentUserId = get_current_user_id();
-            if (0 == $currentUserId) {
-                return $output;
-            }
-
-            $customerOrders = get_posts(
-                [
-                    'meta_key'    => '_customer_user',
-                    'meta_value'  => $currentUserId,
-                    'post_type'   => 'shop_order',
-                    'post_status' => ['wc-completed', 'wc-processing'],
-                    'numberposts' => -1
-                ]
-            );
-
-            if (empty($customerOrders)) {
-                return $output;
-            }
-
-            $productsIds = [];
-            foreach ($customerOrders as $customerOrder) {
-                $order = wc_get_order($customerOrder->ID);
-                $items = $order->get_items();
-                foreach ($items as $item) {
-                    $productsIds[] = $item->get_product_id();
-                }
-            }
-            $productsIds = array_unique($productsIds);
-            $productsIdsStr = implode(',', $productsIds);
-
-            $query .= ' AND posts.ID IN (' . $productsIdsStr . ')';
-            $query .= ' ORDER BY FIELD(posts.ID,' . $productsIdsStr . ')';
+            // Purchased products query
+            $query = $this->buildPurchasedProductsQuery($query);
         } else {
-            if (strpos('*', $productsIds) === false) {
-                $query .= ' AND posts.ID IN (' . $productsIds . ')';
-                $query .= ' ORDER BY FIELD(posts.ID,' . $productsIds . ')';
-            } else {
-                $taxQuery = [];
-
-                if ('' != $productCategories) {
-                    $categories = explode(',', $productCategories);
-                    $taxQuery[] = [
-                        'taxonomy' => 'product_cat',
-                        'field' => 'slug',
-                        'terms' => $categories,
-                        'include_children' => true,
-                        'operator' => 'IN'
-                    ];
-                }
-
-                if ('' != $productTags) {
-                    $tags = explode(',', $productTags);
-                    $taxQuery[] = [
-                        'taxonomy' => 'product_tag',
-                        'field' => 'slug',
-                        'terms' => $tags,
-                        'operator' => 'IN'
-                    ];
-                }
-
-                if (!empty($taxQuery)) {
-                    $taxQuery['relation'] = 'OR';
-                    $taxQuerySql = get_tax_sql($taxQuery, 'posts', 'ID');
-                    if (!empty($taxQuerySql['join'])) {
-                        $query .= ' ' . $taxQuerySql['join'];
-                    }
-                    if (!empty($taxQuerySql['where'])) {
-                        $query .= ' ' . $taxQuerySql['where'];
-                    }
-                }
-
-                $query .= ' ORDER BY posts.post_title ASC';
-            }
+            // Regular products query
+            $query = $this->buildRegularProductsQuery($query, $productsIds, $productCategories, $productTags);
         }
 
-        $products = $wpdb->get_results($query);
-
-        if (!empty($products)) {
-            return $this->renderPlaylistProducts($products, $atts, $currentPostId, $output);
-        }
-
-        $this->mainPlugin->setForcePurchasedFlag(0);
-        return $output;
+        return $query;
     }
     
     /**
-     * Render the playlist products
+     * Build query for purchased products
+     * 
+     * @param string $query Base query
+     * @return string Modified query
      */
-    private function renderPlaylistProducts(array $products, array $atts, int $currentPostId, string $output): string {
-        global $wpdb;
-        
-        $productPurchasedTimes = [];
-        if ($atts['purchased_times']) {
-            $productsIdsStr = (is_array($atts['products_ids'])) ? implode(',', $atts['products_ids']) : $atts['products_ids'];
-            $productPurchasedTimes = $wpdb->get_results('SELECT order_itemmeta.meta_value product_id, COUNT(order_itemmeta.meta_value) as times FROM ' . $wpdb->prefix . 'posts as orders INNER JOIN ' . $wpdb->prefix . 'woocommerce_order_items as order_items ON (orders.ID=order_items.order_id) INNER JOIN ' . $wpdb->prefix . 'woocommerce_order_itemmeta as order_itemmeta ON (order_items.order_item_id=order_itemmeta.order_item_id) WHERE orders.post_type="shop_order" AND orders.post_status="wc-completed" AND order_itemmeta.meta_key="_product_id" ' . (strlen($productsIdsStr) && false === strpos('*', $productsIdsStr) ? ' AND order_itemmeta.meta_value IN (' . $productsIdsStr . ')' : '') . ' GROUP BY order_itemmeta.meta_value');
+    private function buildPurchasedProductsQuery(string $query): string {
+        $currentUserId = get_current_user_id();
+        if (0 == $currentUserId) {
+            return $query . ' AND 1=0'; // No results if not logged in
         }
 
-        $this->mainPlugin->getPlayer()->enqueueResources();
-        wp_enqueue_style('bfp-playlist-widget-style', plugin_dir_url(dirname(__FILE__)) . 'widgets/playlist_widget/css/style.css', [], BFP_VERSION);
-        wp_enqueue_script('bfp-playlist-widget-script', plugin_dir_url(dirname(__FILE__)) . 'widgets/playlist_widget/js/widget.js', [], BFP_VERSION);
-        wp_localize_script(
-            'bfp-playlist-widget-script',
-            'bfp_widget_settings',
-            ['continue_playing' => $atts['continue_playing']]
+        $customerOrders = get_posts(
+            [
+                'meta_key'    => '_customer_user',
+                'meta_value'  => $currentUserId,
+                'post_type'   => 'shop_order',
+                'post_status' => ['wc-completed', 'wc-processing'],
+                'numberposts' => -1
+            ]
         );
-        
-        $counter = 0;
-        $output .= '<div data-loop="' . ($atts['loop'] ? 1 : 0) . '">';
-        
-        foreach ($products as $product) {
-            if ($this->mainPlugin->getForcePurchasedFlag() && !$this->woocommerceUserProduct($product->ID)) {
-                continue;
-            }
 
-            $productObj = wc_get_product($product->ID);
-            $counter++;
-            $preload = $this->mainPlugin->getConfig()->getState('_bfp_preload', '', $product->ID);
-            $rowClass = 'bfp-even-product';
-            if (1 == $counter % 2) {
-                $rowClass = 'bfp-odd-product';
-            }
-
-            $audioFiles = $this->mainPlugin->getPlayer()->getProductFiles($product->ID);
-            if (!is_array($audioFiles)) {
-                $audioFiles = [];
-            }
-
-            $downloadLinks = '';
-            if ($atts['download_links']) {
-                $downloadLinks = $this->woocommerceUserDownload($product->ID);
-            }
-
-            // Get purchased times for this product
-            $purchasedTimes = 0;
-            if ($atts['purchased_times']) {
-                foreach ($productPurchasedTimes as $pt) {
-                    if ($pt->product_id == $product->ID) {
-                        $purchasedTimes = $pt->times;
-                        break;
-                    }
-                }
-            }
-            $atts['purchased_times'] = $purchasedTimes;
-
-            $output .= $this->renderSingleProduct($product, $productObj, $atts, $audioFiles, $downloadLinks, $rowClass, $currentPostId, $preload, $counter);
-        }
-        
-        $output .= '</div>';
-        
-        // Use getState for message retrieval
-        $message = $this->mainPlugin->getConfig()->getState('_bfp_message', '');
-        if (!empty($message) && empty($atts['hide_message'])) {
-            $output .= '<div class="bfp-message">' . wp_kses_post(__($message, 'bandfront-player')) . '</div>';
-        }
-        
-        $this->mainPlugin->setForcePurchasedFlag(0);
-
-        if (!empty($atts['title']) && !empty($output)) {
-            $output = '<div class="bfp-widget-playlist-title">' . esc_html($atts['title']) . '</div>' . $output;
+        if (empty($customerOrders)) {
+            return $query . ' AND 1=0'; // No results if no orders
         }
 
-        return $output;
+        $productsIds = [];
+        foreach ($customerOrders as $customerOrder) {
+            $order = wc_get_order($customerOrder->ID);
+            $items = $order->get_items();
+            foreach ($items as $item) {
+                $productsIds[] = $item->get_product_id();
+            }
+        }
+        
+        /**
+         * Filter the purchased product IDs
+         * 
+         * @param array $productsIds The product IDs
+         * @param int $currentUserId The user ID
+         */
+        $productsIds = apply_filters('bfp_purchased_products_ids', array_unique($productsIds), $currentUserId);
+        
+        if (empty($productsIds)) {
+            return $query . ' AND 1=0'; // No results if no products
+        }
+        
+        $productsIdsStr = implode(',', $productsIds);
+        $query .= ' AND posts.ID IN (' . $productsIdsStr . ')';
+        $query .= ' ORDER BY FIELD(posts.ID,' . $productsIdsStr . ')';
+        
+        return $query;
     }
     
     /**
-     * Render a single product in the playlist
+     * Build query for regular products
+     * 
+     * @param string $query Base query
+     * @param string $productsIds Comma-separated product IDs
+     * @param string $productCategories Comma-separated product categories
+     * @param string $productTags Comma-separated product tags
+     * @return string Modified query
      */
-    private function renderSingleProduct($product, $productObj, array $atts, array $audioFiles, string $downloadLinks, string $rowClass, int $currentPostId, string $preload, int $counter): string {
-        $output = '';
-        
-        // Define featured_image if cover is enabled
-        $featuredImage = '';
-        if ($atts['cover']) {
-            $featuredImage = get_the_post_thumbnail($product->ID, [60, 60]);
-        }
-        
-        if ('new' == $atts['layout']) {
-            $price = $productObj->get_price();
-            $output .= '<div class="bfp-new-layout bfp-widget-product controls-' . esc_attr($atts['controls']) . ' ' . 
-                      esc_attr($atts['class']) . ' ' . esc_attr($rowClass) . ' ' . 
-                      esc_attr(($product->ID == $currentPostId && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">';
-            
-            // Header section
-            $output .= '<div class="bfp-widget-product-header">';
-            $output .= '<div class="bfp-widget-product-title">';
-            $output .= '<a href="' . esc_url(get_permalink($product->ID)) . '">' . esc_html($productObj->get_name()) . '</a>';
-            
-            if ($atts['purchased_times']) {
-                $output .= '<span class="bfp-purchased-times">' .
-                          sprintf(
-                              __($this->mainPlugin->getConfig()->getState('_bfp_purchased_times_text', '- purchased %d time(s)'), 'bandfront-player'),
-                              $atts['purchased_times']
-                          ) . '</span>';
-            }
-            
-            $output .= $downloadLinks;
-            $output .= '</div>';
-            
-            if (0 != @floatval($price) && 0 == $atts['hide_purchase_buttons']) {
-                $productIdForAddToCart = $product->ID;
-                
-                if ($productObj->is_type('variable')) {
-                    $variations = $productObj->get_available_variations();
-                    $variationsId = wp_list_pluck($variations, 'variation_id');
-                    if (!empty($variationsId)) {
-                        $productIdForAddToCart = $variationsId[0];
-                    }
-                } elseif ($productObj->is_type('grouped')) {
-                    $children = $productObj->get_children();
-                    if (!empty($children)) {
-                        $productIdForAddToCart = $children[0];
-                    }
-                }
-                
-                $output .= '<div class="bfp-widget-product-purchase">' . 
-                           wc_price($productObj->get_price(), '') . 
-                           ' <a href="?add-to-cart=' . $productIdForAddToCart . '"></a>' .
-                           '</div>';
-            }
-            $output .= '</div>'; // Close header
-            
-            $output .= '<div class="bfp-widget-product-files">';
-            
-            if (!empty($featuredImage)) {
-                $output .= $featuredImage . '<div class="bfp-widget-product-files-list">';
-            }
-
-            // Render audio files
-            foreach ($audioFiles as $index => $file) {
-                $audioUrl = $this->mainPlugin->getAudioCore()->generateAudioUrl($product->ID, $index, $file);
-                $duration = $this->mainPlugin->getAudioCore()->getDurationByUrl($file['file']);
-                
-                $audioTag = apply_filters(
-                    'bfp_widget_audio_tag',
-                    $this->mainPlugin->getPlayer()->getPlayer(
-                        $audioUrl,
-                        [
-                            'product_id'      => $product->ID,
-                            'player_controls' => $atts['controls'],
-                            'player_style'    => $atts['player_style'],
-                            'media_type'      => $file['media_type'],
-                            'id'              => $index,
-                            'duration'        => $duration,
-                            'preload'         => $preload,
-                            'volume'          => $atts['volume'],
-                        ]
-                    ),
-                    $product->ID,
-                    $index,
-                    $audioUrl
-                );
-                
-                $fileTitle = esc_html(apply_filters('bfp_widget_file_name', $file['name'], $product->ID, $index));
-                
-                $output .= '<div class="bfp-widget-product-file">';
-                $output .= $audioTag;
-                $output .= '<span class="bfp-file-name">' . $fileTitle . '</span>';
-                
-                if (!isset($atts['duration']) || $atts['duration'] == 1) {
-                    $output .= '<span class="bfp-file-duration">' . esc_html($duration) . '</span>';
-                }
-                
-                $output .= '<div style="clear:both;"></div></div>';
-            }
-
-            if (!empty($featuredImage)) {
-                $output .= '</div>';
-            }
-
-            $output .= '</div></div>'; // Close files and product
+    private function buildRegularProductsQuery(string $query, string $productsIds, string $productCategories, string $productTags): string {
+        if (strpos($productsIds, '*') === false) {
+            // Specific products
+            $query .= ' AND posts.ID IN (' . $productsIds . ')';
+            $query .= ' ORDER BY FIELD(posts.ID,' . $productsIds . ')';
         } else {
-            // Classic layout
-            $output .= '<ul class="bfp-widget-playlist bfp-classic-layout controls-' . esc_attr($atts['controls']) . ' ' . esc_attr($atts['class']) . ' ' . esc_attr($rowClass) . ' ' . esc_attr(($product->ID == $currentPostId && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">';
+            // Products by taxonomy
+            $taxQuery = [];
 
-            if (!empty($featuredImage)) {
-                $output .= '<li style="display:table-row;">' . $featuredImage . '<div class="bfp-widget-product-files-list"><ul>';
+            if (!empty($productCategories)) {
+                $categories = explode(',', $productCategories);
+                $taxQuery[] = [
+                    'taxonomy' => 'product_cat',
+                    'field' => 'slug',
+                    'terms' => $categories,
+                    'include_children' => true,
+                    'operator' => 'IN'
+                ];
             }
 
-            foreach ($audioFiles as $index => $file) {
-                $audioUrl = $this->mainPlugin->getAudioCore()->generateAudioUrl($product->ID, $index, $file);
-                $duration = $this->mainPlugin->getAudioCore()->getDurationByUrl($file['file']);
-                
-                $audioTag = apply_filters(
-                    'bfp_widget_audio_tag',
-                    $this->mainPlugin->getPlayer()->getPlayer(
-                        $audioUrl,
-                        [
-                            'product_id'      => $product->ID,
-                            'player_controls' => $atts['controls'],
-                            'player_style'    => $atts['player_style'],
-                            'media_type'      => $file['media_type'],
-                            'id'              => $index,
-                            'duration'        => $duration,
-                            'preload'         => $preload,
-                            'volume'          => $atts['volume'],
-                        ]
-                    ),
-                    $product->ID,
-                    $index,
-                    $audioUrl
-                );
-                
-                $fileTitle = esc_html(apply_filters('bfp_widget_file_name', $file['name'], $product->ID, $index));
-                
-                $output .= '<li style="display:table-row;">';
-                $output .= '<div class="bfp-player-col bfp-widget-product-file" style="display:table-cell;">' . $audioTag . '</div>';
-                $output .= '<div class="bfp-title-col" style="display:table-cell;"><span class="bfp-player-song-title">' . $fileTitle . '</span>';
-                
-                if (!empty($atts['duration']) && $atts['duration'] == 1) {
-                    $output .= ' <span class="bfp-player-song-duration">' . esc_html($duration) . '</span>';
+            if (!empty($productTags)) {
+                $tags = explode(',', $productTags);
+                $taxQuery[] = [
+                    'taxonomy' => 'product_tag',
+                    'field' => 'slug',
+                    'terms' => $tags,
+                    'operator' => 'IN'
+                ];
+            }
+
+            if (!empty($taxQuery)) {
+                $taxQuery['relation'] = 'OR';
+                $taxQuerySql = get_tax_sql($taxQuery, 'posts', 'ID');
+                if (!empty($taxQuerySql['join'])) {
+                    $query .= ' ' . $taxQuerySql['join'];
                 }
-                
-                $output .= '</div></li>';
+                if (!empty($taxQuerySql['where'])) {
+                    $query .= ' ' . $taxQuerySql['where'];
+                }
             }
 
-            if (!empty($featuredImage)) {
-                $output .= '</ul></div></li>';
-            }
-
-            $output .= '</ul>';
+            $query .= ' ORDER BY posts.post_title ASC';
         }
         
-        return $output;
+        return $query;
     }
 }

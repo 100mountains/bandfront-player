@@ -25,9 +25,20 @@ class Player {
     private bool $insertMainPlayer = true;
     private bool $insertAllPlayers = true;
     private int $preloadTimes = 0;
+    private ?Renderer $renderer = null;
     
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
+    }
+    
+    /**
+     * Get renderer instance
+     */
+    private function getRenderer(): Renderer {
+        if ($this->renderer === null) {
+            $this->renderer = new Renderer($this->mainPlugin);
+        }
+        return $this->renderer;
     }
     
     /**
@@ -106,10 +117,16 @@ class Player {
             return '';
         }
 
-        $files = $this->getProductFilesInternal([
+        $files = $this->mainPlugin->getFiles()->getProductFilesInternal([
             'product' => $product,
             'first'   => true,
         ]);
+        
+        // Debug output
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('BFP Debug - Product ID: ' . $product->get_id());
+            error_log('BFP Debug - Files found: ' . print_r($files, true));
+        }
         
         if (!empty($files)) {
             $id = $product->get_id();
@@ -197,7 +214,7 @@ class Player {
             return;
         }
 
-        $files = $this->getProductFilesInternal([
+        $files = $this->mainPlugin->getFiles()->getProductFilesInternal([
             'product' => $product,
             'all'     => true,
         ]);
@@ -268,14 +285,14 @@ class Player {
                 $title = esc_html(($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $id, $index) : '');
                 print '<div class="bfp-player-container ' . esc_attr($mergeGroupedClass) . ' product-' . esc_attr($file['product']) . '" ' . ($settings['_bfp_loop'] ? 'data-loop="1"' : '') . '>' . $audioTag . '</div><div class="bfp-player-title" data-audio-url="' . esc_attr($audioUrl) . '">' . wp_kses_post($title) . '</div><div style="clear:both;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
             } elseif ($counter > 1) {
-                // Use the table renderer for multiple files
+                // Use the renderer for multiple files
                 $singlePlayer = intval($this->mainPlugin->getConfig()->getState('_bfp_single_player', 0, $id));
                 
                 // Add player_controls to settings for renderer
                 $settings['player_controls'] = $playerControls;
                 $settings['single_player'] = $singlePlayer;
                 
-                print $this->renderPlayerTable($files, $id, $settings); // phpcs:ignore WordPress.Security.EscapeOutput
+                print $this->getRenderer()->renderPlayerTable($files, $id, $settings); // phpcs:ignore WordPress.Security.EscapeOutput
             }
             
             // Fix: Check if WooCommerce integration exists
@@ -294,237 +311,12 @@ class Player {
     }
     
     /**
-     * Render player table layout for multiple files
-     * Moved from player-renderer.php
-     */
-    private function renderPlayerTable(array $files, int $productId, array $settings): string {
-        if (empty($files) || count($files) < 2) {
-            return '';
-        }
-        
-        $output = '';
-        $mergeGroupedClass = ($settings['_bfp_merge_in_grouped']) ? 'merge_in_grouped_products' : '';
-        $singlePlayer = $settings['single_player'] ?? 0;
-        
-        $output .= '<table class="bfp-player-list ' . $mergeGroupedClass . ($singlePlayer ? ' bfp-single-player ' : '') . '" ' . 
-                   ($settings['_bfp_loop'] ? 'data-loop="1"' : '') . '>';
-        
-        $counter = count($files);
-        $firstPlayerClass = 'bfp-first-player';
-        
-        foreach ($files as $index => $file) {
-            $evenOdd = (1 == $counter % 2) ? 'bfp-odd-row' : 'bfp-even-row';
-            $counter--;
-            
-            $audioUrl = $this->mainPlugin->getAudioCore()->generateAudioUrl($productId, $index, $file);
-            $duration = $this->mainPlugin->getAudioCore()->getDurationByUrl($file['file']);
-            
-            $audioTag = apply_filters(
-                'bfp_audio_tag',
-                $this->getPlayer(
-                    $audioUrl,
-                    [
-                        'product_id'      => $productId,
-                        'player_style'    => $settings['_bfp_player_layout'],
-                        'player_controls' => ('all' != $settings['player_controls']) ? 'track' : '',
-                        'media_type'      => $file['media_type'],
-                        'duration'        => $duration,
-                        'preload'         => $settings['_bfp_preload'],
-                        'volume'          => $settings['_bfp_player_volume'],
-                    ]
-                ),
-                $productId,
-                $index,
-                $audioUrl
-            );
-            
-            $title = esc_html(($settings['_bfp_player_title']) ? 
-                     apply_filters('bfp_file_name', $file['name'], $productId, $index) : '');
-            
-            $output .= $this->renderPlayerRow($audioTag, $title, $duration, $evenOdd, 
-                                            $file['product'], $firstPlayerClass, 
-                                            $counter, $settings, $singlePlayer);
-            
-            $firstPlayerClass = '';
-        }
-        
-        $output .= '</table>';
-        
-        return $output;
-    }
-    
-    /**
-     * Render a single player row
-     * Moved from player-renderer.php
-     */
-    private function renderPlayerRow(string $audioTag, string $title, string $duration, string $evenOdd, 
-                                   int $productId, string $firstPlayerClass, int $counter, 
-                                   array $settings, int $singlePlayer): string {
-        $output = '<tr class="' . esc_attr($evenOdd) . ' product-' . esc_attr($productId) . '">';
-        
-        if ('all' != $settings['player_controls']) {
-            $output .= '<td class="bfp-column-player-' . esc_attr($settings['_bfp_player_layout']) . '">';
-            $output .= '<div class="bfp-player-container ' . $firstPlayerClass . '" data-player-id="' . esc_attr($counter) . '">';
-            $output .= $audioTag;
-            $output .= '</div></td>';
-            $output .= '<td class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr($counter) . '">';
-            $output .= wp_kses_post($title);
-            $output .= '</td>';
-            $output .= '<td class="bfp-file-duration" style="text-align:right;font-size:16px;">';
-            $output .= esc_html($duration);
-            $output .= '</td>';
-        } else {
-            $output .= '<td>';
-            $output .= '<div class="bfp-player-container ' . $firstPlayerClass . '" data-player-id="' . esc_attr($counter) . '">';
-            $output .= $audioTag;
-            $output .= '</div>';
-            $output .= '<div class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr($counter) . '">';
-            $output .= wp_kses_post($title);
-            if ($singlePlayer) {
-                $output .= '<span class="bfp-file-duration">' . esc_html($duration) . '</span>';
-            }
-            $output .= '</div>';
-            $output .= '</td>';
-        }
-        
-        $output .= '</tr>';
-        
-        return $output;
-    }
-    
-    /**
-     * Get product files - internal use
-     * Moved from player-renderer.php
-     */
-    private function getProductFilesInternal(array $args): array {
-        if (empty($args['product'])) {
-            return [];
-        }
-
-        $product = $args['product'];
-        $files = $this->getAllProducts($product, []);
-        if (empty($files)) {
-            return [];
-        }
-
-        $audioFiles = [];
-        foreach ($files as $index => $file) {
-            if (!empty($file['file']) && false !== ($mediaType = $this->mainPlugin->getAudioCore()->isAudio($file['file']))) {
-                $file['media_type'] = $mediaType;
-
-                if (isset($args['file_id'])) {
-                    if ($args['file_id'] == $index) {
-                        $audioFiles[$index] = $file;
-                        return $audioFiles;
-                    }
-                } elseif (!empty($args['first'])) {
-                    $audioFiles[$index] = $file;
-                    return $audioFiles;
-                } elseif (!empty($args['all'])) {
-                    $audioFiles[$index] = $file;
-                }
-            }
-        }
-        return $audioFiles;
-    }
-    
-    /**
-     * Get recursive product files
-     * Moved from player-renderer.php
-     */
-    private function getAllProducts($product, array $filesArr): array {
-        if (!is_object($product) || !method_exists($product, 'get_type')) {
-            return $filesArr;
-        }
-
-        $productType = $product->get_type();
-        $id = $product->get_id();
-        
-        // Fix: Check if WooCommerce integration exists before calling its methods
-        $purchased = false;
-        $woocommerce = $this->mainPlugin->getWooCommerce();
-        if ($woocommerce) {
-            $purchased = $woocommerce->woocommerceUserProduct($id);
-        }
-
-        if ('variation' == $productType) {
-            $_files = $product->get_downloads();
-            $_files = $this->editFilesArray($id, $_files);
-            $filesArr = array_merge($filesArr, $_files);
-        } else {
-            if (!$this->mainPlugin->getConfig()->getState('_bfp_enable_player', false, $id)) {
-                return $filesArr;
-            }
-
-            $ownDemos = intval($this->mainPlugin->getConfig()->getState('_bfp_own_demos', 0, $id));
-            $files = $this->mainPlugin->getConfig()->getState('_bfp_demos_list', [], $id);
-            if (false === $purchased && $ownDemos && !empty($files)) {
-                $directOwnDemos = intval($this->mainPlugin->getConfig()->getState('_bfp_direct_own_demos', 0, $id));
-                $files = $this->editFilesArray($id, $files, $directOwnDemos);
-                $filesArr = array_merge($filesArr, $files);
-            } else {
-                switch ($productType) {
-                    case 'variable':
-                    case 'grouped':
-                        $children = $product->get_children();
-
-                        foreach ($children as $key => $childId) {
-                            $children[$key] = wc_get_product($childId);
-                        }
-
-                        uasort($children, [Utils\Utils::class, 'sortList']);
-
-                        foreach ($children as $childObj) {
-                            $filesArr = $this->getAllProducts($childObj, $filesArr);
-                        }
-                        break;
-                    default:
-                        $_files = $product->get_downloads();
-                        if (empty($_files) && $ownDemos && !empty($files)) {
-                            $_files = $this->editFilesArray($id, $files);
-                        } else {
-                            $_files = $this->editFilesArray($id, $_files);
-                        }
-                        $filesArr = array_merge($filesArr, $_files);
-                        break;
-                }
-            }
-        }
-        return $filesArr;
-    }
-    
-    /**
-     * Edit files array helper method
-     * Moved from player-renderer.php
-     */
-    private function editFilesArray(int $productId, array $files, int $playSrc = 0): array {
-        $pFiles = [];
-        foreach ($files as $key => $file) {
-            $pKey = $key . '_' . $productId;
-            if (gettype($file) == 'object') {
-                $file = (array) $file->get_data();
-            }
-            $file['product'] = $productId;
-            $file['play_src'] = $playSrc;
-            $pFiles[$pKey] = $file;
-        }
-        return $pFiles;
-    }
-    
-    /**
      * Get product files - public interface
      * This is the method that other classes should use
      */
     public function getProductFiles($productId): array {
-        $product = wc_get_product($productId);
-        if (!$product) {
-            return [];
-        }
-        
-        return $this->getProductFilesInternal([
-            'product' => $product,
-            'all' => true
-        ]);
+        // Delegate to Files utility
+        return $this->mainPlugin->getFiles()->getProductFiles($productId);
     }
     
     /**

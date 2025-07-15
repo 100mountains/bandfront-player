@@ -33,11 +33,11 @@ class Audio {
         $url = $args['url'];
         $originalUrl = $url;
         $url = do_shortcode($url);
-        $urlFixed = $this->fixUrl($url);
+        $urlFixed = $this->mainPlugin->getFiles()->fixUrl($url);
 
         do_action('bfp_play_file', $args['product_id'], $url);
 
-        $fileName = $this->demoFileName($originalUrl);
+        $fileName = $this->mainPlugin->getFiles()->generateDemoFileName($originalUrl);
         $oFileName = 'o_' . $fileName;
 
         $purchased = $this->mainPlugin->getWooCommerce()?->woocommerceUserProduct($args['product_id']) ?? false;
@@ -49,55 +49,34 @@ class Audio {
         $filePath = $this->mainPlugin->getFileHandler()->getFilesDirectoryPath() . $fileName;
         $oFilePath = $this->mainPlugin->getFileHandler()->getFilesDirectoryPath() . $oFileName;
 
-        if ($this->validDemo($filePath)) {
+        if ($this->mainPlugin->getFiles()->isValidDemo($filePath)) {
             header('location: http' . ((is_ssl()) ? 's:' : ':') . $this->mainPlugin->getFileHandler()->getFilesDirectoryUrl() . $fileName);
             exit;
-        } elseif ($this->validDemo($oFilePath)) {
+        } elseif ($this->mainPlugin->getFiles()->isValidDemo($oFilePath)) {
             header('location: http' . ((is_ssl()) ? 's:' : ':') . $this->mainPlugin->getFileHandler()->getFilesDirectoryUrl() . $oFileName);
             exit;
         }
 
-        try {
-            $c = false;
-            if (false !== ($path = $this->isLocal($urlFixed))) {
-                $c = copy($path, $filePath);
-            } else {
-                $response = wp_remote_get(
-                    $urlFixed,
-                    [
-                        'timeout' => BFP_REMOTE_TIMEOUT,
-                        'stream' => true,
-                        'filename' => $filePath,
-                    ]
-                );
-                if (!is_wp_error($response) && 200 == $response['response']['code']) {
-                    $c = true;
-                }
+        $c = $this->mainPlugin->getFiles()->createDemoFile($urlFixed, $filePath);
+
+        if (true === $c) {
+            $mimeType = $this->mainPlugin->getFiles()->getMimeType($filePath);
+
+            if (
+                !empty($args['secure_player']) &&
+                !empty($args['file_percent']) &&
+                0 !== ($filePercent = @intval($args['file_percent'])) &&
+                false === $purchased
+            ) {
+                $this->processSecureAudio($filePath, $oFilePath, $filePercent, $fileName, $oFileName, $args);
             }
 
-            if (true === $c) {
-                if (!function_exists('mime_content_type') || false === ($mimeType = mime_content_type($filePath))) {
-                    $mimeType = 'audio/mpeg';
-                }
-
-                if (
-                    !empty($args['secure_player']) &&
-                    !empty($args['file_percent']) &&
-                    0 !== ($filePercent = @intval($args['file_percent'])) &&
-                    false === $purchased
-                ) {
-                    $this->processSecureAudio($filePath, $oFilePath, $filePercent, $fileName, $oFileName, $args);
-                }
-
-                if (!headers_sent()) {
-                    $this->sendFileHeaders($mimeType, $fileName, $filePath);
-                }
-
-                readfile($filePath);
-                exit;
+            if (!headers_sent()) {
+                $this->sendFileHeaders($mimeType, $fileName, $filePath);
             }
-        } catch (\Exception $err) {
-            error_log($err->getMessage());
+
+            readfile($filePath);
+            exit;
         }
         
         $this->printPageNotFound('It is not possible to generate the file for demo. Possible causes are: - the amount of memory allocated to the php script on the web server is not enough, - the execution time is too short, - or the "uploads/bfp" directory does not have write permissions.');
@@ -143,10 +122,10 @@ class Audio {
                         }
                     }
                 } catch (\Exception $exp) {
-                    $this->truncateFile($filePath, $filePercent);
+                    $this->mainPlugin->getFiles()->truncateFile($filePath, $filePercent);
                 }
             } catch (\Error $err) {
-                $this->truncateFile($filePath, $filePercent);
+                $this->mainPlugin->getFiles()->truncateFile($filePath, $filePercent);
             }
         }
         
@@ -162,136 +141,6 @@ class Audio {
         header('Content-Disposition: filename="' . $fileName . '"');
         header("Accept-Ranges: " . (stripos($mimeType, 'wav') ? 'none' : 'bytes'));
         header("Content-Transfer-Encoding: binary");
-    }
-    
-    /**
-     * Truncate file to a percentage of its size
-     */
-    public function truncateFile(string $filePath, int $filePercent): void {
-        $h = fopen($filePath, 'r+');
-        ftruncate($h, intval(filesize($filePath) * $filePercent / 100));
-        fclose($h);
-    }
-    
-    /**
-     * Generate demo file name
-     */
-    public function demoFileName(string $url): string {
-        $fileExtension = pathinfo($url, PATHINFO_EXTENSION);
-        $fileName = md5($url) . ((!empty($fileExtension) && preg_match('/^[a-z\d]{3,4}$/i', $fileExtension)) ? '.' . $fileExtension : '.mp3');
-        return $fileName;
-    }
-    
-    /**
-     * Check if demo file is valid
-     */
-    public function validDemo(string $filePath): bool {
-        if (!file_exists($filePath) || filesize($filePath) == 0) {
-            return false;
-        }
-        if (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME);
-            return substr(finfo_file($finfo, $filePath), 0, 4) !== 'text';
-        }
-        return true;
-    }
-    
-    /**
-     * Fix URL for local files
-     */
-    public function fixUrl(string $url): string {
-        if (file_exists($url)) {
-            return $url;
-        }
-        if (strpos($url, '//') === 0) {
-            $urlFixed = 'http' . (is_ssl() ? 's:' : ':') . $url;
-        } elseif (strpos($url, '/') === 0) {
-            $urlFixed = rtrim(BFP_WEBSITE_URL, '/') . $url;
-        } else {
-            $urlFixed = $url;
-        }
-        return $urlFixed;
-    }
-    
-    /**
-     * Check if file is local and return path
-     */
-    public function isLocal(string $url): string|false {
-        $filePath = false;
-        if (file_exists($url)) {
-            $filePath = $url;
-        }
-
-        if (false === $filePath) {
-            $attachmentId = attachment_url_to_postid($url);
-            if ($attachmentId) {
-                $attachmentPath = get_attached_file($attachmentId);
-                if ($attachmentPath && file_exists($attachmentPath)) {
-                    $filePath = $attachmentPath;
-                }
-            }
-        }
-
-        if (false === $filePath && defined('ABSPATH')) {
-            $pathComponent = parse_url($url, PHP_URL_PATH);
-            $path = rtrim(ABSPATH, '/') . '/' . ltrim($pathComponent, '/');
-            if (file_exists($path)) {
-                $filePath = $path;
-            }
-
-            if (false === $filePath) {
-                $siteUrl = get_site_url(get_current_blog_id());
-                $filePath = str_ireplace($siteUrl . '/', ABSPATH, $url);
-                if (!file_exists($filePath)) {
-                    $filePath = false;
-                }
-            }
-        }
-
-        return apply_filters('bfp_is_local', $filePath, $url);
-    }
-    
-    /**
-     * Check if the file is an audio file and return its type or false
-     */
-    public function isAudio(string $filePath): string|false {
-        $aux = function($filePath) {
-            if (preg_match('/\.(mp3|ogg|oga|wav|wma|mp4)$/i', $filePath, $match)) {
-                return $match[1];
-            }
-            if (preg_match('/\.m4a$/i', $filePath)) {
-                return 'mp4';
-            }
-            if ($this->isPlaylist($filePath)) {
-                return 'hls';
-            }
-            return false;
-        };
-
-        $fileName = $this->demoFileName($filePath);
-        $demoFilePath = $this->mainPlugin->getFileHandler()->getFilesDirectoryPath() . $fileName;
-        if ($this->validDemo($demoFilePath)) return $aux($demoFilePath);
-
-        $ext = $aux($filePath);
-        if ($ext) return $ext;
-
-        // Always handle extensionless files gracefully (smart default)
-        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-        if (empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) {
-            // Check if it's a cloud URL or has audio MIME type
-            if ($this->isCloudUrl($filePath) || $this->hasAudioMimeType($filePath)) {
-                return 'mp3';
-            }
-        }
-
-        return false;
-    }
-    
-    /**
-     * Check if the file is a playlist
-     */
-    public function isPlaylist(string $filePath): bool {
-        return preg_match('/\.(m3u|m3u8)$/i', $filePath);
     }
     
     /**
@@ -333,7 +182,7 @@ class Audio {
             $fileUrl = $fileData['file'];
             
             // For playlists and direct play sources, return the URL as-is
-            if (!empty($fileData['play_src']) || $this->isPlaylist($fileUrl)) {
+            if (!empty($fileData['play_src']) || $this->mainPlugin->getFiles()->isPlaylist($fileUrl)) {
                 return $fileUrl;
             }
             
@@ -457,17 +306,6 @@ class Audio {
     }
 
     /**
-     * Process cloud URL
-     */
-    private function processCloudUrl(string $url): string {
-        // Use the new cloud tools class
-        if (strpos($url, 'drive.google.com') !== false) {
-            return Utils\Cloud::getGoogleDriveDownloadUrl($url);
-        }
-        return $url;
-    }
-    
-    /**
      * Process play request for a specific file
      */
     private function processPlayRequest(int $productId, int $fileIndex): void {
@@ -526,8 +364,8 @@ class Audio {
 
                 $ffmpegWatermark = trim($ffmpegSettings['_bfp_ffmpeg_watermark']);
                 if (!empty($ffmpegWatermark)) {
-                    $ffmpegWatermark = $this->fixUrl($ffmpegWatermark);
-                    if (false !== ($watermarkPath = $this->isLocal($ffmpegWatermark))) {
+                    $ffmpegWatermark = $this->mainPlugin->getFiles()->fixUrl($ffmpegWatermark);
+                    if (false !== ($watermarkPath = $this->mainPlugin->getFiles()->isLocal($ffmpegWatermark))) {
                         $watermarkPath = str_replace(['\\', ':', '.', "'"], ['/', '\:', '\.', "\'"], $watermarkPath);
                         $command .= ' -filter_complex "amovie=\'' . trim(escapeshellarg($watermarkPath), '"') . '\':loop=0,volume=0.3[s];[0][s]amix=duration=first,afade=t=out:st=' . max(0, $total - 2) . ':d=2"';
                     }
@@ -536,149 +374,5 @@ class Audio {
                 @shell_exec($command . '  -map 0:a -t ' . $total . ' -y ' . preg_replace(["/^'/", "/'$/"], '"', escapeshellarg($oFilePath)));
             }
         }
-    }
-    
-    /**
-     * Check if the file is a video file and return its type or false
-     */
-    public function is_video($file_path) {
-        $aux = function($file_path) {
-            if (preg_match('/\.(mp4|mov|avi|wmv|mkv)$/i', $file_path, $match)) {
-                return $match[1];
-            }
-            return false;
-        };
-
-        $file_name = $this->demo_file_name($file_path);
-        $demo_file_path = $this->main_plugin->get_files_directory_path() . $file_name;
-        if ($this->valid_demo($demo_file_path)) return $aux($demo_file_path);
-
-        $ext = $aux($file_path);
-        if ($ext) return $ext;
-
-        // Smart default for extensionless video files
-        $extension = pathinfo($file_path, PATHINFO_EXTENSION);
-        if (empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) {
-            // Check if it's a cloud URL with video MIME type
-            if ($this->is_cloud_url($file_path) && $this->has_video_mime_type($file_path)) {
-                return 'mp4';
-            }
-        }
-
-        return false;
-    }
-    
-    /**
-     * Check if the file is an image file and return its type or false
-     */
-    public function is_image($file_path) {
-        $aux = function($file_path) {
-            if (preg_match('/\.(jpg|jpeg|png|gif|bmp|webp)$/i', $file_path, $match)) {
-                return $match[1];
-            }
-            return false;
-        };
-
-        $file_name = $this->demo_file_name($file_path);
-        $demo_file_path = $this->main_plugin->get_files_directory_path() . $file_name;
-        if ($this->valid_demo($demo_file_path)) return $aux($demo_file_path);
-
-        $ext = $aux($file_path);
-        if ($ext) return $ext;
-
-        // Smart default for extensionless image files
-        $extension = pathinfo($file_path, PATHINFO_EXTENSION);
-        if (empty($extension) || !preg_match('/^[a-z\d]{3,4}$/i', $extension)) {
-            // Check if it's a cloud URL with image MIME type
-            if ($this->is_cloud_url($file_path) && $this->has_image_mime_type($file_path)) {
-                return 'jpg';
-            }
-        }
-
-        return false;
-    }
-    
-    /**
-     * Get the correct player for the file type
-     */
-    public function get_player($file_path) {
-        $player = 'audio'; // Default to audio player
-
-        if ($this->is_video($file_path)) {
-            $player = 'video';
-        } elseif ($this->is_image($file_path)) {
-            $player = 'image';
-        }
-
-        return $player;
-    }
-    
-    /**
-     * Check if URL is from a cloud service
-     */
-    private function isCloudUrl(string $url): bool {
-        $cloudPatterns = [
-            'drive.google.com',
-            'dropbox.com',
-            'onedrive.live.com',
-            's3.amazonaws.com',
-            'blob.core.windows.net'
-        ];
-        
-        foreach ($cloudPatterns as $pattern) {
-            if (stripos($url, $pattern) !== false) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Check if file has audio MIME type
-     */
-    private function hasAudioMimeType(string $filePath): bool {
-        if (!file_exists($filePath)) {
-            return false;
-        }
-        
-        if (function_exists('mime_content_type')) {
-            $mime = mime_content_type($filePath);
-            return strpos($mime, 'audio/') === 0;
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Check if file has video MIME type
-     */
-    private function has_video_mime_type($file_path) {
-        if (!file_exists($file_path)) {
-            return false;
-        }
-        
-        if (function_exists('mime_content_type')) {
-            $mime = mime_content_type($file_path);
-            return strpos($mime, 'video/') === 0;
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Check if file has image MIME type
-     */
-    private function has_image_mime_type($file_path) {
-        if (!file_exists($file_path)) {
-            return false;
-        }
-        
-        if (function_exists('mime_content_type')) {
-            $mime = mime_content_type($file_path);
-            return strpos($mime, 'image/') === 0;
-        }
-        
-        return false;
     }
 }
