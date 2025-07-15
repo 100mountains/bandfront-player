@@ -45,7 +45,6 @@ $product_settings = $config->getStates(array(
     '_bfp_audio_engine',
     '_bfp_merge_in_grouped',
     '_bfp_single_player',
-    '_bfp_preload',
     '_bfp_play_all',
     '_bfp_loop',
     '_bfp_player_volume',
@@ -61,7 +60,6 @@ $enable_player = $product_settings['_bfp_enable_player'];
 $audio_engine = $product_settings['_bfp_audio_engine'];
 $merge_in_grouped = $product_settings['_bfp_merge_in_grouped'];
 $single_player = $product_settings['_bfp_single_player'];
-$preload = $product_settings['_bfp_preload'];
 $play_all = $product_settings['_bfp_play_all'];
 $loop = $product_settings['_bfp_loop'];
 $volume = $product_settings['_bfp_player_volume'];
@@ -99,16 +97,6 @@ $global_audio_engine = $config->getState('_bfp_audio_engine');
 							<label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php checked( $single_player ); ?> />
 							<span class="bfp-checkbox-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
 						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						⏭️ <?php esc_html_e( 'Preload behavior', 'bandfront-player' ); ?>
-					</td>
-					<td>
-						<label><input aria-label="<?php esc_attr_e( 'Preload - none', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="none" <?php checked( $preload, 'none' ); ?> /> None</label><br />
-						<label><input aria-label="<?php esc_attr_e( 'Preload - metadata', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="metadata" <?php checked( $preload, 'metadata' ); ?> /> Metadata</label><br />
-						<label><input aria-label="<?php esc_attr_e( 'Preload - auto', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="auto" <?php checked( $preload, 'auto' ); ?> /> Auto</label><br />
 					</td>
 				</tr>
 				<tr>

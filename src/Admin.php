@@ -215,8 +215,6 @@ class Admin {
         $playSimultaneously = isset($_REQUEST['_bfp_play_simultaneously']) ? 1 : 0;
         $volume = (isset($_REQUEST['_bfp_player_volume']) && is_numeric($_REQUEST['_bfp_player_volume'])) ? 
                   floatval($_REQUEST['_bfp_player_volume']) : 1;
-        $preload = (isset($_REQUEST['_bfp_preload']) && in_array($_REQUEST['_bfp_preload'], ['none', 'metadata', 'auto'])) ? 
-                   sanitize_text_field(wp_unslash($_REQUEST['_bfp_preload'])) : 'none';
 
         $message = isset($_REQUEST['_bfp_message']) ? wp_kses_post(wp_unslash($_REQUEST['_bfp_message'])) : '';
         $applyToAllPlayers = isset($_REQUEST['_bfp_apply_to_all_players']) ? 1 : 0;
@@ -323,7 +321,6 @@ class Admin {
             '_bfp_play_all' => $playAll,
             '_bfp_loop' => $loop,
             '_bfp_play_simultaneously' => $playSimultaneously,
-            '_bfp_preload' => $preload,
             '_bfp_on_cover' => $onCover,
             '_bfp_message' => $message,
             '_bfp_default_extension' => $troubleshootDefaultExtension,
@@ -432,7 +429,6 @@ class Admin {
             update_post_meta($productId, '_bfp_enable_player', $globalSettings['_bfp_enable_player']);
             update_post_meta($productId, '_bfp_merge_in_grouped', $globalSettings['_bfp_merge_in_grouped']);
             update_post_meta($productId, '_bfp_single_player', $globalSettings['_bfp_single_player']);
-            update_post_meta($productId, '_bfp_preload', $globalSettings['_bfp_preload']);
             update_post_meta($productId, '_bfp_play_all', $globalSettings['_bfp_play_all']);
             update_post_meta($productId, '_bfp_loop', $globalSettings['_bfp_loop']);
             update_post_meta($productId, '_bfp_player_volume', $globalSettings['_bfp_player_volume']);
@@ -476,8 +472,6 @@ class Admin {
         $enablePlayer = isset($_DATA['_bfp_enable_player']) ? 1 : 0;
         $mergeGrouped = isset($_DATA['_bfp_merge_in_grouped']) ? 1 : 0;
         $singlePlayer = isset($_DATA['_bfp_single_player']) ? 1 : 0;
-        $preload = (isset($_DATA['_bfp_preload']) && in_array($_DATA['_bfp_preload'], ['none', 'metadata', 'auto'])) ? 
-                   sanitize_text_field(wp_unslash($_DATA['_bfp_preload'])) : 'none';
         $playAll = isset($_DATA['_bfp_play_all']) ? 1 : 0;
         $loop = isset($_DATA['_bfp_loop']) ? 1 : 0;
         $volume = (isset($_DATA['_bfp_player_volume']) && is_numeric($_DATA['_bfp_player_volume'])) ? 
@@ -491,7 +485,6 @@ class Admin {
         update_post_meta($postId, '_bfp_enable_player', $enablePlayer);
         update_post_meta($postId, '_bfp_merge_in_grouped', $mergeGrouped);
         update_post_meta($postId, '_bfp_single_player', $singlePlayer);
-        update_post_meta($postId, '_bfp_preload', $preload);
         update_post_meta($postId, '_bfp_play_all', $playAll);
         update_post_meta($postId, '_bfp_loop', $loop);
         update_post_meta($postId, '_bfp_player_volume', $volume);

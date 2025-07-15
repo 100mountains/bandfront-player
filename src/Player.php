@@ -544,6 +544,34 @@ class Player {
     }
     
     /**
+     * Generate HTML for audio player
+     * 
+     * @param array $args Player arguments
+     * @return string Generated HTML
+     */
+    private function generatePlayerHtml(array $args): string {
+        $class = 'bfp-player ' . ($args['player_style'] ?? '');
+        $preload = 'none';
+        
+        // Smart preload based on context
+        $preload = $this->mainPlugin->getAudioCore()->getSmartPreload(
+            $args['single_player'] ?? false,
+            true // Always show duration in players
+        );
+        
+        // In the audio tag generation
+        $html = sprintf(
+            '<audio class="%s" %s preload="%s" %s>',
+            esc_attr($class),
+            $args['controls'] ? 'controls' : '',
+            esc_attr($preload),
+            $args['loop'] ? 'loop' : ''
+        );
+        
+        // ...existing code...
+    }
+    
+    /**
      * Determine if player should be shown for product
      * 
      * @param object $product WooCommerce product object

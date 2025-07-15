@@ -528,22 +528,38 @@ class Audio {
     }
     
     /**
-     * Handle preload attribute for streaming URLs
+     * Get smart preload value based on context
      * 
-     * @param string $preload Original preload value
+     * @param bool $singlePlayer Whether single player mode is active
+     * @param bool $showDuration Whether duration needs to be shown
+     * @return string Preload value: 'none' or 'metadata'
+     */
+    public function getSmartPreload(bool $singlePlayer = false, bool $showDuration = true): string {
+        // If single player mode, we need metadata for playlist functionality
+        if ($singlePlayer) {
+            return 'metadata';
+        }
+        
+        // If we need to show duration, preload metadata
+        if ($showDuration) {
+            return 'metadata';
+        }
+        
+        // Default to none for performance
+        return 'none';
+    }
+    
+    /**
+     * Preload audio file
+     * 
+     * @param string $preload Preload setting (deprecated parameter, kept for compatibility)
      * @param string $audioUrl Audio URL
      * @return string Modified preload value
      */
     public function preload(string $preload, string $audioUrl): string {
-        if (strpos($audioUrl, 'bfp-action=play') !== false && $this->preloadTimes > 0) {
-            return 'none';
-        }
-        
-        if (strpos($audioUrl, 'bfp-action=play') !== false) {
-            $this->preloadTimes++;
-        }
-        
-        return $preload;
+        // Now uses smart detection instead of manual setting
+        $singlePlayer = $this->mainPlugin->getConfig()->getState('_bfp_single_player', false);
+        return $this->getSmartPreload($singlePlayer);
     }
     
     /**

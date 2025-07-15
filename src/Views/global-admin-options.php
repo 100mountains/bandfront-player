@@ -199,16 +199,6 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 				</tr>
 				<tr>
 					<td class="bfp-column-30">
-						⏭️ <?php esc_html_e( 'Preload behavior', 'bandfront-player' ); ?>
-					</td>
-					<td>
-						<label><input aria-label="<?php esc_attr_e( 'Preload - none', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="none" <?php checked( $settings['_bfp_preload'], 'none' ); ?> /> None</label><br />
-						<label><input aria-label="<?php esc_attr_e( 'Preload - metadata', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="metadata" <?php checked( $settings['_bfp_preload'], 'metadata' ); ?> /> Metadata</label><br />
-						<label><input aria-label="<?php esc_attr_e( 'Preload - auto', 'bandfront-player' ); ?>" type="radio" name="_bfp_preload" value="auto" <?php checked( $settings['_bfp_preload'], 'auto' ); ?> /> Auto</label><br />
-					</td>
-				</tr>
-				<tr>
-					<td class="bfp-column-30">
 						<label for="_bfp_play_all">▶️ <?php esc_html_e( 'Auto-play next track', 'bandfront-player' ); ?></label>
 					</td>
 					<td>

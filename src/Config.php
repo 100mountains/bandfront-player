@@ -30,7 +30,6 @@ class Config {
        '_bfp_merge_in_grouped' => 0,
        '_bfp_play_all' => 0,
        '_bfp_loop' => 0,
-       '_bfp_preload' => 'none',
        '_bfp_player_volume' => 1.0,
        '_bfp_secure_player' => false,
        '_bfp_file_percent' => 50,
@@ -127,6 +126,22 @@ class Config {
            '_bfp_cloud_azure',
        ];
        
+       // Settings that can be overridden per-product
+       $this->overridableSettings = [
+           '_bfp_enable_player',
+           '_bfp_merge_in_grouped',
+           '_bfp_single_player',
+           '_bfp_play_all',
+           '_bfp_loop',
+           '_bfp_player_volume',
+           '_bfp_secure_player',
+           '_bfp_file_percent',
+           '_bfp_own_demos',
+           '_bfp_direct_own_demos',
+           '_bfp_demos_list',
+           '_bfp_audio_engine',
+       ];
+    
        // Default values for settings
        $this->defaults = [
            '_bfp_registered_only' => 0,
@@ -150,7 +165,6 @@ class Config {
            '_bfp_play_all' => 0,
            '_bfp_loop' => 0,
            '_bfp_play_simultaneously' => 0,
-           '_bfp_preload' => 'smart', // Changed from 'none' to 'smart'
            '_bfp_on_cover' => 0,
            '_bfp_message' => '',
            '_bfp_default_extension' => 0,
@@ -250,8 +264,6 @@ class Config {
                                 '_bfp_single_player', '_bfp_play_all', '_bfp_loop', '_bfp_own_demos',
                                 '_bfp_direct_own_demos'])) {
            return $value === '1' || $value === 1 || $value === true;
-       } elseif ($key === '_bfp_preload') {
-           return in_array($value, ['none', 'metadata', 'auto']);
        } elseif ($key === '_bfp_file_percent') {
            return is_numeric($value) && $value >= 0 && $value <= 100;
        } elseif ($key === '_bfp_player_volume') {
@@ -390,7 +402,6 @@ class Config {
            'play_all' => ['key' => '_bfp_play_all', 'type' => 'int'],
            'loop' => ['key' => '_bfp_loop', 'type' => 'int'],
            'on_cover' => ['key' => '_bfp_on_cover', 'type' => 'int'],
-           'preload' => ['key' => '_bfp_preload', 'type' => 'string'],
            
            // Analytics settings
            'playback_counter_column' => ['key' => '_bfp_playback_counter_column', 'type' => 'int'],
@@ -471,7 +482,6 @@ class Config {
            '_bfp_file_percent',
            '_bfp_play_all',
            '_bfp_loop',
-           '_bfp_preload',
            '_bfp_audio_engine',
            '_bfp_merge_in_grouped',
        ];
