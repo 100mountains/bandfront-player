@@ -110,7 +110,6 @@ class Files {
 
         if (!$demosOnly) {
             delete_post_meta($postId, '_bfp_enable_player');
-            delete_post_meta($postId, '_bfp_show_in');
             delete_post_meta($postId, '_bfp_merge_in_grouped');
             delete_post_meta($postId, '_bfp_player_layout');
             delete_post_meta($postId, '_bfp_player_volume');

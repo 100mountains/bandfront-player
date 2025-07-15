@@ -103,7 +103,6 @@ class Config {
            '_bfp_ffmpeg',
            '_bfp_ffmpeg_path',
            '_bfp_ffmpeg_watermark',
-           // REMOVED: '_bfp_show_in',
            '_bfp_players_in_cart',
            '_bfp_player_layout',
            '_bfp_player_controls',
@@ -139,7 +138,6 @@ class Config {
            '_bfp_ffmpeg_path' => '',
            '_bfp_ffmpeg_watermark' => '',
            '_bfp_enable_player' => 1,
-           // REMOVED: '_bfp_show_in' => 'all',
            '_bfp_players_in_cart' => 0,
            '_bfp_player_layout' => 'dark',
            '_bfp_player_volume' => 1,
@@ -152,7 +150,7 @@ class Config {
            '_bfp_play_all' => 0,
            '_bfp_loop' => 0,
            '_bfp_play_simultaneously' => 0,
-           '_bfp_preload' => 'none',
+           '_bfp_preload' => 'smart', // Changed from 'none' to 'smart'
            '_bfp_on_cover' => 0,
            '_bfp_message' => '',
            '_bfp_default_extension' => 0,
@@ -163,6 +161,7 @@ class Config {
            '_bfp_playback_counter_column' => 1,
            '_bfp_analytics_integration' => 'ua',
            '_bfp_analytics_property' => '',
+           '_bfp_analytics_api_secret' => '',
            '_bfp_analytics_api_secret' => '',
            '_bfp_apply_to_all_players' => 0,
            '_bfp_audio_engine' => 'mediaelement',
@@ -210,12 +209,6 @@ class Config {
     * @return mixed Setting value
     */
    public function getState(string $key, mixed $default = null, ?int $productId = null): mixed {
-       // Handle deprecated _bfp_show_in with smart context
-       if ($key === '_bfp_show_in') {
-           // Return 'all' for backward compatibility
-           return 'all';
-       }
-       
        if ($default === null) {
            $default = $this->getDefaultValue($key);
        }

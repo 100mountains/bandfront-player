@@ -571,4 +571,90 @@ class Plugin {
         // Default: Do not show players
         return false;
     }
+    
+    /**
+     * Smart preload behavior detection
+     * Determines optimal preload setting based on context and performance considerations
+     * 
+     * @param int $productId Product ID to check
+     * @param string $context Page context ('single', 'shop', 'cart', etc.)
+     * @return string Preload value: 'none', 'metadata', or 'auto'
+     */
+    public function smartPreloadBehavior(int $productId, string $context = ''): string {
+        // Get current context if not provided
+        if (empty($context)) {
+            if (is_singular($this->getPostTypes())) {
+                $context = 'single';
+            } elseif (is_shop() || is_product_category() || is_product_tag()) {
+                $context = 'shop';
+            } elseif (is_cart()) {
+                $context = 'cart';
+            } else {
+                $context = 'other';
+            }
+        }
+        
+        // Get product
+        $product = wc_get_product($productId);
+        if (!$product) {
+            return 'none';
+        }
+        
+        // Check if secure player is enabled (demo files)
+        $securePlayer = $this->getConfig()->getState('_bfp_secure_player', false, $productId);
+        
+        // Count audio files
+        $audioFiles = $this->getFiles()->getProductFiles($productId);
+        $fileCount = count($audioFiles);
+        
+        // Smart logic based on context
+        switch ($context) {
+            case 'single':
+                // Product pages - more aggressive preloading
+                if ($fileCount <= 3) {
+                    // Few files - preload metadata for quick start
+                    return 'metadata';
+                } elseif ($fileCount <= 10 && !$securePlayer) {
+                    // Moderate files, no demos - still preload metadata
+                    return 'metadata';
+                } else {
+                    // Many files or using demos - conservative
+                    return 'none';
+                }
+                
+            case 'shop':
+            case 'category':
+                // Shop/archive pages - be conservative
+                // Too many players preloading = slow page
+                return 'none';
+                
+            case 'cart':
+                // Cart page - minimal preloading
+                return 'none';
+                
+            default:
+                // Other contexts (widgets, shortcodes) - conservative
+                return 'none';
+        }
+    }
+
+    /**
+     * Get optimal preload setting for a product
+     * Respects manual overrides while providing smart defaults
+     * 
+     * @param int $productId Product ID
+     * @param string $context Page context
+     * @return string Preload setting
+     */
+    public function getPreloadSetting(int $productId, string $context = ''): string {
+        // Get the configured setting
+        $preload = $this->getConfig()->getState('_bfp_preload', 'smart', $productId);
+        
+        // If set to 'smart' or invalid, use smart detection
+        if ($preload === 'smart' || !in_array($preload, ['none', 'metadata', 'auto'])) {
+            return $this->smartPreloadBehavior($productId, $context);
+        }
+        
+        return $preload;
+    }
 }
