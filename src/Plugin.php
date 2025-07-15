@@ -37,23 +37,34 @@ class Plugin {
      * Initialize components
      */
     private function initComponents(): void {
-        // Initialize state manager first
+        $this->addConsoleLog('initComponents started');
+        
+        // Core components always initialized
         $this->config = new Config($this);
+        $this->addConsoleLog('Config initialized');
         
-        // Initialize other components
-        $this->player = new Player($this);
-        $this->audioCore = new Audio($this);
         $this->fileHandler = new Utils\Files($this);
-        $this->preview = new Utils\Preview($this);
-        $this->analytics = new Utils\Analytics($this);
+        $this->addConsoleLog('Files utility initialized');
         
-        // Initialize StreamController
+        $this->preview = new Utils\Preview($this);
+        $this->addConsoleLog('Preview utility initialized');
+        
+        $this->analytics = new Utils\Analytics($this);
+        $this->addConsoleLog('Analytics utility initialized');
+        
+        $this->player = new Player($this);
+        $this->addConsoleLog('Player initialized');
+        
+        $this->audioCore = new Audio($this);
+        $this->addConsoleLog('Audio core initialized');
+        
         $this->streamController = new StreamController($this);
-        $this->streamController->register();
+        $this->addConsoleLog('StreamController initialized');
         
         // FIXED: Initialize WooCommerce integration with better detection
         if ($this->isWooCommerceActive()) {
             $this->woocommerce = new WooCommerce($this);
+            $this->addConsoleLog('WooCommerce integration initialized');
             
             // Initialize ProductProcessor for WooCommerce products
             $this->productProcessor = new ProductProcessor($this);
@@ -62,15 +73,24 @@ class Plugin {
             // Initialize FormatDownloader for download handling
             $this->formatDownloader = new FormatDownloader($this);
             $this->addConsoleLog('FormatDownloader initialized');
+        } else {
+            $this->addConsoleLog('WooCommerce not active, skipping WC components');
         }
         
-        // Initialize hooks
+        // Initialize hooks (must be after other components)
         $this->hooks = new Hooks($this);
+        $this->addConsoleLog('Hooks initialized');
         
-        // Initialize admin
+        // Initialize admin if in admin area
         if (is_admin()) {
             $this->admin = new Admin($this);
+            $this->addConsoleLog('Admin initialized');
         }
+        
+        // Allow other plugins to hook in
+        do_action('bfp_components_initialized', $this);
+        
+        $this->addConsoleLog('initComponents completed');
     }
     
     /**
@@ -98,7 +118,17 @@ class Plugin {
      * Plugin activation
      */
     public function activation(): void {
-        $this->fileHandler->createDirectories();
+        $this->addConsoleLog('Plugin activation started');
+        
+        // Ensure rewrite rules are registered
+        if ($this->formatDownloader) {
+            $this->formatDownloader->registerDownloadEndpoint();
+        }
+        
+        // Flush rewrite rules
+        flush_rewrite_rules();
+        
+        $this->addConsoleLog('Plugin activation completed');
     }
     
     /**

@@ -10,8 +10,10 @@ if (!defined('ABSPATH')) {
  */
 
 // include resources
-wp_enqueue_style( 'bfp-admin-style', plugin_dir_url( __FILE__ ) . '../css/style-admin.css', array(), '5.0.181' );
-wp_enqueue_script( 'bfp-admin-js', plugin_dir_url( __FILE__ ) . '../js/admin.js', array(), '5.0.181' );
+wp_enqueue_style( 'bfp-admin-style', BFP_PLUGIN_URL . 'css/style-admin.css', array(), '0.1' );
+wp_enqueue_style( 'bfp-admin-notices', BFP_PLUGIN_URL . 'css/admin-notices.css', array(), '0.1' );
+wp_enqueue_media();
+wp_enqueue_script( 'bfp-admin-js', BFP_PLUGIN_URL . 'js/admin.js', array(), '0.1' );
 $bfp_js = array(
 	'File Name'         => __( 'File Name', 'bandfront-player' ),
 	'Choose file'       => __( 'Choose file', 'bandfront-player' ),
@@ -34,11 +36,11 @@ if ( empty( $post ) ) {
 	global $post;
 }
 
-// Get the state manager
-$config = $GLOBALS['BandfrontPlayer']->get_config();
+// Get the state manager - FIXED: use getConfig() not get_config()
+$config = $GLOBALS['BandfrontPlayer']->getConfig();
 
-// Use bulk fetch for all product settings
-$product_settings = $GLOBALS['BandfrontPlayer']->get_config()->get_states(array(
+// Use bulk fetch for all product settings - FIXED: use getStates() not get_states()
+$product_settings = $config->getStates(array(
     '_bfp_enable_player',
     '_bfp_audio_engine',
     '_bfp_merge_in_grouped',
@@ -54,8 +56,23 @@ $product_settings = $GLOBALS['BandfrontPlayer']->get_config()->get_states(array(
     '_bfp_demos_list'
 ), $post->ID);
 
-// Get global audio engine for comparison
-$global_audio_engine = $GLOBALS['BandfrontPlayer']->get_config()->get_state('_bfp_audio_engine');
+// Extract variables for easier use
+$enable_player = $product_settings['_bfp_enable_player'];
+$audio_engine = $product_settings['_bfp_audio_engine'];
+$merge_in_grouped = $product_settings['_bfp_merge_in_grouped'];
+$single_player = $product_settings['_bfp_single_player'];
+$preload = $product_settings['_bfp_preload'];
+$play_all = $product_settings['_bfp_play_all'];
+$loop = $product_settings['_bfp_loop'];
+$volume = $product_settings['_bfp_player_volume'];
+$secure_player = $product_settings['_bfp_secure_player'];
+$file_percent = $product_settings['_bfp_file_percent'];
+$own_demos = $product_settings['_bfp_own_demos'];
+$direct_own_demos = $product_settings['_bfp_direct_own_demos'];
+$demos_list = $product_settings['_bfp_demos_list'];
+
+// Get global audio engine for comparison - FIXED: use getState() not get_state()
+$global_audio_engine = $config->getState('_bfp_audio_engine');
 ?>
 <h2><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Product Music Player Settings', 'bandfront-player' ); ?></h2>
 <p class="bfp-page-tagline">customize essential player settings for this specific product</p>
@@ -116,7 +133,7 @@ $global_audio_engine = $GLOBALS['BandfrontPlayer']->get_config()->get_state('_bf
 						<input aria-label="<?php esc_attr_e( 'Player volume', 'bandfront-player' ); ?>" type="number" name="_bfp_player_volume" min="0" max="1" step="0.01" value="<?php echo esc_attr( $volume ); ?>" />
 					</td>
 				</tr>
-				<?php if ( $config->is_module_enabled( 'audio-engine' ) ) : ?>
+				<?php if ( $config->isModuleEnabled( 'audio-engine' ) ) : ?>
 				<tr>
 					<td>🎛️ <?php esc_html_e( 'Audio Engine', 'bandfront-player' ); ?></td>
 					<td>
@@ -178,6 +195,11 @@ $global_audio_engine = $GLOBALS['BandfrontPlayer']->get_config()->get_state('_bf
 							</thead>
 							<tbody>
 								<?php
+								// Ensure demos_list is an array
+								if (!is_array($demos_list)) {
+									$demos_list = [];
+								}
+								
 								foreach ( $demos_list as $demo ) {
 									?>
 									<tr>
@@ -227,4 +249,66 @@ $global_audio_engine = $GLOBALS['BandfrontPlayer']->get_config()->get_state('_bf
 	 */
 	do_action( 'bfp_module_product_settings', $post->ID );
 	?>
+
+<div class="bfp-admin-section">
+    <h3><?php esc_html_e('Audio Format Generation', 'bandfront-player'); ?></h3>
+    
+    <?php
+    $lastGenerated = get_post_meta($post->ID, '_bfp_formats_generated', true);
+    $availableFormats = get_post_meta($post->ID, '_bfp_available_formats', true);
+    ?>
+    
+    <table class="form-table">
+        <tr>
+            <th scope="row"><?php esc_html_e('Format Status', 'bandfront-player'); ?></th>
+            <td>
+                <?php if ($lastGenerated): ?>
+                    <p class="description">
+                        <strong><?php esc_html_e('Last generated:', 'bandfront-player'); ?></strong> 
+                        <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $lastGenerated)); ?>
+                    </p>
+                    <?php if (is_array($availableFormats) && !empty($availableFormats)): ?>
+                        <p class="description">
+                            <strong><?php esc_html_e('Available formats:', 'bandfront-player'); ?></strong> 
+                            <?php echo esc_html(strtoupper(implode(', ', $availableFormats))); ?>
+                        </p>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <p class="description"><?php esc_html_e('Audio formats have not been generated yet.', 'bandfront-player'); ?></p>
+                <?php endif; ?>
+                
+                <p class="bfp-regenerate-formats">
+                    <button type="button" id="bfp-regenerate-formats" class="button button-secondary">
+                        <?php esc_html_e('Regenerate Audio Formats', 'bandfront-player'); ?>
+                    </button>
+                    <span class="spinner" style="float: none; margin-top: 0;"></span>
+                </p>
+                
+                <div id="bfp-regenerate-status" style="display: none; margin-top: 10px;">
+                    <div class="notice notice-info inline">
+                        <p><?php esc_html_e('Processing... Please wait.', 'bandfront-player'); ?></p>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+jQuery(document).ready(function($) {
+    $('#bfp-regenerate-formats').on('click', function() {
+        var $button = $(this);
+        var $spinner = $button.next('.spinner');
+        var $status = $('#bfp-regenerate-status');
+        
+        $button.prop('disabled', true);
+        $spinner.addClass('is-active');
+        $status.show();
+        
+        // Force save the product to trigger regeneration
+        $('#publish').click();
+    });
+});
+</script>
+
 <style>.bfp-player-settings tr td:first-child{width:225px;}</style>

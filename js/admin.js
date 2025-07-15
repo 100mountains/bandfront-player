@@ -158,20 +158,32 @@ jQuery(function($) {
             // Create notices container if it doesn't exist
             if (!$('.bfp-ajax-notices-container').length) {
                 this.container = $('<div class="bfp-ajax-notices-container"></div>');
-                $('body').append(this.container);
+                // FIXED: Ensure container is appended to body before using it
+                if ($('body').length) {
+                    $('body').append(this.container);
+                } else {
+                    // Fallback: wait for body to be ready
+                    $(document).ready(function() {
+                        this.container = $('<div class="bfp-ajax-notices-container"></div>');
+                        $('body').append(this.container);
+                    }.bind(this));
+                }
             } else {
                 this.container = $('.bfp-ajax-notices-container');
             }
             
-            // Convert existing notices immediately
-            var self = this;
-            // Small delay to ensure DOM is ready
-            setTimeout(function() {
-                self.convertExistingNotices();
-            }, 50);
-            
-            // Watch for new notices added via AJAX or page updates
-            this.observeNotices();
+            // Only convert notices if container is ready
+            if (this.container && this.container.length) {
+                // Convert existing notices immediately
+                var self = this;
+                // Small delay to ensure DOM is ready
+                setTimeout(function() {
+                    self.convertExistingNotices();
+                }, 50);
+                
+                // Watch for new notices added via AJAX or page updates
+                this.observeNotices();
+            }
             
             // Intercept form submission for AJAX (optional - for future use)
             $('form[action*="bandfront-player-settings"]').on('submit', this.handleFormSubmit.bind(this));
@@ -288,6 +300,13 @@ jQuery(function($) {
         showNotice: function(type, message, details) {
             if (!message || message.trim() === '') return;
             
+            // FIXED: Check if container exists before trying to append
+            if (!this.container || !this.container.length) {
+                console.warn('[BFP_AJAX] Container not ready, creating now');
+                this.container = $('<div class="bfp-ajax-notices-container"></div>');
+                $('body').append(this.container);
+            }
+            
             var noticeId = 'bfp-notice-' + Date.now();
             var noticeClass = 'notice notice-' + type + ' is-dismissible';
             
@@ -354,10 +373,11 @@ jQuery(function($) {
         }
     };
     
-    // Initialize AJAX handler if we're on the settings page
+    // Initialize AJAX handler if we're on the settings page or product edit page
     if ($('body').hasClass('toplevel_page_bandfront-player-settings') || 
         $('body').hasClass('settings_page_bandfront-player-settings') ||
-        window.location.href.indexOf('bandfront-player-settings') > -1) {
+        window.location.href.indexOf('bandfront-player-settings') > -1 ||
+        $('body').hasClass('post-type-product')) {  // ADDED: Also init on product pages
         window.BFP_AJAX.init();
     }
 });

@@ -17,45 +17,143 @@ if (!defined('ABSPATH')) {
 class ProductProcessor {
     
     private Plugin $mainPlugin;
+    private bool $debugMode = true; // Enable detailed logging
     
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
-        $this->addConsoleLog('ProductProcessor initialized');
+        $this->log('ProductProcessor initialized', 'info');
         
         // Hook into WooCommerce product save events
         add_action('woocommerce_process_product_meta', [$this, 'processProductAudio'], 20);
         add_action('woocommerce_update_product', [$this, 'processProductAudio'], 20);
         add_action('woocommerce_new_product', [$this, 'processProductAudio'], 20);
+        
+        // ADDED: Debug hook registration
+        add_action('save_post_product', [$this, 'debugSavePost'], 10, 3);
+        
+        // Add admin notice for processing status
+        add_action('admin_notices', [$this, 'showProcessingNotices']);
+    }
+    
+    /**
+     * Debug save_post hook
+     */
+    public function debugSavePost($post_id, $post, $update): void {
+        $this->log('=== DEBUG SAVE POST ===', 'info', [
+            'post_id' => $post_id,
+            'post_type' => $post->post_type,
+            'update' => $update,
+            'action' => current_action(),
+            'doing_autosave' => defined('DOING_AUTOSAVE') && DOING_AUTOSAVE,
+            'doing_ajax' => defined('DOING_AJAX') && DOING_AJAX,
+        ]);
     }
     
     /**
      * Process audio files when product is saved/updated
      */
     public function processProductAudio(int $productId): void {
-        $this->addConsoleLog('processProductAudio called', ['productId' => $productId]);
+        $this->log('=== PRODUCT AUDIO PROCESSING STARTED ===', 'info', ['productId' => $productId]);
         
         $product = wc_get_product($productId);
         
         if (!$product || !$product->is_downloadable()) {
-            $this->addConsoleLog('processProductAudio skipped - not downloadable', ['productId' => $productId]);
+            $this->log('Skipped - Product not downloadable', 'warning', ['productId' => $productId]);
             return;
         }
         
+        // Get current audio files
         $audioFiles = $this->getAudioDownloads($product);
         if (empty($audioFiles)) {
-            $this->addConsoleLog('processProductAudio skipped - no audio files', ['productId' => $productId]);
+            $this->log('Skipped - No audio files found', 'warning', ['productId' => $productId]);
             return;
         }
         
-        $this->addConsoleLog('processProductAudio found audio files', ['count' => count($audioFiles)]);
+        $this->log('Audio files detected', 'success', [
+            'productId' => $productId,
+            'count' => count($audioFiles),
+            'files' => array_map(function($f) { return $f['name']; }, $audioFiles)
+        ]);
+        
+        // Check if files have changed
+        $hasChanged = $this->detectAudioChanges($productId, $audioFiles);
+        $lastGenerated = get_post_meta($productId, '_bfp_formats_generated', true);
+        
+        if (!$hasChanged && $lastGenerated) {
+            $this->log('Skipped - No changes detected since last generation', 'info', [
+                'productId' => $productId,
+                'lastGenerated' => date('Y-m-d H:i:s', $lastGenerated)
+            ]);
+            return;
+        }
         
         // Check if FFmpeg is available
         if (!$this->isFFmpegAvailable()) {
-            $this->addConsoleLog('processProductAudio error - FFmpeg not available');
+            $this->log('ERROR - FFmpeg not available!', 'error', [
+                'productId' => $productId,
+                'suggestion' => 'Please configure FFmpeg path in Bandfront Player settings'
+            ]);
+            
+            // Store error for admin notice
+            set_transient('bfp_processing_error_' . $productId, 
+                'FFmpeg is not available. Please configure FFmpeg path in Bandfront Player settings.', 
+                MINUTE_IN_SECONDS * 5
+            );
             return;
         }
         
+        $this->log('Starting format generation...', 'info', ['productId' => $productId]);
+        
+        // Store processing status
+        set_transient('bfp_processing_' . $productId, true, MINUTE_IN_SECONDS * 5);
+        
+        // Generate formats
+        $startTime = microtime(true);
         $this->generateAudioFormats($productId, $audioFiles);
+        $duration = round(microtime(true) - $startTime, 2);
+        
+        // Clear processing status
+        delete_transient('bfp_processing_' . $productId);
+        
+        // Store success message
+        set_transient('bfp_processing_success_' . $productId, 
+            sprintf('Audio formats generated successfully in %s seconds!', $duration), 
+            MINUTE_IN_SECONDS * 5
+        );
+        
+        $this->log('=== PRODUCT AUDIO PROCESSING COMPLETED ===', 'success', [
+            'productId' => $productId,
+            'duration' => $duration . ' seconds'
+        ]);
+    }
+    
+    /**
+     * Detect if audio files have changed
+     */
+    private function detectAudioChanges(int $productId, array $currentFiles): bool {
+        $previousHash = get_post_meta($productId, '_bfp_audio_files_hash', true);
+        
+        // Create hash of current files
+        $fileData = array_map(function($file) {
+            return [
+                'name' => $file['name'],
+                'file' => $file['file'],
+                'extension' => $file['extension']
+            ];
+        }, $currentFiles);
+        
+        $currentHash = md5(serialize($fileData));
+        
+        if ($previousHash !== $currentHash) {
+            update_post_meta($productId, '_bfp_audio_files_hash', $currentHash);
+            $this->log('Audio files have changed', 'info', [
+                'previousHash' => substr($previousHash, 0, 8) . '...',
+                'currentHash' => substr($currentHash, 0, 8) . '...'
+            ]);
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -141,10 +239,19 @@ class ProductProcessor {
      * Generate all audio formats and zip packages
      */
     private function generateAudioFormats(int $productId, array $audioFiles): void {
-        $this->addConsoleLog('generateAudioFormats starting', ['productId' => $productId, 'files' => count($audioFiles)]);
+        $this->log('Format generation starting', 'info', [
+            'productId' => $productId, 
+            'fileCount' => count($audioFiles)
+        ]);
         
         $uploadsDir = $this->getWooCommerceUploadsDir();
         $productDir = $uploadsDir . '/bfp-formats/' . $productId;
+        
+        // Clean up old files if they exist
+        if (is_dir($productDir)) {
+            $this->log('Cleaning up old format files', 'info', ['directory' => $productDir]);
+            $this->deleteDirectory($productDir);
+        }
         
         // Create directory structure
         $formats = ['mp3', 'wav', 'flac', 'ogg'];
@@ -153,7 +260,7 @@ class ProductProcessor {
         }
         wp_mkdir_p($productDir . '/zips');
         
-        $this->addConsoleLog('generateAudioFormats directories created', ['productDir' => $productDir]);
+        $this->log('Directories created', 'success', ['productDir' => $productDir]);
         
         // Track converted files by format
         $convertedByFormat = [
@@ -165,8 +272,9 @@ class ProductProcessor {
         
         // Process each audio file
         foreach ($audioFiles as $index => $audio) {
-            $this->addConsoleLog('generateAudioFormats processing file', [
-                'index' => $index,
+            $this->log('Processing audio file', 'info', [
+                'index' => $index + 1,
+                'total' => count($audioFiles),
                 'name' => $audio['name'],
                 'extension' => $audio['extension']
             ]);
@@ -179,20 +287,33 @@ class ProductProcessor {
                 $outputPath = $productDir . '/' . $format . '/' . $cleanName . '.' . $format;
                 
                 // Skip if source and target format are the same
-                if ($audio['extension'] === $format && $format === 'wav') {
+                if ($audio['extension'] === $format) {
                     if (copy($audio['local_path'], $outputPath)) {
                         $convertedByFormat[$format][] = $outputPath;
-                        $this->addConsoleLog('generateAudioFormats copied wav', ['output' => $outputPath]);
+                        $this->log('Copied original ' . strtoupper($format), 'success', [
+                            'file' => basename($outputPath)
+                        ]);
                     }
                     continue;
                 }
                 
                 // Convert using FFmpeg
+                $this->log('Converting to ' . strtoupper($format), 'info', [
+                    'source' => basename($audio['local_path']),
+                    'target' => basename($outputPath)
+                ]);
+                
                 if ($this->convertToFormat($audio['local_path'], $outputPath, $format)) {
                     $convertedByFormat[$format][] = $outputPath;
-                    $this->addConsoleLog('generateAudioFormats converted', [
-                        'format' => $format,
-                        'output' => $outputPath
+                    $this->log('Conversion successful', 'success', [
+                        'format' => strtoupper($format),
+                        'file' => basename($outputPath),
+                        'size' => $this->formatFileSize(filesize($outputPath))
+                    ]);
+                } else {
+                    $this->log('Conversion FAILED', 'error', [
+                        'format' => strtoupper($format),
+                        'file' => basename($outputPath)
                     ]);
                 }
             }
@@ -206,19 +327,21 @@ class ProductProcessor {
                 copy($coverPath, $destCover);
                 $convertedByFormat[$format][] = $destCover;
             }
-            $this->addConsoleLog('generateAudioFormats copied cover', ['cover' => $coverPath]);
+            $this->log('Cover image added', 'success', ['source' => basename($coverPath)]);
         }
         
         // Create zip packages for each format
+        $this->log('Creating ZIP packages...', 'info');
         $this->createZipPackages($productId, $productDir, $convertedByFormat);
         
         // Store metadata
         update_post_meta($productId, '_bfp_formats_generated', time());
-        update_post_meta($productId, '_bfp_available_formats', array_keys($convertedByFormat));
+        update_post_meta($productId, '_bfp_available_formats', array_keys(array_filter($convertedByFormat)));
         
-        $this->addConsoleLog('generateAudioFormats completed', [
+        $this->log('Format generation completed!', 'success', [
             'productId' => $productId,
-            'formats' => array_map('count', $convertedByFormat)
+            'formats' => array_map('count', $convertedByFormat),
+            'totalFiles' => array_sum(array_map('count', $convertedByFormat))
         ]);
     }
     
@@ -345,9 +468,14 @@ class ProductProcessor {
                 }
                 $zip->close();
                 
-                $this->addConsoleLog('createZipPackages created zip', [
-                    'format' => $format,
-                    'files' => count($files),
+                $this->log('ZIP package created', 'success', [
+                    'format' => strtoupper($format),
+                    'fileCount' => count($files),
+                    'size' => $this->formatFileSize(filesize($zipPath))
+                ]);
+            } else {
+                $this->log('ZIP creation FAILED', 'error', [
+                    'format' => strtoupper($format),
                     'path' => $zipPath
                 ]);
             }
@@ -355,45 +483,177 @@ class ProductProcessor {
     }
     
     /**
+     * Delete directory recursively
+     */
+    private function deleteDirectory(string $dir): bool {
+        if (!is_dir($dir)) {
+            return false;
+        }
+        
+        $files = array_diff(scandir($dir), ['.', '..']);
+        foreach ($files as $file) {
+            $path = $dir . '/' . $file;
+            is_dir($path) ? $this->deleteDirectory($path) : unlink($path);
+        }
+        
+        return rmdir($dir);
+    }
+    
+    /**
+     * Format file size for display
+     */
+    private function formatFileSize(int $bytes): string {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $power = floor(log($bytes, 1024));
+        return round($bytes / pow(1024, $power), 2) . ' ' . $units[$power];
+    }
+    
+    /**
+     * Show admin notices for processing status
+     */
+    public function showProcessingNotices(): void {
+        if (!current_user_can('edit_products')) {
+            return;
+        }
+        
+        global $post;
+        if (!$post || !in_array($post->post_type, ['product'])) {
+            return;
+        }
+        
+        $productId = $post->ID;
+        
+        // Check for processing status
+        if (get_transient('bfp_processing_' . $productId)) {
+            ?>
+            <div class="notice notice-info">
+                <p><strong>Bandfront Player:</strong> Audio format generation in progress...</p>
+            </div>
+            <?php
+        }
+        
+        // Check for success message
+        $success = get_transient('bfp_processing_success_' . $productId);
+        if ($success) {
+            delete_transient('bfp_processing_success_' . $productId);
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <p><strong>Bandfront Player:</strong> <?php echo esc_html($success); ?></p>
+            </div>
+            <?php
+        }
+        
+        // Check for error message
+        $error = get_transient('bfp_processing_error_' . $productId);
+        if ($error) {
+            delete_transient('bfp_processing_error_' . $productId);
+            ?>
+            <div class="notice notice-error is-dismissible">
+                <p><strong>Bandfront Player:</strong> <?php echo esc_html($error); ?></p>
+            </div>
+            <?php
+        }
+    }
+    
+    /**
+     * Enhanced logging with levels and styling
+     */
+    private function log(string $message, string $level = 'info', $data = null): void {
+        if (!$this->debugMode) {
+            return;
+        }
+        
+        $styles = [
+            'info' => 'color: #3498db; font-weight: normal;',
+            'success' => 'color: #27ae60; font-weight: bold;',
+            'warning' => 'color: #f39c12; font-weight: bold;',
+            'error' => 'color: #e74c3c; font-weight: bold; font-size: 1.1em;'
+        ];
+        
+        $style = $styles[$level] ?? $styles['info'];
+        
+        echo '<script>console.log("%c[BFP ProductProcessor] ' . esc_js($message) . '", "' . $style . '", ' . 
+             wp_json_encode($data) . ');</script>';
+        
+        // Also log to error_log for debugging
+        error_log('[BFP ProductProcessor] ' . $message . ' ' . wp_json_encode($data));
+    }
+    
+    /**
+     * Legacy method for backwards compatibility
+     */
+    private function addConsoleLog(string $message, $data = null): void {
+        $this->log($message, 'info', $data);
+    }
+    
+    /**
      * Check if FFmpeg is available
      */
     private function isFFmpegAvailable(): bool {
+        $ffmpegEnabled = $this->mainPlugin->getConfig()->getState('_bfp_ffmpeg');
+        if (!$ffmpegEnabled) {
+            $this->log('FFmpeg disabled in settings', 'info');
+            return false;
+        }
+        
         $ffmpegPath = $this->getFFmpegPath();
-        return !empty($ffmpegPath);
+        if (!$ffmpegPath) {
+            $this->log('FFmpeg path not found', 'warning');
+            return false;
+        }
+        
+        // Test FFmpeg execution
+        $command = $ffmpegPath . ' -version 2>&1';
+        $output = @shell_exec($command);
+        
+        $available = !empty($output) && strpos($output, 'ffmpeg version') !== false;
+        $this->log('FFmpeg availability check', 'info', [
+            'path' => $ffmpegPath,
+            'available' => $available
+        ]);
+        
+        return $available;
     }
     
     /**
      * Get FFmpeg executable path
      */
-    private function getFFmpegPath(): string {
-        // First check plugin setting
-        $customPath = $this->mainPlugin->getConfig()->getState('_bfp_ffmpeg_path');
-        if ($customPath && file_exists($customPath)) {
-            return $customPath;
+    private function getFFmpegPath(): ?string {
+        $ffmpegPath = $this->mainPlugin->getConfig()->getState('_bfp_ffmpeg_path');
+        
+        if (empty($ffmpegPath)) {
+            // Try common locations
+            $commonPaths = [
+                '/usr/bin/ffmpeg',
+                '/usr/local/bin/ffmpeg',
+                '/opt/ffmpeg/ffmpeg',
+                'ffmpeg' // System PATH
+            ];
+            
+            foreach ($commonPaths as $path) {
+                if (@is_executable($path) || @shell_exec("which $path 2>/dev/null")) {
+                    $this->log('FFmpeg found at common location', 'info', ['path' => $path]);
+                    return $path;
+                }
+            }
+            
+            return null;
         }
         
-        // Try system ffmpeg
-        $systemPath = trim(shell_exec('which ffmpeg 2>&1') ?? '');
-        if ($systemPath && file_exists($systemPath)) {
-            return $systemPath;
+        // Clean the path
+        $ffmpegPath = rtrim($ffmpegPath, '/\\');
+        
+        // If it's a directory, append ffmpeg
+        if (is_dir($ffmpegPath)) {
+            $ffmpegPath .= '/ffmpeg';
         }
         
-        return '';
-    }
-    
-    /**
-     * Get WooCommerce uploads directory
-     */
-    private function getWooCommerceUploadsDir(): string {
-        $uploadDir = wp_upload_dir();
-        return $uploadDir['basedir'] . '/woocommerce_uploads';
-    }
-    
-    /**
-     * Add console log for debugging
-     */
-    private function addConsoleLog(string $message, $data = null): void {
-        echo '<script>console.log("[BFP ProductProcessor] ' . esc_js($message) . '", ' . 
-             wp_json_encode($data) . ');</script>';
+        // Check if executable
+        if (!is_executable($ffmpegPath) && !@shell_exec("which $ffmpegPath 2>/dev/null")) {
+            $this->log('FFmpeg path not executable', 'warning', ['path' => $ffmpegPath]);
+            return null;
+        }
+        
+        return $ffmpegPath;
     }
 }

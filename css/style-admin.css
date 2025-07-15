@@ -644,3 +644,59 @@
     border-radius: 8px;
     margin-bottom: 15px;
 }
+
+/* AJAX Notices Container */
+.bfp-ajax-notices-container {
+    position: fixed;
+    top: 32px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+}
+
+.bfp-ajax-notice-wrapper {
+    margin-bottom: 10px;
+    animation: bfp-notice-slide-in 0.3s ease-out;
+}
+
+.bfp-ajax-notice-wrapper.bfp-ajax-notice--removing {
+    animation: bfp-notice-slide-out 0.3s ease-out;
+}
+
+@keyframes bfp-notice-slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes bfp-notice-slide-out {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Adjust for admin bar */
+body.admin-bar .bfp-ajax-notices-container {
+    top: 64px;
+}
+
+/* Processing status styles */
+.bfp-processing-status {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.bfp-processing-status .spinner {
+    float: none;
+    margin: 0 5px 0 0;
+}
