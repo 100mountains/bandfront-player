@@ -72,7 +72,51 @@ class Audio {
     }
     
     /**
-     * Get pre-generated file path if available
+     * Get URL to pre-generated file
+     */
+    private function getPreGeneratedFileUrl(int $productId, string $originalUrl): ?string {
+        $uploadDir = wp_upload_dir();
+        $filename = pathinfo(basename($originalUrl), PATHINFO_FILENAME);
+        
+        // Clean the filename to match what ProductProcessor generates
+        $cleanName = $this->cleanFilenameForMatching($filename);
+        
+        // Default to MP3 for streaming
+        $mp3Url = $uploadDir['baseurl'] . '/woocommerce_uploads/bfp-formats/' . $productId . '/mp3/' . $cleanName . '.mp3';
+        
+        // Check if file exists by trying to access the path
+        $mp3Path = $uploadDir['basedir'] . '/woocommerce_uploads/bfp-formats/' . $productId . '/mp3/' . $cleanName . '.mp3';
+        if (file_exists($mp3Path)) {
+            $this->addConsoleLog('getPreGeneratedFileUrl found MP3', ['url' => $mp3Url]);
+            return $mp3Url;
+        }
+        
+        $this->addConsoleLog('getPreGeneratedFileUrl not found', ['tried' => $mp3Path]);
+        return null;
+    }
+    
+    /**
+     * Clean filename for matching pre-generated files
+     */
+    private function cleanFilenameForMatching(string $filename): string {
+        // Remove common suffixes that ProductProcessor removes
+        $filename = preg_replace('/-[a-z0-9]{6,}$/i', '', $filename);
+        $filename = preg_replace('/--+/', '-', $filename);
+        $filename = trim($filename, '-_ ');
+        
+        // Add track number if present in original
+        if (preg_match('/^(\d+)/', $filename, $matches)) {
+            // Already has track number, use as-is
+            return sanitize_file_name($filename);
+        }
+        
+        // Note: ProductProcessor adds track numbers, but we can't know which
+        // This is a limitation - we might need to scan the directory
+        return sanitize_file_name($filename);
+    }
+    
+    /**
+     * Get pre-generated file path if available - ENHANCED
      */
     private function getPreGeneratedFilePath(int $productId, string $originalUrl): ?string {
         $uploadDir = wp_upload_dir();
@@ -81,20 +125,48 @@ class Audio {
         
         // Extract filename without extension
         $filename = pathinfo(basename($originalUrl), PATHINFO_FILENAME);
+        $cleanName = $this->cleanFilenameForMatching($filename);
+        
+        $this->addConsoleLog('getPreGeneratedFilePath searching', [
+            'original' => $filename,
+            'clean' => $cleanName,
+            'formatDir' => $formatDir
+        ]);
         
         // Check for MP3 format (default streaming format)
-        $mp3Path = $formatDir . '/mp3/' . $filename . '.mp3';
-        if (file_exists($mp3Path)) {
-            return $mp3Path;
+        // Try with and without track numbers
+        $patterns = [
+            $formatDir . '/mp3/' . $cleanName . '.mp3',
+            $formatDir . '/mp3/*' . $cleanName . '.mp3',
+            $formatDir . '/mp3/*-' . $cleanName . '.mp3'
+        ];
+        
+        foreach ($patterns as $pattern) {
+            $matches = glob($pattern);
+            if (!empty($matches)) {
+                $this->addConsoleLog('getPreGeneratedFilePath found match', $matches[0]);
+                return $matches[0];
+            }
         }
         
         // Check original format
         $ext = pathinfo($originalUrl, PATHINFO_EXTENSION);
-        $originalFormatPath = $formatDir . '/' . $ext . '/' . $filename . '.' . $ext;
-        if (file_exists($originalFormatPath)) {
-            return $originalFormatPath;
+        if ($ext !== 'mp3') {
+            $patterns = [
+                $formatDir . '/' . $ext . '/' . $cleanName . '.' . $ext,
+                $formatDir . '/' . $ext . '/*' . $cleanName . '.' . $ext
+            ];
+            
+            foreach ($patterns as $pattern) {
+                $matches = glob($pattern);
+                if (!empty($matches)) {
+                    $this->addConsoleLog('getPreGeneratedFilePath found original format', $matches[0]);
+                    return $matches[0];
+                }
+            }
         }
         
+        $this->addConsoleLog('getPreGeneratedFilePath not found');
         return null;
     }
     

@@ -679,4 +679,20 @@ class Renderer {
         </div>
         <?php
     }
+    
+    /**
+     * Enqueue format downloads CSS
+     */
+    public function enqueueFormatDownloadsCSS(): void {
+        if (!is_product()) {
+            return;
+        }
+        
+        wp_enqueue_style(
+            'bfp-format-downloads',
+            plugin_dir_url(dirname(__FILE__)) . 'css/format-downloads.css',
+            [],
+            BFP_VERSION
+        );
+    }
 }

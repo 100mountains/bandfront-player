@@ -167,6 +167,13 @@ class Hooks {
             return $p;
         });
         
+        // Add format downloads CSS
+        add_action('wp_enqueue_scripts', function() {
+            if (function_exists('is_product') && is_product()) {
+                $this->mainPlugin->getRenderer()->enqueueFormatDownloadsCSS();
+            }
+        });
+        
         $this->addConsoleLog('registerHooks completed');
     }
     

@@ -733,4 +733,155 @@ class Files {
         
         exit;
     }
+    
+    /**
+     * Create demo file from source
+     * 
+     * @param string $sourceUrl Source file URL
+     * @param string $destPath Destination path
+     * @return bool Success status
+     */
+    public function createDemoFile(string $sourceUrl, string $destPath): bool {
+        $this->addConsoleLog('createDemoFile', ['source' => $sourceUrl, 'dest' => $destPath]);
+        
+        // Process cloud URLs
+        $sourceUrl = $this->processCloudUrl($sourceUrl);
+        
+        // Check if source is local
+        $localPath = $this->isLocal($sourceUrl);
+        
+        if ($localPath && file_exists($localPath)) {
+            // Copy local file
+            $result = copy($localPath, $destPath);
+            $this->addConsoleLog('createDemoFile local copy', ['success' => $result]);
+            return $result;
+        }
+        
+        // Download remote file
+        $response = wp_remote_get($sourceUrl, [
+            'timeout' => 300,
+            'stream' => true,
+            'filename' => $destPath
+        ]);
+        
+        if (is_wp_error($response)) {
+            $this->addConsoleLog('createDemoFile download error', $response->get_error_message());
+            return false;
+        }
+        
+        $result = file_exists($destPath) && filesize($destPath) > 0;
+        $this->addConsoleLog('createDemoFile download result', ['success' => $result]);
+        
+        return $result;
+    }
+    
+    /**
+     * Check if URL is a cloud storage URL
+     * 
+     * @param string $url URL to check
+     * @return bool
+     */
+    private function isCloudUrl(string $url): bool {
+        $cloudDomains = [
+            'drive.google.com',
+            'dropbox.com',
+            'dl.dropboxusercontent.com',
+            's3.amazonaws.com',
+            'blob.core.windows.net'
+        ];
+        
+        foreach ($cloudDomains as $domain) {
+            if (strpos($url, $domain) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if file has audio MIME type
+     * 
+     * @param string $filePath File path
+     * @return bool
+     */
+    private function hasAudioMimeType(string $filePath): bool {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $filePath);
+        finfo_close($finfo);
+        
+        return strpos($mimeType, 'audio/') === 0;
+    }
+    
+    /**
+     * Check if file has video MIME type
+     * 
+     * @param string $filePath File path
+     * @return bool
+     */
+    private function hasVideoMimeType(string $filePath): bool {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $filePath);
+        finfo_close($finfo);
+        
+        return strpos($mimeType, 'video/') === 0;
+    }
+    
+    /**
+     * Check if file has image MIME type
+     * 
+     * @param string $filePath File path
+     * @return bool
+     */
+    private function hasImageMimeType(string $filePath): bool {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $filePath);
+        finfo_close($finfo);
+        
+        return strpos($mimeType, 'image/') === 0;
+    }
+    
+    /**
+     * Handle OAuth file upload for Google Drive
+     * 
+     * @param array $fileData $_FILES data
+     * @return bool Success status
+     */
+    public function handleOAuthFileUpload(array $fileData): bool {
+        if ($fileData['error'] !== UPLOAD_ERR_OK) {
+            return false;
+        }
+        
+        $uploadDir = wp_upload_dir();
+        $targetDir = $uploadDir['basedir'] . '/bfp-private';
+        
+        if (!file_exists($targetDir)) {
+            wp_mkdir_p($targetDir);
+            
+            // Protect directory
+            file_put_contents($targetDir . '/.htaccess', 'deny from all');
+        }
+        
+        $targetPath = $targetDir . '/google-oauth.json';
+        
+        if (move_uploaded_file($fileData['tmp_name'], $targetPath)) {
+            // Store in options
+            $driveSettings = get_option('_bfp_cloud_drive_addon', []);
+            $driveSettings['_bfp_drive'] = 1;
+            $driveSettings['_bfp_drive_key'] = $targetPath;
+            update_option('_bfp_cloud_drive_addon', $driveSettings);
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Add console log for debugging
+     */
+    private function addConsoleLog(string $message, $data = null): void {
+        echo '<script>console.log("[BFP Files] ' . esc_js($message) . '", ' . 
+             wp_json_encode($data) . ');</script>';
+    }
 }

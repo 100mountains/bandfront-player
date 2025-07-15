@@ -242,4 +242,87 @@ class StreamController {
         
         fclose($fp);
     }
+    
+    /**
+     * Handle stream request
+     */
+    public function handleStreamRequest(\WP_REST_Request $request): \WP_REST_Response {
+        $productId = (int) $request->get_param('product_id');
+        $fileIndex = $request->get_param('file_index');
+        
+        $this->addConsoleLog('handleStreamRequest', [
+            'productId' => $productId,
+            'fileIndex' => $fileIndex,
+            'user' => get_current_user_id()
+        ]);
+        
+        // Get product files
+        $files = $this->mainPlugin->getPlayer()->getProductFiles($productId);
+        
+        if (empty($files)) {
+            $this->addConsoleLog('handleStreamRequest no files found');
+            return new \WP_REST_Response(
+                ['message' => __('No audio files found', 'bandfront-player')],
+                404
+            );
+        }
+        
+        // Find the requested file
+        $fileData = null;
+        if (isset($files[$fileIndex])) {
+            $fileData = $files[$fileIndex];
+        } else {
+            // Try numeric index
+            $numericIndex = is_numeric($fileIndex) ? (int) $fileIndex : 0;
+            $filesArray = array_values($files);
+            if (isset($filesArray[$numericIndex])) {
+                $fileData = $filesArray[$numericIndex];
+            }
+        }
+        
+        if (!$fileData) {
+            $this->addConsoleLog('handleStreamRequest file not found in array');
+            return new \WP_REST_Response(
+                ['message' => __('File not found', 'bandfront-player')],
+                404
+            );
+        }
+        
+        // Check if user owns the product
+        $purchased = false;
+        $woocommerce = $this->mainPlugin->getWooCommerce();
+        if ($woocommerce) {
+            $purchased = $woocommerce->woocommerceUserProduct($productId);
+        }
+        
+        $this->addConsoleLog('handleStreamRequest purchase check', ['purchased' => $purchased]);
+        
+        // Prepare streaming arguments
+        $args = [
+            'product_id' => $productId,
+            'file_index' => $fileIndex,
+            'url' => $fileData['file'],
+            'purchased' => $purchased
+        ];
+        
+        // Add security settings if not purchased
+        if (!$purchased) {
+            $securePlayer = $this->mainPlugin->getConfig()->getState('_bfp_secure_player', false, $productId);
+            $filePercent = $this->mainPlugin->getConfig()->getState('_bfp_file_percent', 50, $productId);
+            
+            if ($securePlayer) {
+                $args['secure_player'] = true;
+                $args['file_percent'] = $filePercent;
+            }
+            
+            $this->addConsoleLog('handleStreamRequest demo mode', [
+                'secure' => $securePlayer,
+                'percent' => $filePercent
+            ]);
+        }
+        
+        // Stream the file
+        $this->mainPlugin->getAudioCore()->outputFile($args);
+        exit; // outputFile handles the response
+    }
 }

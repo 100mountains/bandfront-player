@@ -18,6 +18,7 @@ class Plugin {
     private Utils\Analytics $analytics;
     private StreamController $streamController;
     private ?ProductProcessor $productProcessor = null;
+    private ?FormatDownloader $formatDownloader = null;
     
     // State flags
     private bool $purchasedProductFlag = false;
@@ -57,6 +58,10 @@ class Plugin {
             // Initialize ProductProcessor for WooCommerce products
             $this->productProcessor = new ProductProcessor($this);
             $this->addConsoleLog('ProductProcessor initialized');
+            
+            // Initialize FormatDownloader for download handling
+            $this->formatDownloader = new FormatDownloader($this);
+            $this->addConsoleLog('FormatDownloader initialized');
         }
         
         // Initialize hooks
@@ -245,6 +250,13 @@ class Plugin {
      */
     public function getProductProcessor(): ?ProductProcessor {
         return $this->productProcessor;
+    }
+    
+    /**
+     * Get format downloader
+     */
+    public function getFormatDownloader(): ?FormatDownloader {
+        return $this->formatDownloader;
     }
     
     // ===== STATE MANAGEMENT SHORTCUTS =====

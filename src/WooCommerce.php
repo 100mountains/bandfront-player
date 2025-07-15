@@ -18,8 +18,15 @@ class WooCommerce {
     private Plugin $mainPlugin;
     private ?Renderer $renderer = null;
     
+    /**
+     * Constructor
+     */
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
+        $this->addConsoleLog('WooCommerce integration initialized');
+        
+        // Add format download buttons to product pages
+        add_action('woocommerce_after_single_product_summary', [$this, 'displayFormatDownloads'], 25);
     }
     
     /**
@@ -519,5 +526,49 @@ class WooCommerce {
         }
         
         return $query;
+    }
+    
+    /**
+     * Display format download buttons on product page
+     */
+    public function displayFormatDownloads(): void {
+        global $product;
+        
+        if (!$product || !is_a($product, 'WC_Product')) {
+            return;
+        }
+        
+        $productId = $product->get_id();
+        $this->addConsoleLog('displayFormatDownloads checking', ['productId' => $productId]);
+        
+        // Check if user owns the product
+        if (!$this->woocommerceUserProduct($productId)) {
+            $this->addConsoleLog('displayFormatDownloads user does not own product');
+            return;
+        }
+        
+        // Get format downloader
+        $formatDownloader = $this->mainPlugin->getFormatDownloader();
+        if (!$formatDownloader) {
+            $this->addConsoleLog('displayFormatDownloads no format downloader available');
+            return;
+        }
+        
+        // Display download buttons
+        $html = $formatDownloader->getDownloadButtonsHtml($productId);
+        if ($html) {
+            echo '<div class="bfp-product-downloads">';
+            echo $html;
+            echo '</div>';
+            $this->addConsoleLog('displayFormatDownloads buttons displayed');
+        }
+    }
+    
+    /**
+     * Add console log for debugging
+     */
+    private function addConsoleLog(string $message, $data = null): void {
+        echo '<script>console.log("[BFP WooCommerce] ' . esc_js($message) . '", ' . 
+             wp_json_encode($data) . ');</script>';
     }
 }
