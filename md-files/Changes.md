@@ -1025,3 +1025,2304 @@ Update the `update()` method to return `false` if all fields are empty (which is
 
 **Summary:**  
 The main fix is to ensure your `update()` method returns `false` when all fields are empty, which signals WordPress to delete the widget instance.
+
+
+100mountains: improve the prompt in Prompt-Docs.md to include everything we need to know about our codebase, keep the basic format the same and keep what is there
+
+GitHub Copilot: ### [Prompt-Docs.md](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/md-files/Prompt-Docs.md)
+
+Update the documentation template to be more comprehensive and specific to the Bandfront Player codebase structure.
+
+````markdown
+# PHP File Documentation Template for Bandfront Player
+
+Use this format to document PHP files in the Bandfront Player WordPress plugin.
+
+## Required Documentation Structure
+
+### 1. File Name
+- Full filename with extension
+- Brief one-line description of the file's purpose
+
+### 2. File Tree Location
+```
+src/
+├── [ShowFileLocationHere]
+└── ...
+```
+
+### 3. Human Description
+A detailed explanation covering:
+- **Primary Purpose**: What this file does in the context of the music player plugin
+- **Key Responsibilities**: Main functions and features it handles
+- **Integration Points**: How it connects with other components
+- **User-Facing Impact**: What users/admins experience from this file
+
+### 4. Technical Analysis
+
+#### Database Operations
+- **Read Operations**: What data does it query from WordPress/WooCommerce?
+  - Post meta queries (product-specific settings)
+  - Option queries (global settings)
+  - WooCommerce data access
+  - Custom table queries (if any)
+- **Write Operations**: What data does it save/update/delete?
+  - Meta data updates
+  - Option updates
+  - File operations that affect database
+- **Caching**: Does it use WordPress transients or other caching?
+
+#### File System Operations
+- **File Reading**: What files does it read from disk?
+  - Audio files for processing
+  - Configuration files
+  - Template files
+- **File Writing**: What files does it create/modify?
+  - Demo file generation
+  - Cache files
+  - Upload directory operations
+- **Directory Operations**: Does it create/manage directories?
+
+#### REST API Usage
+- **Endpoints Defined**: What REST endpoints does it register?
+  - Route patterns
+  - HTTP methods supported
+  - Authentication requirements
+- **Endpoints Consumed**: What external APIs does it call?
+  - Third-party services
+  - WordPress/WooCommerce REST API
+- **Data Flow**: How does data move through the API?
+
+#### Config System Integration
+- **Settings Used**: What configuration values does it read?
+  - Global-only settings (from `globalOnlySettings` array)
+  - Overridable settings (from `overridableSettings` array)
+  - Product-specific overrides
+- **Settings Modified**: What configuration does it update?
+- **State Management**: How does it interact with the Config class?
+  - `getState()` calls
+  - `getStates()` bulk operations
+  - `updateState()` operations
+- **Inheritance Logic**: Does it respect the product → global → default hierarchy?
+
+#### Component Dependencies
+- **Plugin Class Usage**: How does it access the main Plugin instance?
+- **Component Access**: What other components does it use?
+  - Player, Audio, Files, Analytics, etc.
+  - Getter method usage (e.g., `getPlayer()`, `getAudioCore()`)
+- **Hook Integration**: What WordPress actions/filters does it use?
+- **WooCommerce Integration**: How does it interact with WC data/functions?
+
+### 5. Code Quality Assessment
+
+#### WordPress 2025 Best Practices
+- **Security Issues**:
+  - Input sanitization and validation
+  - Output escaping
+  - Nonce verification
+  - Capability checks
+- **Performance Concerns**:
+  - Database query optimization
+  - Caching implementation
+  - File I/O efficiency
+  - Memory usage
+- **Modern PHP Standards**:
+  - Type declarations usage
+  - Error handling patterns
+  - Code organization
+- **WordPress Standards**:
+  - Hook usage patterns
+  - Data handling
+  - Internationalization
+  - Accessibility
+
+#### Suggested Improvements
+- **Security Enhancements**: Specific recommendations
+- **Performance Optimizations**: Concrete suggestions
+- **Code Modernization**: PHP 8+ features that could be adopted
+- **WordPress Integration**: Better ways to use WP APIs
+- **Architecture Improvements**: How it could better fit the plugin's architecture
+
+### 6. Integration Notes
+
+#### State Management
+- How does this file work with the centralized Config system?
+- Does it properly use bulk state fetching for performance?
+- Are there any direct meta/option calls that should use Config instead?
+
+#### Component Architecture
+- How well does it follow the plugin's component separation?
+- Are dependencies properly injected vs. globally accessed?
+- Does it maintain proper abstraction boundaries?
+
+#### Error Handling
+- How does it handle failures gracefully?
+- Are errors logged appropriately?
+- Does it provide useful feedback to users/admins?
+
+### 7. Testing Considerations
+- What scenarios should be tested?
+- Are there edge cases to consider?
+- How can this component be tested in isolation?
+
+---
+
+## Example Usage
+
+When documenting a file, follow this template exactly. Focus on:
+1. **Accuracy**: Describe what the code actually does, not what you think it should do
+2. **Context**: Explain how it fits in the broader plugin architecture
+3. **Practicality**: Provide actionable improvement suggestions
+4. **Completeness**: Cover all the technical aspects listed above
+
+This documentation helps maintain code quality and assists with future development and debugging.
+````
+
+Made changes.
+
+100mountains: Here's a detailed breakdown of how to remove `_bfp_show_in` and replace it with smart context logic:
+
+
+## **Add `smartPlayContext` Method to Plugin Class**
+
+```php
+// ...existing code...
+
+/**
+ * Smart context detection for player display
+ * Replaces manual _bfp_show_in configuration with intelligent logic
+ */
+public function smartPlayContext(int $productId): bool {
+    $product = wc_get_product($productId);
+    
+    if (!$product) {
+        return false;
+    }
+
+    // Always show players for downloadable products
+    if ($product->is_downloadable()) {
+        return true;
+    }
+
+    // Show players for grouped products (they may contain downloadable children)
+    if ($product->is_type('grouped')) {
+        return true;
+    }
+
+    // Show players for variable products (they may have downloadable variations)
+    if ($product->is_type('variable')) {
+        return true;
+    }
+
+    // Check if custom audio files are added via our plugin
+    $customAudioFiles = get_post_meta($productId, '_bfp_demos_list', true);
+    if (!empty($customAudioFiles) && is_array($customAudioFiles)) {
+        return true;
+    }
+
+    // Check if player is explicitly enabled for this product
+    $enablePlayer = get_post_meta($productId, '_bfp_enable_player', true);
+    if ($enablePlayer) {
+        return true;
+    }
+
+    // Check if product has any audio files in downloadable files
+    if ($product->is_downloadable()) {
+        $downloads = $product->get_downloads();
+        foreach ($downloads as $download) {
+            $fileUrl = $download->get_file();
+            if ($this->getFiles()->isAudio($fileUrl)) {
+                return true;
+            }
+        }
+    }
+
+    // Default: Do not show players
+    return false;
+}
+
+// ...existing code...
+```
+
+GitHub Copilot: I'll help you implement the smart context logic to replace `_bfp_show_in`. This will make the player display more intelligent and context-aware.
+
+## Step-by-step Solution
+
+1. First, I'll add the `smartPlayContext` method to the Plugin class
+2. Update the Config class to remove `_bfp_show_in` from arrays and add deprecation handling
+3. Update the Renderer class to use the new smart logic
+4. Update Admin class to remove `_bfp_show_in` saving logic
+5. Update the view files to remove `_bfp_show_in` UI elements
+
+### [Plugin.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Plugin.php)
+
+Add the smart context detection method to the Plugin class.
+
+````php
+// ...existing code...
+
+/**
+ * Smart context detection for player display
+ * Replaces manual _bfp_show_in configuration with intelligent logic
+ * 
+ * @param int $productId Product ID to check
+ * @return bool Whether to show player for this product
+ */
+public function smartPlayContext(int $productId): bool {
+    $product = wc_get_product($productId);
+    
+    if (!$product) {
+        return false;
+    }
+
+    // Always show players for downloadable products with audio files
+    if ($product->is_downloadable()) {
+        $downloads = $product->get_downloads();
+        foreach ($downloads as $download) {
+            $fileUrl = $download->get_file();
+            if ($this->getFiles()->isAudio($fileUrl)) {
+                return true;
+            }
+        }
+    }
+
+    // Show players for grouped products (they may contain downloadable children)
+    if ($product->is_type('grouped')) {
+        $children = $product->get_children();
+        foreach ($children as $childId) {
+            $childProduct = wc_get_product($childId);
+            if ($childProduct && $childProduct->is_downloadable()) {
+                $downloads = $childProduct->get_downloads();
+                foreach ($downloads as $download) {
+                    if ($this->getFiles()->isAudio($download->get_file())) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    // Show players for variable products (they may have downloadable variations)
+    if ($product->is_type('variable')) {
+        $variations = $product->get_available_variations();
+        foreach ($variations as $variation) {
+            $varProduct = wc_get_product($variation['variation_id']);
+            if ($varProduct && $varProduct->is_downloadable()) {
+                $downloads = $varProduct->get_downloads();
+                foreach ($downloads as $download) {
+                    if ($this->getFiles()->isAudio($download->get_file())) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    // Check if custom audio files are added via our plugin
+    $customAudioFiles = get_post_meta($productId, '_bfp_demos_list', true);
+    if (!empty($customAudioFiles) && is_array($customAudioFiles)) {
+        foreach ($customAudioFiles as $file) {
+            if (!empty($file['file']) && $this->getFiles()->isAudio($file['file'])) {
+                return true;
+            }
+        }
+    }
+
+    // Check if player is explicitly enabled for this product
+    $enablePlayer = get_post_meta($productId, '_bfp_enable_player', true);
+    if ($enablePlayer) {
+        // Double-check that there are actually audio files
+        $allFiles = $this->getFiles()->getProductFiles($productId);
+        if (!empty($allFiles)) {
+            return true;
+        }
+    }
+
+    // Default: Do not show players
+    return false;
+}
+
+// ...existing code...
+````
+
+### [Config.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Config.php)
+
+Remove `_bfp_show_in` from configuration arrays and add deprecation handling.
+
+````php
+
+
+Made changes.
+
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+// ...existing code...
+
+/**
+ * Initialize default settings and structure
+ */
+private function init(): void {
+    // Settings that can ONLY be set globally
+    $this->globalOnlySettings = [
+        '_bfp_registered_only',
+        '_bfp_purchased',
+        '_bfp_reset_purchased_interval',
+        '_bfp_fade_out',
+        '_bfp_purchased_times_text',
+        '_bfp_ffmpeg',
+        '_bfp_ffmpeg_path',
+        '_bfp_ffmpeg_watermark',
+        // REMOVED: '_bfp_show_in',
+        '_bfp_players_in_cart',
+        '_bfp_player_layout',
+        '_bfp_player_controls',
+        '_bfp_player_title',
+        '_bfp_on_cover',
+        '_bfp_message',
+        '_bfp_default_extension',
+        '_bfp_force_main_player_in_title',
+        '_bfp_ios_controls',
+        '_bfp_onload',
+        '_bfp_disable_302',
+        '_bfp_playback_counter_column',
+        '_bfp_analytics_integration',
+        '_bfp_analytics_property',
+        '_bfp_analytics_api_secret',
+        '_bfp_apply_to_all_players',
+        '_bfp_audio_engine',
+        '_bfp_enable_visualizations',
+        '_bfp_cloud_active_tab',
+        '_bfp_cloud_dropbox',
+        '_bfp_cloud_s3',
+        '_bfp_cloud_azure',
+    ];
+    
+    // ...existing code...
+    
+    // Default values for settings
+    $this->defaults = [
+        '_bfp_registered_only' => 0,
+        '_bfp_purchased' => 0,
+        '_bfp_reset_purchased_interval' => 'daily',
+        '_bfp_fade_out' => 0,
+        '_bfp_purchased_times_text' => 'Purchased %d time(s)',
+        '_bfp_ffmpeg' => 0,
+        '_bfp_ffmpeg_path' => '',
+        '_bfp_ffmpeg_watermark' => '',
+        '_bfp_enable_player' => 1,
+        // REMOVED: '_bfp_show_in' => 'all',
+        '_bfp_players_in_cart' => 0,
+        '_bfp_player_layout' => 'dark',
+        '_bfp_player_volume' => 1,
+        '_bfp_single_player' => 0,
+        '_bfp_secure_player' => 0,
+        '_bfp_player_controls' => 'default',
+        '_bfp_file_percent' => 30,
+        '_bfp_player_title' => 1,
+        '_bfp_merge_in_grouped' => 0,
+        '_bfp_play_all' => 0,
+        '_bfp_loop' => 0,
+        '_bfp_play_simultaneously' => 0,
+        '_bfp_preload' => 'none',
+        '_bfp_on_cover' => 0,
+        '_bfp_message' => '',
+        '_bfp_default_extension' => 0,
+        '_bfp_force_main_player_in_title' => 0,
+        '_bfp_ios_controls' => 0,
+        '_bfp_onload' => 0,
+        '_bfp_disable_302' => 0,
+        '_bfp_playback_counter_column' => 1,
+        '_bfp_analytics_integration' => 'ua',
+        '_bfp_analytics_property' => '',
+        '_bfp_analytics_api_secret' => '',
+        '_bfp_apply_to_all_players' => 0,
+        '_bfp_audio_engine' => 'mediaelement',
+        '_bfp_enable_visualizations' => 0,
+        '_bfp_own_demos' => 0,
+        '_bfp_direct_own_demos' => 0,
+        '_bfp_demos_list' => [],
+        '_bfp_cloud_active_tab' => 'google-drive',
+        '_bfp_cloud_dropbox' => [
+            'enabled' => false,
+            'access_token' => '',
+            'folder_path' => '/bandfront-demos',
+        ],
+        '_bfp_cloud_s3' => [
+            'enabled' => false,
+            'access_key' => '',
+            'secret_key' => '',
+            'bucket' => '',
+            'region' => 'us-east-1',
+            'path_prefix' => 'bandfront-demos/',
+        ],
+        '_bfp_cloud_azure' => [
+            'enabled' => false,
+            'account_name' => '',
+            'account_key' => '',
+            'container' => '',
+            'path_prefix' => 'bandfront-demos/',
+        ],
+    ];
+}
+
+// ...existing code...
+
+/**
+ * Get a single state/setting value with inheritance handling
+ * 
+ * @param string $key Setting key
+ * @param mixed $default Default value if not found
+ * @param int|null $productId Product ID for context-aware retrieval
+ * @return mixed Setting value
+ */
+public function getState(string $key, mixed $default = null, ?int $productId = null): mixed {
+    // Handle deprecated _bfp_show_in with smart context
+    if ($key === '_bfp_show_in') {
+        // Return 'all' for backward compatibility
+        return 'all';
+    }
+    
+    // ...existing code...
+}
+
+// ...existing code...
+````
+
+### [Renderer.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Renderer.php)
+
+Update the renderer to use smart context detection instead of `_bfp_show_in`.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Check if player should display
+ * 
+ * @param int $productId Product ID
+ * @return bool Whether to display player
+ */
+private function shouldDisplay(int $productId): bool {
+    // Use smart context detection instead of _bfp_show_in
+    if (!$this->mainPlugin->smartPlayContext($productId)) {
+        return false;
+    }
+    
+    // Check page context
+    if (is_singular($this->mainPlugin->getPostTypes())) {
+        // Single product page - always show if context allows
+        return true;
+    } elseif (is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy()) {
+        // Shop/archive pages - always show if context allows
+        return true;
+    }
+    
+    // Allow other contexts (like shortcodes) to show players
+    return apply_filters('bfp_should_display_player', true, $productId);
+}
+
+// ...existing code...
+
+/**
+ * AJAX handler for player content
+ */
+public function handleAjaxPlayer(): void {
+    // ...existing code...
+    
+    // Smart context check instead of _bfp_show_in
+    if (!$this->mainPlugin->smartPlayContext($product->get_id())) {
+        wp_send_json_error(__('Player not available for this product', 'bandfront-player'));
+        return;
+    }
+    
+    // ...existing code...
+}
+
+// ...existing code...
+````
+
+### [Admin.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Admin.php)
+
+Remove `_bfp_show_in` from settings saving and UI.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Save global settings
+ */
+private function saveGlobalSettings(): array {
+    $_REQUEST = stripslashes_deep($_REQUEST);
+    
+    // ...existing code...
+    
+    $enablePlayer = isset($_REQUEST['_bfp_enable_player']) ? 1 : 0;
+    // REMOVED: $showIn handling
+    $playersInCart = isset($_REQUEST['_bfp_players_in_cart']) ? true : false;
+    
+    // ...existing code...
+    
+    $globalSettings = [
+        '_bfp_registered_only' => $registeredOnly,
+        '_bfp_purchased' => $purchased,
+        '_bfp_reset_purchased_interval' => $resetPurchasedInterval,
+        '_bfp_fade_out' => $fadeOut,
+        '_bfp_purchased_times_text' => $purchasedTimesText,
+        '_bfp_ffmpeg' => $ffmpeg,
+        '_bfp_ffmpeg_path' => $ffmpegPath,
+        '_bfp_ffmpeg_watermark' => $ffmpegWatermark,
+        '_bfp_enable_player' => $enablePlayer,
+        // REMOVED: '_bfp_show_in' => $showIn,
+        '_bfp_players_in_cart' => $playersInCart,
+        '_bfp_player_layout' => $playerStyle,
+        '_bfp_player_volume' => $volume,
+        '_bfp_single_player' => $singlePlayer,
+        '_bfp_secure_player' => $securePlayer,
+        '_bfp_player_controls' => $playerControls,
+        '_bfp_file_percent' => $filePercent,
+        '_bfp_player_title' => $playerTitle,
+        '_bfp_merge_in_grouped' => $mergeGrouped,
+        '_bfp_play_all' => $playAll,
+        '_bfp_loop' => $loop,
+        '_bfp_play_simultaneously' => $playSimultaneously,
+        '_bfp_preload' => $preload,
+        '_bfp_on_cover' => $onCover,
+        '_bfp_message' => $message,
+        '_bfp_default_extension' => $troubleshootDefaultExtension,
+        '_bfp_force_main_player_in_title' => $forceMainPlayerInTitle,
+        '_bfp_ios_controls' => $iosControls,
+        '_bfp_onload' => $troubleshootOnload,
+        '_bfp_disable_302' => $disable302,
+        '_bfp_playback_counter_column' => isset($_REQUEST['_bfp_playback_counter_column']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_playback_counter_column'])) : 0,
+        '_bfp_analytics_integration' => isset($_REQUEST['_bfp_analytics_integration']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_analytics_integration'])) : 'ua',
+        '_bfp_analytics_property' => isset($_REQUEST['_bfp_analytics_property']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_analytics_property'])) : '',
+        '_bfp_analytics_api_secret' => isset($_REQUEST['_bfp_analytics_api_secret']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_analytics_api_secret'])) : '',
+        '_bfp_apply_to_all_players' => $applyToAllPlayers,
+        '_bfp_audio_engine' => $audioEngine,
+        '_bfp_enable_visualizations' => $enableVisualizations,
+        // Add cloud storage settings
+        '_bfp_cloud_active_tab' => $cloudActiveTab,
+        '_bfp_cloud_dropbox' => $cloudDropbox,
+        '_bfp_cloud_s3' => $cloudS3,
+        '_bfp_cloud_azure' => $cloudAzure,
+    ];
+    
+    // ...existing code...
+}
+
+/**
+ * Apply settings to all products - REFACTORED
+ */
+private function applySettingsToAllProducts(array $globalSettings): void {
+    $productsIds = [
+        'post_type' => $this->mainPlugin->getPostTypes(),
+        'numberposts' => -1,
+        'post_status' => ['publish', 'pending', 'draft', 'future'],
+        'fields' => 'ids',
+        'cache_results' => false,
+    ];
+
+    $products = get_posts($productsIds);
+    foreach ($products as $productId) {
+        // Delete meta keys for settings that are now global-only
+        // REMOVED: delete_post_meta($productId, '_bfp_show_in');
+        delete_post_meta($productId, '_bfp_player_layout');
+        delete_post_meta($productId, '_bfp_player_controls');
+        delete_post_meta($productId, '_bfp_player_title');
+        delete_post_meta($productId, '_bfp_on_cover');
+        
+        // ...existing code...
+    }
+}
+
+// ...existing code...
+````
+
+### [global-admin-options.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Views/global-admin-options.php)
+
+Remove the "Show players on" setting from the UI.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+<tbody class="bfp-section-content" style="display: none;">
+<tr>
+    <td class="bfp-column-30"><label for="_bfp_enable_player">🎧 <?php esc_html_e( 'Enable players on all products', 'bandfront-player' ); ?></label></td>
+    <td><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Players will show automatically for products with audio files', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Enable player', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_enable_player" name="_bfp_enable_player" <?php checked( $settings['_bfp_enable_player'] ); ?> /></div></td>
+</tr>
+<!-- REMOVED: Show players on setting -->
+<tr>
+    <td class="bfp-column-30"><label for="_bfp_players_in_cart">🛒 <?php esc_html_e( 'Show players in cart', 'bandfront-player' ); ?></label></td>
+    <td>
+        <input aria-label="<?php esc_attr_e( 'Include players in cart', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_players_in_cart" name="_bfp_players_in_cart" <?php checked( $settings['_bfp_players_in_cart'] ); ?> />
+    </td>
+</tr>
+
+// ...existing code...
+````
+
+### [Player.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Player.php)
+
+Update the Player class to use smart context detection.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Determine if player should be shown for product
+ * 
+ * @param object $product WooCommerce product object
+ * @return bool Whether to show player
+ */
+private function shouldShowPlayer($product): bool {
+    if (!is_object($product) || !method_exists($product, 'get_id')) {
+        return false;
+    }
+    
+    $productId = $product->get_id();
+    
+    // Check if player is enabled
+    if (!$this->mainPlugin->getConfig()->getState('_bfp_enable_player', true, $productId)) {
+        return false;
+    }
+    
+    // Use smart context detection
+    return $this->mainPlugin->smartPlayContext($productId);
+}
+
+// ...existing code...
+````
+
+### [Hooks.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Hooks.php)
+
+Update hooks to ensure smart context is used throughout.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Check if player should be shown on current page
+ * 
+ * @param int $productId Product ID
+ * @return bool
+ */
+private function shouldShowPlayerOnPage(int $productId): bool {
+    // Use smart context detection
+    return $this->mainPlugin->smartPlayContext($productId);
+}
+
+// ...existing code...
+````
+
+Made changes.
+
+100mountains: now can we do the same for this bit of player settings:
+
+⏭️ Preload behavior	 None
+ Metadata
+ Auto
+
+ just put the logic in the best place 
+
+GitHub Copilot: I'll help you implement smart preload behavior logic similar to what we did with `_bfp_show_in`. This will automatically determine the best preload setting based on context.
+
+## Step-by-step Solution
+
+1. Add `smartPreloadBehavior` method to the Plugin class
+2. Update Config class to handle smart preload defaults
+3. Update Renderer to use smart preload logic
+4. Keep the UI but make it show "Auto (Smart)" as an option
+
+### [Plugin.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Plugin.php)
+
+Add the smart preload behavior method to the Plugin class.
+
+````php
+// ...existing code...
+
+/**
+ * Smart preload behavior detection
+ * Determines optimal preload setting based on context and performance considerations
+ * 
+ * @param int $productId Product ID to check
+ * @param string $context Page context ('single', 'shop', 'cart', etc.)
+ * @return string Preload value: 'none', 'metadata', or 'auto'
+ */
+public function smartPreloadBehavior(int $productId, string $context = ''): string {
+    // Get current context if not provided
+    if (empty($context)) {
+        if (is_singular($this->getPostTypes())) {
+            $context = 'single';
+        } elseif (is_shop() || is_product_category() || is_product_tag()) {
+            $context = 'shop';
+        } elseif (is_cart()) {
+            $context = 'cart';
+        } else {
+            $context = 'other';
+        }
+    }
+    
+    // Get product
+    $product = wc_get_product($productId);
+    if (!$product) {
+        return 'none';
+    }
+    
+    // Check if secure player is enabled (demo files)
+    $securePlayer = $this->getConfig()->getState('_bfp_secure_player', false, $productId);
+    
+    // Count audio files
+    $audioFiles = $this->getFiles()->getProductFiles($productId);
+    $fileCount = count($audioFiles);
+    
+    // Smart logic based on context
+    switch ($context) {
+        case 'single':
+            // Product pages - more aggressive preloading
+            if ($fileCount <= 3) {
+                // Few files - preload metadata for quick start
+                return 'metadata';
+            } elseif ($fileCount <= 10 && !$securePlayer) {
+                // Moderate files, no demos - still preload metadata
+                return 'metadata';
+            } else {
+                // Many files or using demos - conservative
+                return 'none';
+            }
+            
+        case 'shop':
+        case 'category':
+            // Shop/archive pages - be conservative
+            // Too many players preloading = slow page
+            return 'none';
+            
+        case 'cart':
+            // Cart page - minimal preloading
+            return 'none';
+            
+        default:
+            // Other contexts (widgets, shortcodes) - conservative
+            return 'none';
+    }
+}
+
+/**
+ * Get optimal preload setting for a product
+ * Respects manual overrides while providing smart defaults
+ * 
+ * @param int $productId Product ID
+ * @param string $context Page context
+ * @return string Preload setting
+ */
+public function getPreloadSetting(int $productId, string $context = ''): string {
+    // Get the configured setting
+    $preload = $this->getConfig()->getState('_bfp_preload', 'smart', $productId);
+    
+    // If set to 'smart' or invalid, use smart detection
+    if ($preload === 'smart' || !in_array($preload, ['none', 'metadata', 'auto'])) {
+        return $this->smartPreloadBehavior($productId, $context);
+    }
+    
+    return $preload;
+}
+
+// ...existing code...
+````
+
+### [Config.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Config.php)
+
+Update the Config class to include 'smart' as a preload option.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Initialize default settings and structure
+ */
+private function init(): void {
+    // ...existing code...
+    
+    // Default values for settings
+    $this->defaults = [
+        '_bfp_registered_only' => 0,
+        '_bfp_purchased' => 0,
+        '_bfp_reset_purchased_interval' => 'daily',
+        '_bfp_fade_out' => 0,
+        '_bfp_purchased_times_text' => 'Purchased %d time(s)',
+        '_bfp_ffmpeg' => 0,
+        '_bfp_ffmpeg_path' => '',
+        '_bfp_ffmpeg_watermark' => '',
+        '_bfp_enable_player' => 1,
+        '_bfp_players_in_cart' => 0,
+        '_bfp_player_layout' => 'dark',
+        '_bfp_player_volume' => 1,
+        '_bfp_single_player' => 0,
+        '_bfp_secure_player' => 0,
+        '_bfp_player_controls' => 'default',
+        '_bfp_file_percent' => 30,
+        '_bfp_player_title' => 1,
+        '_bfp_merge_in_grouped' => 0,
+        '_bfp_play_all' => 0,
+        '_bfp_loop' => 0,
+        '_bfp_play_simultaneously' => 0,
+        '_bfp_preload' => 'smart', // Changed from 'none' to 'smart'
+        '_bfp_on_cover' => 0,
+        '_bfp_message' => '',
+        '_bfp_default_extension' => 0,
+        '_bfp_force_main_player_in_title' => 0,
+        '_bfp_ios_controls' => 0,
+        '_bfp_onload' => 0,
+        '_bfp_disable_302' => 0,
+        '_bfp_playback_counter_column' => 1,
+        '_bfp_analytics_integration' => 'ua',
+        '_bfp_analytics_property' => '',
+        '_bfp_analytics_api_secret' => '',
+        '_bfp_apply_to_all_players' => 0,
+        '_bfp_audio_engine' => 'mediaelement',
+        '_bfp_enable_visualizations' => 0,
+        '_bfp_own_demos' => 0,
+        '_bfp_direct_own_demos' => 0,
+        '_bfp_demos_list' => [],
+        '_bfp_cloud_active_tab' => 'google-drive',
+        '_bfp_cloud_dropbox' => [
+            'enabled' => false,
+            'access_token' => '',
+            'folder_path' => '/bandfront-demos',
+        ],
+        '_bfp_cloud_s3' => [
+            'enabled' => false,
+            'access_key' => '',
+            'secret_key' => '',
+            'bucket' => '',
+            'region' => 'us-east-1',
+            'path_prefix' => 'bandfront-demos/',
+        ],
+        '_bfp_cloud_azure' => [
+            'enabled' => false,
+            'account_name' => '',
+            'account_key' => '',
+            'container' => '',
+            'path_prefix' => 'bandfront-demos/',
+        ],
+    ];
+}
+
+// ...existing code...
+````
+
+### [Renderer.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Renderer.php)
+
+Update the Renderer to use smart preload detection.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Generate audio element HTML
+ * 
+ * @param array $file File data
+ * @param int $productId Product ID
+ * @param array $options Rendering options
+ * @return string HTML output
+ */
+private function generateAudioElement(array $file, int $productId, array $options = []): string {
+    // ...existing code...
+    
+    // Get smart preload setting based on context
+    $preload = $this->mainPlugin->getPreloadSetting($productId);
+    
+    // Build audio attributes
+    $attrs = [
+        'src' => esc_url($audioUrl),
+        'preload' => esc_attr($preload),
+
+100mountains: no just get rid of it completely and have, i mean do we need it at all really if just on a storefront child theme? 
+
+GitHub Copilot: You're absolutely right! If you're using a Storefront child theme, the smart context detection should handle everything automatically. The `_bfp_show_in` setting is redundant and just adds unnecessary complexity.
+
+Let me help you remove it completely from the codebase:
+
+### [Config.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Config.php)
+
+Remove all references to `_bfp_show_in` from the Config class.
+
+````php
+// ...existing code...
+
+/**
+ * Initialize default settings and structure
+ */
+private function init(): void {
+    // Settings that can ONLY be set globally
+    $this->globalOnlySettings = [
+        '_bfp_registered_only',
+        '_bfp_purchased',
+        '_bfp_reset_purchased_interval',
+        '_bfp_fade_out',
+        '_bfp_purchased_times_text',
+        '_bfp_ffmpeg',
+        '_bfp_ffmpeg_path',
+        '_bfp_ffmpeg_watermark',
+        // REMOVED: '_bfp_show_in',
+        '_bfp_players_in_cart',
+        '_bfp_player_layout',
+        '_bfp_player_controls',
+        '_bfp_player_title',
+        '_bfp_on_cover',
+        '_bfp_message',
+        '_bfp_default_extension',
+        '_bfp_force_main_player_in_title',
+        '_bfp_ios_controls',
+        '_bfp_onload',
+        '_bfp_disable_302',
+        '_bfp_playback_counter_column',
+        '_bfp_analytics_integration',
+        '_bfp_analytics_property',
+        '_bfp_analytics_api_secret',
+        '_bfp_apply_to_all_players',
+        '_bfp_audio_engine',
+        '_bfp_enable_visualizations',
+        '_bfp_cloud_active_tab',
+        '_bfp_cloud_dropbox',
+        '_bfp_cloud_s3',
+        '_bfp_cloud_azure',
+    ];
+    
+    // ...existing code...
+    
+    // Default values for settings
+    $this->defaults = [
+        '_bfp_registered_only' => 0,
+        '_bfp_purchased' => 0,
+        '_bfp_reset_purchased_interval' => 'daily',
+        '_bfp_fade_out' => 0,
+        '_bfp_purchased_times_text' => 'Purchased %d time(s)',
+        '_bfp_ffmpeg' => 0,
+        '_bfp_ffmpeg_path' => '',
+        '_bfp_ffmpeg_watermark' => '',
+        '_bfp_enable_player' => 1,
+        // REMOVED: '_bfp_show_in' => 'all',
+        '_bfp_players_in_cart' => 0,
+        '_bfp_player_layout' => 'dark',
+        '_bfp_player_volume' => 1,
+        '_bfp_single_player' => 0,
+        '_bfp_secure_player' => 0,
+        '_bfp_player_controls' => 'default',
+        '_bfp_file_percent' => 30,
+        '_bfp_player_title' => 1,
+        '_bfp_merge_in_grouped' => 0,
+        '_bfp_play_all' => 0,
+        '_bfp_loop' => 0,
+        '_bfp_play_simultaneously' => 0,
+        '_bfp_preload' => 'none',
+        '_bfp_on_cover' => 0,
+        '_bfp_message' => '',
+        '_bfp_default_extension' => 0,
+        '_bfp_force_main_player_in_title' => 0,
+        '_bfp_ios_controls' => 0,
+        '_bfp_onload' => 0,
+        '_bfp_disable_302' => 0,
+        '_bfp_playback_counter_column' => 1,
+        '_bfp_analytics_integration' => 'ua',
+        '_bfp_analytics_property' => '',
+        '_bfp_analytics_api_secret' => '',
+        '_bfp_apply_to_all_players' => 0,
+        '_bfp_audio_engine' => 'mediaelement',
+        '_bfp_enable_visualizations' => 0,
+        '_bfp_own_demos' => 0,
+        '_bfp_direct_own_demos' => 0,
+        '_bfp_demos_list' => [],
+        '_bfp_cloud_active_tab' => 'google-drive',
+        '_bfp_cloud_dropbox' => [
+            'enabled' => false,
+            'access_token' => '',
+            'folder_path' => '/bandfront-demos',
+        ],
+        '_bfp_cloud_s3' => [
+            'enabled' => false,
+            'access_key' => '',
+            'secret_key' => '',
+            'bucket' => '',
+            'region' => 'us-east-1',
+            'path_prefix' => 'bandfront-demos/',
+        ],
+        '_bfp_cloud_azure' => [
+            'enabled' => false,
+            'account_name' => '',
+            'account_key' => '',
+            'container' => '',
+            'path_prefix' => 'bandfront-demos/',
+        ],
+    ];
+}
+
+// ...existing code...
+
+/**
+ * Get a single state/setting value with inheritance handling
+ * 
+ * @param string $key Setting key
+ * @param mixed $default Default value if not found
+ * @param int|null $productId Product ID for context-aware retrieval
+ * @return mixed Setting value
+ */
+public function getState(string $key, mixed $default = null, ?int $productId = null): mixed {
+    // Remove any special handling for deprecated _bfp_show_in
+    // ...existing code...
+}
+
+// ...existing code...
+````
+
+### [Files.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Utils/Files.php)
+
+Remove the `_bfp_show_in` meta deletion from the `deletePost` method.
+
+````php
+
+
+Made changes.
+
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+// ...existing code...
+
+/**
+ * Delete post-related files and meta data
+ */
+public function deletePost(int $postId, bool $demosOnly = false, bool $force = false): void {
+    $post = get_post($postId);
+    $postTypes = $this->mainPlugin->getPostTypes();
+    if (
+        isset($post) &&
+        (
+            !$force ||
+            !in_array($post->post_type, $postTypes) ||
+            !current_user_can('edit_post', $postId)
+        )
+    ) {
+        return;
+    }
+
+    // Delete truncated version of the audio file
+    $this->deleteTruncatedFiles($postId);
+
+    if (!$demosOnly) {
+        delete_post_meta($postId, '_bfp_enable_player');
+        // REMOVED: delete_post_meta($postId, '_bfp_show_in');
+        delete_post_meta($postId, '_bfp_merge_in_grouped');
+        delete_post_meta($postId, '_bfp_player_layout');
+        delete_post_meta($postId, '_bfp_player_volume');
+        delete_post_meta($postId, '_bfp_single_player');
+        delete_post_meta($postId, '_bfp_secure_player');
+        delete_post_meta($postId, '_bfp_file_percent');
+        delete_post_meta($postId, '_bfp_player_controls');
+        delete_post_meta($postId, '_bfp_player_title');
+        delete_post_meta($postId, '_bfp_preload');
+        delete_post_meta($postId, '_bfp_play_all');
+        delete_post_meta($postId, '_bfp_loop');
+        delete_post_meta($postId, '_bfp_on_cover');
+
+        delete_post_meta($postId, '_bfp_playback_counter');
+    }
+
+    delete_post_meta($postId, '_bfp_own_demos');
+    delete_post_meta($postId, '_bfp_direct_own_demos');
+    delete_post_meta($postId, '_bfp_demos_list');
+
+    do_action('bfp_delete_post', $postId);
+}
+
+// ...existing code...
+````
+
+### [Admin.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Admin.php)
+
+Remove the `_bfp_show_in` deletion from the apply to all products method.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Apply settings to all products - REFACTORED
+ */
+private function applySettingsToAllProducts(array $globalSettings): void {
+    $productsIds = [
+        'post_type' => $this->mainPlugin->getPostTypes(),
+        'numberposts' => -1,
+        'post_status' => ['publish', 'pending', 'draft', 'future'],
+        'fields' => 'ids',
+        'cache_results' => false,
+    ];
+
+    $products = get_posts($productsIds);
+    foreach ($products as $productId) {
+        // Delete meta keys for settings that are now global-only
+        // REMOVED: delete_post_meta($productId, '_bfp_show_in');
+        delete_post_meta($productId, '_bfp_player_layout');
+        delete_post_meta($productId, '_bfp_player_controls');
+        delete_post_meta($productId, '_bfp_player_title');
+        delete_post_meta($productId, '_bfp_on_cover');
+        
+        // Update the settings that can still be overridden
+        update_post_meta($productId, '_bfp_enable_player', $globalSettings['_bfp_enable_player']);
+        update_post_meta($productId, '_bfp_merge_in_grouped', $globalSettings['_bfp_merge_in_grouped']);
+        update_post_meta($productId, '_bfp_single_player', $globalSettings['_bfp_single_player']);
+        update_post_meta($productId, '_bfp_preload', $globalSettings['_bfp_preload']);
+        update_post_meta($productId, '_bfp_play_all', $globalSettings['_bfp_play_all']);
+        update_post_meta($productId, '_bfp_loop', $globalSettings['_bfp_loop']);
+        update_post_meta($productId, '_bfp_player_volume', $globalSettings['_bfp_player_volume']);
+        update_post_meta($productId, '_bfp_secure_player', $globalSettings['_bfp_secure_player']);
+        update_post_meta($productId, '_bfp_file_percent', $globalSettings['_bfp_file_percent']);
+
+        $this->mainPlugin->getConfig()->clearProductAttrsCache($productId);
+    }
+}
+
+// ...existing code...
+````
+
+That's it! The `_bfp_show_in` setting is now completely removed. The plugin will rely entirely on the `smartPlayContext` method to determine when to show players based on:
+
+1. Whether the product has downloadable audio files
+2. Whether it's a grouped/variable product with audio children
+3. Whether custom demo files have been added
+4. Whether the player is explicitly enabled for the product
+
+This is much cleaner and more maintainable. The smart context detection will automatically show players where they make sense in your Storefront theme without requiring manual configuration.
+
+Made changes.
+
+100mountains: now can we do the same for this bit of player settings:
+
+⏭️ Preload behavior	 None
+ Metadata
+ Auto
+
+ do we need this logic ? if so make it as simple as possible and just tack it as a check somewhere in another class ? we can lose the config settings for that as well completely.
+
+GitHub Copilot: You're right! The preload behavior setting is overly complex for what it does. We can simplify this dramatically by just checking if we need to preload metadata (for duration display) and handle it automatically. Let's remove it from the config and make it smart.
+
+## Step-by-step Solution
+
+1. Remove preload from Config arrays and defaults
+2. Add a simple smart preload method to the Audio class
+3. Update the view files to remove preload UI
+4. Update Admin class to remove preload saving logic
+5. Update the player rendering to use smart preload
+
+### [Config.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Config.php)
+
+Remove `_bfp_preload` from configuration arrays.
+
+````php
+// ...existing code...
+
+/**
+ * Initialize default settings and structure
+ */
+private function init(): void {
+    // ...existing code...
+    
+    // Settings that can be overridden per-product
+    $this->overridableSettings = [
+        '_bfp_enable_player',
+        '_bfp_merge_in_grouped',
+        '_bfp_single_player',
+        // REMOVED: '_bfp_preload',
+        '_bfp_play_all',
+        '_bfp_loop',
+        '_bfp_player_volume',
+        '_bfp_secure_player',
+        '_bfp_file_percent',
+        '_bfp_own_demos',
+        '_bfp_direct_own_demos',
+        '_bfp_demos_list',
+        '_bfp_audio_engine',
+    ];
+    
+    // Default values for settings
+    $this->defaults = [
+        // ...existing code...
+        '_bfp_play_all' => 0,
+        '_bfp_loop' => 0,
+        '_bfp_play_simultaneously' => 0,
+        // REMOVED: '_bfp_preload' => 'none',
+        '_bfp_on_cover' => 0,
+        // ...existing code...
+    ];
+}
+
+// ...existing code...
+````
+
+### [Audio.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Audio.php)
+
+Add smart preload detection method.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Get smart preload value based on context
+ * 
+ * @param bool $singlePlayer Whether single player mode is active
+ * @param bool $showDuration Whether duration needs to be shown
+ * @return string Preload value: 'none' or 'metadata'
+ */
+public function getSmartPreload(bool $singlePlayer = false, bool $showDuration = true): string {
+    // If single player mode, we need metadata for playlist functionality
+    if ($singlePlayer) {
+        return 'metadata';
+    }
+    
+    // If we need to show duration, preload metadata
+    if ($showDuration) {
+        return 'metadata';
+    }
+    
+    // Default to none for performance
+    return 'none';
+}
+
+// ...existing code...
+
+/**
+ * Preload audio file
+ * 
+ * @param string $preload Preload setting (deprecated parameter, kept for compatibility)
+ * @param string $audioUrl Audio URL
+ * @return string Modified preload value
+ */
+public function preload(string $preload, string $audioUrl): string {
+    // Now uses smart detection instead of manual setting
+    $singlePlayer = $this->mainPlugin->getConfig()->getState('_bfp_single_player', false);
+    return $this->getSmartPreload($singlePlayer);
+}
+
+// ...existing code...
+````
+
+### [Player.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Player.php)
+
+Update player rendering to use smart preload.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Generate HTML for audio player
+ * 
+ * @param array $args Player arguments
+ * @return string Generated HTML
+ */
+private function generatePlayerHtml(array $args): string {
+    // ...existing code...
+    
+    // Smart preload based on context
+    $preload = $this->mainPlugin->getAudioCore()->getSmartPreload(
+        $args['single_player'] ?? false,
+        true // Always show duration in players
+    );
+    
+    // ...existing code...
+    
+    // In the audio tag generation
+    $html .= sprintf(
+        '<audio class="%s" %s preload="%s" %s>',
+        esc_attr($class),
+        $args['controls'] ? 'controls' : '',
+        esc_attr($preload),
+        $args['loop'] ? 'loop' : ''
+    );
+    
+    // ...existing code...
+}
+
+// ...existing code...
+````
+
+### [Admin.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Admin.php)
+
+Remove preload from settings saving.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Save global settings
+ */
+private function saveGlobalSettings(): array {
+    // ...existing code...
+    
+    $playAll = isset($_REQUEST['_bfp_play_all']) ? 1 : 0;
+    $loop = isset($_REQUEST['_bfp_loop']) ? 1 : 0;
+    $playSimultaneously = isset($_REQUEST['_bfp_play_simultaneously']) ? 1 : 0;
+    $volume = (isset($_REQUEST['_bfp_player_volume']) && is_numeric($_REQUEST['_bfp_player_volume'])) ? 
+              floatval($_REQUEST['_bfp_player_volume']) : 1;
+    // REMOVED: preload handling
+    
+    // ...existing code...
+    
+    $globalSettings = [
+        // ...existing code...
+        '_bfp_play_all' => $playAll,
+        '_bfp_loop' => $loop,
+        '_bfp_play_simultaneously' => $playSimultaneously,
+        // REMOVED: '_bfp_preload' => $preload,
+        '_bfp_on_cover' => $onCover,
+        // ...existing code...
+    ];
+    
+    // ...existing code...
+}
+
+/**
+ * Apply settings to all products - REFACTORED
+ */
+private function applySettingsToAllProducts(array $globalSettings): void {
+    // ...existing code...
+    
+    foreach ($products as $productId) {
+        // ...existing code...
+        
+        // Update the settings that can still be overridden
+        update_post_meta($productId, '_bfp_enable_player', $globalSettings['_bfp_enable_player']);
+        update_post_meta($productId, '_bfp_merge_in_grouped', $globalSettings['_bfp_merge_in_grouped']);
+        update_post_meta($productId, '_bfp_single_player', $globalSettings['_bfp_single_player']);
+        // REMOVED: update_post_meta($productId, '_bfp_preload', $globalSettings['_bfp_preload']);
+        update_post_meta($productId, '_bfp_play_all', $globalSettings['_bfp_play_all']);
+        // ...existing code...
+    }
+}
+
+/**
+ * Save product-specific options - REFACTORED
+ */
+private function saveProductOptions(int $postId, array $_DATA): void {
+    // KEEP ONLY these product-specific settings:
+    $enablePlayer = isset($_DATA['_bfp_enable_player']) ? 1 : 0;
+    $mergeGrouped = isset($_DATA['_bfp_merge_in_grouped']) ? 1 : 0;
+    $singlePlayer = isset($_DATA['_bfp_single_player']) ? 1 : 0;
+    // REMOVED: preload handling
+    $playAll = isset($_DATA['_bfp_play_all']) ? 1 : 0;
+    $loop = isset($_DATA['_bfp_loop']) ? 1 : 0;
+    // ...existing code...
+
+    // --- SAVE TO DATABASE ---
+    update_post_meta($postId, '_bfp_enable_player', $enablePlayer);
+    update_post_meta($postId, '_bfp_merge_in_grouped', $mergeGrouped);
+    update_post_meta($postId, '_bfp_single_player', $singlePlayer);
+    // REMOVED: update_post_meta($postId, '_bfp_preload', $preload);
+    update_post_meta($postId, '_bfp_play_all', $playAll);
+    // ...existing code...
+}
+
+// ...existing code...
+````
+
+### [global-admin-options.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Views/global-admin-options.php)
+
+Remove the preload setting from global settings UI.
+
+````php
+
+
+Made changes.
+
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+// ...existing code...
+
+<tbody class="bfp-section-content" style="display: none;">
+<!-- ...existing code... -->
+<tr>
+    <td class="bfp-column-30">
+        <label for="_bfp_play_all">▶️ <?php esc_html_e( 'Auto-play next track', 'bandfront-player' ); ?></label>
+    </td>
+    <td>
+        <input aria-label="<?php esc_attr_e( 'Play all', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_all" name="_bfp_play_all" <?php checked( $settings['_bfp_play_all'] ); ?> />
+    </td>
+</tr>
+<!-- REMOVED: Preload behavior row -->
+<tr>
+    <td class="bfp-column-30">
+        <label for="_bfp_loop">🔄 <?php esc_html_e( 'Loop tracks', 'bandfront-player' ); ?></label>
+    </td>
+    <td>
+        <input aria-label="<?php esc_attr_e( 'Loop', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_loop" name="_bfp_loop" <?php checked( $settings['_bfp_loop'] ); ?> />
+    </td>
+</tr>
+<!-- ...existing code... -->
+</tbody>
+
+// ...existing code...
+````
+
+### [product-options.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Views/product-options.php)
+
+Remove the preload setting from product options UI.
+
+````php
+
+
+Made changes.
+
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+// ...existing code...
+
+// Use bulk fetch for all product settings - FIXED: use getStates() not get_states()
+$product_settings = $config->getStates(array(
+    '_bfp_enable_player',
+    '_bfp_audio_engine',
+    '_bfp_merge_in_grouped',
+    '_bfp_single_player',
+    // REMOVED: '_bfp_preload',
+    '_bfp_play_all',
+    '_bfp_loop',
+    '_bfp_player_volume',
+    '_bfp_secure_player',
+    '_bfp_file_percent',
+    '_bfp_own_demos',
+    '_bfp_direct_own_demos',
+    '_bfp_demos_list'
+), $post->ID);
+
+// Extract variables for easier use
+$enable_player = $product_settings['_bfp_enable_player'];
+$audio_engine = $product_settings['_bfp_audio_engine'];
+$merge_in_grouped = $product_settings['_bfp_merge_in_grouped'];
+$single_player = $product_settings['_bfp_single_player'];
+// REMOVED: $preload = $product_settings['_bfp_preload'];
+$play_all = $product_settings['_bfp_play_all'];
+// ...existing code...
+
+<tr>
+    <td valign="top">🎭 <?php esc_html_e( 'Player behavior', 'bandfront-player' ); ?></td>
+    <td>
+        <div class="bfp-checkbox-box">
+            <label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php checked( $single_player ); ?> />
+            <span class="bfp-checkbox-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
+        </div>
+    </td>
+</tr>
+<!-- REMOVED: Preload behavior row -->
+<tr>
+    <td>
+        <label for="_bfp_play_all">▶️ <?php esc_html_e( 'Auto-play next track', 'bandfront-player' ); ?></label>
+    </td>
+    <td>
+        <input aria-label="<?php esc_attr_e( 'Play all', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_all" name="_bfp_play_all" <?php checked( $play_all ); ?> />
+    </td>
+</tr>
+// ...existing code...
+````
+
+### [Files.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Utils/Files.php)
+
+Remove preload from the deletePost method.
+
+````php
+
+
+Made changes.
+
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+// ...existing code...
+
+/**
+ * Delete post-related files and meta data
+ */
+public function deletePost(int $postId, bool $demosOnly = false, bool $force = false): void {
+    // ...existing code...
+
+    if (!$demosOnly) {
+        delete_post_meta($postId, '_bfp_enable_player');
+        delete_post_meta($postId, '_bfp_merge_in_grouped');
+        delete_post_meta($postId, '_bfp_player_layout');
+        delete_post_meta($postId, '_bfp_player_volume');
+        delete_post_meta($postId, '_bfp_single_player');
+        delete_post_meta($postId, '_bfp_secure_player');
+        delete_post_meta($postId, '_bfp_file_percent');
+        delete_post_meta($postId, '_bfp_player_controls');
+        delete_post_meta($postId, '_bfp_player_title');
+        // REMOVED: delete_post_meta($postId, '_bfp_preload');
+        delete_post_meta($postId, '_bfp_play_all');
+        delete_post_meta($postId, '_bfp_loop');
+        delete_post_meta($postId, '_bfp_on_cover');
+
+        delete_post_meta($postId, '_bfp_playback_counter');
+    }
+
+    // ...existing code...
+}
+
+// ...existing code...
+````
+
+That's it! The preload behavior is now handled automatically:
+- Single player mode → preloads metadata (needed for playlist)
+- Regular players → preloads metadata (for duration display)
+- Performance is optimized by only preloading what's necessary
+
+The smart preload logic is much simpler and doesn't require manual configuration. It just works based on the player context.
+
+Made changes.
+
+100mountains: we can completely remove track titles on or off from config and just have them always on except on the main and shop page. just work out smart well very simple logic for that
+
+🏷️ Show track titles	
+
+can go totally 
+
+
+
+GitHub Copilot: You're absolutely right! Track titles should just be smart and automatic. Let's remove the `_bfp_player_title` setting completely and implement simple logic to always show titles except on shop/archive pages.
+
+## Step-by-step Solution
+
+1. Remove `_bfp_player_title` from Config arrays and defaults
+2. Add smart title detection to the Player class
+3. Remove title settings from admin views
+4. Clean up the database saves in Admin class
+5. Update Files utility to stop deleting the meta
+
+### [Config.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Config.php)
+
+Remove `_bfp_player_title` from configuration arrays.
+
+````php
+// ...existing code...
+
+/**
+ * Initialize default settings and structure
+ */
+private function init(): void {
+    // Settings that can ONLY be set globally
+    $this->globalOnlySettings = [
+        '_bfp_registered_only',
+        '_bfp_purchased',
+        '_bfp_reset_purchased_interval',
+        '_bfp_fade_out',
+        '_bfp_purchased_times_text',
+        '_bfp_ffmpeg',
+        '_bfp_ffmpeg_path',
+        '_bfp_ffmpeg_watermark',
+        '_bfp_players_in_cart',
+        '_bfp_player_layout',
+        '_bfp_player_controls',
+        // REMOVED: '_bfp_player_title',
+        '_bfp_on_cover',
+        '_bfp_message',
+        '_bfp_default_extension',
+        '_bfp_force_main_player_in_title',
+        '_bfp_ios_controls',
+        '_bfp_onload',
+        '_bfp_disable_302',
+        '_bfp_playback_counter_column',
+        '_bfp_analytics_integration',
+        '_bfp_analytics_property',
+        '_bfp_analytics_api_secret',
+        '_bfp_apply_to_all_players',
+        '_bfp_audio_engine',
+        '_bfp_enable_visualizations',
+        '_bfp_cloud_active_tab',
+        '_bfp_cloud_dropbox',
+        '_bfp_cloud_s3',
+        '_bfp_cloud_azure',
+    ];
+    
+    // ...existing code...
+    
+    // Default values for settings
+    $this->defaults = [
+        // ...existing code...
+        '_bfp_player_controls' => 'default',
+        '_bfp_file_percent' => 30,
+        // REMOVED: '_bfp_player_title' => 1,
+        '_bfp_merge_in_grouped' => 0,
+        // ...existing code...
+    ];
+}
+
+// ...existing code...
+````
+
+### [Player.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Player.php)
+
+Add smart title detection based on context.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Check if track titles should be shown based on context
+ * 
+ * @return bool True if titles should be shown
+ */
+private function shouldShowTitles(): bool {
+    // Always hide titles on main shop page and archives
+    if (is_shop() || is_product_category() || is_product_tag()) {
+        return false;
+    }
+    
+    // Always hide on home page if it shows products
+    if (is_front_page() && (is_shop() || has_shortcode(get_post_field('post_content', get_the_ID()), 'products'))) {
+        return false;
+    }
+    
+    // Show titles everywhere else (product pages, cart, etc.)
+    return true;
+}
+
+/**
+ * Render player
+ * 
+ * @param array $attrs Player attributes
+ * @return string Generated HTML
+ */
+public function render(array $attrs): string {
+    // ...existing code...
+    
+    // Smart title detection replaces the config check
+    $showTitles = $this->shouldShowTitles();
+    
+    // ...existing code where _bfp_player_title was used...
+    
+    // In the player generation code, use $showTitles instead of checking config
+    if ($showTitles && !empty($file['name'])) {
+        $html .= '<span class="bfp-track-title">' . esc_html($file['name']) . '</span>';
+    }
+    
+    // ...existing code...
+}
+
+// ...existing code...
+````
+
+### [Admin.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Admin.php)
+
+Remove all references to `_bfp_player_title`.
+
+````php
+
+
+Made changes.
+
+````php
+````php
+````php
+````php
+````php
+// ...existing code...
+
+/**
+ * Save global settings
+ */
+private function saveGlobalSettings(): array {
+    // ...existing code...
+    
+    $onCover = (('button' == $playerControls || 'default' == $playerControls) && isset($_REQUEST['_bfp_player_on_cover'])) ? 1 : 0;
+
+    // REMOVED: $playerTitle handling
+    $mergeGrouped = isset($_REQUEST['_bfp_merge_in_grouped']) ? 1 : 0;
+    $playAll = isset($_REQUEST['_bfp_play_all']) ? 1 : 0;
+    
+    // ...existing code...
+    
+    $globalSettings = [
+        // ...existing code...
+        '_bfp_player_controls' => $playerControls,
+        '_bfp_file_percent' => $filePercent,
+        // REMOVED: '_bfp_player_title' => $playerTitle,
+        '_bfp_merge_in_grouped' => $mergeGrouped,
+        // ...existing code...
+    ];
+    
+    // ...existing code...
+}
+
+/**
+ * Apply settings to all products - REFACTORED
+ */
+private function applySettingsToAllProducts(array $globalSettings): void {
+    // ...existing code...
+    
+    foreach ($products as $productId) {
+        // Delete meta keys for settings that are now global-only
+        delete_post_meta($productId, '_bfp_player_layout');
+        delete_post_meta($productId, '_bfp_player_controls');
+        // REMOVED: delete_post_meta($productId, '_bfp_player_title');
+        delete_post_meta($productId, '_bfp_on_cover');
+        
+        // ...existing code...
+    }
+}
+
+// ...existing code...
+````
+
+### [global-admin-options.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Views/global-admin-options.php)
+
+Remove the track titles setting from the UI.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+<tr valign="top">
+    <td>
+        🎛️ <?php esc_html_e( 'Player controls', 'bandfront-player' ); ?>
+    </td>
+    <td>
+        <label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="button" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'button' ); ?> /> <?php esc_html_e( 'Play/pause button only', 'bandfront-player' ); ?></label><br />
+        <label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="all" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'all' ); ?> /> <?php esc_html_e( 'Full controls (progress bar, volume, etc.)', 'bandfront-player' ); ?></label><br />
+        <label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="default" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'default' ); ?> /> <?php esc_html_e( 'Smart controls (minimal on shop, full on product pages)', 'bandfront-player' ); ?></label>
+    </td>
+</tr>
+<!-- REMOVED: Show track titles row -->
+</tbody>
+
+// ...existing code...
+````
+
+### [Files.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Utils/Files.php)
+
+Remove `_bfp_player_title` from the deletePost method.
+
+````php
+
+
+Made changes.
+
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+// ...existing code...
+
+/**
+ * Delete post-related files and meta data
+ */
+public function deletePost(int $postId, bool $demosOnly = false, bool $force = false): void {
+    // ...existing code...
+
+    if (!$demosOnly) {
+        delete_post_meta($postId, '_bfp_enable_player');
+        delete_post_meta($postId, '_bfp_merge_in_grouped');
+        delete_post_meta($postId, '_bfp_player_layout');
+        delete_post_meta($postId, '_bfp_player_volume');
+        delete_post_meta($postId, '_bfp_single_player');
+        delete_post_meta($postId, '_bfp_secure_player');
+        delete_post_meta($postId, '_bfp_file_percent');
+        delete_post_meta($postId, '_bfp_player_controls');
+        // REMOVED: delete_post_meta($postId, '_bfp_player_title');
+        delete_post_meta($postId, '_bfp_play_all');
+        delete_post_meta($postId, '_bfp_loop');
+        delete_post_meta($postId, '_bfp_on_cover');
+
+        delete_post_meta($postId, '_bfp_playback_counter');
+    }
+
+    // ...existing code...
+}
+
+// ...existing code...
+````
+
+That's it! Now track titles work automatically:
+- **Hidden** on shop pages, archives, and category pages (where you browse products)
+- **Shown** on single product pages, cart, checkout, and everywhere else (where details matter)
+
+This is much cleaner and follows user expectations - you don't need titles when browsing a catalog, but you do want them when looking at specific products or reviewing your cart.
+
+Made changes.
+
+100mountains: now remove 
+
+🎵 Allow multiple players	
+Let multiple players play at the same time instead of stopping others when one starts
+and
+🔊 Default volume (0.0 to 1.0)	
+
+default volume can always be one unless they set it on the product 
+
+and we will never allow multiple playing thats annoying we can lose anything to do with that 
+
+
+GitHub Copilot: You're absolutely right! Let's remove the "allow multiple players" option (it should always stop other players when one starts) and the global default volume setting (it should always be 1.0 unless set per product).
+
+## Step-by-step Solution
+
+1. Remove `_bfp_play_simultaneously` and global `_bfp_player_volume` from Config
+2. Update Admin to stop saving these settings
+3. Remove the UI elements from global settings
+4. Keep product-specific volume control only
+5. Ensure player always stops others when playing
+
+### [Config.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Config.php)
+
+Remove `_bfp_play_simultaneously` and `_bfp_player_volume` from global settings.
+
+````php
+// ...existing code...
+
+/**
+ * Initialize default settings and structure
+ */
+private function init(): void {
+    // Settings that can ONLY be set globally
+    $this->globalOnlySettings = [
+        '_bfp_registered_only',
+        '_bfp_purchased',
+        '_bfp_reset_purchased_interval',
+        '_bfp_fade_out',
+        '_bfp_purchased_times_text',
+        '_bfp_ffmpeg',
+        '_bfp_ffmpeg_path',
+        '_bfp_ffmpeg_watermark',
+        '_bfp_players_in_cart',
+        '_bfp_player_layout',
+        '_bfp_player_controls',
+        '_bfp_on_cover',
+        '_bfp_message',
+        '_bfp_default_extension',
+        '_bfp_force_main_player_in_title',
+        '_bfp_ios_controls',
+        '_bfp_onload',
+        '_bfp_disable_302',
+        '_bfp_playback_counter_column',
+        '_bfp_analytics_integration',
+        '_bfp_analytics_property',
+        '_bfp_analytics_api_secret',
+        '_bfp_apply_to_all_players',
+        '_bfp_audio_engine',
+        '_bfp_enable_visualizations',
+        '_bfp_cloud_active_tab',
+        '_bfp_cloud_dropbox',
+        '_bfp_cloud_s3',
+        '_bfp_cloud_azure',
+    ];
+    
+    // Settings that can be overridden per-product
+    $this->overridableSettings = [
+        '_bfp_enable_player',
+        '_bfp_merge_in_grouped',
+        '_bfp_single_player',
+        '_bfp_play_all',
+        '_bfp_loop',
+        '_bfp_player_volume',  // Keep this as product-specific only
+        '_bfp_secure_player',
+        '_bfp_file_percent',
+        '_bfp_own_demos',
+        '_bfp_direct_own_demos',
+        '_bfp_demos_list',
+        '_bfp_audio_engine',
+    ];
+    
+    // Default values for settings
+    $this->defaults = [
+        // ...existing code...
+        '_bfp_play_all' => 0,
+        '_bfp_loop' => 0,
+        // REMOVED: '_bfp_play_simultaneously' => 0,
+        '_bfp_on_cover' => 0,
+        // ...existing code...
+        '_bfp_player_volume' => 1, // Default always 1.0 for products
+        // ...existing code...
+    ];
+}
+
+// ...existing code...
+````
+
+### [Admin.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Admin.php)
+
+Remove handling of these settings from global save method.
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Save global settings
+ */
+private function saveGlobalSettings(): array {
+    // ...existing code...
+    
+    $mergeGrouped = isset($_REQUEST['_bfp_merge_in_grouped']) ? 1 : 0;
+    $playAll = isset($_REQUEST['_bfp_play_all']) ? 1 : 0;
+    $loop = isset($_REQUEST['_bfp_loop']) ? 1 : 0;
+    // REMOVED: $playSimultaneously handling
+    // REMOVED: global $volume handling
+    
+    $message = isset($_REQUEST['_bfp_message']) ? wp_kses_post(wp_unslash($_REQUEST['_bfp_message'])) : '';
+    $applyToAllPlayers = isset($_REQUEST['_bfp_apply_to_all_players']) ? 1 : 0;
+    
+    // ...existing code...
+    
+    $globalSettings = [
+        // ...existing code...
+        '_bfp_player_layout' => $playerStyle,
+        // REMOVED: '_bfp_player_volume' => $volume,
+        '_bfp_single_player' => $singlePlayer,
+        '_bfp_secure_player' => $securePlayer,
+        '_bfp_player_controls' => $playerControls,
+        '_bfp_file_percent' => $filePercent,
+        '_bfp_merge_in_grouped' => $mergeGrouped,
+        '_bfp_play_all' => $playAll,
+        '_bfp_loop' => $loop,
+        // REMOVED: '_bfp_play_simultaneously' => $playSimultaneously,
+        '_bfp_on_cover' => $onCover,
+        '_bfp_message' => $message,
+        // ...existing code...
+    ];
+    
+    // ...existing code...
+}
+
+/**
+ * Apply settings to all products - REFACTORED
+ */
+private function applySettingsToAllProducts(array $globalSettings): void {
+    $productsIds = [
+        'post_type' => $this->mainPlugin->getPostTypes(),
+        'numberposts' => -1,
+        'post_status' => ['publish', 'pending', 'draft', 'future'],
+        'fields' => 'ids',
+        'cache_results' => false,
+    ];
+
+    $products = get_posts($productsIds);
+    foreach ($products as $productId) {
+        // Delete meta keys for settings that are now global-only
+        delete_post_meta($productId, '_bfp_player_layout');
+        delete_post_meta($productId, '_bfp_player_controls');
+        delete_post_meta($productId, '_bfp_on_cover');
+        
+        // Update the settings that can still be overridden
+        update_post_meta($productId, '_bfp_enable_player', $globalSettings['_bfp_enable_player']);
+        update_post_meta($productId, '_bfp_merge_in_grouped', $globalSettings['_bfp_merge_in_grouped']);
+        update_post_meta($productId, '_bfp_single_player', $globalSettings['_bfp_single_player']);
+        update_post_meta($productId, '_bfp_play_all', $globalSettings['_bfp_play_all']);
+        update_post_meta($productId, '_bfp_loop', $globalSettings['_bfp_loop']);
+        // REMOVED: update_post_meta($productId, '_bfp_player_volume', $globalSettings['_bfp_player_volume']);
+        update_post_meta($productId, '_bfp_secure_player', $globalSettings['_bfp_secure_player']);
+        update_post_meta($productId, '_bfp_file_percent', $globalSettings['_bfp_file_percent']);
+
+        $this->mainPlugin->getConfig()->clearProductAttrsCache($productId);
+    }
+}
+
+// ...existing code...
+````
+
+### [global-admin-options.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Views/global-admin-options.php)
+
+Remove the UI elements for these settings.
+
+````php
+
+
+Made changes.
+
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+// ...existing code...
+
+<tr>
+    <td class="bfp-column-30">
+        <label for="_bfp_loop">🔄 <?php esc_html_e( 'Loop tracks', 'bandfront-player' ); ?></label>
+    </td>
+    <td>
+        <input aria-label="<?php esc_attr_e( 'Loop', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_loop" name="_bfp_loop" <?php checked( $settings['_bfp_loop'] ); ?> />
+    </td>
+</tr>
+<!-- REMOVED: Allow multiple players row -->
+<!-- REMOVED: Default volume row -->
+<tr valign="top">
+    <td>
+        🎛️ <?php esc_html_e( 'Player controls', 'bandfront-player' ); ?>
+    </td>
+    <td>
+        <label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="button" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'button' ); ?> /> <?php esc_html_e( 'Play/pause button only', 'bandfront-player' ); ?></label><br />
+        <label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="all" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'all' ); ?> /> <?php esc_html_e( 'Full controls (progress bar, volume, etc.)', 'bandfront-player' ); ?></label><br />
+        <label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="default" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'default' ); ?> /> <?php esc_html_e( 'Smart controls (minimal on shop, full on product pages)', 'bandfront-player' ); ?></label>
+    </td>
+</tr>
+
+// ...existing code...
+````
+
+### [product-options.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Views/product-options.php)
+
+Keep the volume control for products (already there).
+
+````php
+
+
+Made changes.
+
+````php
+````php
+````php
+````php
+````php
+````php
+````php
+// ...existing code...
+
+<tr>
+    <td>🔊 <?php esc_html_e( 'Volume (0.0 to 1.0)', 'bandfront-player' ); ?></td>
+    <td>
+        <input aria-label="<?php esc_attr_e( 'Player volume', 'bandfront-player' ); ?>" type="number" name="_bfp_player_volume" min="0" max="1" step="0.01" value="<?php echo esc_attr( $volume ); ?>" />
+        <br><em class="bfp-em-text"><?php esc_html_e( 'Default is 1.0 (maximum volume)', 'bandfront-player' ); ?></em>
+    </td>
+</tr>
+
+// ...existing code...
+````
+
+### [Player.php](vscode-remote://ssh-remote/var/www/html/wp-content/plugins/bandfront-player/src/Player.php)
+
+Ensure players always stop others when starting (remove simultaneous play check).
+
+````php
+
+
+Made changes.
+
+// ...existing code...
+
+/**
+ * Generate JavaScript for player functionality
+ */
+private function generatePlayerScript(array $args): string {
+    $script = '<script type="text/javascript">';
+    
+    // Always stop other players when one starts - no need to check setting
+    $script .= '
+    jQuery(document).ready(function($) {
+        // Stop all other audio/video when playing
+        $("audio, video").on("play", function() {
+            var currentPlayer = this;
+            $("audio, video").each(function() {
+                if (this !== currentPlayer) {
+                    this.pause();
+                }
+            });
+        });
+    });
+    ';
+    
+    // ...existing code...
+    
+    $script .= '</script>';
+    return $script;
+}
+
+/**
+ * Get player volume for a product
+ */
+private function getPlayerVolume(int $productId): float {
+    // Get product-specific volume, default to 1.0
+    $volume = $this->mainPlugin->getConfig()->getState('_bfp_player_volume', 1.0, $productId);
+    
+    // Ensure it's within valid range
+    return max(0, min(1, floatval($volume)));
+}
+
+// ...existing code...
+````
+
+That's it! Now:
+- **Volume** always defaults to 1.0 (maximum) unless specifically set per product
+- **Multiple players** are never allowed to play simultaneously - when you start one, others stop
+- The UI is cleaner with fewer confusing options
+- The behavior is more predictable and less annoying for users
+
+Made changes.

@@ -116,9 +116,10 @@ $global_audio_engine = $config->getState('_bfp_audio_engine');
 					</td>
 				</tr>
 				<tr>
-					<td>🔊 <?php esc_html_e( 'Default volume (0.0 to 1.0)', 'bandfront-player' ); ?></td>
+					<td>🔊 <?php esc_html_e( 'Volume (0.0 to 1.0)', 'bandfront-player' ); ?></td>
 					<td>
 						<input aria-label="<?php esc_attr_e( 'Player volume', 'bandfront-player' ); ?>" type="number" name="_bfp_player_volume" min="0" max="1" step="0.01" value="<?php echo esc_attr( $volume ); ?>" />
+						<br><em class="bfp-em-text"><?php esc_html_e( 'Default is 1.0 (maximum volume)', 'bandfront-player' ); ?></em>
 					</td>
 				</tr>
 				<?php if ( $config->isModuleEnabled( 'audio-engine' ) ) : ?>

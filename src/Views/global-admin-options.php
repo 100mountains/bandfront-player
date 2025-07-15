@@ -213,23 +213,6 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 						<input aria-label="<?php esc_attr_e( 'Loop', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_loop" name="_bfp_loop" <?php checked( $settings['_bfp_loop'] ); ?> />
 					</td>
 				</tr>
-				<tr>
-					<td class="bfp-column-30">
-						<label for="_bfp_play_simultaneously">🎵 <?php esc_html_e( 'Allow multiple players', 'bandfront-player' ); ?></label>
-					</td>
-					<td>
-						<input aria-label="<?php esc_attr_e( 'Allow multiple players to play simultaneously', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_simultaneously" name="_bfp_play_simultaneously" <?php checked( $settings['_bfp_play_simultaneously'] ); ?> /><br />
-						<i class="bfp-em-text"><?php
-							esc_html_e( 'Let multiple players play at the same time instead of stopping others when one starts', 'bandfront-player' );
-						?></i>
-					</td>
-				</tr>
-				<tr>
-					<td><label for="_bfp_player_volume" >🔊 <?php esc_html_e( 'Default volume (0.0 to 1.0)', 'bandfront-player' ); ?></label></td>
-					<td>
-						<input aria-label="<?php esc_attr_e( 'Player volume', 'bandfront-player' ); ?>" type="number" id="_bfp_player_volume" name="_bfp_player_volume" min="0" max="1" step="0.01" value="<?php echo esc_attr( $settings['_bfp_player_volume'] ); ?>" />
-					</td>
-				</tr>
 				<tr valign="top">
 					<td>
 						🎛️ <?php esc_html_e( 'Player controls', 'bandfront-player' ); ?>
@@ -238,12 +221,6 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="button" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'button' ); ?> /> <?php esc_html_e( 'Play/pause button only', 'bandfront-player' ); ?></label><br />
 						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="all" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'all' ); ?> /> <?php esc_html_e( 'Full controls (progress bar, volume, etc.)', 'bandfront-player' ); ?></label><br />
 						<label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="default" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'default' ); ?> /> <?php esc_html_e( 'Smart controls (minimal on shop, full on product pages)', 'bandfront-player' ); ?></label>
-					</td>
-				</tr>
-				<tr>
-					<td class="bfp-column-30"><label for="_bfp_player_title">🏷️ <?php esc_html_e( 'Show track titles', 'bandfront-player' ); ?></label></td>
-					<td>
-						<input aria-label="<?php esc_attr_e( 'Display the player title', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_player_title" name="_bfp_player_title" <?php checked( $settings['_bfp_player_title'] ); ?> />
 					</td>
 				</tr>
 				</tbody>

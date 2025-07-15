@@ -208,11 +208,9 @@ class Admin {
 
         $onCover = (('button' == $playerControls || 'default' == $playerControls) && isset($_REQUEST['_bfp_player_on_cover'])) ? 1 : 0;
 
-        $playerTitle = isset($_REQUEST['_bfp_player_title']) ? 1 : 0;
         $mergeGrouped = isset($_REQUEST['_bfp_merge_in_grouped']) ? 1 : 0;
         $playAll = isset($_REQUEST['_bfp_play_all']) ? 1 : 0;
         $loop = isset($_REQUEST['_bfp_loop']) ? 1 : 0;
-        $playSimultaneously = isset($_REQUEST['_bfp_play_simultaneously']) ? 1 : 0;
         $volume = (isset($_REQUEST['_bfp_player_volume']) && is_numeric($_REQUEST['_bfp_player_volume'])) ? 
                   floatval($_REQUEST['_bfp_player_volume']) : 1;
 
@@ -311,16 +309,13 @@ class Admin {
             '_bfp_enable_player' => $enablePlayer,
             '_bfp_players_in_cart' => $playersInCart,
             '_bfp_player_layout' => $playerStyle,
-            '_bfp_player_volume' => $volume,
             '_bfp_single_player' => $singlePlayer,
             '_bfp_secure_player' => $securePlayer,
             '_bfp_player_controls' => $playerControls,
             '_bfp_file_percent' => $filePercent,
-            '_bfp_player_title' => $playerTitle,
             '_bfp_merge_in_grouped' => $mergeGrouped,
             '_bfp_play_all' => $playAll,
             '_bfp_loop' => $loop,
-            '_bfp_play_simultaneously' => $playSimultaneously,
             '_bfp_on_cover' => $onCover,
             '_bfp_message' => $message,
             '_bfp_default_extension' => $troubleshootDefaultExtension,
@@ -422,7 +417,6 @@ class Admin {
             // Delete meta keys for settings that are now global-only
             delete_post_meta($productId, '_bfp_player_layout');
             delete_post_meta($productId, '_bfp_player_controls');
-            delete_post_meta($productId, '_bfp_player_title');
             delete_post_meta($productId, '_bfp_on_cover');
             
             // Update the settings that can still be overridden
@@ -431,7 +425,6 @@ class Admin {
             update_post_meta($productId, '_bfp_single_player', $globalSettings['_bfp_single_player']);
             update_post_meta($productId, '_bfp_play_all', $globalSettings['_bfp_play_all']);
             update_post_meta($productId, '_bfp_loop', $globalSettings['_bfp_loop']);
-            update_post_meta($productId, '_bfp_player_volume', $globalSettings['_bfp_player_volume']);
             update_post_meta($productId, '_bfp_secure_player', $globalSettings['_bfp_secure_player']);
             update_post_meta($productId, '_bfp_file_percent', $globalSettings['_bfp_file_percent']);
 

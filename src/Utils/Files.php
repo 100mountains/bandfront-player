@@ -117,7 +117,6 @@ class Files {
             delete_post_meta($postId, '_bfp_secure_player');
             delete_post_meta($postId, '_bfp_file_percent');
             delete_post_meta($postId, '_bfp_player_controls');
-            delete_post_meta($postId, '_bfp_player_title');
             delete_post_meta($postId, '_bfp_play_all');
             delete_post_meta($postId, '_bfp_loop');
             delete_post_meta($postId, '_bfp_on_cover');

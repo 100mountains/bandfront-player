@@ -592,4 +592,103 @@ class Player {
         // Use smart context detection
         return $this->mainPlugin->smartPlayContext($productId);
     }
+    
+    /**
+     * Check if track titles should be shown based on context
+     * 
+     * @return bool True if titles should be shown
+     */
+    private function shouldShowTitles(): bool {
+        // Always hide titles on main shop page and archives
+        if (is_shop() || is_product_category() || is_product_tag()) {
+            return false;
+        }
+        
+        // Always hide on home page if it shows products
+        if (is_front_page() && (is_shop() || has_shortcode(get_post_field('post_content', get_the_ID()), 'products'))) {
+            return false;
+        }
+        
+        // Show titles everywhere else (product pages, cart, etc.)
+        return true;
+    }
+    
+    /**
+     * Render player
+     * 
+     * @param array $attrs Player attributes
+     * @return string Generated HTML
+     */
+    public function render(array $attrs): string {
+        $files = $attrs['files'] ?? [];
+        $id = $attrs['product_id'] ?? 0;
+        $settings = $attrs['settings'] ?? [];
+        
+        // Smart title detection replaces the config check
+        $showTitles = $this->shouldShowTitles();
+        
+        $html = '';
+        
+        foreach ($files as $index => $file) {
+            $duration = $this->mainPlugin->getAudioCore()->getDurationByUrl($file['file']);
+            $audioUrl = $this->mainPlugin->getAudioCore()->generateAudioUrl($id, $index, $file);
+            
+            // In the player generation code, use $showTitles instead of checking config
+            if ($showTitles && !empty($file['name'])) {
+                $html .= '<span class="bfp-track-title">' . esc_html($file['name']) . '</span>';
+            }
+            
+            $html .= $this->getPlayer(
+                $audioUrl,
+                [
+                    'product_id'      => $id,
+                    'player_controls' => $settings['player_controls'] ?? '',
+                    'player_style'    => $settings['_bfp_player_layout'] ?? '',
+                    'media_type'      => $file['media_type'],
+                    'id'              => $index,
+                    'duration'        => $duration,
+                    'preload'         => $settings['_bfp_preload'] ?? 'none',
+                    'volume'          => $settings['_bfp_player_volume'] ?? 1,
+                ]
+            );
+        }
+        
+        return $html;
+    }
+    
+    /**
+     * Generate JavaScript for player functionality
+     */
+    private function generatePlayerScript(array $args): string {
+        $script = '<script type="text/javascript">';
+        
+        // Always stop other players when one starts - no need to check setting
+        $script .= '
+        jQuery(document).ready(function($) {
+            // Stop all other audio/video when playing
+            $("audio, video").on("play", function() {
+                var currentPlayer = this;
+                $("audio, video").each(function() {
+                    if (this !== currentPlayer) {
+                        this.pause();
+                    }
+                });
+            });
+        });
+        ';
+        
+        $script .= '</script>';
+        return $script;
+    }
+    
+    /**
+     * Get player volume for a product
+     */
+    private function getPlayerVolume(int $productId): float {
+        // Get product-specific volume, default to 1.0
+        $volume = $this->mainPlugin->getConfig()->getState('_bfp_player_volume', 1.0, $productId);
+        
+        // Ensure it's within valid range
+        return max(0, min(1, floatval($volume)));
+    }
 }
