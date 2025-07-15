@@ -22,6 +22,7 @@ class Hooks {
     
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
+        $this->addConsoleLog('Hooks constructor called');
         $this->registerHooks();
     }
     
@@ -29,29 +30,40 @@ class Hooks {
      * Get the hooks array configuration
      */
     public function getHooksConfig(): array {
+        $this->addConsoleLog('getHooksConfig called');
+        
         // FIXED: Context-aware hooks to prevent duplicate players
         $hooksConfig = [
             'main_player' => [],
             'all_players' => []
         ];
         
+        $isProduct = function_exists('is_product') && is_product();
+        $isShop = function_exists('is_shop') && is_shop();
+        $isArchive = function_exists('is_product_category') && is_product_category();
+        
+        $this->addConsoleLog('getHooksConfig context check', [
+            'is_product' => $isProduct,
+            'is_shop' => $isShop, 
+            'is_archive' => $isArchive,
+            'final_context' => $isProduct ? 'product' : ($isShop || $isArchive ? 'shop' : 'other')
+        ]);
+        
         // Only add all_players hooks on single product pages
-        if (function_exists('is_product') && is_product()) {
+        if ($isProduct) {
             $hooksConfig['all_players'] = [
-                // Changed from woocommerce_after_single_product_summary to place below price
-                'woocommerce_single_product_summary' => 25,  // Priority 25 is after price (price is at 10)
+                'woocommerce_single_product_summary' => 25,
             ];
+            $this->addConsoleLog('getHooksConfig single product hooks added', $hooksConfig['all_players']);
         } else {
-            // On shop/archive pages, remove the title hook if on_cover is enabled
-            // Use getState for single value retrieval
-            $onCover = $this->mainPlugin->getConfig()->getState('_bfp_on_cover');
-            if (!$onCover) {
-                $hooksConfig['main_player'] = [
-                    'woocommerce_after_shop_loop_item_title' => 1,
-                ];
-            }
+            // On shop/archive pages, always add main player hooks
+            $hooksConfig['main_player'] = [
+                'woocommerce_after_shop_loop_item_title' => 1,
+            ];
+            $this->addConsoleLog('getHooksConfig main player hooks added', $hooksConfig['main_player']);
         }
         
+        $this->addConsoleLog('getHooksConfig final config', $hooksConfig);
         return $hooksConfig;
     }
     
@@ -59,6 +71,8 @@ class Hooks {
      * Register all WordPress hooks and filters
      */
     private function registerHooks(): void {
+        $this->addConsoleLog('registerHooks started');
+        
         register_activation_hook(BFP_PLUGIN_PATH, [$this->mainPlugin, 'activation']);
         register_deactivation_hook(BFP_PLUGIN_PATH, [$this->mainPlugin, 'deactivation']);
 
@@ -152,35 +166,57 @@ class Hooks {
             $p[] = '/wavesurfer.js';
             return $p;
         });
+        
+        $this->addConsoleLog('registerHooks completed');
     }
     
     /**
      * Register hooks dynamically based on page context
      */
     public function registerDynamicHooks(): void {
+        $this->addConsoleLog('registerDynamicHooks called');
+        
         $hooksConfig = $this->getHooksConfig();
         
         // Register main player hooks
         foreach ($hooksConfig['main_player'] as $hook => $priority) {
+            $this->addConsoleLog('registerDynamicHooks adding main player hook', ['hook' => $hook, 'priority' => $priority]);
             add_action($hook, [$this->mainPlugin->getPlayer(), 'includeMainPlayer'], $priority);
         }
         
         // Register all players hooks
         foreach ($hooksConfig['all_players'] as $hook => $priority) {
+            $this->addConsoleLog('registerDynamicHooks adding all players hook', ['hook' => $hook, 'priority' => $priority]);
             add_action($hook, [$this->mainPlugin->getPlayer(), 'includeAllPlayers'], $priority);
         }
+        
+        $this->addConsoleLog('registerDynamicHooks completed', [
+            'main_player_hooks' => count($hooksConfig['main_player']),
+            'all_players_hooks' => count($hooksConfig['all_players'])
+        ]);
     }
 
     /**
      * Conditionally add product title filter
      */
     public function conditionallyAddTitleFilter(): void {
+        $this->addConsoleLog('conditionallyAddTitleFilter called');
+        
         // Use getState instead of accessing config directly
         $onCover = $this->mainPlugin->getConfig()->getState('_bfp_on_cover');
         $woocommerce = $this->mainPlugin->getWooCommerce();
         
-        if (!$onCover && $woocommerce) {
+        $this->addConsoleLog('conditionallyAddTitleFilter checking conditions', [
+            'on_cover' => $onCover,
+            'has_woocommerce' => $woocommerce !== null
+        ]);
+        
+        // Always add the title filter - the on_cover setting shouldn't prevent title display in players
+        if ($woocommerce) {
             add_filter('woocommerce_product_title', [$woocommerce, 'woocommerceProductTitle'], 10, 2);
+            $this->addConsoleLog('conditionallyAddTitleFilter title filter added (always)');
+        } else {
+            $this->addConsoleLog('conditionallyAddTitleFilter title filter NOT added - no woocommerce');
         }
     }
 
@@ -188,16 +224,31 @@ class Hooks {
      * Enqueue assets for on_cover functionality
      */
     public function enqueueOnCoverAssets(): void {
+        $this->addConsoleLog('enqueueOnCoverAssets called');
+        
         // Use the main renderer instead of separate CoverRenderer
         $this->mainPlugin->getRenderer()->enqueueCoverAssets();
+        
+        $this->addConsoleLog('enqueueOnCoverAssets completed');
     }
 
     /**
      * Add play button on product cover image
      */
     public function addPlayButtonOnCover(): void {
-        // Use the main renderer instead of separate CoverRenderer
-        $this->mainPlugin->getRenderer()->renderCoverOverlay();
+        $this->addConsoleLog('addPlayButtonOnCover called');
+        
+        // Check if we should add the play button
+        $onCover = $this->mainPlugin->getConfig()->getState('_bfp_on_cover');
+        $this->addConsoleLog('addPlayButtonOnCover on_cover setting', $onCover);
+        
+        if ($onCover) {
+            // Use the main renderer instead of separate CoverRenderer
+            $this->mainPlugin->getRenderer()->renderCoverOverlay();
+            $this->addConsoleLog('addPlayButtonOnCover overlay rendered');
+        } else {
+            $this->addConsoleLog('addPlayButtonOnCover skipped - on_cover disabled');
+        }
     }
     
     /**
@@ -233,5 +284,26 @@ class Hooks {
             wp_redirect(rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}"));
             exit;
         }
+    }
+    
+    /**
+     * Add console log statement for debugging
+     * 
+     * @param string $message Log message
+     * @param mixed $data Optional data to log
+     * @return void
+     */
+    private function addConsoleLog(string $message, $data = null): void {
+        $logData = [
+            'timestamp' => current_time('mysql'),
+            'message' => $message,
+            'class' => 'BFP_Hooks'
+        ];
+        
+        if ($data !== null) {
+            $logData['data'] = $data;
+        }
+        
+        echo '<script>console.log("BFP Hooks Debug:", ' . wp_json_encode($logData) . ');</script>';
     }
 }

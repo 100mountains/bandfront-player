@@ -109,8 +109,38 @@ class Renderer {
                 $audioUrl
             );
             
-            $title = esc_html(($settings['_bfp_player_title']) ? 
-                     apply_filters('bfp_file_name', $file['name'], $productId, $index) : '');
+            // FIXED: Title processing logic
+            $title = '';
+            
+            // Check if player titles are enabled
+            $playerTitleEnabled = $settings['_bfp_player_title'] ?? 1;
+            
+            $this->addConsoleLog('Processing title', [
+                'index' => $index,
+                'file_name' => $file['name'] ?? 'no name',
+                'player_title_enabled' => $playerTitleEnabled,
+                'productId' => $productId
+            ]);
+            
+            if ($playerTitleEnabled) {
+                // Get the raw file name
+                $rawTitle = $file['name'] ?? '';
+                
+                // Apply filters for title processing
+                $processedTitle = apply_filters('bfp_file_name', $rawTitle, $productId, $index);
+                
+                // Final title processing
+                $title = esc_html($processedTitle);
+                
+                $this->addConsoleLog('Title processed', [
+                    'index' => $index,
+                    'raw_title' => $rawTitle,
+                    'processed_title' => $processedTitle,
+                    'final_title' => $title
+                ]);
+            } else {
+                $this->addConsoleLog('Title disabled by setting', ['index' => $index]);
+            }
             
             $output .= $this->renderPlayerRow($audioTag, $title, $duration, $evenOdd, 
                                             $file['product'], $firstPlayerClass, 

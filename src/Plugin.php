@@ -225,8 +225,8 @@ class Plugin {
         $this->preview = new Utils\Preview($this);
         $this->analytics = new Utils\Analytics($this);
         
-        // Initialize WooCommerce integration only if WooCommerce is active
-        if (class_exists('WooCommerce')) {
+        // FIXED: Initialize WooCommerce integration with better detection
+        if ($this->isWooCommerceActive()) {
             $this->woocommerce = new WooCommerce($this);
         }
         
@@ -237,6 +237,27 @@ class Plugin {
         if (is_admin()) {
             $this->admin = new Admin($this);
         }
+    }
+    
+    /**
+     * Check if WooCommerce is active and available
+     * 
+     * @return bool
+     */
+    private function isWooCommerceActive(): bool {
+        // Check if WooCommerce class exists
+        if (!class_exists('WooCommerce')) {
+            return false;
+        }
+        
+        // Check if WooCommerce plugin is active
+        if (!function_exists('is_plugin_active')) {
+            include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        }
+        
+        return is_plugin_active('woocommerce/woocommerce.php') || 
+               function_exists('WC') || 
+               class_exists('woocommerce');
     }
     
     /**
