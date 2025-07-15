@@ -24,6 +24,31 @@ class Renderer {
     
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
+        // Add console logging for initialization
+        $this->addConsoleLog('Renderer initialized');
+    }
+    
+    /**
+     * Helper method to add console.log statements
+     * 
+     * @param string $message Message to log
+     * @param mixed $data Optional data to log
+     * @return string Script tag with console.log
+     */
+    private function addConsoleLog(string $message, $data = null): string {
+        $script = '<script>';
+        if ($data === null) {
+            $script .= 'console.log("[BFP] ' . esc_js($message) . '");';
+        } else {
+            if (is_array($data) || is_object($data)) {
+                $jsonData = json_encode($data);
+                $script .= 'console.log("[BFP] ' . esc_js($message) . '", ' . $jsonData . ');';
+            } else {
+                $script .= 'console.log("[BFP] ' . esc_js($message) . '", "' . esc_js($data) . '");';
+            }
+        }
+        $script .= '</script>';
+        return $script;
     }
     
     /**
@@ -37,10 +62,14 @@ class Renderer {
      */
     public function renderPlayerTable(array $files, int $productId, array $settings): string {
         if (empty($files) || count($files) < 2) {
-            return '';
+            // Add console logging for empty files condition
+            $output = $this->addConsoleLog('Player table not rendered - insufficient files', ['count' => count($files), 'productId' => $productId]);
+            return $output;
         }
         
-        $output = '';
+        // Add console logging for table rendering start
+        $output = $this->addConsoleLog('Rendering player table', ['files_count' => count($files), 'productId' => $productId, 'single_player' => $settings['single_player'] ?? 0]);
+        
         $mergeGroupedClass = ($settings['_bfp_merge_in_grouped']) ? 'merge_in_grouped_products' : '';
         $singlePlayer = $settings['single_player'] ?? 0;
         
@@ -51,6 +80,9 @@ class Renderer {
         $firstPlayerClass = 'bfp-first-player';
         
         foreach ($files as $index => $file) {
+            // Add console logging for each file being processed
+            $output .= $this->addConsoleLog('Processing file in table', ['index' => $index, 'name' => $file['name'] ?? 'unnamed', 'counter' => $counter]);
+            
             $evenOdd = (1 == $counter % 2) ? 'bfp-odd-row' : 'bfp-even-row';
             $counter--;
             
@@ -89,6 +121,9 @@ class Renderer {
         
         $output .= '</table>';
         
+        // Add console logging for table rendering completion
+        $output .= $this->addConsoleLog('Player table rendering completed', ['productId' => $productId]);
+        
         return $output;
     }
     
@@ -110,7 +145,15 @@ class Renderer {
     public function renderPlayerRow(string $audioTag, string $title, string $duration, string $evenOdd, 
                                    int $productId, string $firstPlayerClass, int $counter, 
                                    array $settings, int $singlePlayer): string {
-        $output = '<tr class="' . esc_attr($evenOdd) . ' product-' . esc_attr($productId) . '">';
+        // Add console logging for row rendering
+        $output = $this->addConsoleLog('Rendering player row', [
+            'productId' => $productId, 
+            'title' => $title, 
+            'counter' => $counter, 
+            'controls' => $settings['player_controls'] ?? 'default'
+        ]);
+        
+        $output .= '<tr class="' . esc_attr($evenOdd) . ' product-' . esc_attr($productId) . '">';
         
         if ('all' != $settings['player_controls']) {
             $output .= '<td class="bfp-column-player-' . esc_attr($settings['_bfp_player_layout']) . '">';
@@ -153,6 +196,13 @@ class Renderer {
      * @return string Rendered HTML
      */
     public function renderPlaylistProducts(array $products, array $atts, int $currentPostId, string $output): string {
+        // Add console logging for playlist rendering
+        $output .= $this->addConsoleLog('Rendering playlist products', [
+            'products_count' => count($products), 
+            'currentPostId' => $currentPostId,
+            'atts' => json_encode($atts)
+        ]);
+        
         global $wpdb;
         
         $productPurchasedTimes = [];
@@ -176,6 +226,13 @@ class Renderer {
         $woocommerce = $this->mainPlugin->getWooCommerce();
         
         foreach ($products as $product) {
+            // Add console logging for each product
+            $output .= $this->addConsoleLog('Processing product in playlist', [
+                'productId' => $product->ID,
+                'title' => $product->post_title,
+                'counter' => $counter
+            ]);
+            
             if ($this->mainPlugin->getForcePurchasedFlag() && $woocommerce && !$woocommerce->woocommerceUserProduct($product->ID)) {
                 continue;
             }
@@ -227,6 +284,9 @@ class Renderer {
             $output = '<div class="bfp-widget-playlist-title">' . esc_html($atts['title']) . '</div>' . $output;
         }
 
+        // Add console logging for playlist rendering completion
+        $output .= $this->addConsoleLog('Playlist rendering completed', ['products_processed' => $counter]);
+        
         return $output;
     }
     
@@ -246,7 +306,13 @@ class Renderer {
      * @return string Rendered HTML
      */
     public function renderSingleProduct($product, $productObj, array $atts, array $audioFiles, string $downloadLinks, string $rowClass, int $currentPostId, string $preload, int $counter): string {
-        $output = '';
+        // Add console logging for single product rendering
+        $output = $this->addConsoleLog('Rendering single product', [
+            'productId' => $product->ID,
+            'title' => $productObj->get_name(),
+            'files_count' => count($audioFiles),
+            'layout' => $atts['layout'] ?? 'classic'
+        ]);
         
         // Define featured_image if cover is enabled
         $featuredImage = '';
@@ -278,6 +344,9 @@ class Renderer {
      * @return string Rendered HTML
      */
     private function renderNewLayoutProduct($product, $productObj, array $atts, array $audioFiles, string $downloadLinks, string $rowClass, int $currentPostId, string $preload, string $featuredImage): string {
+        // Add console logging for new layout rendering
+        $output = $this->addConsoleLog('Rendering product with new layout', ['productId' => $product->ID]);
+        
         $price = $productObj->get_price();
         $output = '<div class="bfp-new-layout bfp-widget-product controls-' . esc_attr($atts['controls']) . ' ' . 
                   esc_attr($atts['class']) . ' ' . esc_attr($rowClass) . ' ' . 
@@ -390,6 +459,9 @@ class Renderer {
      * @return string Rendered HTML
      */
     private function renderClassicLayoutProduct($product, $productObj, array $atts, array $audioFiles, string $downloadLinks, string $rowClass, int $currentPostId, string $preload, string $featuredImage): string {
+        // Add console logging for classic layout rendering
+        $output = $this->addConsoleLog('Rendering product with classic layout', ['productId' => $product->ID]);
+        
         // Classic layout
         $output = '<ul class="bfp-widget-playlist bfp-classic-layout controls-' . esc_attr($atts['controls']) . ' ' . esc_attr($atts['class']) . ' ' . esc_attr($rowClass) . ' ' . esc_attr(($product->ID == $currentPostId && $atts['highlight_current_product']) ? 'bfp-current-product' : '') . '">';
 
@@ -448,13 +520,18 @@ class Renderer {
      */
     public function shouldRenderCover(): bool {
         // Only render on shop/archive pages
-        if (!is_shop() && !is_product_category() && !is_product_tag()) {
-            return false;
-        }
-        
-        // Use getState for single value retrieval
+        $shouldRender = is_shop() || is_product_category() || is_product_tag();
         $onCover = $this->mainPlugin->getConfig()->getState('_bfp_on_cover');
-        return (bool) $onCover;
+        $result = $shouldRender && (bool) $onCover;
+        
+        // Add console logging for cover rendering decision
+        echo $this->addConsoleLog('Checking if cover should render', [
+            'isShopOrArchive' => $shouldRender, 
+            'onCoverSetting' => (bool) $onCover,
+            'result' => $result
+        ]);
+        
+        return $result;
     }
     
     /**
@@ -513,6 +590,7 @@ class Renderer {
      */
     public function renderCoverOverlay(?\WC_Product $product = null): void {
         if (!$this->shouldRenderCover()) {
+            echo $this->addConsoleLog('Cover overlay not rendered - shouldRenderCover returned false');
             return;
         }
         
@@ -522,6 +600,7 @@ class Renderer {
         }
         
         if (!$product) {
+            echo $this->addConsoleLog('Cover overlay not rendered - no product found');
             return;
         }
         
@@ -530,14 +609,22 @@ class Renderer {
         // Use getState with product context
         $enablePlayer = $this->mainPlugin->getConfig()->getState('_bfp_enable_player', false, $productId);
         if (!$enablePlayer) {
+            echo $this->addConsoleLog('Cover overlay not rendered - player not enabled for product', ['productId' => $productId]);
             return;
         }
         
         // Check if product has audio files using the consolidated player class
         $files = $this->mainPlugin->getPlayer()->getProductFiles($productId);
         if (empty($files)) {
+            echo $this->addConsoleLog('Cover overlay not rendered - no audio files for product', ['productId' => $productId]);
             return;
         }
+        
+        echo $this->addConsoleLog('Rendering cover overlay', [
+            'productId' => $productId, 
+            'title' => $product->get_name(), 
+            'files_count' => count($files)
+        ]);
         
         // Enqueue player resources
         $this->mainPlugin->getPlayer()->enqueueResources();
@@ -550,6 +637,7 @@ class Renderer {
      * Render the actual overlay HTML
      */
     private function renderCoverOverlayHtml(int $productId, \WC_Product $product): void {
+        echo $this->addConsoleLog('Rendering cover overlay HTML', ['productId' => $productId]);
         ?>
         <div class="bfp-play-on-cover" data-product-id="<?php echo esc_attr($productId); ?>">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
