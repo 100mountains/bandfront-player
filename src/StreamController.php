@@ -15,7 +15,6 @@ if (!defined('ABSPATH')) {
 }
 
 class StreamController {
-    
     private Plugin $mainPlugin;
     
     /**
@@ -246,83 +245,88 @@ class StreamController {
     /**
      * Handle stream request
      */
-    public function handleStreamRequest(\WP_REST_Request $request): \WP_REST_Response {
-        $productId = (int) $request->get_param('product_id');
-        $fileIndex = $request->get_param('file_index');
-        
-        $this->addConsoleLog('handleStreamRequest', [
-            'productId' => $productId,
-            'fileIndex' => $fileIndex,
-            'user' => get_current_user_id()
-        ]);
-        
-        // Get product files
-        $files = $this->mainPlugin->getPlayer()->getProductFiles($productId);
-        
-        if (empty($files)) {
-            $this->addConsoleLog('handleStreamRequest no files found');
-            return new \WP_REST_Response(
-                ['message' => __('No audio files found', 'bandfront-player')],
-                404
-            );
+    public function handleStreamRequest($product_id, $track_index) {
+        // Remove any output that might interfere
+        if (ob_get_level()) {
+            ob_clean();
         }
         
-        // Find the requested file
-        $fileData = null;
-        if (isset($files[$fileIndex])) {
-            $fileData = $files[$fileIndex];
-        } else {
-            // Try numeric index
-            $numericIndex = is_numeric($fileIndex) ? (int) $fileIndex : 0;
-            $filesArray = array_values($files);
-            if (isset($filesArray[$numericIndex])) {
-                $fileData = $filesArray[$numericIndex];
-            }
-        }
-        
-        if (!$fileData) {
-            $this->addConsoleLog('handleStreamRequest file not found in array');
-            return new \WP_REST_Response(
-                ['message' => __('File not found', 'bandfront-player')],
-                404
-            );
-        }
-        
-        // Check if user owns the product
-        $purchased = false;
-        $woocommerce = $this->mainPlugin->getWooCommerce();
-        if ($woocommerce) {
-            $purchased = $woocommerce->woocommerceUserProduct($productId);
-        }
-        
-        $this->addConsoleLog('handleStreamRequest purchase check', ['purchased' => $purchased]);
-        
-        // Prepare streaming arguments
-        $args = [
-            'product_id' => $productId,
-            'file_index' => $fileIndex,
-            'url' => $fileData['file'],
-            'purchased' => $purchased
-        ];
-        
-        // Add security settings if not purchased
-        if (!$purchased) {
-            $securePlayer = $this->mainPlugin->getConfig()->getState('_bfp_secure_player', false, $productId);
-            $filePercent = $this->mainPlugin->getConfig()->getState('_bfp_file_percent', 50, $productId);
+        try {
+            // Validate inputs
+            $product_id = intval($product_id);
+            $track_index = intval($track_index);
             
-            if ($securePlayer) {
-                $args['secure_player'] = true;
-                $args['file_percent'] = $filePercent;
+            // Check if product exists
+            $product = wc_get_product($product_id);
+            if (!$product) {
+                return new \WP_Error('invalid_product', 'Product not found', ['status' => 404]);
             }
             
-            $this->addConsoleLog('handleStreamRequest demo mode', [
-                'secure' => $securePlayer,
-                'percent' => $filePercent
-            ]);
+            // Get audio files for this product
+            $files = $this->mainPlugin->getProductFiles($product_id);
+            
+            // Check if track exists
+            if (empty($files) || !isset($files[$track_index])) {
+                return new \WP_Error('invalid_track', 'Track not found', ['status' => 404]);
+            }
+            
+            $file = $files[$track_index];
+            
+            // Check if user owns the product
+            $userOwnsProduct = false;
+            if ($this->mainPlugin->getWooCommerce()) {
+                $userOwnsProduct = $this->mainPlugin->getWooCommerce()->woocommerceUserProduct($product_id) !== false;
+            }
+            
+            // Build response
+            if ($userOwnsProduct) {
+                // User owns product - return direct file URL
+                return new \WP_REST_Response([
+                    'url' => $file['file'],
+                    'type' => 'direct',
+                    'owned' => true,
+                    'title' => $file['title'] ?? '',
+                    'duration' => $file['duration'] ?? 0
+                ], 200);
+            } else {
+                // User doesn't own - return demo URL
+                $demoUrl = $this->generateDemoUrl($product_id, $track_index, $file);
+                return new \WP_REST_Response([
+                    'url' => $demoUrl,
+                    'type' => 'demo',
+                    'owned' => false,
+                    'title' => $file['title'] ?? '',
+                    'duration' => $file['duration'] ?? 0
+                ], 200);
+            }
+            
+        } catch (\Exception $e) {
+            return new \WP_Error(
+                'stream_error', 
+                $e->getMessage(), 
+                ['status' => 500]
+            );
+        }
+    }
+    
+    /**
+     * Generate demo URL for non-purchased users
+     */
+    private function generateDemoUrl($product_id, $track_index, $file) {
+        // Check if we have a pre-generated demo file
+        $upload_dir = wp_upload_dir();
+        $demo_path = $upload_dir['basedir'] . '/bfp/demos/' . $product_id . '/' . $track_index . '.mp3';
+        
+        if (file_exists($demo_path)) {
+            // Return URL to pre-generated demo
+            return $upload_dir['baseurl'] . '/bfp/demos/' . $product_id . '/' . $track_index . '.mp3';
         }
         
-        // Stream the file
-        $this->mainPlugin->getAudioCore()->outputFile($args);
-        exit; // outputFile handles the response
+        // Fallback to original file with time limit query params
+        return add_query_arg([
+            'bfp_demo' => 1,
+            'expires' => time() + 300, // 5 minute expiry
+            'token' => wp_hash($product_id . $track_index . wp_salt())
+        ], $file['file']);
     }
 }

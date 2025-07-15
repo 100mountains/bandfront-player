@@ -367,36 +367,82 @@ class Audio {
     }
     
     /**
-     * Get duration using WordPress metadata or FFmpeg
-     * 
-     * @param string $url Audio file URL
-     * @return string|false Duration or false
+     * Generate audio URL for streaming
      */
-    public function getDurationByUrl(string $url): string|false {
-        // Check transient cache first
-        $cacheKey = 'bfp_duration_' . md5($url);
-        $cached = get_transient($cacheKey);
-        if (false !== $cached) {
-            $this->addConsoleLog('getDurationByUrl using cached duration', ['url' => $url, 'duration' => $cached]);
-            return $cached;
+    public function generateAudioUrl(int $productId, int $fileIndex, array $fileData = []): string {
+        // Use REST API endpoint for streaming
+        $rest_url = rest_url('bandfront-player/v1/stream/' . $productId . '/' . $fileIndex);
+        
+        // Add nonce for security
+        return add_query_arg([
+            '_wpnonce' => wp_create_nonce('wp_rest')
+        ], $rest_url);
+    }
+    
+    /**
+     * Get duration by URL
+     */
+    public function getDurationByUrl(string $url): int {
+        // Try to get cached duration first
+        $cache_key = 'bfp_duration_' . md5($url);
+        $cached = get_transient($cache_key);
+        if ($cached !== false) {
+            return (int) $cached;
         }
         
-        $this->addConsoleLog('getDurationByUrl cache miss', $url);
+        // Get duration using ffprobe or other method
+        $duration = 0;
         
-        // Try WordPress attachment metadata
-        $attachmentId = $this->getAttachmentIdByUrl($url);
-        if ($attachmentId) {
-            $this->addConsoleLog('getDurationByUrl found attachment', $attachmentId);
-            $metadata = wp_get_attachment_metadata($attachmentId);
-            if (!empty($metadata['length_formatted'])) {
-                set_transient($cacheKey, $metadata['length_formatted'], DAY_IN_SECONDS);
-                $this->addConsoleLog('getDurationByUrl metadata duration found', $metadata['length_formatted']);
-                return $metadata['length_formatted'];
+        // Check if it's a local file
+        $upload_dir = wp_upload_dir();
+        $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $url);
+        
+        if (file_exists($local_path)) {
+            // Use getID3 or ffprobe to get duration
+            $duration = $this->getAudioDuration($local_path);
+        }
+        
+        // Cache the duration
+        set_transient($cache_key, $duration, DAY_IN_SECONDS);
+        
+        return $duration;
+    }
+    
+    /**
+     * Get audio duration from file
+     */
+    private function getAudioDuration(string $filepath): int {
+        // Try ffprobe first
+        if ($duration = $this->getDurationViaFfprobe($filepath)) {
+            return $duration;
+        }
+        
+        // Fallback to getID3
+        if (class_exists('getID3')) {
+            $getID3 = new \getID3();
+            $info = $getID3->analyze($filepath);
+            if (!empty($info['playtime_seconds'])) {
+                return (int) $info['playtime_seconds'];
             }
         }
         
-        $this->addConsoleLog('getDurationByUrl no duration found');
-        return false;
+        return 0;
+    }
+    
+    /**
+     * Get duration using ffprobe
+     */
+    private function getDurationViaFfprobe(string $filepath): int {
+        $ffprobe = '/usr/bin/ffprobe'; // Adjust path as needed
+        
+        if (!file_exists($ffprobe)) {
+            return 0;
+        }
+        
+        $cmd = escapeshellcmd($ffprobe) . ' -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ' . escapeshellarg($filepath);
+        $duration = shell_exec($cmd);
+        
+        return $duration ? (int) round((float) $duration) : 0;
     }
     
     /**

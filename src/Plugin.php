@@ -30,7 +30,9 @@ class Plugin {
      */
     public function __construct() {
         $this->initComponents();
-        // Remove the old registerStreamingHandler() call
+        
+        // Register REST API routes
+        add_action('rest_api_init', [$this, 'registerRestRoutes']);
     }
 
     /**
@@ -158,6 +160,41 @@ class Plugin {
         if ($this->woocommerce) {
             add_shortcode('bfp-playlist', [$this->woocommerce, 'replacePlaylistShortcode']);
         }
+    }
+    
+    /**
+     * Register REST API routes
+     */
+    public function registerRestRoutes() {
+        // Register streaming endpoint
+        register_rest_route('bandfront-player/v1', '/stream/(?P<product_id>\d+)/(?P<track_index>\d+)', [
+            'methods' => 'GET',
+            'callback' => [$this, 'handleStreamRequest'],
+            'permission_callback' => '__return_true',
+            'args' => [
+                'product_id' => [
+                    'validate_callback' => function($param) {
+                        return is_numeric($param);
+                    }
+                ],
+                'track_index' => [
+                    'validate_callback' => function($param) {
+                        return is_numeric($param);
+                    }
+                ]
+            ]
+        ]);
+    }
+    
+    /**
+     * Handle stream request from REST API
+     */
+    public function handleStreamRequest($request) {
+        $product_id = (int) $request->get_param('product_id');
+        $track_index = (int) $request->get_param('track_index');
+        
+        // Delegate to StreamController
+        return $this->streamController->handleStreamRequest($product_id, $track_index);
     }
     
     // ===== DELEGATED METHODS TO PLAYER CLASS =====
