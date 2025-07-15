@@ -1,18 +1,13 @@
 
-add js console log statements to renderer.php. outputs will help me track the execution flow and see important variable values in the browser console
-
-
-
-
+install:
 ANALYSIS PROGRAMS
 
 PHP-STAN
 
 etc
-troubleshooting move
- (player.php for iOS detection, audio.php for file handling).
 
-GLOBAL-ADMIN-OPTIONS AJAX.
+
+GLOBAL-ADMIN-OPTIONS AJAX. (take from members working one)
 
 TWO AJAX NOTIFICATIONS AFTER MOVING FILE TO STATE MANAGEMENT 
 controlling the form does not seem to stop the error, it seems to be with how the wordpress thing is called twice. 
