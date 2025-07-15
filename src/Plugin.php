@@ -17,6 +17,7 @@ class Plugin {
     private Utils\Preview $preview;
     private Utils\Analytics $analytics;
     private StreamController $streamController;
+    private ?ProductProcessor $productProcessor = null;
     
     // State flags
     private bool $purchasedProductFlag = false;
@@ -52,6 +53,10 @@ class Plugin {
         // FIXED: Initialize WooCommerce integration with better detection
         if ($this->isWooCommerceActive()) {
             $this->woocommerce = new WooCommerce($this);
+            
+            // Initialize ProductProcessor for WooCommerce products
+            $this->productProcessor = new ProductProcessor($this);
+            $this->addConsoleLog('ProductProcessor initialized');
         }
         
         // Initialize hooks
@@ -235,6 +240,13 @@ class Plugin {
         return $this->streamController;
     }
     
+    /**
+     * Get product processor
+     */
+    public function getProductProcessor(): ?ProductProcessor {
+        return $this->productProcessor;
+    }
+    
     // ===== STATE MANAGEMENT SHORTCUTS =====
     
     /**
@@ -408,5 +420,13 @@ class Plugin {
     
     public function setInsertAllPlayers(bool $value): void {
         $this->player->setInsertAllPlayers($value);
+    }
+    
+    /**
+     * Add console log for debugging
+     */
+    private function addConsoleLog(string $message, $data = null): void {
+        echo '<script>console.log("[BFP Plugin] ' . esc_js($message) . '", ' . 
+             wp_json_encode($data) . ');</script>';
     }
 }

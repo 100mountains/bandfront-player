@@ -30,6 +30,75 @@ class Audio {
     }
     
     /**
+     * Generate file paths based on product and purchase status
+     * 
+     * @param array $args Request arguments
+     * @return array File path information
+     */
+    private function generateFilePaths(array $args): array {
+        $originalUrl = $args['url'];
+        $productId = $args['product_id'];
+        
+        $purchased = $this->mainPlugin->getWooCommerce()?->woocommerceUserProduct($productId) ?? false;
+        
+        $this->addConsoleLog('generateFilePaths purchase status', ['product_id' => $productId, 'purchased' => $purchased]);
+        
+        // If user owns the product, check for pre-generated files
+        if ($purchased) {
+            $preGeneratedPath = $this->getPreGeneratedFilePath($productId, $originalUrl);
+            if ($preGeneratedPath) {
+                $this->addConsoleLog('generateFilePaths using pre-generated file', $preGeneratedPath);
+                return [
+                    'fileName' => basename($preGeneratedPath),
+                    'filePath' => $preGeneratedPath,
+                    'purchased' => $purchased,
+                    'preGenerated' => true,
+                    'original_url' => $originalUrl
+                ];
+            }
+        }
+        
+        // Fall back to demo generation for non-purchased users
+        $fileName = $this->mainPlugin->getFiles()->generateDemoFileName($originalUrl);
+        $basePath = $this->mainPlugin->getFileHandler()->getFilesDirectoryPath();
+        
+        return [
+            'fileName' => $fileName,
+            'filePath' => $basePath . $fileName,
+            'purchased' => $purchased,
+            'preGenerated' => false,
+            'original_url' => $originalUrl
+        ];
+    }
+    
+    /**
+     * Get pre-generated file path if available
+     */
+    private function getPreGeneratedFilePath(int $productId, string $originalUrl): ?string {
+        $uploadDir = wp_upload_dir();
+        $wooDir = $uploadDir['basedir'] . '/woocommerce_uploads';
+        $formatDir = $wooDir . '/bfp-formats/' . $productId;
+        
+        // Extract filename without extension
+        $filename = pathinfo(basename($originalUrl), PATHINFO_FILENAME);
+        
+        // Check for MP3 format (default streaming format)
+        $mp3Path = $formatDir . '/mp3/' . $filename . '.mp3';
+        if (file_exists($mp3Path)) {
+            return $mp3Path;
+        }
+        
+        // Check original format
+        $ext = pathinfo($originalUrl, PATHINFO_EXTENSION);
+        $originalFormatPath = $formatDir . '/' . $ext . '/' . $filename . '.' . $ext;
+        if (file_exists($originalFormatPath)) {
+            return $originalFormatPath;
+        }
+        
+        return null;
+    }
+    
+    /**
      * Stream audio file with proper headers and processing
      * 
      * @param array $args Streaming arguments
@@ -55,6 +124,13 @@ class Audio {
         // Generate file paths
         $fileInfo = $this->generateFilePaths($args);
         $this->addConsoleLog('outputFile fileInfo generated', $fileInfo);
+        
+        // If pre-generated file exists, stream it directly
+        if (!empty($fileInfo['preGenerated']) && file_exists($fileInfo['filePath'])) {
+            $this->addConsoleLog('outputFile streaming pre-generated file', $fileInfo['filePath']);
+            $this->streamFile($fileInfo['filePath'], $fileInfo['fileName']);
+            return;
+        }
         
         // Check cache first
         $cachedPath = $this->getCachedFilePath($fileInfo['fileName']);
@@ -85,35 +161,6 @@ class Audio {
         // Stream the file
         $this->addConsoleLog('outputFile streaming file', $fileInfo['filePath']);
         $this->streamFile($fileInfo['filePath'], $fileInfo['fileName']);
-    }
-    
-    /**
-     * Generate file paths based on product and purchase status
-     * 
-     * @param array $args Request arguments
-     * @return array File path information
-     */
-    private function generateFilePaths(array $args): array {
-        $originalUrl = $args['url'];
-        $fileName = $this->mainPlugin->getFiles()->generateDemoFileName($originalUrl);
-        $oFileName = 'o_' . $fileName;
-        
-        $purchased = $this->mainPlugin->getWooCommerce()?->woocommerceUserProduct($args['product_id']) ?? false;
-        
-        $this->addConsoleLog('generateFilePaths purchase status', ['product_id' => $args['product_id'], 'purchased' => $purchased]);
-        
-        if (false !== $purchased) {
-            $oFileName = 'purchased/o_' . $purchased . $fileName;
-            $fileName = 'purchased/' . $purchased . '_' . $fileName;
-        }
-
-        return [
-            'fileName' => $fileName,
-            'oFileName' => $oFileName,
-            'filePath' => $this->mainPlugin->getFileHandler()->getFilesDirectoryPath() . $fileName,
-            'oFilePath' => $this->mainPlugin->getFileHandler()->getFilesDirectoryPath() . $oFileName,
-            'purchased' => $purchased
-        ];
     }
     
     /**
@@ -290,6 +337,18 @@ class Audio {
      */
     public function generateAudioUrl(int $productId, string|int $fileIndex, array $fileData = []): string {
         $this->addConsoleLog('generateAudioUrl called', ['productId' => $productId, 'fileIndex' => $fileIndex, 'fileData' => $fileData]);
+        
+        // Check if user owns the product
+        $purchased = $this->mainPlugin->getWooCommerce()?->woocommerceUserProduct($productId) ?? false;
+        
+        if ($purchased && !empty($fileData['file'])) {
+            // Try to get direct URL to pre-generated file
+            $preGeneratedUrl = $this->getPreGeneratedFileUrl($productId, $fileData['file']);
+            if ($preGeneratedUrl) {
+                $this->addConsoleLog('generateAudioUrl using pre-generated URL', $preGeneratedUrl);
+                return $preGeneratedUrl;
+            }
+        }
         
         // Direct play sources bypass streaming
         if (!empty($fileData['play_src']) || 
