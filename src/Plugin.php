@@ -33,66 +33,56 @@ class Plugin {
         
         // Register REST API routes
         add_action('rest_api_init', [$this, 'registerRestRoutes']);
-    }
+        }
 
-    /**
-     * Initialize components
-     */
-    private function initComponents(): void {
-        $this->addConsoleLog('initComponents started');
-        
+        /**
+         * Initialize components
+         */
+        private function initComponents(): void {
+
         // Core components always initialized
         $this->config = new Config($this);
-        $this->addConsoleLog('Config initialized');
-        
+
         $this->fileHandler = new Utils\Files($this);
-        $this->addConsoleLog('Files utility initialized');
-        
+
         $this->preview = new Utils\Preview($this);
-        $this->addConsoleLog('Preview utility initialized');
-        
+
         $this->analytics = new Utils\Analytics($this);
-        $this->addConsoleLog('Analytics utility initialized');
-        
+
         $this->player = new Player($this);
-        $this->addConsoleLog('Player initialized');
-        
+
         $this->audioCore = new Audio($this);
-        $this->addConsoleLog('Audio core initialized');
-        
+
         $this->streamController = new StreamController($this);
-        $this->addConsoleLog('StreamController initialized');
         
         // FIXED: Initialize WooCommerce integration with better detection
         if ($this->isWooCommerceActive()) {
             $this->woocommerce = new WooCommerce($this);
-            $this->addConsoleLog('WooCommerce integration initialized');
-            
+          
             // Initialize ProductProcessor for WooCommerce products
             $this->productProcessor = new ProductProcessor($this);
-            $this->addConsoleLog('ProductProcessor initialized');
+          
             
             // Initialize FormatDownloader for download handling
             $this->formatDownloader = new FormatDownloader($this);
-            $this->addConsoleLog('FormatDownloader initialized');
+   
         } else {
-            $this->addConsoleLog('WooCommerce not active, skipping WC components');
         }
         
         // Initialize hooks (must be after other components)
         $this->hooks = new Hooks($this);
-        $this->addConsoleLog('Hooks initialized');
+      
         
         // Initialize admin if in admin area
         if (is_admin()) {
             $this->admin = new Admin($this);
-            $this->addConsoleLog('Admin initialized');
+        
         }
         
         // Allow other plugins to hook in
         do_action('bfp_components_initialized', $this);
         
-        $this->addConsoleLog('initComponents completed');
+        
     }
     
     /**
@@ -120,7 +110,7 @@ class Plugin {
      * Plugin activation
      */
     public function activation(): void {
-        $this->addConsoleLog('Plugin activation started');
+ 
         
         // Ensure rewrite rules are registered
         if ($this->formatDownloader) {
@@ -130,7 +120,7 @@ class Plugin {
         // Flush rewrite rules
         flush_rewrite_rules();
         
-        $this->addConsoleLog('Plugin activation completed');
+     
     }
     
     /**
@@ -502,10 +492,83 @@ class Plugin {
     }
     
     /**
-     * Add console log for debugging
+     * Smart context detection for player display
+     * Replaces manual _bfp_show_in configuration with intelligent logic
+     * 
+     * @param int $productId Product ID to check
+     * @return bool Whether to show player for this product
      */
-    private function addConsoleLog(string $message, $data = null): void {
-        echo '<script>console.log("[BFP Plugin] ' . esc_js($message) . '", ' . 
-             wp_json_encode($data) . ');</script>';
+    public function smartPlayContext(int $productId): bool {
+        $product = wc_get_product($productId);
+        
+        if (!$product) {
+            return false;
+        }
+
+        // Always show players for downloadable products with audio files
+        if ($product->is_downloadable()) {
+            $downloads = $product->get_downloads();
+            foreach ($downloads as $download) {
+                $fileUrl = $download->get_file();
+                if ($this->getFiles()->isAudio($fileUrl)) {
+                    return true;
+                }
+            }
+        }
+
+        // Show players for grouped products (they may contain downloadable children)
+        if ($product->is_type('grouped')) {
+            $children = $product->get_children();
+            foreach ($children as $childId) {
+                $childProduct = wc_get_product($childId);
+                if ($childProduct && $childProduct->is_downloadable()) {
+                    $downloads = $childProduct->get_downloads();
+                    foreach ($downloads as $download) {
+                        if ($this->getFiles()->isAudio($download->get_file())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Show players for variable products (they may have downloadable variations)
+        if ($product->is_type('variable')) {
+            $variations = $product->get_available_variations();
+            foreach ($variations as $variation) {
+                $varProduct = wc_get_product($variation['variation_id']);
+                if ($varProduct && $varProduct->is_downloadable()) {
+                    $downloads = $varProduct->get_downloads();
+                    foreach ($downloads as $download) {
+                        if ($this->getFiles()->isAudio($download->get_file())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check if custom audio files are added via our plugin
+        $customAudioFiles = get_post_meta($productId, '_bfp_demos_list', true);
+        if (!empty($customAudioFiles) && is_array($customAudioFiles)) {
+            foreach ($customAudioFiles as $file) {
+                if (!empty($file['file']) && $this->getFiles()->isAudio($file['file'])) {
+                    return true;
+                }
+            }
+        }
+
+        // Check if player is explicitly enabled for this product
+        $enablePlayer = get_post_meta($productId, '_bfp_enable_player', true);
+        if ($enablePlayer) {
+            // Double-check that there are actually audio files
+            $allFiles = $this->getFiles()->getProductFiles($productId);
+            if (!empty($allFiles)) {
+                return true;
+            }
+        }
+
+        // Default: Do not show players
+        return false;
     }
 }

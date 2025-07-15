@@ -22,6 +22,7 @@ return array(
     'bfp\\Utils\\Analytics' => $baseDir . '/src/Utils/Analytics.php',
     'bfp\\Utils\\Cache' => $baseDir . '/src/Utils/Cache.php',
     'bfp\\Utils\\Cloud' => $baseDir . '/src/Utils/Cloud.php',
+    'bfp\\Utils\\Debug' => $baseDir . '/src/Utils/Debug.php',
     'bfp\\Utils\\Files' => $baseDir . '/src/Utils/Files.php',
     'bfp\\Utils\\Preview' => $baseDir . '/src/Utils/Preview.php',
     'bfp\\Utils\\Update' => $baseDir . '/src/Utils/Update.php',

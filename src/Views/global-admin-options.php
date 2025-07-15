@@ -175,20 +175,7 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 				<tbody class="bfp-section-content" style="display: none;">
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_enable_player">🎧 <?php esc_html_e( 'Enable players on all products', 'bandfront-player' ); ?></label></td>
-					<td><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Players will show for downloadable products with audio files, or products where you\'ve added custom audio files', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Enable player', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_enable_player" name="_bfp_enable_player" <?php checked( $settings['_bfp_enable_player'] ); ?> /></div></td>
-				</tr>
-				<tr>
-					<td class="bfp-column-30">📍 <?php esc_html_e( 'Show players on', 'bandfront-player' ); ?></td>
-					<td>
-						<label><input aria-label="<?php esc_attr_e( 'Single entry pages', 'bandfront-player' ); ?>" type="radio" name="_bfp_show_in" value="single" <?php checked( $settings['_bfp_show_in'], 'single' ); ?> />
-						<?php _e( 'Product pages only', 'bandfront-player' ); ?></label><br />
-
-						<label><input aria-label="<?php esc_attr_e( 'Multiple entry pages', 'bandfront-player' ); ?>" type="radio" name="_bfp_show_in" value="multiple" <?php checked( $settings['_bfp_show_in'], 'multiple' ); ?> />
-						<?php _e( 'Shop and archive pages only', 'bandfront-player' ); ?></label><br />
-
-						<label><input aria-label="<?php esc_attr_e( 'Single and multiple entry pages', 'bandfront-player' ); ?>" type="radio" name="_bfp_show_in" value="all" <?php checked( $settings['_bfp_show_in'], 'all' ); ?> />
-						<?php _e( 'All pages (shop, archives, and product pages)', 'bandfront-player' ); ?></label>
-					</td>
+					<td><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Players will show automatically for products with audio files', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Enable player', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_enable_player" name="_bfp_enable_player" <?php checked( $settings['_bfp_enable_player'] ); ?> /></div></td>
 				</tr>
 				<tr>
 					<td class="bfp-column-30"><label for="_bfp_players_in_cart">🛒 <?php esc_html_e( 'Show players in cart', 'bandfront-player' ); ?></label></td>

@@ -188,8 +188,6 @@ class Admin {
         $disable302 = isset($_REQUEST['_bfp_disable_302']) ? 1 : 0;
 
         $enablePlayer = isset($_REQUEST['_bfp_enable_player']) ? 1 : 0;
-        $showIn = (isset($_REQUEST['_bfp_show_in']) && in_array($_REQUEST['_bfp_show_in'], ['single', 'multiple'])) ? 
-                   sanitize_text_field(wp_unslash($_REQUEST['_bfp_show_in'])) : 'all';
         $playersInCart = isset($_REQUEST['_bfp_players_in_cart']) ? true : false;
         
         $playerLayouts = $this->mainPlugin->getConfig()->getPlayerLayouts();
@@ -313,7 +311,6 @@ class Admin {
             '_bfp_ffmpeg_path' => $ffmpegPath,
             '_bfp_ffmpeg_watermark' => $ffmpegWatermark,
             '_bfp_enable_player' => $enablePlayer,
-            '_bfp_show_in' => $showIn,
             '_bfp_players_in_cart' => $playersInCart,
             '_bfp_player_layout' => $playerStyle,
             '_bfp_player_volume' => $volume,
@@ -426,7 +423,6 @@ class Admin {
         $products = get_posts($productsIds);
         foreach ($products as $productId) {
             // Delete meta keys for settings that are now global-only
-            delete_post_meta($productId, '_bfp_show_in');
             delete_post_meta($productId, '_bfp_player_layout');
             delete_post_meta($productId, '_bfp_player_controls');
             delete_post_meta($productId, '_bfp_player_title');

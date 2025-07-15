@@ -127,25 +127,63 @@ function bfp_admin()
 	$('[name="_bfp_analytics_integration"]:eq(0)').change();
 	coverSection();
 
-	// Main code
-	$('.bfp-add').trigger('click');
+	// Main code - only trigger if we have the add button
+	if ($('.bfp-add').length) {
+		$('.bfp-add').trigger('click');
+	}
 	
-	// BFP AJAX notices initialization
-	$(document).ready(function($) {
-		// Ensure BFP_AJAX is initialized and converts notices after page load
-		if (window.BFP_AJAX && typeof window.BFP_AJAX.convertExistingNotices === 'function') {
-			// Give WordPress time to render all notices
-			setTimeout(function() {
-				window.BFP_AJAX.convertExistingNotices();
-			}, 100);
-		}
-	});
+	// Product page specific initialization
+	if ($('body').hasClass('post-type-product')) {
+		// Handle format regeneration button
+		$('#bfp_regenerate_formats').on('click', function(e) {
+			e.preventDefault();
+			
+			var $button = $(this);
+			var productId = $button.data('product-id');
+			
+			// Clear the message queue to prevent multiple messages
+			if (window.BFP_AJAX && window.BFP_AJAX.clearQueue) {
+				window.BFP_AJAX.clearQueue();
+			}
+			
+			$button.prop('disabled', true).text('Regenerating...');
+			
+			$.ajax({
+				url: ajaxurl,
+				type: 'POST',
+				data: {
+					action: 'bfp_regenerate_formats',
+					product_id: productId,
+					nonce: $('#bfp_nonce').val()
+				},
+				success: function(response) {
+					if (response.success) {
+						if (window.BFP_AJAX) {
+							window.BFP_AJAX.showNotice('success', response.data.message);
+						}
+					} else {
+						if (window.BFP_AJAX) {
+							window.BFP_AJAX.showNotice('error', response.data.message || 'Format regeneration failed');
+						}
+					}
+				},
+				error: function() {
+					if (window.BFP_AJAX) {
+						window.BFP_AJAX.showNotice('error', 'An error occurred during format regeneration');
+					}
+				},
+				complete: function() {
+					$button.prop('disabled', false).text('Regenerate Formats');
+				}
+			});
+		});
+	}
 }
 
 jQuery(bfp_admin);
 jQuery(window).on('load', bfp_admin);
 
-// Make BFP_AJAX globally accessible
+// Enhanced AJAX notification system
 window.BFP_AJAX = null;
 
 jQuery(function($) {
@@ -153,40 +191,34 @@ jQuery(function($) {
     window.BFP_AJAX = {
         container: null,
         autoDismissTimeout: 5000,
+        messageQueue: [],
+        isShowingMessage: false,
         
         init: function() {
             // Create notices container if it doesn't exist
             if (!$('.bfp-ajax-notices-container').length) {
                 this.container = $('<div class="bfp-ajax-notices-container"></div>');
-                // FIXED: Ensure container is appended to body before using it
-                if ($('body').length) {
-                    $('body').append(this.container);
-                } else {
-                    // Fallback: wait for body to be ready
-                    $(document).ready(function() {
-                        this.container = $('<div class="bfp-ajax-notices-container"></div>');
-                        $('body').append(this.container);
-                    }.bind(this));
-                }
+                $('body').append(this.container);
             } else {
                 this.container = $('.bfp-ajax-notices-container');
             }
             
-            // Only convert notices if container is ready
-            if (this.container && this.container.length) {
-                // Convert existing notices immediately
+            // Only convert notices on settings page, not product page
+            if (this.isSettingsPage()) {
+                // Convert existing notices with a delay to avoid conflicts
                 var self = this;
-                // Small delay to ensure DOM is ready
                 setTimeout(function() {
                     self.convertExistingNotices();
-                }, 50);
+                }, 500);
                 
-                // Watch for new notices added via AJAX or page updates
+                // Watch for new notices
                 this.observeNotices();
             }
             
-            // Intercept form submission for AJAX (optional - for future use)
-            $('form[action*="bandfront-player-settings"]').on('submit', this.handleFormSubmit.bind(this));
+            // Intercept form submission for AJAX on settings page only
+            if (this.isSettingsPage()) {
+                $('form[action*="bandfront-player-settings"]').on('submit', this.handleFormSubmit.bind(this));
+            }
             
             // Create saving indicator
             if (!$('.bfp-ajax-saving-indicator').length) {
@@ -199,32 +231,89 @@ jQuery(function($) {
             }
         },
         
+        isSettingsPage: function() {
+            return $('body').hasClass('toplevel_page_bandfront-player-settings') || 
+                   $('body').hasClass('settings_page_bandfront-player-settings') ||
+                   window.location.href.indexOf('bandfront-player-settings') > -1;
+        },
+        
+        isProductPage: function() {
+            return $('body').hasClass('post-type-product');
+        },
+        
+        clearQueue: function() {
+            this.messageQueue = [];
+            this.isShowingMessage = false;
+        },
+        
         convertExistingNotices: function() {
             var self = this;
+            
+            // Don't convert notices on product pages
+            if (this.isProductPage()) {
+                return;
+            }
+            
             // Find all WordPress admin notices on the page
             $('.wrap > .notice, #wpbody-content > .notice').each(function() {
                 var $notice = $(this);
                 var message = $notice.find('p').first().text().trim();
                 var type = 'info';
                 
-                // Skip empty messages
-                if (!message) return;
+                // Skip empty messages and certain system messages
+                if (!message || message.includes('newer version') || message.includes('lost your connection')) {
+                    return;
+                }
                 
                 // Determine notice type
                 if ($notice.hasClass('notice-success')) type = 'success';
                 else if ($notice.hasClass('notice-error')) type = 'error';
                 else if ($notice.hasClass('notice-warning')) type = 'warning';
                 
-                // Show flashy notice WITHOUT hiding the original
-                self.showNotice(type, message);
+                // Add to queue instead of showing immediately
+                self.queueNotice(type, message);
                 
-                // Keep original notice visible - don't hide it
-                // $notice.hide(); // REMOVED THIS LINE
+                // Hide the original notice
+                $notice.hide();
             });
+            
+            // Process the queue
+            this.processQueue();
+        },
+        
+        queueNotice: function(type, message) {
+            this.messageQueue.push({
+                type: type,
+                message: message
+            });
+        },
+        
+        processQueue: function() {
+            if (this.isShowingMessage || this.messageQueue.length === 0) {
+                return;
+            }
+            
+            this.isShowingMessage = true;
+            var notice = this.messageQueue.shift();
+            
+            this.showNotice(notice.type, notice.message);
+            
+            // Process next message after a delay
+            var self = this;
+            setTimeout(function() {
+                self.isShowingMessage = false;
+                self.processQueue();
+            }, 500);
         },
         
         observeNotices: function() {
             var self = this;
+            
+            // Don't observe on product pages
+            if (this.isProductPage()) {
+                return;
+            }
+            
             // Use MutationObserver to watch for dynamically added notices
             if (window.MutationObserver) {
                 var observer = new MutationObserver(function(mutations) {
@@ -232,16 +321,24 @@ jQuery(function($) {
                         $(mutation.addedNodes).each(function() {
                             if ($(this).hasClass('notice') && $(this).parent().hasClass('wrap')) {
                                 var $notice = $(this);
-                                var message = $notice.find('p').text();
+                                var message = $notice.find('p').text().trim();
                                 var type = 'info';
+                                
+                                // Skip certain messages
+                                if (!message || message.includes('newer version') || message.includes('lost your connection')) {
+                                    return;
+                                }
                                 
                                 if ($notice.hasClass('notice-success')) type = 'success';
                                 else if ($notice.hasClass('notice-error')) type = 'error';
                                 else if ($notice.hasClass('notice-warning')) type = 'warning';
                                 
-                                // Show flashy notice without hiding original
-                                self.showNotice(type, message);
-                                // Don't hide original: $notice.hide();
+                                // Queue the notice
+                                self.queueNotice(type, message);
+                                self.processQueue();
+                                
+                                // Hide original
+                                $notice.hide();
                             }
                         });
                     });
@@ -300,7 +397,7 @@ jQuery(function($) {
         showNotice: function(type, message, details) {
             if (!message || message.trim() === '') return;
             
-            // FIXED: Check if container exists before trying to append
+            // Check if container exists
             if (!this.container || !this.container.length) {
                 console.warn('[BFP_AJAX] Container not ready, creating now');
                 this.container = $('<div class="bfp-ajax-notices-container"></div>');
@@ -332,11 +429,18 @@ jQuery(function($) {
             var $notice = $(noticeHtml);
             this.container.append($notice);
             
+            // Animate in
+            setTimeout(function() {
+                $notice.addClass('bfp-ajax-notice--visible');
+            }, 10);
+            
             // Make dismissible
             this.makeDismissible($notice);
             
-            // Auto-dismiss after timeout
-            this.autoDismiss($notice, this.autoDismissTimeout);
+            // Auto-dismiss after timeout (except errors)
+            if (type !== 'error') {
+                this.autoDismiss($notice, this.autoDismissTimeout);
+            }
         },
         
         makeDismissible: function($notice) {
@@ -373,11 +477,8 @@ jQuery(function($) {
         }
     };
     
-    // Initialize AJAX handler if we're on the settings page or product edit page
-    if ($('body').hasClass('toplevel_page_bandfront-player-settings') || 
-        $('body').hasClass('settings_page_bandfront-player-settings') ||
-        window.location.href.indexOf('bandfront-player-settings') > -1 ||
-        $('body').hasClass('post-type-product')) {  // ADDED: Also init on product pages
+    // Initialize AJAX handler
+    if (window.BFP_AJAX.isSettingsPage() || window.BFP_AJAX.isProductPage()) {
         window.BFP_AJAX.init();
     }
 });

@@ -695,4 +695,44 @@ class Renderer {
             BFP_VERSION
         );
     }
+    
+    /**
+     * Check if player should display
+     * 
+     * @param int $productId Product ID
+     * @return bool Whether to display player
+     */
+    private function shouldDisplay(int $productId): bool {
+        // Use smart context detection instead of _bfp_show_in
+        if (!$this->mainPlugin->smartPlayContext($productId)) {
+            return false;
+        }
+        
+        // Check page context
+        if (is_singular($this->mainPlugin->getPostTypes())) {
+            // Single product page - always show if context allows
+            return true;
+        } elseif (is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy()) {
+            // Shop/archive pages - always show if context allows
+            return true;
+        }
+        
+        // Allow other contexts (like shortcodes) to show players
+        return apply_filters('bfp_should_display_player', true, $productId);
+    }
+    
+    /**
+     * AJAX handler for player content
+     */
+    public function handleAjaxPlayer(): void {
+        // ...existing code...
+        
+        // Smart context check instead of _bfp_show_in
+        if (!$this->mainPlugin->smartPlayContext($product->get_id())) {
+            wp_send_json_error(__('Player not available for this product', 'bandfront-player'));
+            return;
+        }
+        
+        // ...existing code...
+    }
 }

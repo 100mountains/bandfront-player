@@ -2,315 +2,259 @@
 namespace bfp;
 
 /**
- * WordPress Hooks Manager for Bandfront Player
- *
- * @package BandfrontPlayer
- * @since 0.1
- */
+* WordPress Hooks Manager for Bandfront Player
+*
+* @package BandfrontPlayer
+* @since 0.1
+*/
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+   exit; // Exit if accessed directly
 }
 
 /**
- * Hooks Manager Class
- * Handles all WordPress action and filter registrations
- */
+* Hooks Manager Class
+* Handles all WordPress action and filter registrations
+*/
 class Hooks {
-    
-    private Plugin $mainPlugin;
-    
-    public function __construct(Plugin $mainPlugin) {
-        $this->mainPlugin = $mainPlugin;
-        $this->addConsoleLog('Hooks constructor called');
-        $this->registerHooks();
-    }
-    
-    /**
-     * Get the hooks array configuration
-     */
-    public function getHooksConfig(): array {
-        $this->addConsoleLog('getHooksConfig called');
-        
-        // FIXED: Context-aware hooks to prevent duplicate players
-        $hooksConfig = [
-            'main_player' => [],
-            'all_players' => []
-        ];
-        
-        $isProduct = function_exists('is_product') && is_product();
-        $isShop = function_exists('is_shop') && is_shop();
-        $isArchive = function_exists('is_product_category') && is_product_category();
-        
-        $this->addConsoleLog('getHooksConfig context check', [
-            'is_product' => $isProduct,
-            'is_shop' => $isShop, 
-            'is_archive' => $isArchive,
-            'final_context' => $isProduct ? 'product' : ($isShop || $isArchive ? 'shop' : 'other')
-        ]);
-        
-        // Only add all_players hooks on single product pages
-        if ($isProduct) {
-            $hooksConfig['all_players'] = [
-                'woocommerce_single_product_summary' => 25,
-            ];
-            $this->addConsoleLog('getHooksConfig single product hooks added', $hooksConfig['all_players']);
-        } else {
-            // On shop/archive pages, always add main player hooks
-            $hooksConfig['main_player'] = [
-                'woocommerce_after_shop_loop_item_title' => 1,
-            ];
-            $this->addConsoleLog('getHooksConfig main player hooks added', $hooksConfig['main_player']);
-        }
-        
-        $this->addConsoleLog('getHooksConfig final config', $hooksConfig);
-        return $hooksConfig;
-    }
-    
-    /**
-     * Register all WordPress hooks and filters
-     */
-    private function registerHooks(): void {
-        $this->addConsoleLog('registerHooks started');
-        
-        register_activation_hook(BFP_PLUGIN_PATH, [$this->mainPlugin, 'activation']);
-        register_deactivation_hook(BFP_PLUGIN_PATH, [$this->mainPlugin, 'deactivation']);
+   
+   private Plugin $mainPlugin;
+   
+   public function __construct(Plugin $mainPlugin) {
+       $this->mainPlugin = $mainPlugin;
+       $this->registerHooks();
+   }
+   
+   /**
+    * Get the hooks array configuration
+    */
+   public function getHooksConfig(): array {
+       // FIXED: Context-aware hooks to prevent duplicate players
+       $hooksConfig = [
+           'main_player' => [],
+           'all_players' => []
+       ];
+       
+       $isProduct = function_exists('is_product') && is_product();
+       $isShop = function_exists('is_shop') && is_shop();
+       $isArchive = function_exists('is_product_category') && is_product_category();
+       
+       // Only add all_players hooks on single product pages
+       if ($isProduct) {
+           $hooksConfig['all_players'] = [
+               'woocommerce_single_product_summary' => 25,
+           ];
+       } else {
+           // On shop/archive pages, always add main player hooks
+           $hooksConfig['main_player'] = [
+               'woocommerce_after_shop_loop_item_title' => 1,
+           ];
+       }
+       
+       return $hooksConfig;
+   }
+   
+   /**
+    * Register all WordPress hooks and filters
+    */
+   private function registerHooks(): void {
+       register_activation_hook(BFP_PLUGIN_PATH, [$this->mainPlugin, 'activation']);
+       register_deactivation_hook(BFP_PLUGIN_PATH, [$this->mainPlugin, 'deactivation']);
 
-        add_action('plugins_loaded', [$this->mainPlugin, 'pluginsLoaded']);
-        add_action('init', [$this->mainPlugin, 'init']);
+       add_action('plugins_loaded', [$this->mainPlugin, 'pluginsLoaded']);
+       add_action('init', [$this->mainPlugin, 'init']);
 
-        // FIXED: Dynamic hook registration based on context
-        add_action('wp', [$this, 'registerDynamicHooks']);
-        
-        // Add hooks for on_cover functionality
-        add_action('wp_enqueue_scripts', [$this, 'enqueueOnCoverAssets']);
-        add_action('woocommerce_before_shop_loop_item_title', [$this, 'addPlayButtonOnCover'], 20);
-        
-        // Remove WooCommerce product title filter if on_cover is enabled
-        add_action('init', [$this, 'conditionallyAddTitleFilter']);
-        
-        // Add filter for analytics preload
-        add_filter('bfp_preload', [$this->mainPlugin->getAudioCore(), 'preload'], 10, 2);
+       // FIXED: Dynamic hook registration based on context
+       add_action('wp', [$this, 'registerDynamicHooks']);
+       
+       // Add hooks for on_cover functionality
+       add_action('wp_enqueue_scripts', [$this, 'enqueueOnCoverAssets']);
+       add_action('woocommerce_before_shop_loop_item_title', [$this, 'addPlayButtonOnCover'], 20);
+       
+       // Remove WooCommerce product title filter if on_cover is enabled
+       add_action('init', [$this, 'conditionallyAddTitleFilter']);
+       
+       // Add filter for analytics preload
+       add_filter('bfp_preload', [$this->mainPlugin->getAudioCore(), 'preload'], 10, 2);
 
-        // EXPORT / IMPORT PRODUCTS
-        add_filter('woocommerce_product_export_meta_value', function($value, $meta, $product, $row) {
-            if (
-                preg_match('/^' . preg_quote('_bfp_') . '/i', $meta->key) &&
-                !is_scalar($value)
-            ) {
-                $value = serialize($value);
-            }
-            return $value;
-        }, 10, 4);
+       // EXPORT / IMPORT PRODUCTS
+       add_filter('woocommerce_product_export_meta_value', function($value, $meta, $product, $row) {
+           if (
+               preg_match('/^' . preg_quote('_bfp_') . '/i', $meta->key) &&
+               !is_scalar($value)
+           ) {
+               $value = serialize($value);
+           }
+           return $value;
+       }, 10, 4);
 
-        add_filter('woocommerce_product_importer_pre_expand_data', function($data) {
-            foreach ($data as $_key => $_value) {
-                if (
-                    preg_match('/^' . preg_quote('meta:_bfp_') . '/i', $_key) &&
-                    function_exists('is_serialized') &&
-                    is_serialized($_value)
-                ) {
-                    try {
-                        $data[$_key] = unserialize($_value);
-                    } catch (\Exception $err) {
-                        $data[$_key] = $_value;
-                    } catch (\Error $err) {
-                        $data[$_key] = $_value;
-                    }
-                }
-            }
-            return $data;
-        }, 10);
+       add_filter('woocommerce_product_importer_pre_expand_data', function($data) {
+           foreach ($data as $_key => $_value) {
+               if (
+                   preg_match('/^' . preg_quote('meta:_bfp_') . '/i', $_key) &&
+                   function_exists('is_serialized') &&
+                   is_serialized($_value)
+               ) {
+                   try {
+                       $data[$_key] = unserialize($_value);
+                   } catch (\Exception $err) {
+                       $data[$_key] = $_value;
+                   } catch (\Error $err) {
+                       $data[$_key] = $_value;
+                   }
+               }
+           }
+           return $data;
+       }, 10);
 
-        /** WooCommerce Product Table by Barn2 Plugins integration **/
-        add_filter('wc_product_table_data_name', function($title, $product) {
-            return (false === stripos($title, '<audio') ? $this->mainPlugin->includeMainPlayer($product, false) : '') . $title;
-        }, 10, 2);
+       /** WooCommerce Product Table by Barn2 Plugins integration **/
+       add_filter('wc_product_table_data_name', function($title, $product) {
+           return (false === stripos($title, '<audio') ? $this->mainPlugin->includeMainPlayer($product, false) : '') . $title;
+       }, 10, 2);
 
-        add_action('wc_product_table_before_get_data', function($table) {
-            $GLOBALS['_insert_all_players_BK'] = $this->mainPlugin->getInsertAllPlayers();
-            $this->mainPlugin->setInsertAllPlayers(false);
-        }, 10);
+       add_action('wc_product_table_before_get_data', function($table) {
+           $GLOBALS['_insert_all_players_BK'] = $this->mainPlugin->getInsertAllPlayers();
+           $this->mainPlugin->setInsertAllPlayers(false);
+       }, 10);
 
-        add_action('wc_product_table_after_get_data', function($table) {
-            if (isset($GLOBALS['_insert_all_players_BK'])) {
-                $this->mainPlugin->setInsertAllPlayers($GLOBALS['_insert_all_players_BK']);
-                unset($GLOBALS['_insert_all_players_BK']);
-            } else {
-                $this->mainPlugin->setInsertAllPlayers(true);
-            }
-        }, 10);
+       add_action('wc_product_table_after_get_data', function($table) {
+           if (isset($GLOBALS['_insert_all_players_BK'])) {
+               $this->mainPlugin->setInsertAllPlayers($GLOBALS['_insert_all_players_BK']);
+               unset($GLOBALS['_insert_all_players_BK']);
+           } else {
+               $this->mainPlugin->setInsertAllPlayers(true);
+           }
+       }, 10);
 
-        add_filter('pre_do_shortcode_tag', function($output, $tag, $attr, $m) {
-            if (strtolower($tag) == 'product_table') {
-                $this->mainPlugin->enqueueResources();
-            }
-            return $output;
-        }, 10, 4);
+       add_filter('pre_do_shortcode_tag', function($output, $tag, $attr, $m) {
+           if (strtolower($tag) == 'product_table') {
+               $this->mainPlugin->enqueueResources();
+           }
+           return $output;
+       }, 10, 4);
 
-        /** LiteSpeed Cache integration **/
-        add_filter('litespeed_optimize_js_excludes', function($p) {
-            $p[] = 'jquery.js';
-            $p[] = 'jquery.min.js';
-            $p[] = '/mediaelement/';
-            $p[] = plugin_dir_url(BFP_PLUGIN_PATH) . 'js/engine.js';
-            $p[] = '/wavesurfer.js';
-            return $p;
-        });
-        
-        add_filter('litespeed_optm_js_defer_exc', function($p) {
-            $p[] = 'jquery.js';
-            $p[] = 'jquery.min.js';
-            $p[] = '/mediaelement/';
-            $p[] = plugin_dir_url(BFP_PLUGIN_PATH) . 'js/engine.js';
-            $p[] = '/wavesurfer.js';
-            return $p;
-        });
-        
-        // Add format downloads CSS
-        add_action('wp_enqueue_scripts', function() {
-            if (function_exists('is_product') && is_product()) {
-                $this->mainPlugin->getRenderer()->enqueueFormatDownloadsCSS();
-            }
-        });
-        
-        $this->addConsoleLog('registerHooks completed');
-    }
-    
-    /**
-     * Register hooks dynamically based on page context
-     */
-    public function registerDynamicHooks(): void {
-        $this->addConsoleLog('registerDynamicHooks called');
-        
-        $hooksConfig = $this->getHooksConfig();
-        
-        // Register main player hooks
-        foreach ($hooksConfig['main_player'] as $hook => $priority) {
-            $this->addConsoleLog('registerDynamicHooks adding main player hook', ['hook' => $hook, 'priority' => $priority]);
-            add_action($hook, [$this->mainPlugin->getPlayer(), 'includeMainPlayer'], $priority);
-        }
-        
-        // Register all players hooks
-        foreach ($hooksConfig['all_players'] as $hook => $priority) {
-            $this->addConsoleLog('registerDynamicHooks adding all players hook', ['hook' => $hook, 'priority' => $priority]);
-            add_action($hook, [$this->mainPlugin->getPlayer(), 'includeAllPlayers'], $priority);
-        }
-        
-        $this->addConsoleLog('registerDynamicHooks completed', [
-            'main_player_hooks' => count($hooksConfig['main_player']),
-            'all_players_hooks' => count($hooksConfig['all_players'])
-        ]);
-    }
+       /** LiteSpeed Cache integration **/
+       add_filter('litespeed_optimize_js_excludes', function($p) {
+           $p[] = 'jquery.js';
+           $p[] = 'jquery.min.js';
+           $p[] = '/mediaelement/';
+           $p[] = plugin_dir_url(BFP_PLUGIN_PATH) . 'js/engine.js';
+           $p[] = '/wavesurfer.js';
+           return $p;
+       });
+       
+       add_filter('litespeed_optm_js_defer_exc', function($p) {
+           $p[] = 'jquery.js';
+           $p[] = 'jquery.min.js';
+           $p[] = '/mediaelement/';
+           $p[] = plugin_dir_url(BFP_PLUGIN_PATH) . 'js/engine.js';
+           $p[] = '/wavesurfer.js';
+           return $p;
+       });
+       
+       // Add format downloads CSS
+       add_action('wp_enqueue_scripts', function() {
+           if (function_exists('is_product') && is_product()) {
+               $this->mainPlugin->getRenderer()->enqueueFormatDownloadsCSS();
+           }
+       });
+   }
+   
+   /**
+    * Register hooks dynamically based on page context
+    */
+   public function registerDynamicHooks(): void {
+       $hooksConfig = $this->getHooksConfig();
+       
+       // Register main player hooks
+       foreach ($hooksConfig['main_player'] as $hook => $priority) {
+           add_action($hook, [$this->mainPlugin->getPlayer(), 'includeMainPlayer'], $priority);
+       }
+       
+       // Register all players hooks
+       foreach ($hooksConfig['all_players'] as $hook => $priority) {
+           add_action($hook, [$this->mainPlugin->getPlayer(), 'includeAllPlayers'], $priority);
+       }
+   }
 
-    /**
-     * Conditionally add product title filter
-     */
-    public function conditionallyAddTitleFilter(): void {
-        $this->addConsoleLog('conditionallyAddTitleFilter called');
-        
-        // Use getState instead of accessing config directly
-        $onCover = $this->mainPlugin->getConfig()->getState('_bfp_on_cover');
-        $woocommerce = $this->mainPlugin->getWooCommerce();
-        
-        $this->addConsoleLog('conditionallyAddTitleFilter checking conditions', [
-            'on_cover' => $onCover,
-            'has_woocommerce' => $woocommerce !== null
-        ]);
-        
-        // Always add the title filter - the on_cover setting shouldn't prevent title display in players
-        if ($woocommerce) {
-            add_filter('woocommerce_product_title', [$woocommerce, 'woocommerceProductTitle'], 10, 2);
-            $this->addConsoleLog('conditionallyAddTitleFilter title filter added (always)');
-        } else {
-            $this->addConsoleLog('conditionallyAddTitleFilter title filter NOT added - no woocommerce');
-        }
-    }
+   /**
+    * Conditionally add product title filter
+    */
+   public function conditionallyAddTitleFilter(): void {
+       // Use getState instead of accessing config directly
+       $onCover = $this->mainPlugin->getConfig()->getState('_bfp_on_cover');
+       $woocommerce = $this->mainPlugin->getWooCommerce();
+       
+       // Always add the title filter - the on_cover setting shouldn't prevent title display in players
+       if ($woocommerce) {
+           add_filter('woocommerce_product_title', [$woocommerce, 'woocommerceProductTitle'], 10, 2);
+       }
+   }
 
-    /**
-     * Enqueue assets for on_cover functionality
-     */
-    public function enqueueOnCoverAssets(): void {
-        $this->addConsoleLog('enqueueOnCoverAssets called');
-        
-        // Use the main renderer instead of separate CoverRenderer
-        $this->mainPlugin->getRenderer()->enqueueCoverAssets();
-        
-        $this->addConsoleLog('enqueueOnCoverAssets completed');
-    }
+   /**
+    * Enqueue assets for on_cover functionality
+    */
+   public function enqueueOnCoverAssets(): void {
+       // Use the main renderer instead of separate CoverRenderer
+       $this->mainPlugin->getRenderer()->enqueueCoverAssets();
+   }
 
-    /**
-     * Add play button on product cover image
-     */
-    public function addPlayButtonOnCover(): void {
-        $this->addConsoleLog('addPlayButtonOnCover called');
-        
-        // Check if we should add the play button
-        $onCover = $this->mainPlugin->getConfig()->getState('_bfp_on_cover');
-        $this->addConsoleLog('addPlayButtonOnCover on_cover setting', $onCover);
-        
-        if ($onCover) {
-            // Use the main renderer instead of separate CoverRenderer
-            $this->mainPlugin->getRenderer()->renderCoverOverlay();
-            $this->addConsoleLog('addPlayButtonOnCover overlay rendered');
-        } else {
-            $this->addConsoleLog('addPlayButtonOnCover skipped - on_cover disabled');
-        }
-    }
-    
-    /**
-     * Add rewrite rules for pretty URLs
-     */
-    public function addRewriteRules(): void {
-        add_rewrite_rule(
-            '^bfp-stream/([0-9]+)/([a-zA-Z0-9_-]+)/?$',
-            'index.php?bfp_stream=1&bfp_product=$matches[1]&bfp_file=$matches[2]',
-            'top'
-        );
-    }
-    
-    /**
-     * Add query vars
-     */
-    public function addQueryVars(array $vars): array {
-        $vars[] = 'bfp_stream';
-        $vars[] = 'bfp_product';
-        $vars[] = 'bfp_file';
-        return $vars;
-    }
-    
-    /**
-     * Template redirect for pretty URLs
-     */
-    public function templateRedirect(): void {
-        if (get_query_var('bfp_stream')) {
-            $productId = get_query_var('bfp_product');
-            $fileIndex = get_query_var('bfp_file');
-            
-            // Redirect to REST API endpoint
-            wp_redirect(rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}"));
-            exit;
-        }
-    }
-    
-    /**
-     * Add console log statement for debugging
-     * 
-     * @param string $message Log message
-     * @param mixed $data Optional data to log
-     * @return void
-     */
-    private function addConsoleLog(string $message, $data = null): void {
-        $logData = [
-            'timestamp' => current_time('mysql'),
-            'message' => $message,
-            'class' => 'BFP_Hooks'
-        ];
-        
-        if ($data !== null) {
-            $logData['data'] = $data;
-        }
-        
-        echo '<script>console.log("BFP Hooks Debug:", ' . wp_json_encode($logData) . ');</script>';
-    }
+   /**
+    * Add play button on product cover image
+    */
+   public function addPlayButtonOnCover(): void {
+       // Check if we should add the play button
+       $onCover = $this->mainPlugin->getConfig()->getState('_bfp_on_cover');
+       
+       if ($onCover) {
+           // Use the main renderer instead of separate CoverRenderer
+           $this->mainPlugin->getRenderer()->renderCoverOverlay();
+       }
+   }
+   
+   /**
+    * Add rewrite rules for pretty URLs
+    */
+   public function addRewriteRules(): void {
+       add_rewrite_rule(
+           '^bfp-stream/([0-9]+)/([a-zA-Z0-9_-]+)/?$',
+           'index.php?bfp_stream=1&bfp_product=$matches[1]&bfp_file=$matches[2]',
+           'top'
+       );
+   }
+   
+   /**
+    * Add query vars
+    */
+   public function addQueryVars(array $vars): array {
+       $vars[] = 'bfp_stream';
+       $vars[] = 'bfp_product';
+       $vars[] = 'bfp_file';
+       return $vars;
+   }
+   
+   /**
+    * Template redirect for pretty URLs
+    */
+   public function templateRedirect(): void {
+       if (get_query_var('bfp_stream')) {
+           $productId = get_query_var('bfp_product');
+           $fileIndex = get_query_var('bfp_file');
+           
+           // Redirect to REST API endpoint
+           wp_redirect(rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}"));
+           exit;
+       }
+   }
+   
+   /**
+    * Check if player should be shown on current page
+    * 
+    * @param int $productId Product ID
+    * @return bool
+    */
+   private function shouldShowPlayerOnPage(int $productId): bool {
+       // Use smart context detection
+       return $this->mainPlugin->smartPlayContext($productId);
+   }
 }

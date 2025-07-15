@@ -542,4 +542,26 @@ class Player {
         
         $this->enqueuedResources = true;
     }
+    
+    /**
+     * Determine if player should be shown for product
+     * 
+     * @param object $product WooCommerce product object
+     * @return bool Whether to show player
+     */
+    private function shouldShowPlayer($product): bool {
+        if (!is_object($product) || !method_exists($product, 'get_id')) {
+            return false;
+        }
+        
+        $productId = $product->get_id();
+        
+        // Check if player is enabled
+        if (!$this->mainPlugin->getConfig()->getState('_bfp_enable_player', true, $productId)) {
+            return false;
+        }
+        
+        // Use smart context detection
+        return $this->mainPlugin->smartPlayContext($productId);
+    }
 }

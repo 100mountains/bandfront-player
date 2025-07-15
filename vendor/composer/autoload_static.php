@@ -41,6 +41,7 @@ class ComposerStaticInit0c405109c72939381025ea518499511b
         'bfp\\Utils\\Analytics' => __DIR__ . '/../..' . '/src/Utils/Analytics.php',
         'bfp\\Utils\\Cache' => __DIR__ . '/../..' . '/src/Utils/Cache.php',
         'bfp\\Utils\\Cloud' => __DIR__ . '/../..' . '/src/Utils/Cloud.php',
+        'bfp\\Utils\\Debug' => __DIR__ . '/../..' . '/src/Utils/Debug.php',
         'bfp\\Utils\\Files' => __DIR__ . '/../..' . '/src/Utils/Files.php',
         'bfp\\Utils\\Preview' => __DIR__ . '/../..' . '/src/Utils/Preview.php',
         'bfp\\Utils\\Update' => __DIR__ . '/../..' . '/src/Utils/Update.php',
