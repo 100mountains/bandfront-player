@@ -51,6 +51,8 @@ class Audio {
                 return [
                     'fileName' => basename($preGeneratedPath),
                     'filePath' => $preGeneratedPath,
+                    'oFilePath' => $preGeneratedPath . '.tmp',
+                    'oFileName' => basename($preGeneratedPath) . '.tmp',
                     'purchased' => $purchased,
                     'preGenerated' => true,
                     'original_url' => $originalUrl
@@ -61,10 +63,13 @@ class Audio {
         // Fall back to demo generation for non-purchased users
         $fileName = $this->mainPlugin->getFiles()->generateDemoFileName($originalUrl);
         $basePath = $this->mainPlugin->getFileHandler()->getFilesDirectoryPath();
+        $oFileName = 'o_' . $fileName;
         
         return [
             'fileName' => $fileName,
             'filePath' => $basePath . $fileName,
+            'oFilePath' => $basePath . $oFileName,
+            'oFileName' => $oFileName,
             'purchased' => $purchased,
             'preGenerated' => false,
             'original_url' => $originalUrl
@@ -367,16 +372,52 @@ class Audio {
     }
     
     /**
-     * Generate audio URL for streaming
+     * Generate secure audio URL using REST API
+     * 
+     * @param int $productId Product ID
+     * @param string|int $fileIndex File index
+     * @param array $fileData Optional file data
+     * @return string Audio URL
      */
-    public function generateAudioUrl(int $productId, int $fileIndex, array $fileData = []): string {
-        // Use REST API endpoint for streaming
-        $rest_url = rest_url('bandfront-player/v1/stream/' . $productId . '/' . $fileIndex);
+    public function generateAudioUrl(int $productId, string|int $fileIndex, array $fileData = []): string {
+        $this->addConsoleLog('generateAudioUrl called', ['productId' => $productId, 'fileIndex' => $fileIndex, 'fileData' => $fileData]);
         
-        // Add nonce for security
-        return add_query_arg([
-            '_wpnonce' => wp_create_nonce('wp_rest')
-        ], $rest_url);
+        // Check if user owns the product
+        $purchased = $this->mainPlugin->getWooCommerce()?->woocommerceUserProduct($productId) ?? false;
+        
+        if ($purchased && !empty($fileData['file'])) {
+            // Try to get direct URL to pre-generated file
+            $preGeneratedUrl = $this->getPreGeneratedFileUrl($productId, $fileData['file']);
+            if ($preGeneratedUrl) {
+                $this->addConsoleLog('generateAudioUrl using pre-generated URL', $preGeneratedUrl);
+                return $preGeneratedUrl;
+            }
+        }
+        
+        // Direct play sources bypass streaming
+        if (!empty($fileData['play_src']) || 
+            (!empty($fileData['file']) && $this->mainPlugin->getFiles()->isPlaylist($fileData['file']))) {
+            $this->addConsoleLog('generateAudioUrl direct play source', $fileData['file']);
+            return $fileData['file'];
+        }
+        
+        // Legacy Google Drive support
+        if (!empty($fileData['file'])) {
+            $files = get_post_meta($productId, '_bfp_drive_files', true);
+            if (!empty($files)) {
+                $key = md5($fileData['file']);
+                if (isset($files[$key]['url'])) {
+                    $this->addConsoleLog('generateAudioUrl Google Drive URL', $files[$key]['url']);
+                    return $files[$key]['url'];
+                }
+            }
+        }
+        
+        // Use REST API endpoint
+        $url = rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}");
+        
+        $this->addConsoleLog('generateAudioUrl REST API endpoint', $url);
+        return $url;
     }
     
     /**
@@ -443,55 +484,6 @@ class Audio {
         $duration = shell_exec($cmd);
         
         return $duration ? (int) round((float) $duration) : 0;
-    }
-    
-    /**
-     * Generate secure audio URL using REST API
-     * 
-     * @param int $productId Product ID
-     * @param string|int $fileIndex File index
-     * @param array $fileData Optional file data
-     * @return string Audio URL
-     */
-    public function generateAudioUrl(int $productId, string|int $fileIndex, array $fileData = []): string {
-        $this->addConsoleLog('generateAudioUrl called', ['productId' => $productId, 'fileIndex' => $fileIndex, 'fileData' => $fileData]);
-        
-        // Check if user owns the product
-        $purchased = $this->mainPlugin->getWooCommerce()?->woocommerceUserProduct($productId) ?? false;
-        
-        if ($purchased && !empty($fileData['file'])) {
-            // Try to get direct URL to pre-generated file
-            $preGeneratedUrl = $this->getPreGeneratedFileUrl($productId, $fileData['file']);
-            if ($preGeneratedUrl) {
-                $this->addConsoleLog('generateAudioUrl using pre-generated URL', $preGeneratedUrl);
-                return $preGeneratedUrl;
-            }
-        }
-        
-        // Direct play sources bypass streaming
-        if (!empty($fileData['play_src']) || 
-            (!empty($fileData['file']) && $this->mainPlugin->getFiles()->isPlaylist($fileData['file']))) {
-            $this->addConsoleLog('generateAudioUrl direct play source', $fileData['file']);
-            return $fileData['file'];
-        }
-        
-        // Legacy Google Drive support
-        if (!empty($fileData['file'])) {
-            $files = get_post_meta($productId, '_bfp_drive_files', true);
-            if (!empty($files)) {
-                $key = md5($fileData['file']);
-                if (isset($files[$key]['url'])) {
-                    $this->addConsoleLog('generateAudioUrl Google Drive URL', $files[$key]['url']);
-                    return $files[$key]['url'];
-                }
-            }
-        }
-        
-        // Use REST API endpoint
-        $url = rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}");
-        
-        $this->addConsoleLog('generateAudioUrl REST API endpoint', $url);
-        return $url;
     }
     
     /**
@@ -787,86 +779,92 @@ class Audio {
         return sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? '');
     }
     
-    /**
-     * Get analytics endpoint URL
-     * 
-     * @param array $settings Analytics settings
-     * @return string Endpoint URL
-     */
-    private function getAnalyticsEndpoint(array $settings): string {
-        if ($settings['_bfp_analytics_integration'] === 'ua') {
-            return 'http://www.google-analytics.com/collect';
-        }
-        
-        return sprintf(
-            'https://www.google-analytics.com/mp/collect?api_secret=%s&measurement_id=%s',
-            $settings['_bfp_analytics_api_secret'],
-            $settings['_bfp_analytics_property']
-        );
-    }
-    
-    /**
-     * Build analytics payload
-     * 
-     * @param array $settings Analytics settings
-     * @param string $clientId Client ID
-     * @param int $productId Product ID
-     * @param string $fileUrl File URL
-     * @return array Request arguments
-     */
-    private function buildAnalyticsPayload(array $settings, string $clientId, int $productId, string $fileUrl): array {
-        if ($settings['_bfp_analytics_integration'] === 'ua') {
-            return [
-                'body' => [
-                    'v' => 1,
-                    'tid' => $settings['_bfp_analytics_property'],
-                    'cid' => $clientId,
-                    't' => 'event',
-                    'ec' => 'Music Player for WooCommerce',
-                    'ea' => 'play',
-                    'el' => $fileUrl,
-                    'ev' => $productId,
-                ],
-            ];
-        }
-        
-        return [
-            'sslverify' => true,
-            'headers' => ['Content-Type' => 'application/json'],
-            'body' => wp_json_encode([
-                'client_id' => $clientId,
-                'events' => [
-                    [
-                        'name' => 'play',
-                        'params' => [
-                            'event_category' => 'Music Player for WooCommerce',
-                            'event_label' => $fileUrl,
-                            'event_value' => $productId,
-                        ],
-                    ],
-                ],
-            ]),
-        ];
-    }
-    
-    /**
-     * Add console log statement for debugging
-     * 
-     * @param string $message Log message
-     * @param mixed $data Optional data to log
-     * @return void
-     */
-    private function addConsoleLog(string $message, $data = null): void {
-        $logData = [
-            'timestamp' => current_time('mysql'),
-            'message' => $message,
-            'class' => 'BFP_Audio'
-        ];
-        
-        if ($data !== null) {
-            $logData['data'] = $data;
-        }
-        
-        echo '<script>console.log("BFP Audio Debug:", ' . wp_json_encode($logData) . ');</script>';
-    }
+/**
+    * Get analytics endpoint URL
+    * 
+    * @param array $settings Analytics settings
+    * @return string Endpoint URL
+    */
+   private function getAnalyticsEndpoint(array $settings): string {
+       if ($settings['_bfp_analytics_integration'] === 'ua') {
+           return 'http://www.google-analytics.com/collect';
+       }
+       
+       return sprintf(
+           'https://www.google-analytics.com/mp/collect?api_secret=%s&measurement_id=%s',
+           $settings['_bfp_analytics_api_secret'],
+           $settings['_bfp_analytics_property']
+       );
+   }
+   
+   /**
+    * Build analytics payload
+    * 
+    * @param array $settings Analytics settings
+    * @param string $clientId Client ID
+    * @param int $productId Product ID
+    * @param string $fileUrl File URL
+    * @return array Request arguments
+    */
+   private function buildAnalyticsPayload(array $settings, string $clientId, int $productId, string $fileUrl): array {
+       if ($settings['_bfp_analytics_integration'] === 'ua') {
+           return [
+               'body' => [
+                   'v' => 1,
+                   'tid' => $settings['_bfp_analytics_property'],
+                   'cid' => $clientId,
+                   't' => 'event',
+                   'ec' => 'Music Player for WooCommerce',
+                   'ea' => 'play',
+                   'el' => $fileUrl,
+                   'ev' => $productId,
+               ],
+           ];
+       }
+       
+       return [
+           'sslverify' => true,
+           'headers' => ['Content-Type' => 'application/json'],
+           'body' => wp_json_encode([
+               'client_id' => $clientId,
+               'events' => [
+                   [
+                       'name' => 'play',
+                       'params' => [
+                           'event_category' => 'Music Player for WooCommerce',
+                           'event_label' => $fileUrl,
+                           'event_value' => $productId,
+                       ],
+                   ],
+               ],
+           ]),
+       ];
+   }
+   
+   /**
+    * Add console log statement for debugging
+    * 
+    * @param string $message Log message
+    * @param mixed $data Optional data to log
+    * @return void
+    */
+   private function addConsoleLog(string $message, $data = null): void {
+       // Only add console logs in debug mode to avoid cluttering output
+       if (!defined('WP_DEBUG') || !WP_DEBUG) {
+           return;
+       }
+       
+       $logData = [
+           'timestamp' => current_time('mysql'),
+           'message' => $message,
+           'class' => 'BFP_Audio'
+       ];
+       
+       if ($data !== null) {
+           $logData['data'] = $data;
+       }
+       
+       // Log to error log instead of console to avoid interfering with audio streaming
+       error_log('BFP Audio Debug: ' . wp_json_encode($logData));
+   }
 }
