@@ -17,13 +17,15 @@ class Debug {
     private static int $maxStringLength = 500;
 
     /**
-     * Enable debugging globally or for specific contexts
+     * Enable debugging globally
      */
     public static function enable(string $context = null): void {
         if ($context === null) {
             self::$enabled = true;
         } else {
-            self::$enabledContexts[$context] = true;
+            // Deprecated: context-based enabling is no longer supported
+            error_log('[BFP DEBUG] Warning: Context-based debugging is deprecated. Use enable() without arguments for global debugging.');
+            self::$enabled = true;
         }
     }
 
@@ -61,13 +63,8 @@ class Debug {
      * Log a message with automatic context detection
      */
     public static function log(string $message, array $context = []): void {
-        // Extract calling context from message (format: "filename.php:line ...")
-        $callingContext = null;
-        if (preg_match('/^([^:]+\.php)/', $message, $matches)) {
-            $callingContext = basename($matches[1], '.php');
-        }
-
-        if (!self::isEnabled($callingContext)) {
+        // Simple global check - no context filtering
+        if (!self::$enabled) {
             return;
         }
 

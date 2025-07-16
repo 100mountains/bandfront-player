@@ -37,7 +37,6 @@ class Plugin {
      */
     public function __construct() {
         Debug::enable(); // Enable debugging globally
-        Debug::enable('Admin'); // Enable debugging for Admin context
         $this->initComponents();
         
         // Register REST API routes
