@@ -23,7 +23,7 @@ class WooCommerce {
      */
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
-        $this->addConsoleLog('WooCommerce integration initialized');
+        // Remove console log from constructor - causes activation errors
         
         // Add format download buttons to product pages
         add_action('woocommerce_after_single_product_summary', [$this, 'displayFormatDownloads'], 25);
@@ -568,6 +568,16 @@ class WooCommerce {
      * Add console log for debugging
      */
     private function addConsoleLog(string $message, $data = null): void {
+        // Prevent output during activation or AJAX requests
+        if (defined('WP_INSTALLING') || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+            return;
+        }
+        
+        // Only output in appropriate contexts
+        if (!did_action('wp_body_open') && !did_action('admin_head')) {
+            return;
+        }
+        
         echo '<script>console.log("[BFP WooCommerce] ' . esc_js($message) . '", ' . 
              wp_json_encode($data) . ');</script>';
     }

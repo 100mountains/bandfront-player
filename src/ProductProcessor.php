@@ -21,7 +21,7 @@ class ProductProcessor {
     
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
-        $this->log('ProductProcessor initialized', 'info');
+        // Remove logging from constructor - causes activation errors
         
         // Hook into WooCommerce product save events
         add_action('woocommerce_process_product_meta', [$this, 'processProductAudio'], 20);
@@ -571,6 +571,19 @@ class ProductProcessor {
         ];
         
         $style = $styles[$level] ?? $styles['info'];
+        
+        // Prevent output during activation or AJAX requests
+        if (defined('WP_INSTALLING') || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+            // Only use error_log during these contexts
+            error_log('[BFP ProductProcessor] ' . $message . ' ' . wp_json_encode($data));
+            return;
+        }
+        
+        // Only output in appropriate contexts
+        if (!did_action('wp_body_open') && !did_action('admin_head')) {
+            error_log('[BFP ProductProcessor] ' . $message . ' ' . wp_json_encode($data));
+            return;
+        }
         
         echo '<script>console.log("%c[BFP ProductProcessor] ' . esc_js($message) . '", "' . $style . '", ' . 
              wp_json_encode($data) . ');</script>';

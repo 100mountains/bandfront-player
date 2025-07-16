@@ -24,8 +24,7 @@ class Renderer {
     
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
-        // Add console logging for initialization
-        $this->addConsoleLog('Renderer initialized');
+        // Remove console log from constructor - causes activation errors
     }
     
     /**
@@ -36,6 +35,16 @@ class Renderer {
      * @return string Script tag with console.log
      */
     private function addConsoleLog(string $message, $data = null): string {
+        // Prevent output during activation or AJAX requests
+        if (defined('WP_INSTALLING') || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+            return '';
+        }
+        
+        // Only output in appropriate contexts
+        if (!did_action('wp_body_open') && !did_action('admin_head')) {
+            return '';
+        }
+        
         $script = '<script>';
         if ($data === null) {
             $script .= 'console.log("[BFP] ' . esc_js($message) . '");';
