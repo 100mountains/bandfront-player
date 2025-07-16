@@ -65,7 +65,7 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 
 ?>
 <h1><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Bandfront Player - Global Settings', 'bandfront-player' ); ?></h1>
-<p class="bfp-tagline">FUCK a player for the storefront theme</p>
+<p class="bfp-tagline">a player for the storefront theme</p>
 
 <div class="bfp-tips-container">
 	<div id="bandcamp_nuke_tips_header">
