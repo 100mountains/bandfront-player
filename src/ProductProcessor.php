@@ -1,6 +1,8 @@
 <?php
 namespace bfp;
 
+use bfp\Utils\Debug; // DEBUG-REMOVE
+
 /**
  * Product Audio Processing
  * 
@@ -21,6 +23,8 @@ class ProductProcessor {
     
     public function __construct(Plugin $mainPlugin) {
         $this->mainPlugin = $mainPlugin;
+        Debug::log('ProductProcessor.php:' . __LINE__ . ' Entering __construct()', []); // DEBUG-REMOVE
+        
         // Remove logging from constructor - causes activation errors
         
         // Hook into WooCommerce product save events
@@ -33,6 +37,8 @@ class ProductProcessor {
         
         // Add admin notice for processing status
         add_action('admin_notices', [$this, 'showProcessingNotices']);
+        
+        Debug::log('ProductProcessor.php:' . __LINE__ . ' Exiting __construct()', []); // DEBUG-REMOVE
     }
     
     /**
@@ -444,6 +450,12 @@ class ProductProcessor {
             return false;
         }
         
+        if (file_exists($outputPath)) {
+            Debug::log('ProductProcessor.php:' . __LINE__ . ' Format file created', ['outputPath' => $outputPath]); // DEBUG-REMOVE
+        } else {
+            Debug::log('ProductProcessor.php:' . __LINE__ . ' Failed to create format file', ['outputPath' => $outputPath]); // DEBUG-REMOVE
+        }
+        
         return file_exists($outputPath) && filesize($outputPath) > 0;
     }
     
@@ -462,6 +474,8 @@ class ProductProcessor {
             $zipPath = $productDir . '/zips/' . $format . '.zip';
             $zip = new \ZipArchive();
             
+            Debug::log('ProductProcessor.php:' . __LINE__ . ' Zipping album', ['albumDir' => $productDir, 'zipPath' => $zipPath]); // DEBUG-REMOVE
+            
             if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
                 foreach ($files as $file) {
                     $zip->addFile($file, basename($file));
@@ -478,6 +492,12 @@ class ProductProcessor {
                     'format' => strtoupper($format),
                     'path' => $zipPath
                 ]);
+            }
+            
+            if (file_exists($zipPath)) {
+                Debug::log('ProductProcessor.php:' . __LINE__ . ' Album zip created', ['zipPath' => $zipPath]); // DEBUG-REMOVE
+            } else {
+                Debug::log('ProductProcessor.php:' . __LINE__ . ' Failed to create album zip', ['zipPath' => $zipPath]); // DEBUG-REMOVE
             }
         }
     }

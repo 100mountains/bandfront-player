@@ -1,6 +1,8 @@
 <?php
 namespace bfp;
 
+use bfp\Utils\Debug; // DEBUG-REMOVE
+
 /**
  * WooCommerce integration functionality for Bandfront Player
  */
@@ -22,6 +24,7 @@ class WooCommerce {
      * Constructor
      */
     public function __construct(Plugin $mainPlugin) {
+        Debug::log('WooCommerce.php:' . __LINE__ . ' Constructing WooCommerce integration', ['mainPlugin_set' => is_object($mainPlugin)]); // DEBUG-REMOVE
         $this->mainPlugin = $mainPlugin;
         // Remove console log from constructor - causes activation errors
         
@@ -33,6 +36,7 @@ class WooCommerce {
      * Get renderer instance
      */
     private function getRenderer(): Renderer {
+        Debug::log('WooCommerce.php:' . __LINE__ . ' Getting renderer instance', []); // DEBUG-REMOVE
         if ($this->renderer === null) {
             $this->renderer = new Renderer($this->mainPlugin);
         }
@@ -47,6 +51,7 @@ class WooCommerce {
      * @return string The modified title
      */
     public function woocommerceProductTitle(string $title, $product): string {
+        Debug::log('WooCommerce.php:' . __LINE__ . ' Filtering product title for player injection', ['product_id' => $product ? $product->get_id() : null]); // DEBUG-REMOVE
         if (!$product) {
             return $title;
         }
@@ -71,6 +76,7 @@ class WooCommerce {
                 // Allow filtering the player HTML
                 $playerHtml = $this->mainPlugin->getPlayer()->includeMainPlayer($product, false);
                 $playerHtml = apply_filters('bfp_product_title_player_html', $playerHtml, $productId, $product);
+                Debug::log('WooCommerce.php:' . __LINE__ . ' Injecting player HTML into product title', ['product_id' => $productId]); // DEBUG-REMOVE
                 $title = $playerHtml . $title;
             }
         }
@@ -85,6 +91,7 @@ class WooCommerce {
      * @return string|false MD5 hash of user email if purchased, false otherwise
      */
     public function woocommerceUserProduct(int $productId): string|false {
+        Debug::log('WooCommerce.php:' . __LINE__ . ' Checking if user has purchased product', ['productId' => $productId, 'user_logged_in' => is_user_logged_in()]); // DEBUG-REMOVE
         if (!is_user_logged_in()) {
             return false;
         }
@@ -110,12 +117,15 @@ class WooCommerce {
             ]);
             
             if (!empty($orders)) {
+                Debug::log('WooCommerce.php:' . __LINE__ . ' User purchased product, returning order ID', ['order_id' => $orders[0]->get_id()]); // DEBUG-REMOVE
                 return (string) $orders[0]->get_id();
             }
             
+            Debug::log('WooCommerce.php:' . __LINE__ . ' User purchased product, returning fallback', []); // DEBUG-REMOVE
             return '1'; // Return '1' for backward compatibility
         }
         
+        Debug::log('WooCommerce.php:' . __LINE__ . ' User has not purchased product', ['productId' => $productId]); // DEBUG-REMOVE
         return false;
     }
     
@@ -126,6 +136,7 @@ class WooCommerce {
      * @return string HTML for download link(s)
      */
     public function woocommerceUserDownload(int $productId): string {
+        Debug::log('WooCommerce.php:' . __LINE__ . ' Getting user download links for product', ['productId' => $productId]); // DEBUG-REMOVE
         $downloadLinks = [];
         
         if (is_user_logged_in()) {
@@ -148,6 +159,7 @@ class WooCommerce {
             // Find downloads for this product
             foreach ($this->mainPlugin->getCurrentUserDownloads() as $download) {
                 if ((int)$download['product_id'] === $productId) {
+                    Debug::log('WooCommerce.php:' . __LINE__ . ' Found download link for product', ['download_id' => $download['download_id'], 'download_url' => $download['download_url']]); // DEBUG-REMOVE
                     $downloadLinks[$download['download_id']] = $download['download_url'];
                 }
             }
@@ -168,6 +180,7 @@ class WooCommerce {
             $linksJson = wp_json_encode($downloadLinks);
             
             // Enhanced accessibility with ARIA attributes
+            Debug::log('WooCommerce.php:' . __LINE__ . ' Returning download links for product', ['productId' => $productId, 'links' => $downloadLinks]); // DEBUG-REMOVE
             return sprintf(
                 '<a href="javascript:void(0);" data-download-links="%s" class="bfp-download-link" role="button" aria-label="%s">%s</a>',
                 esc_attr($linksJson),
@@ -176,6 +189,7 @@ class WooCommerce {
             );
         }
         
+        Debug::log('WooCommerce.php:' . __LINE__ . ' No download links found for product', ['productId' => $productId]); // DEBUG-REMOVE
         return '';
     }
     
@@ -186,6 +200,7 @@ class WooCommerce {
      * @return string HTML output
      */
     public function replacePlaylistShortcode(array $atts): string {
+        Debug::log('WooCommerce.php:' . __LINE__ . ' Processing playlist shortcode', ['atts' => $atts]); // DEBUG-REMOVE
         if (!class_exists('woocommerce') || is_admin()) {
             return '';
         }
@@ -196,6 +211,7 @@ class WooCommerce {
         
         // Check if player insertion is enabled
         if (!$this->mainPlugin->getPlayer()->getInsertPlayer()) {
+            Debug::log('WooCommerce.php:' . __LINE__ . ' Player insertion not enabled for playlist shortcode', []); // DEBUG-REMOVE
             return $output;
         }
 
@@ -223,6 +239,7 @@ class WooCommerce {
                 $class = isset($atts['class']) ? esc_attr($atts['class']) : '';
 
                 if (strpos($output, 'bfp-player-list') !== false) {
+                    Debug::log('WooCommerce.php:' . __LINE__ . ' Returning playlist output with player list', ['postId' => $postId]); // DEBUG-REMOVE
                     return str_replace('bfp-player-container', $class . ' bfp-player-container', $output);
                 }
                 
@@ -230,6 +247,7 @@ class WooCommerce {
             } catch (\Exception $err) {
                 // Log the error using WordPress logging
                 if (defined('WP_DEBUG') && WP_DEBUG) {
+                    Debug::log('WooCommerce.php:' . __LINE__ . ' Exception in playlist shortcode', ['error' => $err->getMessage()]); // DEBUG-REMOVE
                     error_log('BandFront Player Error: ' . $err->getMessage());
                 }
                 
@@ -254,10 +272,12 @@ class WooCommerce {
             empty($productCategories) &&
             empty($productTags)
         ) {
+            Debug::log('WooCommerce.php:' . __LINE__ . ' No valid query parameters for playlist shortcode', []); // DEBUG-REMOVE
             return $output;
         }
 
         // Build and return the playlist
+        Debug::log('WooCommerce.php:' . __LINE__ . ' Building playlist output', ['productsIds' => $productsIds, 'productCategories' => $productCategories, 'productTags' => $productTags]); // DEBUG-REMOVE
         return $this->buildPlaylistOutput($productsIds, $productCategories, $productTags, (int)$atts['purchased_products'], $atts, $output);
     }
     
@@ -535,22 +555,23 @@ class WooCommerce {
         global $product;
         
         if (!$product || !is_a($product, 'WC_Product')) {
+            Debug::log('WooCommerce.php:' . __LINE__ . ' displayFormatDownloads: No valid product found', []); // DEBUG-REMOVE
             return;
         }
         
         $productId = $product->get_id();
-        $this->addConsoleLog('displayFormatDownloads checking', ['productId' => $productId]);
+        Debug::log('WooCommerce.php:' . __LINE__ . ' Checking for format downloads display', ['productId' => $productId]); // DEBUG-REMOVE
         
         // Check if user owns the product
         if (!$this->woocommerceUserProduct($productId)) {
-            $this->addConsoleLog('displayFormatDownloads user does not own product');
+            Debug::log('WooCommerce.php:' . __LINE__ . ' User does not own product, not displaying format downloads', ['productId' => $productId]); // DEBUG-REMOVE
             return;
         }
         
         // Get format downloader
         $formatDownloader = $this->mainPlugin->getFormatDownloader();
         if (!$formatDownloader) {
-            $this->addConsoleLog('displayFormatDownloads no format downloader available');
+            Debug::log('WooCommerce.php:' . __LINE__ . ' No format downloader available', []); // DEBUG-REMOVE
             return;
         }
         
@@ -560,7 +581,7 @@ class WooCommerce {
             echo '<div class="bfp-product-downloads">';
             echo $html;
             echo '</div>';
-            $this->addConsoleLog('displayFormatDownloads buttons displayed');
+            Debug::log('WooCommerce.php:' . __LINE__ . ' Displayed format download buttons', ['productId' => $productId]); // DEBUG-REMOVE
         }
     }
     
