@@ -2,6 +2,7 @@
 namespace bfp;
 
 
+use bfp\Utils\Debug; // DEBUG-REMOVE
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -35,6 +36,7 @@ class Plugin {
      * Constructor
      */
     public function __construct() {
+        Debug::enable(); // Enable debugging globally
         $this->initComponents();
         
         // Register REST API routes

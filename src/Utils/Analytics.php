@@ -2,7 +2,7 @@
 namespace bfp\Utils;
 
 use bfp\Plugin;
-
+use bfp\Utils\Debug; // DEBUG-REMOVE
 /**
  * Analytics functionality for Bandfront Player
  */

@@ -1,6 +1,8 @@
 <?php
 namespace bfp\Utils;
 
+use bfp\Utils\Debug; // DEBUG-REMOVE
+
 /**
  * Utility functions for Bandfront Player
  *

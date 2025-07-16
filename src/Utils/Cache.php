@@ -1,6 +1,6 @@
 <?php
 namespace bfp\Utils;
-
+use bfp\Utils\Debug; // DEBUG-REMOVE
 /**
  * Cache Compatibility Manager for Bandfront Player
  *

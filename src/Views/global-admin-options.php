@@ -1,4 +1,5 @@
 <?php
+
 // Security check - use ABSPATH instead
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly

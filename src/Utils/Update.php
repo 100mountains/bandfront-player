@@ -2,6 +2,7 @@
 namespace bfp\Utils;
 
 use bfp\Plugin;
+use bfp\Utils\Debug; // DEBUG-REMOVE
 
 /**
  * Auto Updater for Bandfront Player

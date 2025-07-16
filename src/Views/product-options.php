@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
@@ -8,6 +9,9 @@ if (!defined('ABSPATH')) {
  * @package BandfrontPlayer
  * @since 0.1
  */
+
+
+
 
 // include resources
 wp_enqueue_style( 'bfp-admin-style', BFP_PLUGIN_URL . 'css/style-admin.css', array(), '0.1' );

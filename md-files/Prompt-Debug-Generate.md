@@ -1,4 +1,4 @@
-Insert debug logging statements using use bfp\Utils\Debug; and Debug::log() throughout this PHP file at strategic points:
+Insert debug logging statements using use bfp\Utils\Debug; and Debug::log() throughout this GLOBAL ADMIN PHP file at strategic points. i particularly want to know about filenames its using in its API and where its sending its information. put more human readable logs in please.
 
 DO NOT ADD ANY OTHER CODE OR CHANGE ANYTHING ELSE IN THE FILE
 
@@ -26,15 +26,15 @@ Debug::log('ClassName.php:189 State change', ['before' => $oldValue, 'after' => 
 Debug::log('ClassName.php:201 Error occurred', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 
 Key Points to Log:
-1. Function entries with parameters
-2. Function exits with return values
-3. Before/after important conditionals
-4. Loop iterations (sparingly, maybe just first/last)
-5. API requests and responses
-6. Database queries
-7. State mutations
-8. Error conditions
-9. WordPress hooks/filters
-10. File I/O operations
 
+Function entries with parameters
+Function exits with return values
+Before/after important conditionals
+Loop iterations (sparingly, maybe just first/last)
+API requests and responses
+Database queries
+State mutations
+Error conditions
+WordPress hooks/filters
+File I/O operations
 Add // DEBUG-REMOVE at the end of each line so they can be easily removed later.

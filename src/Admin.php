@@ -1,6 +1,8 @@
 <?php
 namespace bfp;
 
+use bfp\Utils\Debug; // DEBUG-REMOVE
+
 /**
  * Admin functionality
  */
@@ -17,32 +19,39 @@ class Admin {
     private Plugin $mainPlugin;
     
     public function __construct(Plugin $mainPlugin) {
+        Debug::log('Admin.php:23 Entering __construct()', ['mainPlugin' => get_class($mainPlugin)]); // DEBUG-REMOVE
         $this->mainPlugin = $mainPlugin;
         $this->initHooks();
         
         // Include view templates that add hooks
         $this->loadViewTemplates();
+        Debug::log('Admin.php:29 Exiting __construct()', []); // DEBUG-REMOVE
     }
     
     /**
      * Load view templates that register hooks
      */
     private function loadViewTemplates(): void {
+        Debug::log('Admin.php:35 Entering loadViewTemplates()', []); // DEBUG-REMOVE
         // Only load in admin area
         if (!is_admin()) {
+            Debug::log('Admin.php:38 Not in admin area, skipping loadViewTemplates()', []); // DEBUG-REMOVE
             return;
         }
         
         // Include audio engine settings template (registers hooks)
+        Debug::log('Admin.php:43 Including audio-engine-settings.php', []); // DEBUG-REMOVE
         require_once plugin_dir_path(dirname(__FILE__)) . 'src/Views/audio-engine-settings.php';
         
         // Future: Add other view templates here as needed
+        Debug::log('Admin.php:47 Exiting loadViewTemplates()', []); // DEBUG-REMOVE
     }
 
     /**
      * Initialize WordPress hooks
      */
     private function initHooks(): void {
+        Debug::log('Admin.php:53 Registering admin hooks', []); // DEBUG-REMOVE
         add_action('admin_menu', [$this, 'menuLinks']);
         add_action('admin_init', [$this, 'adminInit'], 99);
         add_action('save_post', [$this, 'savePost'], 10, 3);
@@ -51,17 +60,21 @@ class Admin {
         
         // Add AJAX handler for settings save
         add_action('wp_ajax_bfp_save_settings', [$this, 'ajaxSaveSettings']);
+        Debug::log('Admin.php:62 Finished registering admin hooks', []); // DEBUG-REMOVE
     }
     
     /**
      * Admin initialization
      */
     public function adminInit(): void {
+        Debug::log('Admin.php:68 Entering adminInit()', []); // DEBUG-REMOVE
         // Check if WooCommerce is installed or not
         if (!class_exists('woocommerce')) {
+            Debug::log('Admin.php:71 WooCommerce not installed, exiting adminInit()', []); // DEBUG-REMOVE
             return;
         }
 
+        Debug::log('Admin.php:75 Clearing expired transients', []); // DEBUG-REMOVE
         $this->mainPlugin->getFileHandler()->clearExpiredTransients();
 
         add_meta_box(
@@ -71,16 +84,20 @@ class Admin {
             $this->mainPlugin->getPostTypes(), 
             'normal'
         );
+        Debug::log('Admin.php:84 Added Bandfront Player metabox', []); // DEBUG-REMOVE
 
         // Products list "Playback Counter"
         $this->setupProductColumns();
+        Debug::log('Admin.php:88 Exiting adminInit()', []); // DEBUG-REMOVE
     }
     
     /**
      * Setup product list columns
      */
     private function setupProductColumns(): void {
+        Debug::log('Admin.php:94 Setting up product columns', []); // DEBUG-REMOVE
         $manageProductPostsColumns = function($columns) {
+            Debug::log('Admin.php:96 Filtering product posts columns', ['columns' => $columns]); // DEBUG-REMOVE
             if ($this->mainPlugin->getConfig()->getState('_bfp_playback_counter_column', 1)) {
                 wp_enqueue_style(
                     'bfp-Playback-counter', 
@@ -91,25 +108,30 @@ class Admin {
                 $columns = array_merge($columns, [
                     'bfp_playback_counter' => __('Playback Counter', 'bandfront-player')
                 ]);
+                Debug::log('Admin.php:105 Added playback counter column', []); // DEBUG-REMOVE
             }
             return $columns;
         };
         add_filter('manage_product_posts_columns', $manageProductPostsColumns);
 
         $manageProductPostsCustomColumn = function($columnKey, $productId) {
+            Debug::log('Admin.php:112 Rendering custom column', ['columnKey' => $columnKey, 'productId' => $productId]); // DEBUG-REMOVE
             if ($this->mainPlugin->getConfig()->getState('_bfp_playback_counter_column', 1) && 
                 'bfp_playback_counter' == $columnKey) {
                 $counter = get_post_meta($productId, '_bfp_playback_counter', true);
+                Debug::log('Admin.php:116 Playback counter value', ['counter' => $counter]); // DEBUG-REMOVE
                 echo '<span class="bfp-playback-counter">' . esc_html(!empty($counter) ? $counter : '') . '</span>';
             }
         };
         add_action('manage_product_posts_custom_column', $manageProductPostsCustomColumn, 10, 2);
+        Debug::log('Admin.php:122 Finished setting up product columns', []); // DEBUG-REMOVE
     }
 
     /**
      * Add admin menu
      */
     public function menuLinks(): void {
+        Debug::log('Admin.php:128 Adding Bandfront Player menu page', []); // DEBUG-REMOVE
         add_menu_page(
             'Bandfront Player',
             'Bandfront Player',
@@ -119,35 +141,43 @@ class Admin {
             'dashicons-format-audio',
             30
         );
+        Debug::log('Admin.php:137 Finished adding Bandfront Player menu page', []); // DEBUG-REMOVE
     }
 
     /**
      * Settings page callback
      */
     public function settingsPage(): void {
+        Debug::log('Admin.php:143 Entering settingsPage()', []); // DEBUG-REMOVE
         if (isset($_POST['bfp_nonce']) && 
             wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['bfp_nonce'])), 'bfp_updating_plugin_settings')) {
+            Debug::log('Admin.php:146 Saving global settings from settingsPage()', []); // DEBUG-REMOVE
             $messages = $this->saveGlobalSettings();
             
             // Set transient for admin notice
             if (!empty($messages)) {
+                Debug::log('Admin.php:151 Setting admin notice transient', ['messages' => $messages]); // DEBUG-REMOVE
                 set_transient('bfp_admin_notice', $messages, 30);
             }
             
             // Redirect to prevent form resubmission
+            Debug::log('Admin.php:156 Redirecting after settings save', []); // DEBUG-REMOVE
             wp_redirect(add_query_arg('settings-updated', 'true', wp_get_referer()));
             exit;
         }
 
         echo '<div class="wrap">';
+        Debug::log('Admin.php:162 Including global-admin-options.php', []); // DEBUG-REMOVE
         include_once plugin_dir_path(dirname(__FILE__)) . 'src/Views/global-admin-options.php';
         echo '</div>';
+        Debug::log('Admin.php:165 Exiting settingsPage()', []); // DEBUG-REMOVE
     }
     
     /**
      * Settings page URL
      */
     public function settingsPageUrl(): string {
+        Debug::log('Admin.php:171 Getting settings page URL', []); // DEBUG-REMOVE
         return admin_url('options-general.php?page=bandfront-player-settings');
     }
 
@@ -155,6 +185,7 @@ class Admin {
      * Save global settings
      */
     private function saveGlobalSettings(): array {
+        Debug::log('Admin.php:177 Entering saveGlobalSettings()', []); // DEBUG-REMOVE
         $_REQUEST = stripslashes_deep($_REQUEST);
         
         // Track what changed for notifications
@@ -165,6 +196,7 @@ class Admin {
             '_bfp_secure_player',
             '_bfp_ffmpeg'
         ]);
+        Debug::log('Admin.php:185 Loaded old settings', ['oldSettings' => $oldSettings]); // DEBUG-REMOVE
         
         // Save the player settings
         $registeredOnly = isset($_REQUEST['_bfp_registered_only']) ? 1 : 0;
@@ -276,11 +308,13 @@ class Admin {
         
         // Handle Google Drive OAuth file upload
         if (!empty($_FILES['_bfp_drive_key']) && $_FILES['_bfp_drive_key']['error'] == UPLOAD_ERR_OK) {
+            Debug::log('Admin.php:246 Handling Google Drive OAuth file upload', []); // DEBUG-REMOVE
             $this->mainPlugin->getFiles()->handleOAuthFileUpload($_FILES['_bfp_drive_key']);
         } else {
             // Preserve existing drive key if no new file uploaded
             $existingCloudSettings = get_option('_bfp_cloud_drive_addon', []);
             if ($bfpDrive && isset($existingCloudSettings['_bfp_drive_key'])) {
+                Debug::log('Admin.php:252 Preserving existing Google Drive key', []); // DEBUG-REMOVE
                 $cloudDriveAddon = [
                     '_bfp_drive' => $bfpDrive,
                     '_bfp_drive_key' => $existingCloudSettings['_bfp_drive_key']
@@ -288,12 +322,14 @@ class Admin {
                 update_option('_bfp_cloud_drive_addon', $cloudDriveAddon);
             } elseif (!$bfpDrive) {
                 // If unchecked, clear the settings
+                Debug::log('Admin.php:258 Deleting Google Drive addon option', []); // DEBUG-REMOVE
                 delete_option('_bfp_cloud_drive_addon');
             }
         }
         
         // Save the Google Drive API key separately
         if ($bfpDriveApiKey !== '') {
+            Debug::log('Admin.php:264 Updating Google Drive API key', []); // DEBUG-REMOVE
             update_option('_bfp_drive_api_key', $bfpDriveApiKey);
         }
 
@@ -338,18 +374,22 @@ class Admin {
         ];
 
         if ($applyToAllPlayers || isset($_REQUEST['_bfp_delete_demos'])) {
+            Debug::log('Admin.php:292 Clearing demo files directory', []); // DEBUG-REMOVE
             $this->mainPlugin->getFileHandler()->clearDir($this->mainPlugin->getFileHandler()->getFilesDirectoryPath());
         }
 
         if ($applyToAllPlayers) {
+            Debug::log('Admin.php:297 Applying settings to all products', []); // DEBUG-REMOVE
             $this->applySettingsToAllProducts($globalSettings);
         }
 
+        Debug::log('Admin.php:301 Updating global settings option', ['globalSettings' => $globalSettings]); // DEBUG-REMOVE
         update_option('bfp_global_settings', $globalSettings);
         $this->mainPlugin->getConfig()->updateGlobalAttrs($globalSettings);
         do_action('bfp_save_setting');
 
         // Purge Cache using new cache manager
+        Debug::log('Admin.php:307 Clearing all plugin caches', []); // DEBUG-REMOVE
         Utils\Cache::clearAllCaches();
         
         // Build notification message
@@ -388,11 +428,13 @@ class Admin {
         
         // Return appropriate message
         if (!empty($messages)) {
+            Debug::log('Admin.php:334 Returning success message with details', ['messages' => $messages]); // DEBUG-REMOVE
             return [
                 'message' => __('Settings saved successfully!', 'bandfront-player') . ' ' . implode('. ', $messages) . '.',
                 'type' => 'success'
             ];
         } else {
+            Debug::log('Admin.php:339 Returning generic success message', []); // DEBUG-REMOVE
             return [
                 'message' => __('Settings saved successfully!', 'bandfront-player'),
                 'type' => 'success'
@@ -404,6 +446,7 @@ class Admin {
      * Apply settings to all products - REFACTORED
      */
     private function applySettingsToAllProducts(array $globalSettings): void {
+        Debug::log('Admin.php:349 Applying settings to all products', ['globalSettings' => $globalSettings]); // DEBUG-REMOVE
         $productsIds = [
             'post_type' => $this->mainPlugin->getPostTypes(),
             'numberposts' => -1,
@@ -413,13 +456,16 @@ class Admin {
         ];
 
         $products = get_posts($productsIds);
+        Debug::log('Admin.php:358 Found products', ['count' => count($products)]); // DEBUG-REMOVE
         foreach ($products as $productId) {
             // Delete meta keys for settings that are now global-only
+            Debug::log('Admin.php:361 Deleting product meta for global-only settings', ['productId' => $productId]); // DEBUG-REMOVE
             delete_post_meta($productId, '_bfp_player_layout');
             delete_post_meta($productId, '_bfp_player_controls');
             delete_post_meta($productId, '_bfp_on_cover');
             
             // Update the settings that can still be overridden
+            Debug::log('Admin.php:366 Updating product meta with global settings', ['productId' => $productId]); // DEBUG-REMOVE
             update_post_meta($productId, '_bfp_enable_player', $globalSettings['_bfp_enable_player']);
             update_post_meta($productId, '_bfp_merge_in_grouped', $globalSettings['_bfp_merge_in_grouped']);
             update_post_meta($productId, '_bfp_single_player', $globalSettings['_bfp_single_player']);
@@ -430,20 +476,25 @@ class Admin {
 
             $this->mainPlugin->getConfig()->clearProductAttrsCache($productId);
         }
+        Debug::log('Admin.php:375 Finished applying settings to all products', []); // DEBUG-REMOVE
     }
 
     /**
      * Save post meta data
      */
     public function savePost(int $postId, \WP_Post $post, bool $update): void {
+        Debug::log('Admin.php:381 Entering savePost()', ['postId' => $postId, 'postType' => $post->post_type ?? null, 'update' => $update]); // DEBUG-REMOVE
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            Debug::log('Admin.php:383 Doing autosave, exiting savePost()', []); // DEBUG-REMOVE
             return;
         }
         if (empty($_POST['bfp_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['bfp_nonce'])), 'bfp_updating_product')) {
+            Debug::log('Admin.php:387 Nonce check failed, exiting savePost()', []); // DEBUG-REMOVE
             return;
         }
         $postTypes = $this->mainPlugin->getPostTypes();
         if (!isset($post) || !in_array($post->post_type, $postTypes) || !current_user_can('edit_post', $postId)) {
+            Debug::log('Admin.php:391 Invalid post type or permissions, exiting savePost()', []); // DEBUG-REMOVE
             return;
         }
 
@@ -451,16 +502,20 @@ class Admin {
         $_DATA = stripslashes_deep($_REQUEST);
 
         // Always allow saving player options (no vendor plugin checks)
+        Debug::log('Admin.php:397 Deleting post files before saving options', ['postId' => $postId]); // DEBUG-REMOVE
         $this->mainPlugin->getFileHandler()->deletePost($postId, false, true);
 
         // Save the player options
+        Debug::log('Admin.php:401 Saving product options', ['postId' => $postId]); // DEBUG-REMOVE
         $this->saveProductOptions($postId, $_DATA);
+        Debug::log('Admin.php:403 Exiting savePost()', []); // DEBUG-REMOVE
     }
     
     /**
      * Save product-specific options - REFACTORED
      */
     private function saveProductOptions(int $postId, array $_DATA): void {
+        Debug::log('Admin.php:409 Entering saveProductOptions()', ['postId' => $postId, '_DATA' => $_DATA]); // DEBUG-REMOVE
         // KEEP ONLY these product-specific settings:
         $enablePlayer = isset($_DATA['_bfp_enable_player']) ? 1 : 0;
         $mergeGrouped = isset($_DATA['_bfp_merge_in_grouped']) ? 1 : 0;
@@ -483,6 +538,7 @@ class Admin {
         update_post_meta($postId, '_bfp_player_volume', $volume);
         update_post_meta($postId, '_bfp_secure_player', $securePlayer);
         update_post_meta($postId, '_bfp_file_percent', $filePercent);
+        Debug::log('Admin.php:420 Updated product meta for player options', ['postId' => $postId]); // DEBUG-REMOVE
 
         // --- Product-specific audio engine override
         if (isset($_DATA['_bfp_audio_engine'])) {
@@ -490,28 +546,34 @@ class Admin {
             
             if ($productAudioEngine === 'global' || empty($productAudioEngine)) {
                 // Delete the meta so it falls back to global
+                Debug::log('Admin.php:427 Removing product-specific audio engine override', ['postId' => $postId]); // DEBUG-REMOVE
                 delete_post_meta($postId, '_bfp_audio_engine');
             } elseif (in_array($productAudioEngine, ['mediaelement', 'wavesurfer'])) {
                 // Save valid override
+                Debug::log('Admin.php:430 Saving product-specific audio engine override', ['postId' => $postId, 'audioEngine' => $productAudioEngine]); // DEBUG-REMOVE
                 update_post_meta($postId, '_bfp_audio_engine', $productAudioEngine);
             }
         }
         // --- END: Product-specific audio engine override
 
         // --- KEEP DEMO LOGIC ---
+        Debug::log('Admin.php:437 Saving demo files for product', ['postId' => $postId]); // DEBUG-REMOVE
         $this->saveDemoFiles($postId, $_DATA);
         $this->mainPlugin->getConfig()->clearProductAttrsCache($postId);
+        Debug::log('Admin.php:440 Exiting saveProductOptions()', ['postId' => $postId]); // DEBUG-REMOVE
     }
     
     /**
      * Save demo files for product
      */
     private function saveDemoFiles(int $postId, array $_DATA): void {
+        Debug::log('Admin.php:446 Entering saveDemoFiles()', ['postId' => $postId]); // DEBUG-REMOVE
         $ownDemos = isset($_DATA['_bfp_own_demos']) ? 1 : 0;
         $directOwnDemos = isset($_DATA['_bfp_direct_own_demos']) ? 1 : 0;
         $demosList = [];
 
         if (isset($_DATA['_bfp_file_urls']) && is_array($_DATA['_bfp_file_urls'])) {
+            Debug::log('Admin.php:451 Processing demo file URLs', ['count' => count($_DATA['_bfp_file_urls'])]); // DEBUG-REMOVE
             foreach ($_DATA['_bfp_file_urls'] as $_i => $_url) {
                 if (!empty($_url)) {
                     $demosList[] = [
@@ -526,35 +588,43 @@ class Admin {
         update_post_meta($postId, '_bfp_own_demos', $ownDemos);
         update_post_meta($postId, '_bfp_direct_own_demos', $directOwnDemos);
         update_post_meta($postId, '_bfp_demos_list', $demosList);
+        Debug::log('Admin.php:463 Saved demo files meta', ['postId' => $postId, 'demosList' => $demosList]); // DEBUG-REMOVE
     }
 
     /**
      * After delete post callback
      */
     public function afterDeletePost(int $postId, \WP_Post $postObj): void {
+        Debug::log('Admin.php:469 Entering afterDeletePost()', ['postId' => $postId]); // DEBUG-REMOVE
         $this->mainPlugin->getFileHandler()->deletePost($postId);
+        Debug::log('Admin.php:471 Exiting afterDeletePost()', ['postId' => $postId]); // DEBUG-REMOVE
     }
 
     /**
      * Render player settings metabox
      */
     public function woocommercePlayerSettings(): void {
+        Debug::log('Admin.php:476 Rendering WooCommerce player settings metabox', []); // DEBUG-REMOVE
         global $post;
         include_once plugin_dir_path(dirname(__FILE__)) . 'src/Views/product-options.php';
+        Debug::log('Admin.php:479 Finished rendering WooCommerce player settings metabox', []); // DEBUG-REMOVE
     }
 
     /**
      * Show admin notices
      */
     public function showAdminNotices(): void {
+        Debug::log('Admin.php:484 Checking for admin notices', []); // DEBUG-REMOVE
         // Only show on our settings page
         if (!isset($_GET['page']) || $_GET['page'] !== 'bandfront-player-settings') {
+            Debug::log('Admin.php:487 Not on Bandfront Player settings page, skipping notices', []); // DEBUG-REMOVE
             return;
         }
         
         // Check for transient notice first (has more details)
         $notice = get_transient('bfp_admin_notice');
         if ($notice) {
+            Debug::log('Admin.php:492 Showing transient admin notice', ['notice' => $notice]); // DEBUG-REMOVE
             delete_transient('bfp_admin_notice');
             $class = 'notice notice-' . $notice['type'] . ' is-dismissible';
             printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($notice['message']));
@@ -563,6 +633,7 @@ class Admin {
         
         // Only show generic notice if no transient notice exists
         if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
+            Debug::log('Admin.php:500 Showing generic settings updated notice', []); // DEBUG-REMOVE
             ?>
             <div class="notice notice-success is-dismissible">
                 <p><?php esc_html_e('Settings saved successfully!', 'bandfront-player'); ?></p>
@@ -575,9 +646,11 @@ class Admin {
      * AJAX handler for saving settings
      */
     public function ajaxSaveSettings(): void {
+        Debug::log('Admin.php:511 Entering ajaxSaveSettings()', []); // DEBUG-REMOVE
         // Verify nonce
         if (!isset($_POST['bfp_nonce']) || 
             !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['bfp_nonce'])), 'bfp_updating_plugin_settings')) {
+            Debug::log('Admin.php:515 AJAX security check failed', []); // DEBUG-REMOVE
             wp_send_json_error([
                 'message' => __('Security check failed. Please refresh the page and try again.', 'bandfront-player')
             ]);
@@ -585,21 +658,25 @@ class Admin {
         
         // Check user capabilities
         if (!current_user_can('manage_options')) {
+            Debug::log('Admin.php:522 AJAX permission check failed', []); // DEBUG-REMOVE
             wp_send_json_error([
                 'message' => __('You do not have permission to change these settings.', 'bandfront-player')
             ]);
         }
         
         // Save settings using existing method
+        Debug::log('Admin.php:528 Saving global settings via AJAX', []); // DEBUG-REMOVE
         $messages = $this->saveGlobalSettings();
         
         // Send success response with detailed message
         if (!empty($messages) && $messages['type'] === 'success') {
+            Debug::log('Admin.php:533 AJAX settings save success', ['messages' => $messages]); // DEBUG-REMOVE
             wp_send_json_success([
                 'message' => $messages['message'],
                 'details' => isset($messages['details']) ? $messages['details'] : []
             ]);
         } else {
+            Debug::log('Admin.php:539 AJAX settings save error', ['messages' => $messages]); // DEBUG-REMOVE
             wp_send_json_error([
                 'message' => isset($messages['message']) ? $messages['message'] : __('An error occurred while saving settings.', 'bandfront-player')
             ]);
