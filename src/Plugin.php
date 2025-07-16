@@ -37,6 +37,7 @@ class Plugin {
      */
     public function __construct() {
         Debug::enable(); // Enable debugging globally
+        Debug::enable('Admin'); // Enable debugging for Admin context
         $this->initComponents();
         
         // Register REST API routes
@@ -82,9 +83,14 @@ class Plugin {
       
         
         // Initialize admin if in admin area
+        error_log('[BFP DEBUG] is_admin() check: ' . (is_admin() ? 'true' : 'false'));
         if (is_admin()) {
-            $this->admin = new Admin($this);
-        
+            // Delay admin initialization to ensure WordPress is fully loaded
+            add_action('init', function() {
+                error_log('[BFP DEBUG] Creating Admin instance on init hook');
+                $this->admin = new Admin($this);
+                error_log('[BFP DEBUG] Admin instance created');
+            }, 1); // Early priority to ensure it runs before other init hooks
         }
         
         // Allow other plugins to hook in
