@@ -1,6 +1,62 @@
+Collecting workspace informationFiltering to most relevant informationLet's separate the concerns in `Audio.php` into more focused classes. Here's a proposed refactoring plan:
+
+1. Create new files to handle specific concerns:
+
+```markdown
+src/
+├── Audio/
+│   ├── Processor.php       # Audio processing (FFmpeg/PHP)
+│   ├── Stream.php         # File streaming & headers
+│   └── Cache.php          # File caching logic
+├── Utils/
+│   ├── Analytics.php      # Analytics (already exists)
+│   └── Files.php         # File operations (already exists)
+├── Api/
+│   └── StreamController.php # REST API endpoints
+└── Audio.php             # Slim coordinator class
+```
+
+Key moves:
+
+1. **To `Utils/Files.php`:**
+- `generateFilePaths()`
+- `getPreGeneratedFileUrl()`
+- `cleanFilenameForMatching()`
+- File path/URL generation methods
+
+2. **To `Audio/Processor.php` (new):**
+- `processWithFfmpeg()`
+- `processWithPhp()` 
+- `processSecureAudio()`
+- FFmpeg-related helper methods
+
+3. **To `Audio/Stream.php` (new):**
+- `streamFile()`
+- `outputFile()` 
+- Header handling
+- Range request support
+
+4. **To `Utils/Analytics.php`:**
+- `trackingPlayEvent()`
+- `buildAnalyticsPayload()`
+- Analytics endpoint logic
+
+5. **To Cache.php (new):**
+- `cacheFilePath()`
+- `getCachedFilePath()`
+- Cache management
+
+6. **To `Api/StreamController.php` (new):**
+- REST API endpoint registration
+- Stream request handling
+- Permission checks
+
+The main `Audio.php` class will become a slim coordinator handling the high-level flow between these components.
+
+Would you like me to show the detailed implementation of any of these new classes?
 
 
----
+
 
 ### **General Observations**
 1. **Structure and Organization**:
