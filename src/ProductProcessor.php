@@ -720,16 +720,7 @@ class ProductProcessor {
         ]); // DEBUG-REMOVE
     }
     
-    /**
-     * Legacy method for backwards compatibility
-     */
-    private function addConsoleLog(string $message, $data = null): void {
-        Debug::log('ProductProcessor.php:' . __LINE__ . ' addConsoleLog()', [
-            'message' => $message,
-            'data' => $data
-        ]); // DEBUG-REMOVE
-        $this->log($message, 'info', $data);
-    }
+
     
     /**
      * Check if FFmpeg is available

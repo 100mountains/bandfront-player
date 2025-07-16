@@ -27,8 +27,7 @@ Debug::log('ClassName.php:201 Error occurred', ['error' => $e->getMessage(), 'tr
 
 Key Points to Log:
 
-Function entries with parameters
-Function exits with return values
+Combine Function entries and exits into one message (probably on exit unless sub optimal) with informative human readable output with parameters
 Before/after important conditionals
 Loop iterations (sparingly, maybe just first/last)
 API requests and responses

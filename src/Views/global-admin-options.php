@@ -214,6 +214,13 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 						<input aria-label="<?php esc_attr_e( 'Loop', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_loop" name="_bfp_loop" <?php checked( $settings['_bfp_loop'] ); ?> />
 					</td>
 				</tr>
+				<tr>
+					<td class="bfp-column-30"><label for="_bfp_fade_out">🎚️ <?php esc_html_e( 'Smooth fade out', 'bandfront-player' ); ?></label></td>
+					<td>
+						<input aria-label="<?php esc_attr_e( 'Apply fade out to playing audio when possible', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_fade_out" name="_bfp_fade_out" <?php checked( $settings['_bfp_fade_out'] ); ?> /><br>
+						<em class="bfp-em-text"><?php esc_html_e( 'Gradually fade out audio when switching tracks', 'bandfront-player' ); ?></em>
+					</td>
+				</tr>
 				<tr valign="top">
 					<td>
 						🎛️ <?php esc_html_e( 'Player controls', 'bandfront-player' ); ?>
@@ -253,11 +260,6 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 						<em class="bfp-em-text"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></em>
 					</td>
 				</tr>
-				<tr>
-					<td class="bfp-column-30"><label for="_bfp_fade_out">🎚️ <?php esc_html_e( 'Smooth fade out', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Apply fade out to playing audio when possible', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_fade_out" name="_bfp_fade_out" <?php checked( $settings['_bfp_fade_out'] ); ?> /><br>
-					<em class="bfp-em-text"><?php esc_html_e( 'Gradually fade out audio when switching tracks', 'bandfront-player' ); ?></em></td>
-				</tr>
 				<tr valign="top">
 					<td class="bfp-column-30">
 						<label for="_bfp_message">💬 <?php esc_html_e( 'Demo notice text', 'bandfront-player' ); ?></label>
@@ -284,16 +286,12 @@ $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 					</td>
 				</tr>
 				<tbody class="bfp-section-content" style="display: none;">
-				<tr>
-					<td>
-					<label><input aria-label="<?php esc_attr_e( 'Show "playback Counter" in the WooCommerce products list', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_playback_counter_column" <?php checked( $settings['_bfp_playback_counter_column'] ); ?> />
-					📊 <?php esc_html_e( 'Show playback counter in products list', 'bandfront-player' ); ?></label>
-					</td>
-				</tr>
+				<!-- REMOVED: Playback counter column setting - analytics data now sent via REST API to external analytics plugin -->
 				<tr>
 					<td>
 						<p class="bfp-analytics-note"><?php esc_html_e( 'Connect with Google Analytics to track when songs are played. Events include the audio file URL and product ID.', 'bandfront-player' ); ?></p>
 						<p class="bfp-analytics-warning"><b>📝 <?php esc_html_e( 'Note', 'bandfront-player' ); ?></b>: <?php esc_html_e( 'If preload is set to "Metadata" or "Auto", events are tracked when files load, not just when they play.', 'bandfront-player' ); ?></p>
+						<p class="bfp-analytics-rest-note"><b>🔗 <?php esc_html_e( 'REST Integration', 'bandfront-player' ); ?></b>: <?php esc_html_e( 'Playback analytics are automatically sent to your analytics plugin via REST API for advanced tracking and reporting.', 'bandfront-player' ); ?></p>
 					</td>
 				</tr>
 				<tr>

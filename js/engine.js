@@ -141,7 +141,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
     var bfp_players = [];
     var bfp_player_counter = 0;
     var audioEngine = (typeof bfp_global_settings !== 'undefined') ? 
-        bfp_global_settings.audio_engine : 'mediaelement';
+        bfp_global_settings.audio_engine : 'html5';  // Changed default from 'mediaelement' to 'html5'
     window.fadeOut = (typeof bfp_global_settings !== 'undefined') ? 
         (1 * bfp_global_settings.fade_out) : true;
     
@@ -247,7 +247,12 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     if (jQuery(bfp_players[toPlay].domNode).closest(".bfp-single-player").length) {
                         _hideShowPlayersAndPositioning(jQuery(bfp_players[toPlay].domNode).closest(".bfp-player-container"));
                     } else if (jQuery(bfp_players[toPlay].domNode).closest(".bfp-player-container").is(":visible")) {
-                        bfp_players[toPlay].domNode.play();
+                        // Handle different player types
+                        if (bfp_players[toPlay].domNode && bfp_players[toPlay].domNode.play) {
+                            bfp_players[toPlay].domNode.play();
+                        } else if (bfp_players[toPlay].play) {
+                            bfp_players[toPlay].play();
+                        }
                     } else {
                         _playNext(playernumber + 1, loop);
                     }
@@ -290,7 +295,12 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     if (jQuery(bfp_players[toPlay].domNode).closest('.bfp-single-player').length) {
                         _hideShowPlayersAndPositioning(jQuery(bfp_players[toPlay].domNode).closest('.bfp-player-container'));
                     } else if (jQuery(bfp_players[toPlay].domNode).closest('.bfp-player-container').is(':visible')) {
-                        bfp_players[toPlay].domNode.play();
+                        // Handle different player types
+                        if (bfp_players[toPlay].domNode && bfp_players[toPlay].domNode.play) {
+                            bfp_players[toPlay].domNode.play();
+                        } else if (bfp_players[toPlay].play) {
+                            bfp_players[toPlay].play();
+                        }
                     } else {
                         _playPrev(playernumber - 1, loop);
                     }
@@ -376,13 +386,101 @@ function initWaveSurferPlayer(container, audioUrl, options) {
             
             // ENHANCED: Better engine detection and fallback
             var useWaveSurfer = (audioEngine === 'wavesurfer' && typeof WaveSurfer !== 'undefined');
+            var useHTML5 = (audioEngine === 'html5');
+            var useMediaElement = (audioEngine === 'mediaelement' && typeof MediaElementPlayer !== 'undefined');
             
             if (!useWaveSurfer && audioEngine === 'wavesurfer') {
-                console.warn('WaveSurfer.js not available, falling back to MediaElement.js');
-                audioEngine = 'mediaelement';
+                console.warn('WaveSurfer.js not available, falling back to HTML5');
+                audioEngine = 'html5';
+                useHTML5 = true;
+            }
+            
+            if (!useMediaElement && audioEngine === 'mediaelement') {
+                console.warn('MediaElement.js not available, falling back to HTML5');
+                audioEngine = 'html5';
+                useHTML5 = true;
             }
 
-            if (useWaveSurfer) {
+            if (useHTML5) {
+                // HTML5 Native Audio initialization
+                fullPlayers.each(function() {
+                    var $player = $(this);
+                    $player.attr("playernumber", bfp_player_counter);
+                    
+                    // Ensure native controls are shown
+                    $player[0].controls = true;
+                    $player[0].style.width = '100%';
+                    
+                    // Store reference to native audio element
+                    bfp_players[bfp_player_counter] = $player[0];
+                    
+                    // Set initial volume
+                    var initialVolume = $player.attr("volume");
+                    if (initialVolume) {
+                        $player[0].volume = parseFloat(initialVolume);
+                    }
+                    
+                    // Track play events
+                    $player.on('play', function() {
+                        var productId = $player.attr("data-product");
+                        if (productId) {
+                            var trackUrl = window.location.protocol + "//" + 
+                                window.location.host + "/" +
+                                window.location.pathname.replace(/^\//g, '').replace(/\/$/g, '') +
+                                "?bfp-action=play&bfp-product=" + productId;
+                            $.get(trackUrl);
+                        }
+                        
+                        // Pause other players if needed
+                        if (pauseOthers) {
+                            for (var i = 0; i < bfp_players.length; i++) {
+                                if (i != parseInt($player.attr("playernumber")) && bfp_players[i]) {
+                                    if (bfp_players[i].pause) {
+                                        bfp_players[i].pause();
+                                    } else if (bfp_players[i].domNode && bfp_players[i].domNode.pause) {
+                                        bfp_players[i].domNode.pause();
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Handle fade out for HTML5
+                    if (fadeOut) {
+                        $player.on('timeupdate', function() {
+                            var duration = this.duration;
+                            var currentTime = this.currentTime;
+                            var remaining = duration - currentTime;
+                            
+                            if (!isNaN(duration) && !isNaN(currentTime) && remaining < 4 && remaining > 0) {
+                                if (!this.fadeStarted) {
+                                    this.fadeStarted = true;
+                                    this.bkVolume = this.volume;
+                                    smoothFadeOutMediaElement(this, remaining * 1000);
+                                }
+                            } else if (currentTime < duration - 4) {
+                                this.fadeStarted = false;
+                                if (this.bkVolume) {
+                                    this.volume = this.bkVolume;
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Handle ended event
+                    $player.on('ended', function() {
+                        this.currentTime = 0;
+                        
+                        // Play next if enabled
+                        if (playAll * 1) {
+                            var currentPlayerNumber = parseInt($player.attr("playernumber"));
+                            _playNext(currentPlayerNumber, $player.closest('[data-loop="1"]').length > 0);
+                        }
+                    });
+                    
+                    bfp_player_counter++;
+                });
+            } else if (useWaveSurfer) {
                 // WaveSurfer initialization
                 fullPlayers.each(function() {
                     var $player = $(this);
@@ -711,7 +809,31 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                 var $player = $(this);
                 $player.attr("playernumber", bfp_player_counter);
                 
-                if (useWaveSurfer) {
+                if (useHTML5) {
+                    // Simple HTML5 button player
+                    $player[0].controls = false;
+                    var $button = $('<button class="bfp-play-button">▶</button>');
+                    $player.after($button);
+                    $player.hide();
+                    
+                    $button.on('click', function() {
+                        if ($player[0].paused) {
+                            $player[0].play();
+                            $button.html('❚❚');
+                        } else {
+                            $player[0].pause();
+                            $button.html('▶');
+                        }
+                    });
+                    
+                    $player.on('play', function() {
+                        $button.html('❚❚');
+                    }).on('pause ended', function() {
+                        $button.html('▶');
+                    });
+                    
+                    bfp_players[bfp_player_counter] = $player;
+                } else if (useWaveSurfer) {
                     // Simple play button for WaveSurfer
                     var $button = $('<button class="bfp-play-button">▶</button>');
                     $player.after($button);
@@ -719,8 +841,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     
                     $button.on('click', function() {
                         // Find corresponding full player
-                        var playerNum = parseInt
-var playerNum = parseInt($player.attr("playernumber"));
+                        var playerNum = parseInt($player.attr("playernumber"));
                        var correspondingPlayer = null;
                        
                        // Look for the main player with same product ID
@@ -747,7 +868,7 @@ var playerNum = parseInt($player.attr("playernumber"));
                    });
                    
                    bfp_players[bfp_player_counter] = $button;
-               } else {
+                } else {
                    // MediaElement.js track controls
                    mejsOptions.features = ["playpause"];
                    

@@ -67,7 +67,12 @@ class Files {
            Debug::log('Files.php:' . __LINE__ . ' Creating purchased dir', []); // DEBUG-REMOVE
            @mkdir($this->filesDirectoryPath . 'purchased/', 0755);
        }
-       Debug::log('Files.php:' . __LINE__ . ' Exiting createDirectories()', []); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Directories checked/created', [
+           'filesDirectoryPath' => $this->filesDirectoryPath ?? null,
+           'filesDirectoryUrl' => $this->filesDirectoryUrl ?? null,
+           'baseExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath),
+           'purchasedExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath . 'purchased/')
+       ]); // DEBUG-REMOVE
    }
    
    /**
@@ -95,14 +100,14 @@ class Files {
            Debug::log('Files.php:' . __LINE__ . ' clearDir: exception', ['error' => $err->getMessage()]); // DEBUG-REMOVE
            return;
        }
-       Debug::log('Files.php:' . __LINE__ . ' Exiting clearDir()', []); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Directory cleared', ['dirPath' => $dirPath]); // DEBUG-REMOVE
    }
    
    /**
     * Get files directory path
     */
    public function getFilesDirectoryPath(): string {
-       Debug::log('Files.php:' . __LINE__ . ' getFilesDirectoryPath()', ['path' => $this->filesDirectoryPath]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Returned filesDirectoryPath', ['path' => $this->filesDirectoryPath]); // DEBUG-REMOVE
        return $this->filesDirectoryPath;
    }
    
@@ -110,7 +115,7 @@ class Files {
     * Get files directory URL
     */
    public function getFilesDirectoryUrl(): string {
-       Debug::log('Files.php:' . __LINE__ . ' getFilesDirectoryUrl()', ['url' => $this->filesDirectoryUrl]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Returned filesDirectoryUrl', ['url' => $this->filesDirectoryUrl]); // DEBUG-REMOVE
        return $this->filesDirectoryUrl;
    }
    
@@ -158,7 +163,7 @@ class Files {
        delete_post_meta($postId, '_bfp_demos_list');
 
        do_action('bfp_delete_post', $postId);
-       Debug::log('Files.php:' . __LINE__ . ' Exiting deletePost()', []); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Post files and meta deleted', ['postId' => $postId, 'demosOnly' => $demosOnly, 'force' => $force]); // DEBUG-REMOVE
    }
    
    /**
@@ -171,7 +176,7 @@ class Files {
            $this->clearDir($this->filesDirectoryPath . 'purchased/');
            $this->createDirectories();
        }
-       Debug::log('Files.php:' . __LINE__ . ' Exiting deletePurchasedFiles()', []); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Purchased files deleted if interval matched', []); // DEBUG-REMOVE
    }
    
    /**
@@ -183,7 +188,7 @@ class Files {
        if (!$transient || 24 * 60 * 60 <= time() - intval($transient)) {
            set_transient('bfp_clear_expired_transients', time());
            delete_expired_transients();
-           Debug::log('Files.php:' . __LINE__ . ' clearExpiredTransients: expired transients cleared', []); // DEBUG-REMOVE
+           Debug::log('Files.php:' . __LINE__ . ' Expired transients cleared if needed', []); // DEBUG-REMOVE
        }
        Debug::log('Files.php:' . __LINE__ . ' Exiting clearExpiredTransients()', []); // DEBUG-REMOVE
    }
@@ -215,7 +220,7 @@ class Files {
                }
            }
        }
-       Debug::log('Files.php:' . __LINE__ . ' Exiting deleteTruncatedFiles()', []); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Truncated demo files deleted for product', ['productId' => $productId]); // DEBUG-REMOVE
    }
    
    /**
@@ -259,7 +264,7 @@ class Files {
                }
            }
        }
-       Debug::log('Files.php:' . __LINE__ . ' Exiting getProductFilesInternal()', ['audioFilesCount' => count($audioFiles)]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Product audio files filtered', ['audioFilesCount' => count($audioFiles)]); // DEBUG-REMOVE
        return $audioFiles;
    }
    
@@ -331,7 +336,7 @@ class Files {
                }
            }
        }
-       Debug::log('Files.php:' . __LINE__ . ' Exiting getAllProductFiles()', ['filesArrCount' => count($filesArr)]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' All product files collected', ['filesArrCount' => count($filesArr)]); // DEBUG-REMOVE
        return $filesArr;
    }
    
@@ -355,7 +360,7 @@ class Files {
            $file['play_src'] = $playSrc;
            $pFiles[$pKey] = $file;
        }
-       Debug::log('Files.php:' . __LINE__ . ' Exiting editFilesArray()', ['pFilesCount' => count($pFiles)]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Product files array edited', ['pFilesCount' => count($pFiles)]); // DEBUG-REMOVE
        return $pFiles;
    }
    
@@ -377,7 +382,7 @@ class Files {
            'product' => $product,
            'all' => true
        ]);
-       Debug::log('Files.php:' . __LINE__ . ' Exiting getProductFiles()', ['resultCount' => count($result)]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Product files returned', ['resultCount' => count($result)]); // DEBUG-REMOVE
        return $result;
    }
    
@@ -409,6 +414,7 @@ class Files {
        if (strpos($url, 'drive.google.com') !== false) {
            return Utils\Cloud::getGoogleDriveDownloadUrl($url);
        }
+       Debug::log('Files.php:' . __LINE__ . ' Cloud URL processed', ['url' => $url]); // DEBUG-REMOVE
        return $url;
    }
    
@@ -477,7 +483,7 @@ class Files {
                break;
        }
        
-       Debug::log('Files.php:' . __LINE__ . ' getMimeType: result', ['mimeType' => $mimeType]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' MIME type determined', ['mimeType' => $mimeType]); // DEBUG-REMOVE
        return $mimeType;
    }
    
@@ -492,7 +498,7 @@ class Files {
        $playlistExtensions = ['m3u', 'm3u8', 'pls', 'xspf'];
        $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
        $result = in_array($extension, $playlistExtensions);
-       Debug::log('Files.php:' . __LINE__ . ' isPlaylist: result', ['result' => $result]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Playlist status checked', ['result' => $result]); // DEBUG-REMOVE
        return $result;
    }
    
@@ -509,6 +515,7 @@ class Files {
        } elseif ($this->isImage($filePath)) {
            return 'image';
        }
+       Debug::log('Files.php:' . __LINE__ . ' Player type determined', ['filePath' => $filePath]); // DEBUG-REMOVE
        return 'audio'; // Default to audio player
    }
    
@@ -635,7 +642,7 @@ class Files {
            $url = (is_ssl() ? 'https:' : 'http:') . $url;
        }
        
-       Debug::log('Files.php:' . __LINE__ . ' fixUrl: result', ['url' => $url]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' URL fixed', ['url' => $url]); // DEBUG-REMOVE
        return $url;
    }
    
@@ -661,7 +668,7 @@ class Files {
        }
        
        $filename = md5($url) . '.' . $ext;
-       Debug::log('Files.php:' . __LINE__ . ' generateDemoFileName: result', ['filename' => $filename]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Demo filename generated', ['filename' => $filename]); // DEBUG-REMOVE
        return $filename;
    }
    
@@ -703,7 +710,7 @@ class Files {
            if (file_exists($tempFile)) {
                unlink($filePath);
                rename($tempFile, $filePath);
-               Debug::log('Files.php:' . __LINE__ . ' truncateFile: truncated', ['filePath' => $filePath]); // DEBUG-REMOVE
+               Debug::log('Files.php:' . __LINE__ . ' File truncated', ['filePath' => $filePath, 'percent' => $percent]); // DEBUG-REMOVE
                return true;
            }
        } catch (\Exception $e) {
@@ -760,7 +767,7 @@ class Files {
        if ($this->createDemoFile($originalPath, $demoPath)) {
            // Truncate to percentage
            $this->truncateFile($demoPath, $percent);
-           Debug::log('Files.php:' . __LINE__ . ' getDemoFile: created', ['demoPath' => $demoPath]); // DEBUG-REMOVE
+           Debug::log('Files.php:' . __LINE__ . ' Demo file created or fetched', ['demoPath' => $demoPath, 'originalPath' => $originalPath, 'percent' => $percent]); // DEBUG-REMOVE
            return $demoPath;
        }
        
@@ -828,7 +835,7 @@ class Files {
            readfile($filePath);
        }
        
-       Debug::log('Files.php:' . __LINE__ . ' Exiting streamFile()', []); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' File streamed', ['filePath' => $filePath, 'options' => $options]); // DEBUG-REMOVE
        exit;
    }
    
@@ -868,6 +875,7 @@ class Files {
        
        $result = file_exists($destPath) && filesize($destPath) > 0;        
        Debug::log('Files.php:' . __LINE__ . ' createDemoFile: download result', ['result' => $result]); // DEBUG-REMOVE
+       Debug::log('Files.php:' . __LINE__ . ' Demo file created', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]); // DEBUG-REMOVE
        return $result;
    }
    
@@ -933,6 +941,7 @@ class Files {
        $mimeType = finfo_file($finfo, $filePath);
        finfo_close($finfo);
        
+       Debug::log('Files.php:' . __LINE__ . ' Audio MIME type checked', ['filePath' => $filePath]); // DEBUG-REMOVE
        return strpos($mimeType, 'audio/') === 0;
    }
    
@@ -951,6 +960,7 @@ class Files {
        $mimeType = finfo_file($finfo, $filePath);
        finfo_close($finfo);
        
+       Debug::log('Files.php:' . __LINE__ . ' Video MIME type checked', ['filePath' => $filePath]); // DEBUG-REMOVE
        return strpos($mimeType, 'video/') === 0;
    }
    
@@ -969,6 +979,7 @@ class Files {
        $mimeType = finfo_file($finfo, $filePath);
        finfo_close($finfo);
        
+       Debug::log('Files.php:' . __LINE__ . ' Image MIME type checked', ['filePath' => $filePath]); // DEBUG-REMOVE
        return strpos($mimeType, 'image/') === 0;
    }
    
@@ -1002,6 +1013,7 @@ class Files {
            $driveSettings['_bfp_drive_key'] = $targetPath;
            update_option('_bfp_cloud_drive_addon', $driveSettings);
            
+           Debug::log('Files.php:' . __LINE__ . ' OAuth file uploaded', ['targetPath' => $targetPath]); // DEBUG-REMOVE
            return true;
        }
        

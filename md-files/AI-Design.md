@@ -1,6 +1,13 @@
 
 ## Design
 
+upload/bfp/[productid]/demos.mp3 for each product streamed from here
+purchased woo-commerce-uploads/ if owned plays directly
+
+audio through REST API with x-send enabled
+
+
+
 examine this code for violating single class principle and mixing concerns
 
 examine for best practices in wordpress 2025

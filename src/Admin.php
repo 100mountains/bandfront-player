@@ -19,13 +19,20 @@ class Admin {
     private Plugin $mainPlugin;
     
     public function __construct(Plugin $mainPlugin) {
-        Debug::log('Admin.php:23 Entering __construct()', ['mainPlugin' => get_class($mainPlugin)]); // DEBUG-REMOVE
+        Debug::log('Admin.php:init', [
+            'step' => 'start',
+            'mainPlugin' => get_class($mainPlugin)
+        ]); // DEBUG-REMOVE
+
         $this->mainPlugin = $mainPlugin;
         $this->initHooks();
-        
-        // Include view templates that add hooks
         $this->loadViewTemplates();
-        Debug::log('Admin.php:29 Exiting __construct()', []); // DEBUG-REMOVE
+
+        Debug::log('Admin.php:init', [
+            'step' => 'end',
+            'hooks_registered' => true,
+            'views_loaded' => true
+        ]); // DEBUG-REMOVE
     }
     
     /**
@@ -67,7 +74,12 @@ class Admin {
      * Admin initialization
      */
     public function adminInit(): void {
-        Debug::log('Admin.php:68 Entering adminInit()', []); // DEBUG-REMOVE
+        Debug::log('Admin.php:adminInit', [
+            'step' => 'setup',
+            'action' => 'Initializing Bandfront Player admin',
+            'woocommerce_installed' => class_exists('woocommerce')
+        ]); // DEBUG-REMOVE
+
         // Check if WooCommerce is installed or not
         if (!class_exists('woocommerce')) {
             Debug::log('Admin.php:71 WooCommerce not installed, exiting adminInit()', []); // DEBUG-REMOVE
@@ -84,49 +96,18 @@ class Admin {
             $this->mainPlugin->getPostTypes(), 
             'normal'
         );
-        Debug::log('Admin.php:84 Added Bandfront Player metabox', []); // DEBUG-REMOVE
 
-        // Products list "Playback Counter"
-        $this->setupProductColumns();
-        Debug::log('Admin.php:88 Exiting adminInit()', []); // DEBUG-REMOVE
+        Debug::log('Admin.php:adminInit', [
+            'step' => 'metabox',
+            'action' => 'Bandfront Player metabox added to product edit screen'
+        ]); // DEBUG-REMOVE
+
+        Debug::log('Admin.php:adminInit', [
+            'step' => 'done',
+            'action' => 'Bandfront Player admin initialization complete'
+        ]); // DEBUG-REMOVE
     }
     
-    /**
-     * Setup product list columns
-     */
-    private function setupProductColumns(): void {
-        Debug::log('Admin.php:94 Setting up product columns', []); // DEBUG-REMOVE
-        $manageProductPostsColumns = function($columns) {
-            Debug::log('Admin.php:96 Filtering product posts columns', ['columns' => $columns]); // DEBUG-REMOVE
-            if ($this->mainPlugin->getConfig()->getState('_bfp_playback_counter_column', 1)) {
-                wp_enqueue_style(
-                    'bfp-Playback-counter', 
-                    plugin_dir_url(BFP_PLUGIN_PATH) . 'css/style-admin.css', 
-                    [], 
-                    BFP_VERSION
-                );
-                $columns = array_merge($columns, [
-                    'bfp_playback_counter' => __('Playback Counter', 'bandfront-player')
-                ]);
-                Debug::log('Admin.php:105 Added playback counter column', []); // DEBUG-REMOVE
-            }
-            return $columns;
-        };
-        add_filter('manage_product_posts_columns', $manageProductPostsColumns);
-
-        $manageProductPostsCustomColumn = function($columnKey, $productId) {
-            Debug::log('Admin.php:112 Rendering custom column', ['columnKey' => $columnKey, 'productId' => $productId]); // DEBUG-REMOVE
-            if ($this->mainPlugin->getConfig()->getState('_bfp_playback_counter_column', 1) && 
-                'bfp_playback_counter' == $columnKey) {
-                $counter = get_post_meta($productId, '_bfp_playback_counter', true);
-                Debug::log('Admin.php:116 Playback counter value', ['counter' => $counter]); // DEBUG-REMOVE
-                echo '<span class="bfp-playback-counter">' . esc_html(!empty($counter) ? $counter : '') . '</span>';
-            }
-        };
-        add_action('manage_product_posts_custom_column', $manageProductPostsCustomColumn, 10, 2);
-        Debug::log('Admin.php:122 Finished setting up product columns', []); // DEBUG-REMOVE
-    }
-
     /**
      * Add admin menu
      */
@@ -148,7 +129,10 @@ class Admin {
      * Settings page callback
      */
     public function settingsPage(): void {
-        Debug::log('Admin.php:143 Entering settingsPage()', []); // DEBUG-REMOVE
+        Debug::log('Admin.php:settingsPage', [
+            'step' => 'start',
+            'action' => 'Rendering Bandfront Player settings page'
+        ]); // DEBUG-REMOVE
         if (isset($_POST['bfp_nonce']) && 
             wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['bfp_nonce'])), 'bfp_updating_plugin_settings')) {
             Debug::log('Admin.php:146 Saving global settings from settingsPage()', []); // DEBUG-REMOVE
@@ -170,7 +154,14 @@ class Admin {
         Debug::log('Admin.php:162 Including global-admin-options.php', []); // DEBUG-REMOVE
         include_once plugin_dir_path(dirname(__FILE__)) . 'src/Views/global-admin-options.php';
         echo '</div>';
-        Debug::log('Admin.php:165 Exiting settingsPage()', []); // DEBUG-REMOVE
+        Debug::log('Admin.php:settingsPage', [
+            'step' => 'include',
+            'action' => 'Included Bandfront Player global-admin-options.php'
+        ]); // DEBUG-REMOVE
+        Debug::log('Admin.php:settingsPage', [
+            'step' => 'end',
+            'action' => 'Finished rendering Bandfront Player settings page'
+        ]); // DEBUG-REMOVE
     }
     
     /**
@@ -249,10 +240,10 @@ class Admin {
         $message = isset($_REQUEST['_bfp_message']) ? wp_kses_post(wp_unslash($_REQUEST['_bfp_message'])) : '';
         $applyToAllPlayers = isset($_REQUEST['_bfp_apply_to_all_players']) ? 1 : 0;
 
-        // FIXED: Audio engine handling
-        $audioEngine = 'mediaelement'; // Default fallback
+        // FIXED: Audio engine handling - now includes html5
+        $audioEngine = 'html5'; // Default to HTML5
         if (isset($_REQUEST['_bfp_audio_engine']) && 
-            in_array($_REQUEST['_bfp_audio_engine'], ['mediaelement', 'wavesurfer'])) {
+            in_array($_REQUEST['_bfp_audio_engine'], ['mediaelement', 'wavesurfer', 'html5'])) {
             $audioEngine = sanitize_text_field(wp_unslash($_REQUEST['_bfp_audio_engine']));
         }
         
@@ -359,7 +350,6 @@ class Admin {
             '_bfp_ios_controls' => $iosControls,
             '_bfp_onload' => $troubleshootOnload,
             '_bfp_disable_302' => $disable302,
-            '_bfp_playback_counter_column' => isset($_REQUEST['_bfp_playback_counter_column']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_playback_counter_column'])) : 0,
             '_bfp_analytics_integration' => isset($_REQUEST['_bfp_analytics_integration']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_analytics_integration'])) : 'ua',
             '_bfp_analytics_property' => isset($_REQUEST['_bfp_analytics_property']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_analytics_property'])) : '',
             '_bfp_analytics_api_secret' => isset($_REQUEST['_bfp_analytics_api_secret']) ? sanitize_text_field(wp_unslash($_REQUEST['_bfp_analytics_api_secret'])) : '',
@@ -548,8 +538,8 @@ class Admin {
                 // Delete the meta so it falls back to global
                 Debug::log('Admin.php:427 Removing product-specific audio engine override', ['postId' => $postId]); // DEBUG-REMOVE
                 delete_post_meta($postId, '_bfp_audio_engine');
-            } elseif (in_array($productAudioEngine, ['mediaelement', 'wavesurfer'])) {
-                // Save valid override
+            } elseif (in_array($productAudioEngine, ['mediaelement', 'wavesurfer', 'html5'])) {
+                // Save valid override - now includes html5
                 Debug::log('Admin.php:430 Saving product-specific audio engine override', ['postId' => $postId, 'audioEngine' => $productAudioEngine]); // DEBUG-REMOVE
                 update_post_meta($postId, '_bfp_audio_engine', $productAudioEngine);
             }
@@ -614,7 +604,9 @@ class Admin {
      * Show admin notices
      */
     public function showAdminNotices(): void {
-        Debug::log('Admin.php:484 Checking for admin notices', []); // DEBUG-REMOVE
+        Debug::log('Admin.php:showAdminNotices', [
+            'action' => 'Checking for Bandfront Player admin notices'
+        ]); // DEBUG-REMOVE
         // Only show on our settings page
         if (!isset($_GET['page']) || $_GET['page'] !== 'bandfront-player-settings') {
             Debug::log('Admin.php:487 Not on Bandfront Player settings page, skipping notices', []); // DEBUG-REMOVE

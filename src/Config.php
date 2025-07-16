@@ -25,7 +25,7 @@ class Config {
 
    private array $overridableSettings = [
        '_bfp_enable_player' => false,
-       '_bfp_audio_engine' => 'mediaelement',
+       '_bfp_audio_engine' => 'html5',  // Changed default from 'mediaelement' to 'html5'
        '_bfp_single_player' => 0,
        '_bfp_merge_in_grouped' => 0,
        '_bfp_play_all' => 0,
@@ -56,7 +56,6 @@ class Config {
        '_bfp_ffmpeg_path' => '',
        '_bfp_ffmpeg_watermark' => '',
        '_bfp_onload' => false,
-       '_bfp_playback_counter_column' => 1,
        '_bfp_analytics_integration' => 'ua',
        '_bfp_analytics_property' => '',
        '_bfp_analytics_api_secret' => '',
@@ -112,7 +111,6 @@ class Config {
            '_bfp_ios_controls',
            '_bfp_onload',
            '_bfp_disable_302',
-           '_bfp_playback_counter_column',
            '_bfp_analytics_integration',
            '_bfp_analytics_property',
            '_bfp_analytics_api_secret',
@@ -168,13 +166,12 @@ class Config {
            '_bfp_ios_controls' => 0,
            '_bfp_onload' => 0,
            '_bfp_disable_302' => 0,
-           '_bfp_playback_counter_column' => 1,
            '_bfp_analytics_integration' => 'ua',
            '_bfp_analytics_property' => '',
            '_bfp_analytics_api_secret' => '',
            '_bfp_analytics_api_secret' => '',
            '_bfp_apply_to_all_players' => 0,
-           '_bfp_audio_engine' => 'mediaelement',
+           '_bfp_audio_engine' => 'html5',  // Changed default from 'mediaelement' to 'html5'
            '_bfp_enable_visualizations' => 0,
            '_bfp_own_demos' => 0,
            '_bfp_direct_own_demos' => 0,
@@ -255,7 +252,7 @@ class Config {
        if ($key === '_bfp_audio_engine') {
            return !empty($value) &&
                   $value !== 'global' &&
-                  in_array($value, ['mediaelement', 'wavesurfer']);
+                  in_array($value, ['mediaelement', 'wavesurfer', 'html5']);  // Already includes 'html5'
        } elseif (in_array($key, ['_bfp_enable_player', '_bfp_secure_player', '_bfp_merge_in_grouped',
                                 '_bfp_single_player', '_bfp_play_all', '_bfp_loop', '_bfp_own_demos',
                                 '_bfp_direct_own_demos'])) {
@@ -399,8 +396,7 @@ class Config {
            'loop' => ['key' => '_bfp_loop', 'type' => 'int'],
            'on_cover' => ['key' => '_bfp_on_cover', 'type' => 'int'],
            
-           // Analytics settings
-           'playback_counter_column' => ['key' => '_bfp_playback_counter_column', 'type' => 'int'],
+           // Analytics settings - NOTE: Playback analytics now sent via REST API to external analytics plugin
            'analytics_integration' => ['key' => '_bfp_analytics_integration', 'type' => 'string'],
            'analytics_property' => ['key' => '_bfp_analytics_property', 'type' => 'string'],
            'analytics_api_secret' => ['key' => '_bfp_analytics_api_secret', 'type' => 'string'],

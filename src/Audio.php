@@ -385,12 +385,24 @@ class Audio {
         // Check if user owns the product
         $purchased = $this->mainPlugin->getWooCommerce()?->woocommerceUserProduct($productId) ?? false;
         
+        // Check audio engine setting
+        $audioEngine = $this->mainPlugin->getConfig()->getState('_bfp_audio_engine', 'html5', $productId);
+        
         if ($purchased && !empty($fileData['file'])) {
-            // Try to get direct URL to pre-generated file
-            $preGeneratedUrl = $this->getPreGeneratedFileUrl($productId, $fileData['file']);
-            if ($preGeneratedUrl) {
-                $this->addConsoleLog('generateAudioUrl using pre-generated URL', $preGeneratedUrl);
-                return $preGeneratedUrl;
+            // For HTML5 engine with purchased products, prefer direct URLs
+            if ($audioEngine === 'html5') {
+                // Try to get direct URL to pre-generated file
+                $preGeneratedUrl = $this->getPreGeneratedFileUrl($productId, $fileData['file']);
+                if ($preGeneratedUrl) {
+                    $this->addConsoleLog('generateAudioUrl using pre-generated URL for HTML5', $preGeneratedUrl);
+                    return $preGeneratedUrl;
+                }
+                
+                // If no pre-generated file, return original URL for HTML5
+                if ($this->mainPlugin->getFiles()->isValidAudioUrl($fileData['file'])) {
+                    $this->addConsoleLog('generateAudioUrl using original URL for HTML5', $fileData['file']);
+                    return $fileData['file'];
+                }
             }
         }
         
