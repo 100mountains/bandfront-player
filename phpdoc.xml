@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdocumentor
+   configVersion="3"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:noNamespaceSchemaLocation="https://docs.phpdoc.org/latest/phpdoc.xsd"
+>
+   <title>Bandfront Player Documentation</title>
+
+   <paths>
+       <output>docs</output>
+   </paths>
+
+   <versions>
+       <version number="latest">
+           <api>
+               <source dsn="." paths="src"/>
+               <output>api</output>
+               <extensions>
+                   <extension>php</extension>
+               </extensions>
+               <visibility>public</visibility>
+               <visibility>protected</visibility>
+               <visibility>private</visibility>
+               <default-package-name>BandfrontPlayer</default-package-name>
+           </api>
+       </version>
+   </versions>
+
+   <template name="default"/>
+</phpdocumentor>

@@ -1,9 +1,11 @@
 <?php
 namespace bfp;
 
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
+
 
 /**
  * Main Bandfront Player Class

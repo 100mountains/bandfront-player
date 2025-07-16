@@ -1,0 +1,296 @@
+#!/bin/bash
+
+# Script to remove debug logs from PHP files
+# Usage: 
+#   remove-debug.sh                    # Remove from all files in src/
+#   remove-debug.sh /path/to/file.php  # Remove from specific file
+#   remove-debug.sh /path/to/folder    # Remove from all files in specific folder
+#   
+# Options:
+#   --save-debug       # Save original files as .debug before removing debug lines
+#   --remove-debug     # Remove all .debug files
+#   --restore-debug    # Restore files from .debug backups
+
+# Remove debug lines from all files in src/
+# ./remove-debug.sh
+
+# Remove debug lines from specific file
+# ./remove-debug.sh ../src/Utils/Files.php
+
+# Remove debug lines from specific directory
+# ./remove-debug.sh ../src/Utils/
+
+# New features:
+
+# Save .debug copies before removing debug lines
+# ./remove-debug.sh --save-debug
+# ./remove-debug.sh ../src/Utils/ --save-debug
+# ./remove-debug.sh ../src/Utils/Files.php --save-debug
+
+# Remove all .debug files
+# ./remove-debug.sh --remove-debug
+# ./remove-debug.sh ../src/Utils/ --remove-debug
+
+# Restore files from .debug backups (puts debug lines back)
+# ./remove-debug.sh --restore-debug
+# ./remove-debug.sh ../src/Utils/ --restore-debug
+
+# The workflow would be:
+#
+# Development: Keep your debug lines in the code
+# Before deployment: Run ./remove-debug.sh --save-debug to create .debug backups and clean the files
+# If you need to debug again: Run ./remove-debug.sh --restore-debug to get your debug lines back
+# Clean up: Run ./remove-debug.sh --remove-debug to remove the .debug files when no longer needed
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Parse options
+SAVE_DEBUG=false
+REMOVE_DEBUG_FILES=false
+RESTORE_DEBUG_FILES=false
+TARGET_PATH=""
+
+for arg in "$@"; do
+    case $arg in
+        --save-debug)
+            SAVE_DEBUG=true
+            ;;
+        --remove-debug)
+            REMOVE_DEBUG_FILES=true
+            ;;
+        --restore-debug)
+            RESTORE_DEBUG_FILES=true
+            ;;
+        *)
+            if [[ -z "$TARGET_PATH" ]]; then
+                TARGET_PATH="$arg"
+            fi
+            ;;
+    esac
+done
+
+# Function to save debug file
+save_debug_file() {
+    local file="$1"
+    local debug_file="${file%.php}.debug"
+    
+    if cp "$file" "$debug_file" 2>/dev/null; then
+        echo -e "  ${BLUE}↳${NC} Saved debug copy: $(basename "$debug_file")"
+        return 0
+    else
+        echo -e "  ${RED}✗${NC} Failed to save debug copy for: $(basename "$file")"
+        return 1
+    fi
+}
+
+# Function to process a single file
+process_file() {
+    local file="$1"
+    local backup_file="${file}.debug-backup"
+    
+    # Check if file exists and is readable
+    if [[ ! -f "$file" ]]; then
+        echo -e "${RED}Error: File '$file' does not exist${NC}"
+        return 1
+    fi
+    
+    if [[ ! -r "$file" ]]; then
+        echo -e "${RED}Error: Cannot read file '$file'${NC}"
+        return 1
+    fi
+    
+    # Save debug file if requested
+    if [[ "$SAVE_DEBUG" == true ]]; then
+        save_debug_file "$file"
+    fi
+    
+    # Create temporary backup for comparison
+    if ! cp "$file" "$backup_file" 2>/dev/null; then
+        echo -e "${RED}Error: Cannot create backup for '$file'${NC}"
+        return 1
+    fi
+    
+    # Count debug lines before removal
+    local debug_lines_before=0
+    if grep -q '// DEBUG-REMOVE$' "$file" 2>/dev/null; then
+        debug_lines_before=$(grep -c '// DEBUG-REMOVE$' "$file")
+    fi
+    
+    # Remove lines ending with // DEBUG-REMOVE
+    if sed -i '/\/\/ DEBUG-REMOVE$/d' "$file" 2>/dev/null; then
+        # Check if file was actually modified by comparing with backup
+        if ! cmp -s "$file" "$backup_file"; then
+            # File was modified - lines were removed
+            echo -e "  ${GREEN}✓${NC} Cleaned: $(basename "$file") (removed $debug_lines_before debug lines)"
+            rm "$backup_file"
+            return 0
+        else
+            # File was not modified - no debug lines found
+            echo -e "  ${BLUE}•${NC} No changes: $(basename "$file")"
+            rm "$backup_file"
+            return 2  # No changes made
+        fi
+    else
+        echo -e "${RED}Error: Failed to process '$file'${NC}"
+        rm "$backup_file" 2>/dev/null || true
+        return 1
+    fi
+}
+
+# Function to remove debug files
+remove_debug_files() {
+    local target_dir="$1"
+    
+    echo -e "${YELLOW}Removing .debug files from $target_dir...${NC}"
+    
+    local removed_count=0
+    while IFS= read -r -d '' debug_file; do
+        if rm "$debug_file" 2>/dev/null; then
+            echo -e "  ${GREEN}✓${NC} Removed: $(basename "$debug_file")"
+            ((removed_count++))
+        else
+            echo -e "  ${RED}✗${NC} Failed to remove: $(basename "$debug_file")"
+        fi
+    done < <(find "$target_dir" -name "*.debug" -type f -print0)
+    
+    echo -e "${GREEN}Removed $removed_count .debug files${NC}"
+}
+
+# Function to restore from debug files
+restore_debug_files() {
+    local target_dir="$1"
+    
+    echo -e "${YELLOW}Restoring files from .debug backups in $target_dir...${NC}"
+    
+    local restored_count=0
+    while IFS= read -r -d '' debug_file; do
+        local original_file="${debug_file%.debug}.php"
+        if cp "$debug_file" "$original_file" 2>/dev/null; then
+            echo -e "  ${GREEN}✓${NC} Restored: $(basename "$original_file")"
+            ((restored_count++))
+        else
+            echo -e "  ${RED}✗${NC} Failed to restore: $(basename "$original_file")"
+        fi
+    done < <(find "$target_dir" -name "*.debug" -type f -print0)
+    
+    echo -e "${GREEN}Restored $restored_count files from .debug backups${NC}"
+}
+
+# Function to process all files in a directory
+process_directory() {
+    local target_dir="$1"
+    
+    if [[ ! -d "$target_dir" ]]; then
+        echo -e "${RED}Error: Directory '$target_dir' does not exist${NC}"
+        exit 1
+    fi
+    
+    # Handle special operations
+    if [[ "$REMOVE_DEBUG_FILES" == true ]]; then
+        remove_debug_files "$target_dir"
+        exit 0
+    fi
+    
+    if [[ "$RESTORE_DEBUG_FILES" == true ]]; then
+        restore_debug_files "$target_dir"
+        exit 0
+    fi
+    
+    echo -e "${YELLOW}Removing debug logs from all PHP files in $target_dir...${NC}"
+    if [[ "$SAVE_DEBUG" == true ]]; then
+        echo -e "${BLUE}Debug copies will be saved as .debug files${NC}"
+    fi
+    
+    # Initialize counters
+    local total_files=0
+    local modified_files=0
+    local error_files=0
+    local unchanged_files=0
+    
+    # Process each PHP file
+    while IFS= read -r -d '' file; do
+        ((total_files++))
+        process_file "$file"
+        local result=$?
+        case $result in
+            0) ((modified_files++)) ;;
+            1) ((error_files++)) ;;
+            2) ((unchanged_files++)) ;;
+        esac
+    done < <(find "$target_dir" -name "*.php" -type f -print0)
+    
+    echo
+    echo -e "${GREEN}Debug removal complete!${NC}"
+    echo "Total files processed: $total_files"
+    echo "Files modified: $modified_files"
+    echo "Files unchanged: $unchanged_files"
+    echo "Files with errors: $error_files"
+}
+
+# Main execution
+if [[ "$REMOVE_DEBUG_FILES" == true || "$RESTORE_DEBUG_FILES" == true ]]; then
+    # Special operations need a target
+    if [[ -z "$TARGET_PATH" ]]; then
+        TARGET_PATH="$PLUGIN_DIR/src"
+    else
+        # Convert relative path to absolute if needed
+        if [[ ! "$TARGET_PATH" = /* ]]; then
+            TARGET_PATH="$(pwd)/$TARGET_PATH"
+        fi
+    fi
+    
+    if [[ -d "$TARGET_PATH" ]]; then
+        process_directory "$TARGET_PATH"
+    else
+        echo -e "${RED}Error: '$TARGET_PATH' is not a directory${NC}"
+        exit 1
+    fi
+elif [[ -z "$TARGET_PATH" ]]; then
+    # No arguments - process default src directory
+    process_directory "$PLUGIN_DIR/src"
+else
+    # Convert relative path to absolute if needed
+    if [[ ! "$TARGET_PATH" = /* ]]; then
+        TARGET_PATH="$(pwd)/$TARGET_PATH"
+    fi
+    
+    # Check if it's a directory or file
+    if [[ -d "$TARGET_PATH" ]]; then
+        # It's a directory
+        process_directory "$TARGET_PATH"
+    elif [[ -f "$TARGET_PATH" ]]; then
+        # It's a file
+        echo -e "${YELLOW}Removing debug logs from: $TARGET_PATH${NC}"
+        if [[ "$SAVE_DEBUG" == true ]]; then
+            echo -e "${BLUE}Debug copy will be saved${NC}"
+        fi
+        
+        process_file "$TARGET_PATH"
+        result=$?
+        case $result in
+            0) 
+                echo -e "${GREEN}Successfully cleaned debug logs from file${NC}"
+                exit 0
+                ;;
+            1) 
+                echo -e "${RED}Failed to process file${NC}"
+                exit 1
+                ;;
+            2) 
+                echo -e "${BLUE}No debug logs found in file${NC}"
+                exit 0
+                ;;
+        esac
+    else
+        echo -e "${RED}Error: '$TARGET_PATH' is neither a file nor a directory${NC}"
+        exit 1
+    fi
+fi
