@@ -11,66 +11,70 @@ if (!defined('ABSPATH')) {
  * Handles logging for debugging purposes
  */
 class Debug {
-    private static bool $enabled = false;
-    private static array $enabledContexts = [];
+    private static bool $enabled = true; // Always enabled for debugging
     private static int $maxDepth = 3;
     private static int $maxStringLength = 500;
+    private static ?string $logFile = null;
+
+    /**
+     * Get the log file path
+     */
+    private static function getLogFile(): string {
+        if (self::$logFile === null) {
+            // First try WordPress debug.log if WP_DEBUG_LOG is enabled
+            if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+                if (is_string(WP_DEBUG_LOG)) {
+                    // WP 5.1+ allows specifying custom log file path
+                    self::$logFile = WP_DEBUG_LOG;
+                } else {
+                    // Default WordPress debug.log location
+                    self::$logFile = WP_CONTENT_DIR . '/debug.log';
+                }
+            } else {
+                // Create our own debug log in the plugin directory
+                $uploadDir = wp_upload_dir();
+                $logDir = $uploadDir['basedir'] . '/bfp-logs';
+                
+                // Create directory if it doesn't exist
+                if (!file_exists($logDir)) {
+                    wp_mkdir_p($logDir);
+                    // Protect directory with .htaccess
+                    file_put_contents($logDir . '/.htaccess', 'deny from all');
+                }
+                
+                self::$logFile = $logDir . '/debug.log';
+            }
+        }
+        
+        return self::$logFile;
+    }
 
     /**
      * Enable debugging globally
      */
-    public static function enable(string $context = null): void {
-        if ($context === null) {
-            self::$enabled = true;
-        } else {
-            // Deprecated: context-based enabling is no longer supported
-            error_log('[BFP DEBUG] Warning: Context-based debugging is deprecated. Use enable() without arguments for global debugging.');
-            self::$enabled = true;
-        }
+    public static function enable(): void {
+        self::$enabled = true;
     }
 
     /**
-     * Disable debugging globally or for specific contexts
+     * Disable debugging globally
      */
-    public static function disable(string $context = null): void {
-        if ($context === null) {
-            self::$enabled = false;
-            self::$enabledContexts = [];
-        } else {
-            unset(self::$enabledContexts[$context]);
-        }
-    }
-
-    /**
-     * Check if debugging is enabled for a context
-     */
-    private static function isEnabled(string $context = null): bool {
-        if (self::$enabled) {
-            return true;
-        }
-        if ($context && isset(self::$enabledContexts[$context])) {
-            return true;
-        }
-        // Extract class name from file path if context looks like a file
-        if ($context && strpos($context, '.php') !== false) {
-            $className = basename($context, '.php');
-            return isset(self::$enabledContexts[$className]);
-        }
-        return false;
+    public static function disable(): void {
+        self::$enabled = false;
     }
 
     /**
      * Log a message with automatic context detection
      */
     public static function log(string $message, array $context = []): void {
-        // Simple global check - no context filtering
+        // Simple global check
         if (!self::$enabled) {
             return;
         }
 
         // Format the log entry
         $timestamp = date('Y-m-d H:i:s');
-        $logEntry = "[BFP DEBUG $timestamp] $message";
+        $logEntry = "[BFP $timestamp] $message";
 
         // Format context data if provided
         if (!empty($context)) {
@@ -78,8 +82,15 @@ class Debug {
             $logEntry .= " | Context: $contextStr";
         }
 
-        // Always log to error log (much more reliable than console.log)
+        // Write to both error log and debug.log for now
         error_log($logEntry);
+        
+        // Also write to debug.log file
+        $logFile = self::getLogFile();
+        if ($logFile) {
+            $logEntry .= PHP_EOL;
+            file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
+        }
     }
 
     /**

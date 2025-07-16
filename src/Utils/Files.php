@@ -22,10 +22,18 @@ class Files {
    private string $filesDirectoryUrl;
    
    public function __construct(Plugin $mainPlugin) {
-       Debug::log('Files.php:' . __LINE__ . ' Entering __construct()', ['mainPlugin' => is_object($mainPlugin)]); // DEBUG-REMOVE
        $this->mainPlugin = $mainPlugin;
        $this->createDirectories();
-       Debug::log('Files.php:' . __LINE__ . ' Exiting __construct()', []); // DEBUG-REMOVE
+       Debug::log(
+           'Files.php:' . __LINE__ . ' Files initialized: directories checked/created',
+           [
+               'mainPlugin' => is_object($mainPlugin),
+               'filesDirectoryPath' => $this->filesDirectoryPath ?? null,
+               'filesDirectoryUrl' => $this->filesDirectoryUrl ?? null,
+               'baseExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath),
+               'purchasedExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath . 'purchased/')
+           ]
+       ); // DEBUG-REMOVE
    }
    
    /**

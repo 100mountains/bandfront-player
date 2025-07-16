@@ -62,7 +62,7 @@ class Renderer {
     
     /**
      * Render player table layout for multiple files
-     * Moved from Player.php
+     * 
      * 
      * @param array $files Audio files to render
      * @param int $productId Product ID
