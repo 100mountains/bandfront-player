@@ -20,6 +20,7 @@ namespace Bandfront\Admin;       // For admin functionality
 namespace Bandfront\Storage;     // For file operations
 namespace Bandfront\WooCommerce; // For WooCommerce integration
 namespace Bandfront\Core;        // For core functionality
+namespace Bandfront\UI;       // For Renderer
 namespace Bandfront\REST;        // For REST API endpoints
 namespace Bandfront\Utils;       // For utility classes
 ```
