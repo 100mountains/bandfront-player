@@ -83,7 +83,7 @@ $playerControls = $config->getPlayerControls();
             <?php esc_html_e('Player', 'bandfront-player'); ?>
         </a>
         <a href="#security" class="nav-tab" data-tab="security-panel">
-            <?php esc_html_e('Security', 'bandfront-player'); ?>
+            <?php esc_html_e('Demos', 'bandfront-player'); ?>
         </a>
         <a href="#audio-engine" class="nav-tab" data-tab="audio-engine-panel">
             <?php esc_html_e('Audio Engine', 'bandfront-player'); ?>
