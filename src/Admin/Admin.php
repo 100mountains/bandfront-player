@@ -157,6 +157,12 @@ class Admin {
 
         echo '<div class="wrap">';
         Debug::log('Admin.php:162 Including global-admin-options.php', []); // DEBUG-REMOVE
+        
+        // Make dependencies available to the template
+        $config = $this->config;
+        $fileManager = $this->fileManager;
+        $renderer = $this->renderer;
+        
         include_once plugin_dir_path(dirname(dirname(__FILE__))) . 'templates/global-admin-options.php';
         echo '</div>';
         Debug::log('Admin.php:settingsPage', [
@@ -601,6 +607,12 @@ class Admin {
     public function woocommercePlayerSettings(): void {
         Debug::log('Admin.php:476 Rendering WooCommerce player settings metabox', []); // DEBUG-REMOVE
         global $post;
+        
+        // Make dependencies available to the template
+        $config = $this->config;
+        $fileManager = $this->fileManager;
+        $renderer = $this->renderer;
+        
         include_once plugin_dir_path(dirname(dirname(__FILE__))) . 'templates/product-options.php';
         Debug::log('Admin.php:479 Finished rendering WooCommerce player settings metabox', []); // DEBUG-REMOVE
     }

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Bandfront\REST;
 
-use Bandfront\Config;
+use Bandfront\Core\Config;  // Fix: was Bandfront\Config
 use Bandfront\Audio\Audio;
 use Bandfront\Storage\FileManager;
 

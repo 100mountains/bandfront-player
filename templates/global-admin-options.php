@@ -1,4 +1,26 @@
 <?php
+/**
+ * Global admin options template
+ * 
+ * @var Bandfront\Admin\Admin $this Admin instance (available in context)
+ * @var Bandfront\Core\Config $config Config instance
+ * @var array $settings Current settings
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Get config instance from admin
+$config = $this->config;
+
+// Get all current settings
+$settings = $config->getAdminFormSettings();
+
+// Get available layouts and controls
+$playerLayouts = $config->getPlayerLayouts();
+$playerControls = $config->getPlayerControls();
 
 // Security check - use ABSPATH instead
 if (!defined('ABSPATH')) {
