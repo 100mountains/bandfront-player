@@ -6,9 +6,9 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'bfp\\Tests\\' => array($baseDir . '/tests'),
-    'bfp\\' => array($baseDir . '/src'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'Doctrine\\Instantiator\\' => array($vendorDir . '/doctrine/instantiator/src/Doctrine/Instantiator'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
+    'Bandfront\\Tests\\' => array($baseDir . '/tests'),
+    'Bandfront\\' => array($baseDir . '/src'),
 );

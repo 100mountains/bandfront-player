@@ -13,11 +13,6 @@ class ComposerStaticInit0c405109c72939381025ea518499511b
     );
 
     public static $prefixLengthsPsr4 = array (
-        'b' => 
-        array (
-            'bfp\\Tests\\' => 10,
-            'bfp\\' => 4,
-        ),
         'P' => 
         array (
             'PhpParser\\' => 10,
@@ -27,17 +22,14 @@ class ComposerStaticInit0c405109c72939381025ea518499511b
             'Doctrine\\Instantiator\\' => 22,
             'DeepCopy\\' => 9,
         ),
+        'B' => 
+        array (
+            'Bandfront\\Tests\\' => 16,
+            'Bandfront\\' => 10,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'bfp\\Tests\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/tests',
-        ),
-        'bfp\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/src',
-        ),
         'PhpParser\\' => 
         array (
             0 => __DIR__ . '/..' . '/nikic/php-parser/lib/PhpParser',
@@ -50,10 +42,34 @@ class ComposerStaticInit0c405109c72939381025ea518499511b
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
         ),
+        'Bandfront\\Tests\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/tests',
+        ),
+        'Bandfront\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
     );
 
     public static $classMap = array (
-        'BFPMP3' => __DIR__ . '/..' . '/php-mp3/class.mp3.php',
+        'Bandfront\\Admin\\Admin' => __DIR__ . '/../..' . '/src/Admin/Admin.php',
+        'Bandfront\\Audio\\Analytics' => __DIR__ . '/../..' . '/src/Audio/Analytics.php',
+        'Bandfront\\Audio\\Audio' => __DIR__ . '/../..' . '/src/Audio/Audio.php',
+        'Bandfront\\Audio\\Player' => __DIR__ . '/../..' . '/src/Audio/Player.php',
+        'Bandfront\\Audio\\Preview' => __DIR__ . '/../..' . '/src/Audio/Preview.php',
+        'Bandfront\\Audio\\Processor' => __DIR__ . '/../..' . '/src/Audio/Processor.php',
+        'Bandfront\\Audio\\Streamer' => __DIR__ . '/../..' . '/src/Audio/Streamer.php',
+        'Bandfront\\Core\\Bootstrap' => __DIR__ . '/../..' . '/src/Core/Bootstrap.php',
+        'Bandfront\\Core\\Config' => __DIR__ . '/../..' . '/src/Core/Config.php',
+        'Bandfront\\Core\\Hooks' => __DIR__ . '/../..' . '/src/Core/Hooks.php',
+        'Bandfront\\REST\\StreamController' => __DIR__ . '/../..' . '/src/REST/StreamController.php',
+        'Bandfront\\Storage\\Cloud' => __DIR__ . '/../..' . '/src/Storage/Cloud.php',
+        'Bandfront\\Storage\\FileManager' => __DIR__ . '/../..' . '/src/Storage/FileManager.php',
+        'Bandfront\\UI\\Renderer' => __DIR__ . '/../..' . '/src/UI/Renderer.php',
+        'Bandfront\\WooCommerce\\FormatDownloader' => __DIR__ . '/../..' . '/src/WooCommerce/FormatDownloader.php',
+        'Bandfront\\WooCommerce\\ProductProcessor' => __DIR__ . '/../..' . '/src/WooCommerce/ProductProcessor.php',
+        'Bandfront\\WooCommerce\\WooCommerceIntegration' => __DIR__ . '/../..' . '/src/WooCommerce/WooCommerceIntegration.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'DeepCopy\\DeepCopy' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/DeepCopy.php',
         'DeepCopy\\Exception\\CloneException' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Exception/CloneException.php',
@@ -965,27 +981,6 @@ class ComposerStaticInit0c405109c72939381025ea518499511b
         'TheSeer\\Tokenizer\\TokenCollectionException' => __DIR__ . '/..' . '/theseer/tokenizer/src/TokenCollectionException.php',
         'TheSeer\\Tokenizer\\Tokenizer' => __DIR__ . '/..' . '/theseer/tokenizer/src/Tokenizer.php',
         'TheSeer\\Tokenizer\\XMLSerializer' => __DIR__ . '/..' . '/theseer/tokenizer/src/XMLSerializer.php',
-        'bfp\\Admin' => __DIR__ . '/../..' . '/src/Admin.php',
-        'bfp\\Audio' => __DIR__ . '/../..' . '/src/Audio.php',
-        'bfp\\Config' => __DIR__ . '/../..' . '/src/Config.php',
-        'bfp\\FormatDownloader' => __DIR__ . '/../..' . '/src/FormatDownloader.php',
-        'bfp\\Hooks' => __DIR__ . '/../..' . '/src/Hooks.php',
-        'bfp\\Modules\\GoogleDrive\\GoogleDriveClient' => __DIR__ . '/../..' . '/src/Modules/GoogleDrive/GoogleDriveClient.php',
-        'bfp\\Player' => __DIR__ . '/../..' . '/src/Player.php',
-        'bfp\\Plugin' => __DIR__ . '/../..' . '/src/Plugin.php',
-        'bfp\\ProductProcessor' => __DIR__ . '/../..' . '/src/ProductProcessor.php',
-        'bfp\\Renderer' => __DIR__ . '/../..' . '/src/Renderer.php',
-        'bfp\\StreamController' => __DIR__ . '/../..' . '/src/StreamController.php',
-        'bfp\\Utils\\Analytics' => __DIR__ . '/../..' . '/src/Utils/Analytics.php',
-        'bfp\\Utils\\Cache' => __DIR__ . '/../..' . '/src/Utils/Cache.php',
-        'bfp\\Utils\\Cloud' => __DIR__ . '/../..' . '/src/Utils/Cloud.php',
-        'bfp\\Utils\\Debug' => __DIR__ . '/../..' . '/src/Utils/Debug.php',
-        'bfp\\Utils\\Files' => __DIR__ . '/../..' . '/src/Utils/Files.php',
-        'bfp\\Utils\\Preview' => __DIR__ . '/../..' . '/src/Utils/Preview.php',
-        'bfp\\Utils\\Update' => __DIR__ . '/../..' . '/src/Utils/Update.php',
-        'bfp\\Utils\\Utils' => __DIR__ . '/../..' . '/src/Utils/Utils.php',
-        'bfp\\Widgets\\PlaylistWidget' => __DIR__ . '/../..' . '/src/Widgets/PlaylistWidget.php',
-        'bfp\\WooCommerce' => __DIR__ . '/../..' . '/src/WooCommerce.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

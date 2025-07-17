@@ -7,7 +7,7 @@ A professional WordPress audio player plugin for WooCommerce that transforms pro
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-ANARCHY%20LICENCE-red.svg)](LICENSE)
 
-## 🚀 overview yo
+## 🚀 Overview
 
 Bandfront Player integrates seamlessly with WooCommerce to provide audio playback functionality for digital music products. The plugin features context-aware player controls, secure file protection, and analytics tracking.
 
@@ -38,20 +38,30 @@ Bandfront Player integrates seamlessly with WooCommerce to provide audio playbac
 
 ### Component Structure
 ```
-BandfrontPlayer (Main Class)
-├── BFP_Config (State Management)
-├── BFP_Audio_Engine (File Processing)
-├── BFP_Player (HTML Generation)
-├── BFP_Hooks (WordPress Integration)
-├── Renderers/
-│   ├── BFP_Player_Renderer
-│   ├── BFP_Playlist_Renderer
-│   └── BFP_Cover_Renderer
-└── Utilities/
-    ├── BFP_File_Handler
-    ├── BFP_Cloud_Tools
-    ├── BFP_Cache
-    └── BFP_Analytics
+bandfront-player/
+├── assets/                    # Frontend assets
+│   ├── css/                  # Stylesheets + skins
+│   └── js/                   # JavaScript files
+├── builders/                 # Page builder integrations
+│   ├── elementor/
+│   └── gutenberg/
+├── languages/                # Translations
+├── src/                      # Core PHP classes (PSR-4)
+│   ├── Admin/               # Admin functionality
+│   ├── Audio/               # Audio processing
+│   ├── Core/                # Core framework
+│   ├── REST/                # REST API
+│   ├── Storage/             # Cloud storage
+│   ├── UI/                   # User interface
+│   ├── Utils/               # Utilities
+│   ├── Widgets/             # WordPress widgets
+│   └── WooCommerce/         # WooCommerce integration
+├── templates/               # Template files
+├── test/                    # Testing utilities
+├── BandfrontPlayer.php      # Main plugin file
+├── README.md                # Documentation
+├── composer.json            # Dependencies
+└── composer.lock
 ```
 
 ### State Management
@@ -170,26 +180,6 @@ $settings = $BandfrontPlayer->get_states([
 - **Cache Integration**: Supports major caching plugins
 - **Resource Management**: Conditional script/style loading
 
-## File Structure
-
-```
-bandfront-player/
-├── bfp.php                 # Main plugin file
-├── includes/               # Core classes
-│   ├── state-manager.php   # Configuration management
-│   ├── audio.php          # Audio processing
-│   ├── player.php         # Player generation
-│   ├── hooks.php          # WordPress integration
-│   └── utils/             # Utility classes
-├── modules/               # Feature modules
-├── views/                 # Admin templates
-├── js/                    # Frontend scripts
-├── css/                   # Stylesheets
-│   └── skins/            # Theme variations
-└── vendor/              # Third-party libraries
-```
-
 ## Support
 
 For technical support and feature requests, please refer to someone else.
-

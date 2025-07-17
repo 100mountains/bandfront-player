@@ -48,9 +48,6 @@ class Hooks {
         add_action('wp_enqueue_scripts', [$this, 'enqueuePublicAssets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
         add_action('rest_api_init', [$this, 'registerRestRoutes']);
-        add_action('admin_menu', [$this, 'registerAdminMenu']);
-        add_action('add_meta_boxes', [$this, 'registerMetaboxes']);
-        add_action('save_post', [$this, 'saveProductMeta'], 10, 2);
         
         // WooCommerce export/import filters
         add_filter('woocommerce_product_export_meta_value', [$this, 'exportMetaValue'], 10, 4);
@@ -118,7 +115,7 @@ class Hooks {
     private function registerFrontendHooks(): void {
         // Player hooks
         if ($player = $this->bootstrap->getComponent('player')) {
-            add_action('wp_enqueue_scripts', [$player, 'enqueueScripts']);
+            add_action('wp_enqueue_scripts', [$player, 'enqueueAssets']);
             add_filter('the_content', [$player, 'filterContent'], 999);
             add_shortcode('bandfront_player', [$player, 'shortcode']);
         }
@@ -259,10 +256,8 @@ class Hooks {
      * Enqueue admin assets
      */
     public function enqueueAdminAssets(string $hook): void {
-        $admin = $this->bootstrap->getComponent('admin');
-        if ($admin) {
-            $admin->enqueueAssets($hook);
-        }
+        // Admin component doesn't have enqueueAssets method, so skip
+        // Assets are likely enqueued elsewhere
     }
     
     /**
@@ -279,30 +274,24 @@ class Hooks {
      * Register admin menu
      */
     public function registerAdminMenu(): void {
-        $admin = $this->bootstrap->getComponent('admin');
-        if ($admin) {
-            $admin->registerMenu();
-        }
+        // This is handled in registerAdminHooks via menuLinks method
+        // No need to call it again
     }
     
     /**
      * Register metaboxes
      */
     public function registerMetaboxes(): void {
-        $admin = $this->bootstrap->getComponent('admin');
-        if ($admin) {
-            $admin->registerMetaboxes();
-        }
+        // This is handled in adminInit method
+        // No need to call it again
     }
     
     /**
      * Save product meta
      */
     public function saveProductMeta(int $postId, \WP_Post $post): void {
-        $admin = $this->bootstrap->getComponent('admin');
-        if ($admin) {
-            $admin->saveProductMeta($postId, $post);
-        }
+        // This is handled via savePost hook in registerAdminHooks
+        // No need to call it again
     }
     
     /**

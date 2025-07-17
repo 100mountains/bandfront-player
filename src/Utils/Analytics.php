@@ -1,8 +1,8 @@
 <?php
-namespace bfp\Utils;
+namespace Bandfront\Utils;
 
-use bfp\Plugin;
-use bfp\Utils\Debug; // DEBUG-REMOVE
+use Bandfront\Plugin;
+use Bandfront\Utils\Debug; // DEBUG-REMOVE
 /**
  * Analytics functionality for Bandfront Player
  */

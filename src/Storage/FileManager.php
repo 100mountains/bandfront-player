@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Bandfront\Storage;
 
-use Bandfront\Config;
+use Bandfront\Core\Config;  // Fixed: was Bandfront\Config
 use Bandfront\Utils\Debug;
 use Bandfront\Utils\Utils;
 use Bandfront\Utils\Cloud;

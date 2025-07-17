@@ -37,12 +37,15 @@ This guide provides step-by-step instructions for migrating Bandfront Player com
 // OLD
 namespace bfp;
 
-// NEW - Update based on component location
-namespace Bandfront\Core;        // Core components
-namespace Bandfront\Audio;       // Audio-related classes
-namespace Bandfront\Storage;     // File/storage classes
-namespace Bandfront\Admin;       // Admin functionality
-namespace Bandfront\WooCommerce; // WooCommerce integration
+// NEW - Based on directory structure
+namespace Bandfront\Audio;       // For audio-related classes
+namespace Bandfront\Admin;       // For admin functionality
+namespace Bandfront\Storage;     // For file operations
+namespace Bandfront\WooCommerce; // For WooCommerce integration
+namespace Bandfront\Core;        // For core functionality
+namespace Bandfront\UI;       // For Renderer
+namespace Bandfront\REST;        // For REST API endpoints
+namespace Bandfront\Utils;       // For utility classes
 ```
 
 ### 2. Component Registration

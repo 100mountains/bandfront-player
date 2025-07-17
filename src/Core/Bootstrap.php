@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Bandfront\Core;
 
-use Bandfront\Core\Config;  // Changed from use Bandfront\Config
+use Bandfront\Core\Config;
 use Bandfront\Audio\Audio;
 use Bandfront\Audio\Player;
 use Bandfront\Audio\Analytics;
@@ -14,7 +14,7 @@ use Bandfront\WooCommerce\ProductProcessor;
 use Bandfront\WooCommerce\FormatDownloader;
 use Bandfront\Storage\FileManager;
 use Bandfront\REST\StreamController;
-use Bandfront\Renderer;
+use Bandfront\UI\Renderer;  // Updated from Bandfront\Renderer
 use Bandfront\Utils\Debug;
 
 /**
@@ -62,24 +62,37 @@ class Bootstrap {
      * Boot the plugin
      */
     private function boot(): void {
+        Debug::log('Bootstrap.php:boot Starting plugin boot sequence', ['pluginFile' => $this->pluginFile]); // DEBUG-REMOVE
+
         // Enable debugging if needed
         if (defined('WP_DEBUG') && WP_DEBUG) {
+            Debug::log('Bootstrap.php:boot WP_DEBUG is enabled, activating debug logging'); // DEBUG-REMOVE
             Debug::enable();
         }
         
         // Initialize components in dependency order
+        Debug::log('Bootstrap.php:boot Initializing core components'); // DEBUG-REMOVE
         $this->initializeCore();
+
+        Debug::log('Bootstrap.php:boot Initializing audio components'); // DEBUG-REMOVE
         $this->initializeAudio();
         
         // Context-specific components
+        Debug::log('Bootstrap.php:boot Initializing admin components (if in admin)'); // DEBUG-REMOVE
         $this->initializeAdmin();
+
+        Debug::log('Bootstrap.php:boot Initializing WooCommerce components (if active)'); // DEBUG-REMOVE
         $this->initializeWooCommerce();
+
+        Debug::log('Bootstrap.php:boot Initializing REST API components'); // DEBUG-REMOVE
         $this->initializeREST();
         
         // Register hooks after all components are loaded
+        Debug::log('Bootstrap.php:boot Registering hooks after all components are loaded'); // DEBUG-REMOVE
         $this->components['hooks'] = new Hooks($this);
         
         // Allow extensions to hook in
+        Debug::log('Bootstrap.php:boot Boot sequence complete, firing bandfront_player_initialized action'); // DEBUG-REMOVE
         do_action('bandfront_player_initialized', $this);
     }
     

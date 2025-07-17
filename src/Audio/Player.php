@@ -355,7 +355,7 @@ class Player {
         // Enqueue base styles
         wp_enqueue_style(
             'bfp-style', 
-            plugin_dir_url(dirname(dirname(__FILE__))) . 'css/style.css', 
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/style.css', 
             [], 
             BFP_VERSION
         );
@@ -390,7 +390,7 @@ class Player {
             // Enqueue WaveSurfer integration
             wp_enqueue_script(
                 'bfp-wavesurfer-integration',
-                plugin_dir_url(dirname(dirname(__FILE__))) . 'js/wavesurfer.js',
+                plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/wavesurfer.js',
                 ['jquery', 'wavesurfer'],
                 BFP_VERSION,
                 true
@@ -412,7 +412,7 @@ class Player {
             // Enqueue selected skin CSS file
             wp_enqueue_style(
                 'bfp-skin-' . $selectedSkin,
-                plugin_dir_url(dirname(dirname(__FILE__))) . 'css/skins/' . $selectedSkin . '.css',
+                plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/skins/' . $selectedSkin . '.css',
                 ['wp-mediaelement'],
                 BFP_VERSION
             );
@@ -421,7 +421,7 @@ class Player {
         // Enqueue main engine script
         wp_enqueue_script(
             'bfp-engine',
-            plugin_dir_url(dirname(dirname(__FILE__))) . 'js/engine.js',
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/engine.js',
             ['jquery'],
             BFP_VERSION,
             true

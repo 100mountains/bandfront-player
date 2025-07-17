@@ -1,5 +1,7 @@
 <?php
-namespace bfp\Utils;
+declare(strict_types=1);
+
+namespace Bandfront\Utils;
 
 
 if (!defined('ABSPATH')) {
@@ -9,9 +11,12 @@ if (!defined('ABSPATH')) {
 /**
  * Debug Class
  * Handles logging for debugging purposes
+ * 
+ * @package Bandfront\Utils
+ * @since 2.0.0
  */
 class Debug {
-    private static bool $enabled = true; // Always enabled for debugging
+    private static bool $enabled = false; // Default to false, enable via WP_DEBUG
     private static int $maxDepth = 3;
     private static int $maxStringLength = 500;
     private static ?string $logFile = null;
@@ -64,6 +69,13 @@ class Debug {
     }
 
     /**
+     * Check if debugging is enabled
+     */
+    public static function isEnabled(): bool {
+        return self::$enabled;
+    }
+
+    /**
      * Log a message with automatic context detection
      */
     public static function log(string $message, array $context = []): void {
@@ -89,7 +101,7 @@ class Debug {
         $logFile = self::getLogFile();
         if ($logFile) {
             $logEntry .= PHP_EOL;
-            file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
+            @file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
         }
     }
 

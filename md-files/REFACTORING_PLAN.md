@@ -26,49 +26,46 @@ This document outlines the refactoring plan to modernize the Bandfront Player pl
 
 ```
 bandfront-player/
-├── bandfront-player.php         # Plugin header and bootstrap
-├── src/
-│   ├── Core/
-│   │   ├── Bootstrap.php        # Plugin initialization
-│   │   ├── Config.php           # Settings management
-│   │   ├── Assets.php           # Script/style management
-│   │   └── Hooks.php            # Hook registration
-│   ├── Audio/
-│   │   ├── Player.php           # Player rendering
-│   │   ├── Streamer.php         # File streaming logic
-│   │   ├── Processor.php        # Audio processing (demos, ffmpeg)
-│   │   └── Analytics.php        # Play tracking
-│   ├── Admin/
-│   │   ├── Settings.php         # Global settings page
-│   │   ├── ProductMeta.php      # Product metabox
-│   │   └── Columns.php          # Admin list columns
-│   ├── WooCommerce/
-│   │   ├── Integration.php      # Main WC integration
-│   │   ├── Downloads.php        # Download handling
-│   │   └── ProductAudio.php     # Product-specific audio
-│   ├── Storage/
-│   │   ├── FileManager.php      # Local file operations
-│   │   ├── CloudStorage.php     # Cloud storage abstraction
-│   │   └── Cache.php            # Caching layer
-│   ├── REST/
-│   │   └── StreamingEndpoint.php # REST API endpoints
-│   └── Blocks/
-│       └── AudioPlayer.php      # Gutenberg block
-├── templates/                   # PHP templates (not Views!)
-│   ├── player.php
-│   ├── playlist.php
-│   └── admin/
-│       └── settings.php
-├── assets/
-│   ├── js/
-│   │   ├── player.js
-│   │   ├── admin.js
-│   │   └── blocks/
-│   └── css/
-│       ├── player.css
-│       └── admin.css
-└── vendor/                      # Composer dependencies
+├── assets/                    # Frontend assets
+│   ├── css/                  # Stylesheets + skins
+│   └── js/                   # JavaScript files
+├── builders/                 # Page builder integrations
+│   ├── elementor/
+│   └── gutenberg/
+├── languages/                # Translations
+├── src/                      # Core PHP classes (PSR-4)
+│   ├── Admin/               # Admin functionality
+│   ├── Audio/               # Audio processing
+│   ├── Core/                # Core framework
+│   ├── REST/                # REST API
+│   ├── Storage/             # Cloud storage
+│   ├── UI/                   # User interface
+│   ├── Utils/               # Utilities
+│   ├── Widgets/             # WordPress widgets
+│   └── WooCommerce/         # WooCommerce integration
+├── templates/               # Template files
+├── test/                    # Testing utilities
+├── BandfrontPlayer.php      # Main plugin file
+├── README.md                # Documentation
+├── composer.json            # Dependencies
+└── composer.lock
 
+```
+
+
+```php
+// OLD
+namespace bfp;
+
+// NEW - Based on directory structure
+namespace Bandfront\Audio;       // For audio-related classes
+namespace Bandfront\Admin;       // For admin functionality
+namespace Bandfront\Storage;     // For file operations
+namespace Bandfront\WooCommerce; // For WooCommerce integration
+namespace Bandfront\Core;        // For core functionality
+namespace Bandfront\UI;       // For Renderer
+namespace Bandfront\REST;        // For REST API endpoints
+namespace Bandfront\Utils;       // For utility classes
 ```
 
 ## Refactoring Steps

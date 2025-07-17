@@ -5,7 +5,7 @@ namespace Bandfront\Admin;
 
 use Bandfront\Core\Config;
 use Bandfront\Storage\FileManager;
-use Bandfront\Renderer;
+use Bandfront\UI\Renderer;  // Fixed: was Bandfront\Renderer
 use Bandfront\Utils\Debug;
 use Bandfront\Utils\Cache;
 
@@ -58,7 +58,7 @@ class Admin {
         
         // Include audio engine settings template (registers hooks)
         Debug::log('Admin.php:43 Including audio-engine-settings.php', []); // DEBUG-REMOVE
-        require_once plugin_dir_path(dirname(__DIR__)) . 'Views/audio-engine-settings.php';
+        require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'templates/audio-engine-settings.php';
         
         // Future: Add other view templates here as needed
         Debug::log('Admin.php:47 Exiting loadViewTemplates()', []); // DEBUG-REMOVE
@@ -146,7 +146,7 @@ class Admin {
 
         echo '<div class="wrap">';
         Debug::log('Admin.php:162 Including global-admin-options.php', []); // DEBUG-REMOVE
-        include_once plugin_dir_path(dirname(__DIR__)) . 'Views/global-admin-options.php';
+        include_once plugin_dir_path(dirname(dirname(__FILE__))) . 'templates/global-admin-options.php';
         echo '</div>';
         Debug::log('Admin.php:settingsPage', [
             'step' => 'include',
@@ -590,7 +590,7 @@ class Admin {
     public function woocommercePlayerSettings(): void {
         Debug::log('Admin.php:476 Rendering WooCommerce player settings metabox', []); // DEBUG-REMOVE
         global $post;
-        include_once plugin_dir_path(dirname(__DIR__)) . 'Views/product-options.php';
+        include_once plugin_dir_path(dirname(dirname(__FILE__))) . 'templates/product-options.php';
         Debug::log('Admin.php:479 Finished rendering WooCommerce player settings metabox', []); // DEBUG-REMOVE
     }
 

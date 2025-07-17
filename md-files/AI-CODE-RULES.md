@@ -1,201 +1,280 @@
 # AI Code Rules for Bandfront
 
-## Plugin Suite 
+bandfront-player/
+├── assets/                    # Frontend assets
+│   ├── css/                  # Stylesheets + skins
+│   └── js/                   # JavaScript files
+├── builders/                 # Page builder integrations
+│   ├── elementor/
+│   └── gutenberg/
+├── languages/                # Translations
+├── src/                      # Core PHP classes (PSR-4)
+│   ├── Admin/               # Admin functionality
+│   │   └── Admin.php
+│   ├── Audio/               # Audio processing
+│   │   ├── Analytics.php
+│   │   ├── Audio.php
+│   │   ├── Player.php
+│   │   ├── Preview.php
+│   │   ├── Processor.php
+│   │   └── Streamer.php
+│   ├── Core/                # Core framework
+│   │   ├── Bootstrap.php
+│   │   ├── Config.php
+│   │   └── Hooks.php
+│   ├── REST/                # REST API
+│   │   └── StreamController.php
+│   ├── Storage/             # File management
+│   │   └── FileManager.php
+│   ├── UI/                  # User interface
+│   │   └── Renderer.php
+│   ├── Utils/               # Utilities
+│   │   ├── Cache.php
+│   │   ├── Cloud.php       # Cloud storage abstraction
+│   │   ├── Debug.php
+│   │   └── Utils.php
+│   ├── Widgets/             # WordPress widgets
+│   │   └── PlaylistWidget.php
+│   └── WooCommerce/         # WooCommerce integration
+│       ├── FormatDownloader.php
+│       ├── Integration.php
+│       └── ProductProcessor.php
+├── templates/               # Template files
+│   ├── audio-engine-settings.php
+│   ├── global-admin-options.php
+│   └── product-options.php
+├── widgets/                 # Widget assets
+│   └── playlist_widget/
+│       ├── css/
+│       └── js/
+├── BandfrontPlayer.php      # Main plugin file
+├── README.md                # Documentation
+├── composer.json            # Dependencies
+└── composer.lock
 
-Part of a suite of plugins that form a music commerce website
+## Bandfront Player - Bootstrap Architecture
 
-- bandfront-analytics: (lightweight analytics stores details of views etc)
-- bandfront-members: (gives access to a subscription or backer only page)
-sends info to bandfront-analytics
-- bandfront-player: (main js and woocommerce integration)
-sends plays and info to bandfront-analytics
-- bandfront: (child theme)
-- server-setup: ( installer )
+### Core Architecture Principles
 
-## Core Standards
-- WordPress 2025 Compliant
-- PSR-4 Compliant
-- PHP 7.4+ features required
-- REST API
-- DRY PRINCIPLES
-- bandfront-analytics core: lightweight and driven by API and db queries
-- bandfront-members core: super lightweight
-- bandfront-player core: html5, mediaelement, wavesurfer
-- bandfront core: lightweight theme giving additional functions
-- server-setup: one command install for bandfront
-- All Settings and Analytics sent through API 
-- Keep the functionality, no backward compatibility! 
+1. **Bootstrap Pattern**: All components are initialized through `Core\Bootstrap`
+2. **Dependency Injection**: Components receive dependencies through constructors
+3. **No Singletons**: Components don't implement getInstance() (except Bootstrap)
+4. **Hook Centralization**: All hooks registered in `Core\Hooks`
+5. **State Management**: All settings/config through `Core\Config`
 
-AUDIO PLAYBACK 
-Uses WordPress REST API - Standard, secure, and extensible
-Leverages WordPress authentication - Built-in permission checks
-Supports range requests - Proper audio seeking support
-Uses transients for caching - WordPress-native caching
-Clean URLs - /wp-json/bandfront-player/v1/stream/123/0 or with rewrite rules: /bfp-stream/123/0
-No complex URL generation - Just use rest_url()
-Proper error handling - REST API handles errors gracefully
-Easy to extend - Add more endpoints as needed
+### Namespace Structure
 
-## Critical DO NOTs
-- Do NOT modify `.md` files unless explicitly instructed
-- Do NOT use inline CSS in code
-- Do NOT lose existing functionality
-- Do NOT redesign to fix unknown upstream bugs
-- Do NOT access post meta or options directly
-- Do NOT instantiate components directly
-- Do NOT hardcode settings values
-- Do NOT assume WooCommerce is active
-- Do NOT output without escaping
+```
+Bandfront\
+├── Admin\
+│   └── Admin                    # Admin functionality
+├── Audio\
+│   ├── Analytics               # Audio analytics tracking
+│   ├── Audio                   # Main audio coordinator
+│   ├── Player                  # Player management
+│   ├── Preview                 # Legacy URL handler
+│   ├── Processor               # Audio processing (FFmpeg, etc.)
+│   └── Streamer                # Audio streaming functionality
+├── Core\
+│   ├── Bootstrap               # Plugin initialization & DI container
+│   ├── Config                  # Configuration management
+│   └── Hooks                   # WordPress hooks registration
+├── REST\
+│   └── StreamController        # REST API endpoints
+├── Storage\
+│   └── FileManager             # File management (merged from Files.php)
+├── UI\
+│   └── Renderer                # HTML rendering (all UI output)
+├── Utils\
+│   ├── Cache                   # Cache management
+│   ├── Cloud                   # Cloud storage helper
+│   ├── Debug                   # Debug utilities
+│   └── Utils                   # General utilities
+├── Widgets\
+│   └── PlaylistWidget          # WordPress widget
+└── WooCommerce\
+    ├── FormatDownloader        # Format downloads
+    ├── Integration             # WooCommerce integration
+    └── ProductProcessor        # Product processing
+```
 
-## State Management Rules
-1. All settings MUST use Config class methods
-2. Use `getState()` for single values
-3. Use `getStates()` for multiple values (preferred)
-4. Respect inheritance: Product → Global → Default
-5. Check `isOverridable()` before saving product-level settings
-6. Use `isGlobalOnly()` to determine setting scope
-7. Clear cache after updates with `clearProductAttrsCache()`
+### Component Initialization Order (Bootstrap)
 
-## Component Access Rules
-1. Access components only through Plugin class getters
-2. Follow initialization order from Plugin::initComponents()
-3. Check component existence before use
-4. Never create new instances of core components
+```php
+1. Core Components:
+   - Config (no dependencies)
+   - FileManager (Config)
+   - Renderer (Config, FileManager)
 
-## Security Requirements
+2. Audio Components:
+   - Audio (Config, FileManager)
+   - Player (Config, Renderer, Audio, FileManager)
+   - Analytics (Config)
+   - Preview (Config, Audio, FileManager)
+
+3. Context Components:
+   - Admin (Config, FileManager, Renderer) - admin only
+   - WooCommerceIntegration (Config, Player, Renderer) - if WC active
+   - ProductProcessor (Config, Audio, FileManager) - if WC active
+   - FormatDownloader (Config, FileManager) - if WC active
+
+4. REST Components:
+   - StreamController (Config, Audio, FileManager)
+
+5. Hook Registration:
+   - Hooks (Bootstrap) - must be last
+```
+
+### Critical DO NOTs
+
+- Do NOT use `$this->mainPlugin` or `Plugin::getInstance()`
+- Do NOT register hooks in constructors
+- Do NOT instantiate components directly (use Bootstrap)
+- Do NOT access post meta directly (use Config)
+- Do NOT create circular dependencies
+- Do NOT output HTML outside of Renderer class
+- Do NOT use old `bfp\` namespace
+
+### Component Access Patterns
+
+```php
+// CORRECT: Inject dependencies through constructor
+public function __construct(Config $config, FileManager $fileManager) {
+    $this->config = $config;
+    $this->fileManager = $fileManager;
+}
+
+// CORRECT: Access Bootstrap only when absolutely necessary
+$bootstrap = Bootstrap::getInstance();
+$component = $bootstrap->getComponent('component_name');
+
+// WRONG: Don't use old patterns
+$this->mainPlugin->getConfig();  // NO!
+Plugin::getInstance();           // NO!
+new SomeComponent();            // NO!
+```
+
+### State Management Rules
+
+1. **All settings through Config**:
+   ```php
+   // Single value
+   $value = $this->config->getState('_bfp_setting', 'default', $productId);
+   
+   // Multiple values (preferred for performance)
+   $values = $this->config->getStates(['key1', 'key2'], $productId);
+   ```
+
+2. **Inheritance hierarchy**: Product → Global → Default
+3. **Check scope**: Use `isOverridable()` and `isGlobalOnly()`
+4. **Clear cache**: Call `clearProductAttrsCache()` after updates
+
+### Hook Registration Rules
+
+All hooks MUST be registered in `Core\Hooks`:
+
+```php
+// In Hooks::registerAdminHooks()
+add_action('admin_menu', [$admin, 'menuLinks']);
+
+// NOT in component constructors!
+```
+
+### Rendering Rules
+
+All HTML output MUST go through `UI\Renderer`:
+
+```php
+// Player prepares data
+$preparedFiles = $this->prepareFilesForRenderer($files, $productId, $settings);
+
+// Renderer generates HTML
+return $this->renderer->renderPlayerTable($preparedFiles, $productId, $settings);
+```
+
+### Security Requirements
+
 1. Sanitize all input with appropriate WordPress functions
 2. Verify nonces for all form submissions and AJAX
 3. Check user capabilities before privileged actions
 4. Escape all output (esc_html, esc_attr, esc_url)
-5. Validate file uploads and URLs
-6. Use prepared statements for direct database queries
+5. Use prepared statements for direct database queries
 
-## Performance Requirements
-1. Use bulk fetch methods when retrieving multiple values
+### Performance Requirements
+
+1. Use bulk fetch methods: `getStates()` over multiple `getState()` calls
 2. Enqueue assets only when needed (check context first)
 3. Cache expensive operations in class properties
 4. Lazy load components and features
 5. Minimize database queries
-6. Use transients for temporary data
 
-## Code Organization
+### Code Organization
+
 1. One class per file
-2. Namespace all classes under `bfp\`
+2. Namespace all classes under `Bandfront\`
 3. Use type declarations for all parameters and returns
 4. Use typed properties (PHP 7.4+)
 5. Follow PSR-4 autoloading structure
-6. Keep views in Views/ directory
-7. Keep utilities in Utils/ directory
 
-## Naming Conventions
-1. **PHP Classes**: PascalCase - `Config`, `Player`, `CoverRenderer`, `BuildersManager`
-2. **PHP Methods**: camelCase - `getState()`, `enqueueAssets()`, `shouldRender()`
-3. **PHP Properties**: camelCase - `$mainPlugin`, `$globalAttrs`, `$playerLayouts`
+### Naming Conventions
+
+1. **PHP Classes**: PascalCase - `Config`, `Player`, `FileManager`
+2. **PHP Methods**: camelCase - `getState()`, `enqueueAssets()`
+3. **PHP Properties**: camelCase - `$config`, `$fileManager`
 4. **PHP Constants**: UPPER_SNAKE_CASE - `BFP_VERSION`, `BFP_PLUGIN_PATH`
-5. **Database Options**: snake_case with prefix - `_bfp_enable_player`, `_bfp_audio_engine`
+5. **Database Options**: snake_case with prefix - `_bfp_enable_player`
 6. **CSS Classes**: kebab-case with prefix - `bfp-player`, `bfp-playlist-widget`
-7. **JavaScript Variables**: camelCase - `playerInstance`, `audioEngine`, `isPlaying`
-8. **File Names**: Match class name - `Config.php`, `PlaylistWidget.php`
+7. **JavaScript Variables**: camelCase - `playerInstance`, `audioEngine`
+8. **File Names**: Match class name - `Config.php`, `FileManager.php`
 
-## Hook Management
-1. Register hooks through Hooks class
-2. Check context before registering conditional hooks
-3. Use proper priority values
-4. Remove hooks when components are destroyed
-5. Document non-obvious hook usage
+### REST API Pattern
 
-## Error Handling
-1. Return empty strings instead of false/null for display functions
-2. Use try-catch for external API calls
-3. Log errors to error_log for debugging
-4. Provide user-friendly messages for failures
-5. Gracefully degrade when features unavailable
+Audio streaming uses WordPress REST API:
+- Endpoint: `/wp-json/bandfront-player/v1/stream/{product_id}/{track_index}`
+- Authentication: WordPress native
+- Range requests: Supported
+- Caching: WordPress transients
 
-## JavaScript Rules
-1. Namespace all global variables under `bfp`
-2. Use jQuery safely with proper no-conflict handling
-3. Localize all data passed to JavaScript
-4. Include nonces for all AJAX requests
-5. Support WordPress admin bar and responsive design
+### Testing Component Dependencies
 
-## Data Attributes
-1. Players must have: `data-product`, `data-file-index`, `data-audio-engine`
-2. Use `data-` prefix for all custom attributes
-3. Keep attribute names consistent across PHP and JS
+When testing if a component works correctly:
 
-## Module System
-1. Check module status with `isModuleEnabled()`
-2. Modules are optional features that can be toggled
-3. Core functionality must work without any modules
-4. Modules stored in `_bfp_modules_enabled` setting
+1. Check Bootstrap initialization order
+2. Verify all dependencies are injected
+3. Confirm hooks are in Hooks.php
+4. Test with WooCommerce active/inactive
+5. Verify no `$this->mainPlugin` references
 
-## Testing Requirements
-1. Verify functionality in WordPress admin and frontend
-2. Test with WooCommerce active and inactive
-3. Check all user permission levels
-4. Validate with multiple products and variations
-5. Test bulk operations and edge cases
+### Migration from Old Architecture
 
-## Documentation Standards
+When migrating old code:
+1. Change namespace from `bfp\` to `Bandfront\[Component]\`
+2. Replace `Plugin $mainPlugin` with specific dependencies
+3. Move hook registration to `Core\Hooks`
+4. Update all `$this->mainPlugin->getX()` calls
+5. Use Config for all settings access
 
-### PHP Documentation
-1. **PHPDoc blocks for all classes and public methods**
-```php
-/**
- * Configuration and State Management
- * 
- * Provides context-aware state management with automatic inheritance:
- * Product Setting → Global Setting → Default Value
- * 
- * @package BandfrontPlayer
- * @since 0.1
- */
-```
+### When Adding Features
 
-2. **Method documentation with types**
-```php
-/**
- * Get configuration state value with inheritance
- * 
- * @param string $key Setting key to retrieve
- * @param mixed $default Default value if not found
- * @param int|null $productId Product ID for context
- * @return mixed The setting value
- */
-```
-
-3. **Inline comments only for complex logic**
-   - Explain "why", not "what"
-   - Document workarounds and browser quirks
-   - Reference issue/ticket numbers: `// Fix for #123: Safari audio context`
-   - Keep comments concise and meaningful
-
-### JavaScript Documentation
-1. **JSDoc for public functions**
-```javascript
-/**
- * Initialize player for audio element
- * @param {HTMLAudioElement} element - Target audio element
- * @param {Object} config - Player configuration
- * @returns {MediaElementPlayer} Player instance
- */
-```
-
-2. **Document jQuery plugin methods**
-3. **Explain browser-specific workarounds**
-4. **Reference WordPress hooks being used**
-
-## Quick Reference Hierarchy
-1. Check `Config.php` for all settings and defaults
-2. Check `Plugin.php` for component initialization
-3. Check `Hooks.php` for action/filter registration
-4. Check `Admin.php` for backend functionality
-5. Check individual feature classes for implementation
-
-## When Adding Features
-1. Create dedicated class in appropriate directory
-2. Register in Plugin::initComponents()
-3. Add hooks via Hooks::registerHooks()
+1. Create dedicated class in appropriate namespace
+2. Add initialization in `Bootstrap::initialize[Section]()`
+3. Register hooks in `Hooks::register[Type]Hooks()`
 4. Store settings via Config class
-5. Add admin UI in Admin class or view template
-6. Update documentation and changelog
+5. Add admin UI through Admin class
+6. Route HTML output through Renderer
+
+### Quick Reference
+
+- **Settings**: Check `Config.php` for all settings and defaults
+- **Components**: Check `Bootstrap.php` for initialization
+- **Hooks**: Check `Hooks.php` for registration
+- **Admin**: Check `Admin.php` for backend functionality
+- **Rendering**: Check `Renderer.php` for HTML output
+
+## Recent Architecture Changes
+
+1. **Merged Files.php → FileManager.php**: All file operations in one place
+2. **Moved Renderer → UI\Renderer**: Better organization
+3. **Removed Preview.php**: Functionality moved to REST/Audio
+4. **Removed Assets.php**: Each component manages its own assets
+5. **Bootstrap pattern**: No more Plugin singleton
