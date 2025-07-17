@@ -587,13 +587,24 @@ class Config {
            return true;
        }
        
-       // Show on shop/archive pages based on setting
-       if (function_exists('is_shop') && is_shop()) {
-           return true;
-       }
+       // Get shop display settings
+       $enablePlayer = $this->getState('_bfp_enable_player', true, $productId);
+       $onCover = $this->getState('_bfp_on_cover', true); // Default to true for shop pages
+       $playerControls = $this->getState('_bfp_player_controls', 'default');
        
-       if (function_exists('is_product_category') && is_product_category()) {
-           return true;
+       // Shop/archive pages logic
+       if ((function_exists('is_shop') && is_shop()) || 
+           (function_exists('is_product_category') && is_product_category()) ||
+           (function_exists('is_product_tag') && is_product_tag())) {
+           
+           // For smart controls (default), respect on_cover setting
+           // For button controls, also respect on_cover setting
+           // For all controls, always show regardless of on_cover
+           if ($playerControls === 'all') {
+               return $enablePlayer;
+           } else {
+               return $enablePlayer && $onCover;
+           }
        }
        
        // Don't show in other contexts by default

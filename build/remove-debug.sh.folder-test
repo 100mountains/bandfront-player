@@ -5,6 +5,37 @@
 #   remove-debug.sh                    # Remove from all files in src/
 #   remove-debug.sh /path/to/file.php  # Remove from specific file
 #   remove-debug.sh /path/to/folder    # Remove from all files in specific folder
+# Remove debug lines from all files in src/
+# ./remove-debug.sh
+
+# Remove debug lines from specific file
+# ./remove-debug.sh ../src/Utils/Files.php
+
+# Remove debug lines from specific directory
+# ./remove-debug.sh ../src/Utils/
+
+# New features:
+
+# Save .debug copies before removing debug lines
+# ./remove-debug.sh --save-debug
+# ./remove-debug.sh ../src/Utils/ --save-debug
+# ./remove-debug.sh ../src/Utils/Files.php --save-debug
+
+# Remove all .debug files
+# ./remove-debug.sh --remove-debug
+# ./remove-debug.sh ../src/Utils/ --remove-debug
+
+# Restore files from .debug backups (puts debug lines back)
+# ./remove-debug.sh --restore-debug
+# ./remove-debug.sh ../src/Utils/ --restore-debug
+
+# The workflow would be:
+#
+# Development: Keep your debug lines in the code
+# Before deployment: Run ./remove-debug.sh --save-debug to create .debug backups and clean the files
+# If you need to debug again: Run ./remove-debug.sh --restore-debug to get your debug lines back
+# Clean up: Run ./remove-debug.sh --remove-debug to remove the .debug files when no longer needed
+
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"

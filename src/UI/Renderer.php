@@ -65,7 +65,6 @@ class Renderer {
             
             // Use prepared data - audio tag should be passed in
             $audioTag = $file['audio_tag'] ?? '';
-            $duration = $file['duration'] ?? '';
             
             // Title processing
             $title = '';
@@ -76,6 +75,9 @@ class Renderer {
                 $processedTitle = apply_filters('bfp_file_name', $rawTitle, $productId, $index);
                 $title = esc_html($processedTitle);
             }
+            
+            // Get duration - default to 0 if not set or not numeric
+            $duration = isset($file['duration']) && is_numeric($file['duration']) ? (int)$file['duration'] : 0;
             
             $output .= $this->renderPlayerRow($audioTag, $title, $duration, $evenOdd, 
                                             $file['product'], $firstPlayerClass, 
@@ -96,7 +98,7 @@ class Renderer {
      * 
      * @param string $audioTag Audio element HTML (prepared)
      * @param string $title Track title
-     * @param string $duration Track duration
+     * @param int $duration Track duration
      * @param string $evenOdd Row class
      * @param int $productId Product ID
      * @param string $firstPlayerClass First player class
@@ -105,9 +107,17 @@ class Renderer {
      * @param int $singlePlayer Single player mode
      * @return string Rendered row HTML
      */
-    private function renderPlayerRow(string $audioTag, string $title, string $duration, string $evenOdd, 
-                                   int $productId, string $firstPlayerClass, int $counter, 
-                                   array $settings, int $singlePlayer): string {
+    private function renderPlayerRow(
+        string $audioTag, 
+        string $title, 
+        int $duration, 
+        string $evenOdd, 
+        int $productId, 
+        string $firstPlayerClass, 
+        int $counter, 
+        array $settings, 
+        int $singlePlayer
+    ): string {
         Debug::log('Renderer: Rendering row', [
             'productId' => $productId, 
             'title' => $title, 

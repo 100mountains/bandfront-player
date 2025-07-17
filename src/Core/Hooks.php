@@ -236,19 +236,41 @@ class Hooks {
      * Maybe add player to shop page
      */
     public function maybeAddShopPlayer(): void {
+        // Don't continue if not in a shop context
+        if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
+            return;
+        }
+        
         $player = $this->bootstrap->getComponent('player');
-        if ($player && $this->shouldShowPlayer()) {
+        $config = $this->bootstrap->getComponent('config');
+        
+        // Simplified: Just check if player is enabled and on_cover is true
+        $playerEnabled = (bool)$config->getState('_bfp_enable_player', true, get_the_ID());
+        $onCover = (bool)$config->getState('_bfp_on_cover', false);
+        
+        Debug::log('Hooks.php: maybeAddShopPlayer check', [
+            'productId' => get_the_ID(),
+            'is_shop' => is_shop(),
+            'is_product_category' => is_product_category(),
+            'enablePlayer' => $playerEnabled,
+            'onCover' => $onCover
+        ]); // DEBUG-REMOVE
+        
+        // Only show on shop pages if both player is enabled and on_cover is true
+        if ($player && $playerEnabled && $onCover) {
             echo $player->renderCompact(get_the_ID());
         }
     }
     
     /**
-     * Check if player should be shown
+     * Check if player should be shown on single product pages
      */
     private function shouldShowPlayer(): bool {
         $config = $this->bootstrap->getComponent('config');
-        // Cast to boolean to ensure proper return type
-        return (bool)$config->getState('_bfp_enable_player', true);
+        $productId = get_the_ID();
+        
+        // Check product-specific setting first, then global setting
+        return (bool)$config->getState('_bfp_enable_player', true, $productId);
     }
     
     /**
