@@ -18,6 +18,7 @@ class Config {
    private array $globalAttrs = [];
    private array $playerLayouts = ['dark', 'light', 'custom'];
    private array $playerControls = ['button', 'all', 'default'];
+   private array $defaults = []; // Add this property declaration
 
    private array $overridableSettings = [
        '_bfp_enable_player' => false,

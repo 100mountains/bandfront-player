@@ -150,16 +150,14 @@ class Bootstrap {
             return;
         }
         
-        // Delay admin initialization to ensure WordPress admin is ready
-        add_action('init', function() {
-            if (!isset($this->components['admin'])) {
-                $this->components['admin'] = new Admin(
-                    $this->components['config'],
-                    $this->components['file_manager'],
-                    $this->components['renderer']
-                );
-            }
-        }, 1);
+        // Create admin component immediately but defer hook registration
+        $this->components['admin'] = new Admin(
+            $this->components['config'],
+            $this->components['file_manager'],
+            $this->components['renderer']
+        );
+        
+        Debug::log('Bootstrap.php: Admin component created'); // DEBUG-REMOVE
     }
     
     /**

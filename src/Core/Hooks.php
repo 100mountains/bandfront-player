@@ -22,6 +22,7 @@ class Hooks {
      */
     public function __construct(Bootstrap $bootstrap) {
         $this->bootstrap = $bootstrap;
+        Debug::log('Hooks.php: Constructor called, registering hooks'); // DEBUG-REMOVE
         $this->registerHooks();
     }
     
@@ -29,6 +30,8 @@ class Hooks {
      * Register all plugin hooks
      */
     private function registerHooks(): void {
+        Debug::log('Hooks.php: registerHooks() called'); // DEBUG-REMOVE
+        
         // Core hooks
         $this->registerCoreHooks();
         
@@ -88,16 +91,20 @@ class Hooks {
      * Register admin hooks
      */
     private function registerAdminHooks(): void {
+        Debug::log('Hooks.php: registerAdminHooks() called, is_admin=' . (is_admin() ? 'true' : 'false')); // DEBUG-REMOVE
+        
         if (!is_admin()) {
+            Debug::log('Hooks.php: Not in admin context, skipping admin hooks'); // DEBUG-REMOVE
             return;
         }
         
         $admin = $this->bootstrap->getComponent('admin');
         if (!$admin) {
+            Debug::log('Hooks.php: No admin component found'); // DEBUG-REMOVE
             return;
         }
         
-        Debug::log('Hooks.php: Registering admin hooks'); // DEBUG-REMOVE
+        Debug::log('Hooks.php: Admin component found, registering hooks'); // DEBUG-REMOVE
         
         add_action('admin_menu', [$admin, 'menuLinks']);
         add_action('admin_init', [$admin, 'adminInit'], 99);
@@ -107,6 +114,8 @@ class Hooks {
         
         // AJAX handlers
         add_action('wp_ajax_bfp_save_settings', [$admin, 'ajaxSaveSettings']);
+        
+        Debug::log('Hooks.php: Admin hooks registered successfully, admin_menu hook added'); // DEBUG-REMOVE
     }
     
     /**

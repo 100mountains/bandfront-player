@@ -106,8 +106,14 @@ class Admin {
      * Add admin menu
      */
     public function menuLinks(): void {
-        Debug::log('Admin.php:128 Adding Bandfront Player menu page', []); // DEBUG-REMOVE
-        add_menu_page(
+        Debug::log('Admin.php:menuLinks() called', [
+            'current_user_can' => current_user_can('manage_options'),
+            'is_admin' => is_admin(),
+            'current_hook' => current_action(),
+            'did_action_admin_menu' => did_action('admin_menu')
+        ]); // DEBUG-REMOVE
+        
+        $result = add_menu_page(
             'Bandfront Player',
             'Bandfront Player',
             'manage_options',
@@ -116,7 +122,12 @@ class Admin {
             'dashicons-format-audio',
             30
         );
-        Debug::log('Admin.php:137 Finished adding Bandfront Player menu page', []); // DEBUG-REMOVE
+        
+        Debug::log('Admin.php:menuLinks() add_menu_page result', [
+            'result' => $result,
+            'menu_slug' => 'bandfront-player-settings',
+            'admin_url' => admin_url('admin.php?page=bandfront-player-settings')
+        ]); // DEBUG-REMOVE
     }
 
     /**

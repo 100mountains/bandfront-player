@@ -5,7 +5,7 @@ namespace Bandfront\WooCommerce;
 
 use Bandfront\Core\Config;
 use Bandfront\Audio\Player;
-use Bandfront\Renderer;
+use Bandfront\UI\Renderer;
 use Bandfront\Utils\Debug;
 
 /**
