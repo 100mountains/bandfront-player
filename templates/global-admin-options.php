@@ -82,7 +82,7 @@ $playerControls = $config->getPlayerControls();
         <a href="#player" class="nav-tab" data-tab="player-panel">
             <?php esc_html_e('Player', 'bandfront-player'); ?>
         </a>
-        <a href="#security" class="nav-tab" data-tab="security-panel">
+        <a href="#demos" class="nav-tab" data-tab="demos-panel">
             <?php esc_html_e('Demos', 'bandfront-player'); ?>
         </a>
         <a href="#audio-engine" class="nav-tab" data-tab="audio-engine-panel">
@@ -203,8 +203,8 @@ $playerControls = $config->getPlayerControls();
             </table>
         </div>
         
-        <!-- Security Tab -->
-        <div id="security-panel" class="bfp-tab-panel" style="display:none;">
+        <!-- Demos Tab (formerly Security) -->
+        <div id="demos-panel" class="bfp-tab-panel" style="display:none;">
             <h3>🔒 <?php esc_html_e('Create Demo Files', 'bandfront-player'); ?></h3>
             <table class="form-table">
                 <tr>
@@ -465,6 +465,7 @@ jQuery(document).ready(function($) {
     // Tab functionality
     $('.bfp-nav-tab-wrapper .nav-tab').on('click', function(e) {
         e.preventDefault();
+        e.stopPropagation(); // Prevent event bubbling
         
         var $this = $(this);
         var target = $this.data('tab');
@@ -477,14 +478,27 @@ jQuery(document).ready(function($) {
         $('.bfp-tab-panel').hide();
         $('#' + target).show();
         
-        // Update URL hash
-        window.location.hash = target;
+        // Update URL hash without jumping
+        if (history.pushState) {
+            history.pushState(null, null, '#' + target.replace('-panel', ''));
+        } else {
+            // Fallback for older browsers - store scroll position
+            var scrollPos = $(window).scrollTop();
+            window.location.hash = target.replace('-panel', '');
+            $(window).scrollTop(scrollPos);
+        }
+        
+        return false; // Prevent default anchor behavior
     });
     
     // Check for hash on load
     if (window.location.hash) {
         var hash = window.location.hash.substring(1);
-        $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + hash + '"]').click();
+        // Handle both old and new hash formats
+        if (hash === 'security') {
+            hash = 'demos'; // Redirect old security hash to demos
+        }
+        $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + hash + '-panel"]').click();
     }
 });
 </script>

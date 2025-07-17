@@ -491,29 +491,62 @@ jQuery(document).ready(function($) {
     // Example:
     // var audioEngine = bfp_admin_settings.audio_engine; // From localized data
     
-    // Tab functionality
+    // Tab functionality with improved navigation
     $('.bfp-nav-tab-wrapper .nav-tab').on('click', function(e) {
         e.preventDefault();
+        e.stopPropagation();
         
         var $this = $(this);
         var target = $this.data('tab');
+        
+        // Store current scroll position
+        var currentScroll = $(window).scrollTop();
         
         // Update active tab
         $('.bfp-nav-tab-wrapper .nav-tab').removeClass('nav-tab-active');
         $this.addClass('nav-tab-active');
         
-        // Show corresponding panel
-        $('.bfp-tab-panel').removeClass('active');
-        $('#' + target).addClass('active');
+        // Show corresponding panel with animation
+        $('.bfp-tab-panel').removeClass('active').hide();
+        $('#' + target).addClass('active').fadeIn(200);
         
-        // Update URL hash
-        window.location.hash = target;
+        // Update URL hash without jumping
+        if (window.history && window.history.pushState) {
+            // Modern browsers
+            window.history.pushState(null, null, '#' + target.replace('-panel', ''));
+        } else {
+            // Older browsers - prevent jump by restoring scroll
+            window.location.hash = target.replace('-panel', '');
+            $(window).scrollTop(currentScroll);
+        }
+        
+        // Ensure we stay at the current position
+        $(window).scrollTop(currentScroll);
+        
+        return false;
     });
     
     // Check for hash on load
     if (window.location.hash) {
         var hash = window.location.hash.substring(1);
-        $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + hash + '"]').click();
+        
+        // Handle legacy security hash
+        if (hash === 'security') {
+            hash = 'demos';
+            // Update the URL to the new hash
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, null, '#demos');
+            }
+        }
+        
+        // Find and click the appropriate tab
+        var $targetTab = $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + hash + '-panel"]');
+        if ($targetTab.length) {
+            // Delay to ensure page is loaded
+            setTimeout(function() {
+                $targetTab.click();
+            }, 100);
+        }
     }
     
     // Cloud storage sub-tabs (keep existing functionality)
