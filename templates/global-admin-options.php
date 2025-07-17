@@ -2,29 +2,15 @@
 /**
  * Global admin options template
  * 
- * @var Bandfront\Admin\Admin $this Admin instance (available in context)
+ * Variables available in this template:
  * @var Bandfront\Core\Config $config Config instance
- * @var array $settings Current settings
+ * @var Bandfront\Storage\FileManager $fileManager FileManager instance
+ * @var Bandfront\UI\Renderer $renderer Renderer instance
  */
 
 // Prevent direct access
 if (!defined('ABSPATH')) {
     exit;
-}
-
-// Get config instance from admin
-$config = $this->config;
-
-// Get all current settings
-$settings = $config->getAdminFormSettings();
-
-// Get available layouts and controls
-$playerLayouts = $config->getPlayerLayouts();
-$playerControls = $config->getPlayerControls();
-
-// Security check - use ABSPATH instead
-if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
 }
 
 // include resources
@@ -48,43 +34,35 @@ wp_localize_script( 'bfp-admin-js', 'bfp_ajax', array(
     'dismiss_text' => __('Dismiss this notice', 'bandfront-player'),
 ));
 
-// Get all settings using state manager's admin form method
-$settings = $GLOBALS['BandfrontPlayer']->getConfig()->getAdminFormSettings();
+// Get all settings using the injected config instance
+$settings = $config->getAdminFormSettings();
 
 // For cloud settings, use bulk fetch
-$cloud_settings = $GLOBALS['BandfrontPlayer']->getConfig()->getStates(array(
+$cloud_settings = $config->getStates(array(
     '_bfp_cloud_active_tab',
     '_bfp_cloud_dropbox',
     '_bfp_cloud_s3',
     '_bfp_cloud_azure'
 ));
 
-// Handle special cases
-$ffmpeg_system_path = defined( 'PHP_OS' ) && strtolower( PHP_OS ) == 'linux' && function_exists( 'shell_exec' ) ? @shell_exec( 'which ffmpeg' ) : '';
-
-// Cloud Storage Settings
-$bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
-$bfp_drive = isset($bfp_cloud_settings['_bfp_drive']) ? $bfp_cloud_settings['_bfp_drive'] : false;
-$bfp_drive_key = isset($bfp_cloud_settings['_bfp_drive_key']) ? $bfp_cloud_settings['_bfp_drive_key'] : '';
-$bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
-
-// Get cloud storage settings using bulk fetch for performance
-$settings_keys = array(
-    '_bfp_cloud_active_tab',
-    '_bfp_cloud_dropbox',
-    '_bfp_cloud_s3',
-    '_bfp_cloud_azure'
-);
-
-$cloud_settings = $GLOBALS['BandfrontPlayer']->getConfig()->getStates($settings_keys);
-
+// Extract cloud settings
 $cloud_active_tab = $cloud_settings['_bfp_cloud_active_tab'];
 $cloud_dropbox = $cloud_settings['_bfp_cloud_dropbox'];
 $cloud_s3 = $cloud_settings['_bfp_cloud_s3'];
 $cloud_azure = $cloud_settings['_bfp_cloud_azure'];
 
-// Remove Google Drive settings UI from the settings page if present.
-// remove_all_actions( 'bfp_general_settings', 10 );
+// Handle special cases
+$ffmpeg_system_path = defined( 'PHP_OS' ) && strtolower( PHP_OS ) == 'linux' && function_exists( 'shell_exec' ) ? @shell_exec( 'which ffmpeg' ) : '';
+
+// Cloud Storage Settings from legacy options
+$bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
+$bfp_drive = isset($bfp_cloud_settings['_bfp_drive']) ? $bfp_cloud_settings['_bfp_drive'] : false;
+$bfp_drive_key = isset($bfp_cloud_settings['_bfp_drive_key']) ? $bfp_cloud_settings['_bfp_drive_key'] : '';
+$bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
+
+// Get available layouts and controls
+$playerLayouts = $config->getPlayerLayouts();
+$playerControls = $config->getPlayerControls();
 
 ?>
 <h1><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Bandfront Player - Global Settings', 'bandfront-player' ); ?></h1>

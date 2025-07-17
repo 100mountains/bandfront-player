@@ -10,9 +10,6 @@ if (!defined('ABSPATH')) {
  * @since 0.1
  */
 
-
-
-
 // include resources
 wp_enqueue_style( 'bfp-admin-style', BFP_PLUGIN_URL . 'css/style-admin.css', array(), '0.1' );
 wp_enqueue_style( 'bfp-admin-notices', BFP_PLUGIN_URL . 'css/admin-notices.css', array(), '0.1' );
@@ -40,10 +37,10 @@ if ( empty( $post ) ) {
 	global $post;
 }
 
-// Get the state manager - FIXED: use getConfig() not get_config()
-$config = $GLOBALS['BandfrontPlayer']->getConfig();
+// Use the injected config instance instead of global
+// Variables available: $config, $fileManager, $renderer
 
-// Use bulk fetch for all product settings - FIXED: use getStates() not get_states()
+// Use bulk fetch for all product settings
 $product_settings = $config->getStates(array(
     '_bfp_enable_player',
     '_bfp_audio_engine',
@@ -73,7 +70,7 @@ $own_demos = $product_settings['_bfp_own_demos'];
 $direct_own_demos = $product_settings['_bfp_direct_own_demos'];
 $demos_list = $product_settings['_bfp_demos_list'];
 
-// Get global audio engine for comparison - FIXED: use getState() not get_state()
+// Get global audio engine for comparison
 $global_audio_engine = $config->getState('_bfp_audio_engine');
 ?>
 <h2><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Product Music Player Settings', 'bandfront-player' ); ?></h2>
