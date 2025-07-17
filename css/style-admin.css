@@ -760,3 +760,91 @@ body.admin-bar .bfp-ajax-notices-container {
 .bfp-section-content {
     display: none !important;
 }
+
+/* Database Monitor and Dev Tab Styles */
+.bfp-database-stats,
+.bfp-system-info,
+.bfp-api-info,
+.bfp-shortcode-info {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.bfp-database-stats h4,
+.bfp-system-info h4,
+.bfp-api-info h4,
+.bfp-shortcode-info h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #23282d;
+}
+
+.bfp-database-stats ul,
+.bfp-system-info ul,
+.bfp-api-info ul,
+.bfp-shortcode-info ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.bfp-database-stats li,
+.bfp-system-info li,
+.bfp-api-info li,
+.bfp-shortcode-info li {
+    margin: 5px 0;
+    list-style: none;
+}
+
+.bfp-system-info code,
+.bfp-api-info code,
+.bfp-shortcode-info code {
+    background: #e0e0e0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
+}
+
+.bfp-tab-panel button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Dev mode notice */
+.bfp-dev-mode-notice {
+    font-style: italic;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Dev tools button styles */
+.button-warning {
+    background: #d63638 !important;
+    border-color: #d63638 !important;
+    color: #fff !important;
+}
+
+.button-warning:hover {
+    background: #b32d2e !important;
+    border-color: #b32d2e !important;
+}
+
+/* Database stats styling */
+.bfp-database-stats,
+.bfp-scan-results {
+    margin-top: 10px;
+}
+
+#bfp-orphaned-results {
+    background: #f0f0f1;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

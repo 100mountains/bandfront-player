@@ -94,6 +94,14 @@ $playerControls = $config->getPlayerControls();
         <a href="#troubleshooting" class="nav-tab" data-tab="troubleshooting-panel">
             <?php esc_html_e('Troubleshooting', 'bandfront-player'); ?>
         </a>
+        <?php if ($settings['_bfp_dev_mode']) : ?>
+        <a href="#database-monitor" class="nav-tab" data-tab="database-monitor-panel">
+            <?php esc_html_e('Database Monitor', 'bandfront-player'); ?>
+        </a>
+        <a href="#dev" class="nav-tab" data-tab="dev-panel">
+            <?php esc_html_e('Dev', 'bandfront-player'); ?>
+        </a>
+        <?php endif; ?>
     </h2>
     
     <!-- Tab Content -->
@@ -127,6 +135,13 @@ $playerControls = $config->getPlayerControls();
                     <td>
                         <input aria-label="<?php esc_attr_e( 'Purchased times text', 'bandfront-player' ); ?>" type="text" id="_bfp_purchased_times_text" name="_bfp_purchased_times_text" value="<?php echo esc_attr( $settings['_bfp_purchased_times_text'] ); ?>" class="regular-text" />
                         <p class="description"><?php esc_html_e( 'Text shown in playlists when displaying purchase counts (use %d for the number)', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_dev_mode">🔧 <?php esc_html_e( 'Developer Mode', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Enable developer mode', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_dev_mode" name="_bfp_dev_mode" <?php checked( $settings['_bfp_dev_mode'] ); ?> />
+                        <p class="description"><?php esc_html_e( 'Enable database monitoring and developer tools tabs', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 <?php do_action( 'bfp_general_settings' ); ?>
@@ -452,6 +467,13 @@ $playerControls = $config->getPlayerControls();
             </table>
         </div>
         
+        <?php 
+        // Include dev tools template if dev mode is enabled
+        if ($settings['_bfp_dev_mode']) {
+            include_once plugin_dir_path(__FILE__) . 'dev-tools.php';
+        }
+        ?>
+        
     </div>
 </div>
 
@@ -500,5 +522,17 @@ jQuery(document).ready(function($) {
         }
         $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + hash + '-panel"]').click();
     }
+    
+    // Handle dev mode toggle - reload page when changed
+    $('#_bfp_dev_mode').on('change', function() {
+        if ($(this).closest('form').find('input[name="action"]').val() === 'bfp_save_settings') {
+            // Show a notice that page will reload after save
+            if (this.checked) {
+                $(this).closest('td').append('<p class="bfp-dev-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Developer tabs will appear after saving settings.', 'bandfront-player'); ?></p>');
+            } else {
+                $(this).closest('td').append('<p class="bfp-dev-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Developer tabs will be hidden after saving settings.', 'bandfront-player'); ?></p>');
+            }
+        }
+    });
 });
 </script>

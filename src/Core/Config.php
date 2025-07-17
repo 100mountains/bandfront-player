@@ -61,6 +61,7 @@ class Config {
            'audio-engine' => true,
            'cloud-engine' => true,
        ],
+       '_bfp_dev_mode' => 0,  // Add dev mode setting
        '_bfp_cloud_active_tab' => 'google-drive',
        '_bfp_cloud_dropbox' => [
            'enabled' => false,
@@ -140,6 +141,7 @@ class Config {
            '_bfp_own_demos' => 0,
            '_bfp_direct_own_demos' => 0,
            '_bfp_demos_list' => [],
+           '_bfp_dev_mode' => 0,  // Default to off
            '_bfp_cloud_active_tab' => 'google-drive',
            '_bfp_cloud_dropbox' => [
                'enabled' => false,
@@ -371,6 +373,7 @@ class Config {
            'fade_out' => ['key' => '_bfp_fade_out', 'type' => 'int'],
            'purchased_times_text' => ['key' => '_bfp_purchased_times_text', 'type' => 'string'],
            'apply_to_all_players' => ['key' => '_bfp_apply_to_all_players', 'type' => 'int'],
+           'dev_mode' => ['key' => '_bfp_dev_mode', 'type' => 'int'],  // Add dev mode
            
            // Audio engine settings
            'audio_engine' => ['key' => '_bfp_audio_engine', 'type' => 'string'],
