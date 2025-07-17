@@ -87,6 +87,13 @@ class Config {
        ],
    ];
 
+   // Add runtime state storage
+   private array $runtimeState = [
+       '_bfp_purchased_product_flag' => false,
+       '_bfp_force_purchased_flag' => 0,
+       '_bfp_current_user_downloads' => null,
+   ];
+
    /**
     * Initialize default settings and structure
     */
@@ -216,6 +223,11 @@ class Config {
     * @return mixed Setting value
     */
    public function getState(string $key, mixed $default = null, ?int $productId = null): mixed {
+       // Check runtime state first
+       if (isset($this->runtimeState[$key])) {
+           return $this->runtimeState[$key];
+       }
+       
        if ($default === null) {
            $default = $this->getDefaultValue($key);
        }
@@ -333,6 +345,12 @@ class Config {
     * Update state value
     */
    public function updateState(string $key, mixed $value, ?int $productId = null): void {
+       // Handle runtime state
+       if (isset($this->runtimeState[$key])) {
+           $this->runtimeState[$key] = $value;
+           return;
+       }
+       
        if ($productId && $this->isOverridable($key)) {
            update_post_meta($productId, $key, $value);
            // Clear cache

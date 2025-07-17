@@ -1,0 +1,35 @@
+{
+  "name": "bandfront-player",
+  "version": "0.1.0",
+  "description": "A WordPress plugin for audio playback and management.",
+  "main": "bandfront-player.php",
+  "scripts": {
+    "build": "npm run build:js && npm run build:css",
+    "build:js": "webpack --config webpack.config.js",
+    "build:css": "postcss assets/css/*.css -d assets/css/ --use autoprefixer",
+    "watch": "webpack --watch",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "webpack": "^5.0.0",
+    "webpack-cli": "^4.0.0",
+    "postcss": "^8.0.0",
+    "autoprefixer": "^10.0.0",
+    "eslint": "^7.0.0"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^3.11.0"
+  },
+  "author": "Your Name",
+  "license": "GPL-2.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/bandfront-player.git"
+  },
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "audio",
+    "music"
+  ]
+}

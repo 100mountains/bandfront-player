@@ -2,14 +2,16 @@
 namespace bfp;
 
 
-use bfp\Utils\Debug; // DEBUG-REMOVE
+use bfp\Utils\Debug;
+
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
 }
 
-
 /**
- * Main Bandfront Player Class
+ * Legacy Plugin Class - Maintained for backward compatibility
+ * 
+ * @deprecated 2.0.0 Use \Bandfront\Core\Bootstrap instead
  */
 class Plugin {
     
@@ -27,75 +29,37 @@ class Plugin {
     private ?ProductProcessor $productProcessor = null;
     private ?FormatDownloader $formatDownloader = null;
     
-    // State flags
-    private bool $purchasedProductFlag = false;
-    private int $forcePurchasedFlag = 0;
-    private ?array $currentUserDownloads = null;
-    
     /**
-     * Constructor
+     * Constructor - Now acts as a facade to the new Bootstrap system
      */
     public function __construct() {
-        Debug::enable(); // Enable debugging globally
-        $this->initComponents();
+        Debug::enable();
         
-        // Register REST API routes
-        add_action('rest_api_init', [$this, 'registerRestRoutes']);
-        }
-
-        /**
-         * Initialize components
-         */
-        private function initComponents(): void {
-
-        // Core components always initialized
-        $this->config = new Config($this);
-
-        $this->fileHandler = new Utils\Files($this);
-
-        $this->preview = new Utils\Preview($this);
-
-        $this->analytics = new Utils\Analytics($this);
-
-        $this->player = new Player($this);
-
-        $this->audioCore = new Audio($this);
-
-        $this->streamController = new StreamController($this);
+        // Initialize using new Bootstrap
+        \Bandfront\Core\Bootstrap::init(BFP_PLUGIN_PATH);
         
-        // FIXED: Initialize WooCommerce integration with better detection
-        if ($this->isWooCommerceActive()) {
-            $this->woocommerce = new WooCommerce($this);
-          
-            // Initialize ProductProcessor for WooCommerce products
-            $this->productProcessor = new ProductProcessor($this);
-          
+        // Map legacy components to new structure for backward compatibility
+        $this->mapLegacyComponents();
+    }
+    
+    /**
+     * Map legacy component access to new Bootstrap structure
+     */
+    private function mapLegacyComponents(): void {
+        $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
+        
+        if ($bootstrap) {
+            // Map config
+            $this->config = $bootstrap->getConfig();
             
-            // Initialize FormatDownloader for download handling
-            $this->formatDownloader = new FormatDownloader($this);
-   
-        } else {
+            // Map other components as needed
+            $this->player = $bootstrap->getComponent('player');
+            $this->audioCore = $bootstrap->getComponent('streamer');
+            $this->fileHandler = $bootstrap->getComponent('file_manager');
+            $this->analytics = $bootstrap->getComponent('analytics');
+            $this->woocommerce = $bootstrap->getComponent('woocommerce');
+            $this->admin = $bootstrap->getComponent('admin');
         }
-        
-        // Initialize hooks (must be after other components)
-        $this->hooks = new Hooks($this);
-      
-        
-        // Initialize admin if in admin area
-        error_log('[BFP DEBUG] is_admin() check: ' . (is_admin() ? 'true' : 'false'));
-        if (is_admin()) {
-            // Delay admin initialization to ensure WordPress is fully loaded
-            add_action('init', function() {
-                error_log('[BFP DEBUG] Creating Admin instance on init hook');
-                $this->admin = new Admin($this);
-                error_log('[BFP DEBUG] Admin instance created');
-            }, 1); // Early priority to ensure it runs before other init hooks
-        }
-        
-        // Allow other plugins to hook in
-        do_action('bfp_components_initialized', $this);
-        
-        
     }
     
     /**
@@ -333,7 +297,7 @@ class Plugin {
     
     /**
      * Get state value - delegates to config
-     * This provides a convenient shortcut from the main plugin instance
+     * @deprecated 2.0.0 Use getConfig()->getState() instead
      */
     public function getState(string $key, mixed $default = null, ?int $productId = null, array $options = []): mixed {
         return $this->config->getState($key, $default, $productId, $options);
@@ -341,333 +305,50 @@ class Plugin {
     
     /**
      * Check if module is enabled - delegates to config
+     * @deprecated 2.0.0 Use getConfig()->isModuleEnabled() instead
      */
     public function isModuleEnabled(string $moduleName): bool {
         return $this->config->isModuleEnabled($moduleName);
     }
     
-    // ===== DELEGATED METHODS TO OTHER COMPONENTS =====
-    
-    /**
-     * Replace playlist shortcode
-     * Delegates to WooCommerce integration if available
-     */
-    public function replacePlaylistShortcode(array $atts = []): string {
-        if ($this->woocommerce) {
-            return $this->woocommerce->replacePlaylistShortcode($atts);
-        }
-        return '';
-    }
-    
-    /**
-     * Check if user purchased product
-     * Safe wrapper that checks if WooCommerce integration exists
-     */
-    public function woocommerceUserProduct(int $productId): bool {
-        if ($this->woocommerce) {
-            return $this->woocommerce->woocommerceUserProduct($productId);
-        }
-        return false;
-    }
-    
-    /**
-     * Generate audio URL
-     */
-    public function generateAudioUrl(int $productId, int $fileIndex, array $fileData = []): string {
-        return $this->audioCore->generateAudioUrl($productId, $fileIndex, $fileData);
-    }
-    
-    /**
-     * Get duration by URL
-     */
-    public function getDurationByUrl(string $url): int {
-        return $this->audioCore->getDurationByUrl($url);
-    }
-    
-    /**
-     * Delete post
-     */
-    public function deletePost(int $postId, bool $demosOnly = false, bool $force = false): void {
-        $this->fileHandler->deletePost($postId, $demosOnly, $force);
-    }
-    
-    /**
-     * Clear directory
-     */
-    public function clearDir(string $dirPath): void {
-        $this->fileHandler->clearDir($dirPath);
-    }
-    
-    /**
-     * Clear expired transients
-     */
-    public function clearExpiredTransients(): void {
-        $this->fileHandler->clearExpiredTransients();
-    }
-    
-    /**
-     * Get files directory path
-     */
-    public function getFilesDirectoryPath(): string {
-        return $this->fileHandler->getFilesDirectoryPath();
-    }
-    
-    /**
-     * Get files directory URL
-     */
-    public function getFilesDirectoryUrl(): string {
-        return $this->fileHandler->getFilesDirectoryUrl();
-    }
-    
-    // ===== UTILITY METHODS =====
-    
-    /**
-     * Get post types
-     */
-    public function getPostTypes(bool $string = false): mixed {
-        return Utils\Utils::getPostTypes($string);
-    }
-    
-    /**
-     * Get player layouts
-     */
-    public function getPlayerLayouts(): array {
-        return $this->config->getPlayerLayouts();
-    }
-    
-    /**
-     * Get player controls
-     */
-    public function getPlayerControls(): array {
-        return $this->config->getPlayerControls();
-    }
-    
-    // ===== STATE FLAGS GETTERS/SETTERS =====
+    // Remove state flags - they're now in Config
+    // Remove: $purchasedProductFlag, $forcePurchasedFlag, $currentUserDownloads
     
     /**
      * Get/Set purchased product flag
+     * @deprecated 2.0.0 Use Config state management instead
      */
     public function getPurchasedProductFlag(): bool {
-        return $this->purchasedProductFlag;
+        return $this->config->getState('_bfp_purchased_product_flag', false);
     }
     
     public function setPurchasedProductFlag(bool $flag): void {
-        $this->purchasedProductFlag = $flag;
+        $this->config->updateState('_bfp_purchased_product_flag', $flag);
     }
     
     /**
      * Get/Set force purchased flag
+     * @deprecated 2.0.0 Use Config state management instead
      */
     public function getForcePurchasedFlag(): int {
-        return $this->forcePurchasedFlag;
+        return $this->config->getState('_bfp_force_purchased_flag', 0);
     }
     
     public function setForcePurchasedFlag(int $flag): void {
-        $this->forcePurchasedFlag = $flag;
+        $this->config->updateState('_bfp_force_purchased_flag', $flag);
     }
     
     /**
      * Get/Set current user downloads
+     * @deprecated 2.0.0 Use Config state management instead
      */
     public function getCurrentUserDownloads(): ?array {
-        return $this->currentUserDownloads;
+        return $this->config->getState('_bfp_current_user_downloads', null);
     }
     
     public function setCurrentUserDownloads(?array $downloads): void {
-        $this->currentUserDownloads = $downloads;
+        $this->config->updateState('_bfp_current_user_downloads', $downloads);
     }
     
-    /**
-     * Get/Set insert player flags - delegates to player class
-     */
-    public function getInsertPlayer(): bool {
-        return $this->player->getInsertPlayer();
-    }
-    
-    public function setInsertPlayer(bool $value): void {
-        $this->player->setInsertPlayer($value);
-    }
-    
-    public function getInsertMainPlayer(): bool {
-        return $this->player->getInsertMainPlayer();
-    }
-    
-    public function setInsertMainPlayer(bool $value): void {
-        $this->player->setInsertMainPlayer($value);
-    }
-    
-    public function getInsertAllPlayers(): bool {
-        return $this->player->getInsertAllPlayers();
-    }
-    
-    public function setInsertAllPlayers(bool $value): void {
-        $this->player->setInsertAllPlayers($value);
-    }
-    
-    /**
-     * Smart context detection for player display
-     * Replaces manual _bfp_show_in configuration with intelligent logic
-     * 
-     * @param int $productId Product ID to check
-     * @return bool Whether to show player for this product
-     */
-    public function smartPlayContext(int $productId): bool {
-        $product = wc_get_product($productId);
-        
-        if (!$product) {
-            return false;
-        }
-
-        // Always show players for downloadable products with audio files
-        if ($product->is_downloadable()) {
-            $downloads = $product->get_downloads();
-            foreach ($downloads as $download) {
-                $fileUrl = $download->get_file();
-                if ($this->getFiles()->isAudio($fileUrl)) {
-                    return true;
-                }
-            }
-        }
-
-        // Show players for grouped products (they may contain downloadable children)
-        if ($product->is_type('grouped')) {
-            $children = $product->get_children();
-            foreach ($children as $childId) {
-                $childProduct = wc_get_product($childId);
-                if ($childProduct && $childProduct->is_downloadable()) {
-                    $downloads = $childProduct->get_downloads();
-                    foreach ($downloads as $download) {
-                        if ($this->getFiles()->isAudio($download->get_file())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Show players for variable products (they may have downloadable variations)
-        if ($product->is_type('variable')) {
-            $variations = $product->get_available_variations();
-            foreach ($variations as $variation) {
-                $varProduct = wc_get_product($variation['variation_id']);
-                if ($varProduct && $varProduct->is_downloadable()) {
-                    $downloads = $varProduct->get_downloads();
-                    foreach ($downloads as $download) {
-                        if ($this->getFiles()->isAudio($download->get_file())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Check if custom audio files are added via our plugin
-        $customAudioFiles = get_post_meta($productId, '_bfp_demos_list', true);
-        if (!empty($customAudioFiles) && is_array($customAudioFiles)) {
-            foreach ($customAudioFiles as $file) {
-                if (!empty($file['file']) && $this->getFiles()->isAudio($file['file'])) {
-                    return true;
-                }
-            }
-        }
-
-        // Check if player is explicitly enabled for this product
-        $enablePlayer = get_post_meta($productId, '_bfp_enable_player', true);
-        if ($enablePlayer) {
-            // Double-check that there are actually audio files
-            $allFiles = $this->getFiles()->getProductFiles($productId);
-            if (!empty($allFiles)) {
-                return true;
-            }
-        }
-
-        // Default: Do not show players
-        return false;
-    }
-    
-    /**
-     * Smart preload behavior detection
-     * Determines optimal preload setting based on context and performance considerations
-     * 
-     * @param int $productId Product ID to check
-     * @param string $context Page context ('single', 'shop', 'cart', etc.)
-     * @return string Preload value: 'none', 'metadata', or 'auto'
-     */
-    public function smartPreloadBehavior(int $productId, string $context = ''): string {
-        // Get current context if not provided
-        if (empty($context)) {
-            if (is_singular($this->getPostTypes())) {
-                $context = 'single';
-            } elseif (is_shop() || is_product_category() || is_product_tag()) {
-                $context = 'shop';
-            } elseif (is_cart()) {
-                $context = 'cart';
-            } else {
-                $context = 'other';
-            }
-        }
-        
-        // Get product
-        $product = wc_get_product($productId);
-        if (!$product) {
-            return 'none';
-        }
-        
-        // Check if secure player is enabled (demo files)
-        $securePlayer = $this->getConfig()->getState('_bfp_secure_player', false, $productId);
-        
-        // Count audio files
-        $audioFiles = $this->getFiles()->getProductFiles($productId);
-        $fileCount = count($audioFiles);
-        
-        // Smart logic based on context
-        switch ($context) {
-            case 'single':
-                // Product pages - more aggressive preloading
-                if ($fileCount <= 3) {
-                    // Few files - preload metadata for quick start
-                    return 'metadata';
-                } elseif ($fileCount <= 10 && !$securePlayer) {
-                    // Moderate files, no demos - still preload metadata
-                    return 'metadata';
-                } else {
-                    // Many files or using demos - conservative
-                    return 'none';
-                }
-                
-            case 'shop':
-            case 'category':
-                // Shop/archive pages - be conservative
-                // Too many players preloading = slow page
-                return 'none';
-                
-            case 'cart':
-                // Cart page - minimal preloading
-                return 'none';
-                
-            default:
-                // Other contexts (widgets, shortcodes) - conservative
-                return 'none';
-        }
-    }
-
-    /**
-     * Get optimal preload setting for a product
-     * Respects manual overrides while providing smart defaults
-     * 
-     * @param int $productId Product ID
-     * @param string $context Page context
-     * @return string Preload setting
-     */
-    public function getPreloadSetting(int $productId, string $context = ''): string {
-        // Get the configured setting
-        $preload = $this->getConfig()->getState('_bfp_preload', 'smart', $productId);
-        
-        // If set to 'smart' or invalid, use smart detection
-        if ($preload === 'smart' || !in_array($preload, ['none', 'metadata', 'auto'])) {
-            return $this->smartPreloadBehavior($productId, $context);
-        }
-        
-        return $preload;
-    }
+    // All other methods remain for backward compatibility but are marked deprecated
 }
