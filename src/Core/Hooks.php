@@ -3,10 +3,12 @@ declare(strict_types=1);
 
 namespace Bandfront\Core;
 
+use Bandfront\Utils\Debug;
+
 /**
- * Hook Manager
+ * Centralized Hook Registration
  * 
- * Centralized hook registration following WordPress 2025 patterns
+ * Registers all WordPress hooks for the plugin components
  * 
  * @package Bandfront\Core
  * @since 2.0.0
@@ -15,54 +17,91 @@ class Hooks {
     
     private Bootstrap $bootstrap;
     
+    /**
+     * Constructor
+     */
     public function __construct(Bootstrap $bootstrap) {
         $this->bootstrap = $bootstrap;
         $this->registerHooks();
     }
     
     /**
-     * Register all hooks
+     * Register all plugin hooks
      */
     private function registerHooks(): void {
-        // Core WordPress hooks
+        // Core hooks
         $this->registerCoreHooks();
+        
+        // Admin hooks
+        $this->registerAdminHooks();
+        
+        // Frontend hooks
+        $this->registerFrontendHooks();
         
         // WooCommerce hooks
         $this->registerWooCommerceHooks();
         
-        // REST API hooks
-        $this->registerRestHooks();
-        
-        // Admin hooks
-        if (is_admin()) {
-            $this->registerAdminHooks();
-        }
-        
-        // Frontend hooks
-        if (!is_admin()) {
-            $this->registerFrontendHooks();
-        }
+        // REST API is handled separately via rest_api_init
     }
     
     /**
-     * Register core WordPress hooks
+     * Register core plugin hooks
      */
     private function registerCoreHooks(): void {
-        $pluginFile = $this->bootstrap->getPluginFile();
-        
         // Activation/Deactivation
-        register_activation_hook($pluginFile, [$this->bootstrap, 'activate']);
-        register_deactivation_hook($pluginFile, [$this->bootstrap, 'deactivate']);
+        register_activation_hook(
+            $this->bootstrap->getPluginFile(), 
+            [$this->bootstrap, 'activate']
+        );
         
-        // Plugin loaded
-        add_action('plugins_loaded', [$this, 'onPluginsLoaded']);
-        add_action('init', [$this, 'onInit']);
+        register_deactivation_hook(
+            $this->bootstrap->getPluginFile(), 
+            [$this->bootstrap, 'deactivate']
+        );
+    }
+    
+    /**
+     * Register admin hooks
+     */
+    private function registerAdminHooks(): void {
+        if (!is_admin()) {
+            return;
+        }
         
-        // Script/Style loading
-        add_action('wp_enqueue_scripts', [$this, 'enqueuePublicAssets']);
+        $admin = $this->bootstrap->getComponent('admin');
+        if (!$admin) {
+            return;
+        }
         
-        // Shortcodes
-        add_action('init', [$this, 'registerShortcodes']);
+        Debug::log('Hooks.php: Registering admin hooks'); // DEBUG-REMOVE
+        
+        add_action('admin_menu', [$admin, 'menuLinks']);
+        add_action('admin_init', [$admin, 'adminInit'], 99);
+        add_action('save_post', [$admin, 'savePost'], 10, 3);
+        add_action('after_delete_post', [$admin, 'afterDeletePost'], 10, 2);
+        add_action('admin_notices', [$admin, 'showAdminNotices']);
+        
+        // AJAX handlers
+        add_action('wp_ajax_bfp_save_settings', [$admin, 'ajaxSaveSettings']);
+    }
+    
+    /**
+     * Register frontend hooks
+     */
+    private function registerFrontendHooks(): void {
+        // Player hooks
+        if ($player = $this->bootstrap->getComponent('player')) {
+            add_action('wp_enqueue_scripts', [$player, 'enqueueScripts']);
+            add_filter('the_content', [$player, 'filterContent'], 999);
+            add_shortcode('bandfront_player', [$player, 'shortcode']);
+        }
+        
+        // Analytics hooks
+        if ($analytics = $this->bootstrap->getComponent('analytics')) {
+            add_action('wp_footer', [$analytics, 'outputTrackingCode']);
+            add_action('wp_ajax_bfp_track_event', [$analytics, 'ajaxTrackEvent']);
+            add_action('wp_ajax_nopriv_bfp_track_event', [$analytics, 'ajaxTrackEvent']);
+        }
     }
     
     /**
@@ -73,50 +112,22 @@ class Hooks {
             return;
         }
         
-        // Product page hooks
-        add_action('woocommerce_before_single_product_summary', [$this, 'maybeAddPlayer'], 25);
-        add_action('woocommerce_single_product_summary', [$this, 'maybeAddPlayer'], 25);
+        $woocommerce = $this->bootstrap->getComponent('woocommerce');
         
-        // Shop page hooks
-        add_action('woocommerce_after_shop_loop_item_title', [$this, 'maybeAddShopPlayer'], 1);
+        // Product hooks
+        add_filter('woocommerce_product_tabs', [$woocommerce, 'addProductTabs'], 10);
+        add_action('woocommerce_before_single_product_summary', [$woocommerce, 'beforeProductSummary'], 5);
         
         // Cart hooks
-        add_filter('woocommerce_cart_item_name', [$this, 'maybeAddCartPlayer'], 10, 3);
+        add_filter('woocommerce_cart_item_name', [$woocommerce, 'cartItemName'], 10, 3);
         
-        // Product data hooks
-        add_filter('woocommerce_product_export_meta_value', [$this, 'exportMetaValue'], 10, 4);
-        add_filter('woocommerce_product_importer_pre_expand_data', [$this, 'importMetaValue'], 10);
-    }
-    
-    /**
-     * Register REST API hooks
-     */
-    private function registerRestHooks(): void {
-        add_action('rest_api_init', [$this, 'registerRestRoutes']);
-    }
-    
-    /**
-     * Register admin hooks
-     */
-    private function registerAdminHooks(): void {
-        add_action('admin_menu', [$this, 'registerAdminMenu']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
-        
-        // Metabox hooks
-        add_action('add_meta_boxes', [$this, 'registerMetaboxes']);
-        add_action('save_post', [$this, 'saveProductMeta'], 10, 2);
-    }
-    
-    /**
-     * Register frontend hooks
-     */
-    private function registerFrontendHooks(): void {
-        // Preview functionality
-        if ($preview = $this->bootstrap->getComponent('preview')) {
-            add_action('init', [$preview, 'init']);
+        // Download hooks
+        if ($downloader = $this->bootstrap->getComponent('format_downloader')) {
+            add_filter('woocommerce_account_downloads_columns', [$downloader, 'addDownloadColumns']);
+            add_action('woocommerce_account_downloads_column_download-format', [$downloader, 'renderFormatColumn']);
         }
-        
-        // Analytics
+    }
+}
         if ($analytics = $this->bootstrap->getComponent('analytics')) {
             add_action('init', [$analytics, 'init']);
         }
@@ -138,7 +149,17 @@ class Hooks {
      * Init callback
      */
     public function onInit(): void {
-        // Any init-specific logic
+        // Initialize preview component if not admin
+        if (!is_admin()) {
+            if ($preview = $this->bootstrap->getComponent('preview')) {
+                $preview->init();
+            }
+            if ($analytics = $this->bootstrap->getComponent('analytics')) {
+                $analytics->init();
+            }
+        }
+        
+        // Fire custom action
         do_action('bandfront_player_init');
     }
     
@@ -147,7 +168,11 @@ class Hooks {
      */
     public function registerShortcodes(): void {
         add_shortcode('bfp-player', [$this, 'playerShortcode']);
-        add_shortcode('bfp-playlist', [$this, 'playlistShortcode']);
+        
+        // Register playlist shortcode if WooCommerce is active
+        if ($woocommerce = $this->bootstrap->getComponent('woocommerce')) {
+            add_shortcode('bfp-playlist', [$woocommerce, 'renderPlaylist']);
+        }
     }
     
     /**
@@ -301,5 +326,12 @@ class Hooks {
         }
         
         return $productName;
+    }
+    
+    /**
+     * Get config shortcut
+     */
+    private function getConfig(): ?Config {
+        return $this->bootstrap->getComponent('config');
     }
 }

@@ -1,6 +1,8 @@
 
 ## Design
 
+the plugin takes woocommerce audio projects, or maybe even just playlist objects on a page 
+
 upload/bfp/[productid]/demos.mp3 for each product streamed from here
 purchased woo-commerce-uploads/ if owned plays directly
 

@@ -1,23 +1,19 @@
 <?php
-namespace bfp;
+declare(strict_types=1);
+
+namespace Bandfront\Core;
 
 /**
-* Configuration and State Management
-*/
-
-if (!defined('ABSPATH')) {
-   exit;
-}
-
-/**
-* Configuration and State Management
-* 
-* Provides context-aware state management with automatic inheritance:
-* Product Setting → Global Setting → Default Value
-*/
+ * Configuration and State Management
+ * 
+ * Provides context-aware state management with automatic inheritance:
+ * Product Setting → Global Setting → Default Value
+ * 
+ * @package Bandfront\Core
+ * @since 2.0.0
+ */
 class Config {
    
-   private Plugin $mainPlugin;
    private array $productsAttrs = [];
    private array $globalAttrs = [];
    private array $playerLayouts = ['dark', 'light', 'custom'];
@@ -25,7 +21,7 @@ class Config {
 
    private array $overridableSettings = [
        '_bfp_enable_player' => false,
-       '_bfp_audio_engine' => 'html5',  // Changed default from 'mediaelement' to 'html5'
+       '_bfp_audio_engine' => 'html5',
        '_bfp_single_player' => 0,
        '_bfp_merge_in_grouped' => 0,
        '_bfp_play_all' => 0,
@@ -93,6 +89,14 @@ class Config {
        '_bfp_force_purchased_flag' => 0,
        '_bfp_current_user_downloads' => null,
    ];
+
+   /**
+    * Constructor - No dependencies needed
+    */
+   public function __construct() {
+       // Initialize settings and structure
+       $this->init();
+   }
 
    /**
     * Initialize default settings and structure
@@ -176,9 +180,8 @@ class Config {
            '_bfp_analytics_integration' => 'ua',
            '_bfp_analytics_property' => '',
            '_bfp_analytics_api_secret' => '',
-           '_bfp_analytics_api_secret' => '',
            '_bfp_apply_to_all_players' => 0,
-           '_bfp_audio_engine' => 'html5',  // Changed default from 'mediaelement' to 'html5'
+           '_bfp_audio_engine' => 'html5',
            '_bfp_enable_visualizations' => 0,
            '_bfp_own_demos' => 0,
            '_bfp_direct_own_demos' => 0,
@@ -205,13 +208,6 @@ class Config {
                'path_prefix' => 'bandfront-demos/',
            ],
        ];
-   }
-
-   public function __construct(Plugin $mainPlugin) {
-       $this->mainPlugin = $mainPlugin;
-
-       // Initialize settings and structure
-       $this->init();
    }
 
    /**
@@ -567,5 +563,39 @@ class Config {
     */
    public function getAllModules(): array {
        return $this->getState('_bfp_modules_enabled');
+   }
+   
+   /**
+    * Get supported post types
+    * 
+    * @return array Post types
+    */
+   public function getPostTypes(): array {
+       return apply_filters('bfp_post_types', ['product']);
+   }
+   
+   /**
+    * Check if smart play context should show player
+    * 
+    * @param int $productId Product ID
+    * @return bool
+    */
+   public function smartPlayContext(int $productId): bool {
+       // Always show on single product pages
+       if (function_exists('is_product') && is_product()) {
+           return true;
+       }
+       
+       // Show on shop/archive pages based on setting
+       if (function_exists('is_shop') && is_shop()) {
+           return true;
+       }
+       
+       if (function_exists('is_product_category') && is_product_category()) {
+           return true;
+       }
+       
+       // Don't show in other contexts by default
+       return false;
    }
 }

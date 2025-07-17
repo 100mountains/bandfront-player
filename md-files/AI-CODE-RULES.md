@@ -24,6 +24,7 @@ sends plays and info to bandfront-analytics
 - bandfront core: lightweight theme giving additional functions
 - server-setup: one command install for bandfront
 - All Settings and Analytics sent through API 
+- Keep the functionality, no backward compatibility! 
 
 AUDIO PLAYBACK 
 Uses WordPress REST API - Standard, secure, and extensible

@@ -3,16 +3,18 @@ declare(strict_types=1);
 
 namespace Bandfront\Core;
 
-use Bandfront\Config;
+use Bandfront\Core\Config;  // Changed from use Bandfront\Config
+use Bandfront\Audio\Audio;
 use Bandfront\Audio\Player;
-use Bandfront\Audio\Streamer;
-use Bandfront\Audio\Processor;
 use Bandfront\Audio\Analytics;
+use Bandfront\Audio\Preview;
 use Bandfront\Admin\Admin;
-use Bandfront\WooCommerce\Integration as WooCommerceIntegration;
+use Bandfront\WooCommerce\WooCommerceIntegration;
+use Bandfront\WooCommerce\ProductProcessor;
+use Bandfront\WooCommerce\FormatDownloader;
 use Bandfront\Storage\FileManager;
-use Bandfront\REST\StreamingEndpoint;
-use Bandfront\Utils\Preview;
+use Bandfront\REST\StreamController;
+use Bandfront\Renderer;
 use Bandfront\Utils\Debug;
 
 /**
@@ -28,7 +30,6 @@ class Bootstrap {
     
     private static ?Bootstrap $instance = null;
     private string $pluginFile;
-    private Config $config;
     private array $components = [];
     
     /**
@@ -66,24 +67,14 @@ class Bootstrap {
             Debug::enable();
         }
         
-        // Initialize configuration first
-        $this->config = new Config();
-        $this->components['config'] = $this->config;
-        
-        // Initialize core components
+        // Initialize components in dependency order
         $this->initializeCore();
+        $this->initializeAudio();
         
-        // Initialize context-specific components
-        if (is_admin()) {
-            $this->initializeAdmin();
-        }
-        
-        $this->initializePublic();
-        
-        // Initialize REST API
-        if ($this->isRestRequest()) {
-            $this->initializeREST();
-        }
+        // Context-specific components
+        $this->initializeAdmin();
+        $this->initializeWooCommerce();
+        $this->initializeREST();
         
         // Register hooks after all components are loaded
         $this->components['hooks'] = new Hooks($this);
@@ -96,43 +87,94 @@ class Bootstrap {
      * Initialize core components
      */
     private function initializeCore(): void {
+        // Configuration - Always first
+        $this->components['config'] = new Config();
+        
         // Storage layer
-        $this->components['file_manager'] = new FileManager($this->config);
+        $this->components['file_manager'] = new FileManager($this->components['config']);
         
-        // Audio components
-        $this->components['player'] = new Player($this->config, $this->components['file_manager']);
-        $this->components['streamer'] = new Streamer($this->config, $this->components['file_manager']);
-        $this->components['processor'] = new Processor($this->config, $this->components['file_manager']);
-        $this->components['analytics'] = new Analytics($this->config);
+        // Renderer - Used by multiple components
+        $this->components['renderer'] = new Renderer(
+            $this->components['config'],
+            $this->components['file_manager']
+        );
+    }
+    
+    /**
+     * Initialize audio components
+     */
+    private function initializeAudio(): void {
+        // Core audio functionality
+        $this->components['audio'] = new Audio(
+            $this->components['config'],
+            $this->components['file_manager']
+        );
         
-        // Utilities
-        $this->components['preview'] = new Preview($this->config);
+        // Player management
+        $this->components['player'] = new Player(
+            $this->components['config'],
+            $this->components['renderer'],
+            $this->components['audio']
+        );
+        
+        // Analytics tracking
+        $this->components['analytics'] = new Analytics($this->components['config']);
+        
+        // Preview generation
+        $this->components['preview'] = new Preview(
+            $this->components['config'],
+            $this->components['audio'],
+            $this->components['file_manager']
+        );
     }
     
     /**
      * Initialize admin components
      */
     private function initializeAdmin(): void {
-        // Delay admin initialization to ensure WordPress is ready
+        if (!is_admin()) {
+            return;
+        }
+        
+        // Delay admin initialization to ensure WordPress admin is ready
         add_action('init', function() {
             if (!isset($this->components['admin'])) {
-                $this->components['admin'] = new Admin($this->config);
+                $this->components['admin'] = new Admin(
+                    $this->components['config'],
+                    $this->components['file_manager'],
+                    $this->components['renderer']
+                );
             }
         }, 1);
     }
     
     /**
-     * Initialize public-facing components
+     * Initialize WooCommerce integration
      */
-    private function initializePublic(): void {
-        // WooCommerce integration if available
-        if ($this->isWooCommerceActive()) {
-            $this->components['woocommerce'] = new WooCommerceIntegration(
-                $this->config,
-                $this->components['player'],
-                $this->components['file_manager']
-            );
+    private function initializeWooCommerce(): void {
+        if (!$this->isWooCommerceActive()) {
+            return;
         }
+        
+        // Main WooCommerce integration
+        $this->components['woocommerce'] = new WooCommerceIntegration(
+            $this->components['config'],
+            $this->components['player'],
+            $this->components['renderer']
+        );
+        
+        // Product processor for audio generation
+        $this->components['product_processor'] = new ProductProcessor(
+            $this->components['config'],
+            $this->components['audio'],
+            $this->components['file_manager']
+        );
+        
+        // Format downloader
+        $this->components['format_downloader'] = new FormatDownloader(
+            $this->components['config'],
+            $this->components['file_manager']
+        );
     }
     
     /**
@@ -140,10 +182,15 @@ class Bootstrap {
      */
     private function initializeREST(): void {
         add_action('rest_api_init', function() {
-            $this->components['rest_streaming'] = new StreamingEndpoint(
-                $this->components['streamer'],
-                $this->config
+            // Stream controller for audio delivery
+            $this->components['stream_controller'] = new StreamController(
+                $this->components['config'],
+                $this->components['audio'],
+                $this->components['file_manager']
             );
+            
+            // Register routes
+            $this->components['stream_controller']->registerRoutes();
         });
     }
     
@@ -152,13 +199,6 @@ class Bootstrap {
      */
     private function isWooCommerceActive(): bool {
         return class_exists('WooCommerce') || function_exists('WC');
-    }
-    
-    /**
-     * Check if this is a REST request
-     */
-    private function isRestRequest(): bool {
-        return defined('REST_REQUEST') && REST_REQUEST;
     }
     
     /**
@@ -172,13 +212,6 @@ class Bootstrap {
     }
     
     /**
-     * Get configuration instance
-     */
-    public function getConfig(): Config {
-        return $this->config;
-    }
-    
-    /**
      * Get plugin file path
      */
     public function getPluginFile(): string {
@@ -189,6 +222,11 @@ class Bootstrap {
      * Plugin activation handler
      */
     public function activate(): void {
+        // Register download endpoint if format downloader exists
+        if ($formatDownloader = $this->getComponent('format_downloader')) {
+            $formatDownloader->registerDownloadEndpoint();
+        }
+        
         // Flush rewrite rules
         flush_rewrite_rules();
         
@@ -207,6 +245,11 @@ class Bootstrap {
      * Plugin deactivation handler
      */
     public function deactivate(): void {
+        // Clean up purchased files
+        if ($fileManager = $this->getComponent('file_manager')) {
+            $fileManager->deletePurchasedFiles();
+        }
+        
         // Run component deactivation routines
         foreach ($this->components as $component) {
             if (method_exists($component, 'deactivate')) {

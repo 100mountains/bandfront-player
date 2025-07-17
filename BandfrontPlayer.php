@@ -17,6 +17,6 @@ define('BFP_PLUGIN_URL', plugin_dir_url(__FILE__));
 // Composer autoloader
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Initialize plugin
-global $BandfrontPlayer;
-$BandfrontPlayer = new bfp\Plugin();
+// Initialize using new Bootstrap system
+use Bandfront\Core\Bootstrap;
+Bootstrap::init(BFP_PLUGIN_PATH);
