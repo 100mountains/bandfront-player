@@ -41,6 +41,33 @@ class Hooks {
         // WooCommerce hooks
         $this->registerWooCommerceHooks();
         
+        // Additional hooks
+        add_action('plugins_loaded', [$this, 'onPluginsLoaded']);
+        add_action('init', [$this, 'onInit']);
+        add_action('init', [$this, 'registerShortcodes']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueuePublicAssets']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
+        add_action('rest_api_init', [$this, 'registerRestRoutes']);
+        add_action('admin_menu', [$this, 'registerAdminMenu']);
+        add_action('add_meta_boxes', [$this, 'registerMetaboxes']);
+        add_action('save_post', [$this, 'saveProductMeta'], 10, 2);
+        
+        // WooCommerce export/import filters
+        add_filter('woocommerce_product_export_meta_value', [$this, 'exportMetaValue'], 10, 4);
+        add_filter('woocommerce_product_import_pre_insert_product_object', [$this, 'importMetaValue'], 10, 1);
+        
+        // Cart hooks
+        add_filter('woocommerce_cart_item_name', [$this, 'maybeAddCartPlayer'], 10, 3);
+        
+        // Product page hooks
+        add_action('woocommerce_single_product_summary', [$this, 'maybeAddPlayer'], 25);
+        add_action('woocommerce_after_shop_loop_item', [$this, 'maybeAddShopPlayer'], 15);
+        
+        // Analytics initialization
+        if ($analytics = $this->bootstrap->getComponent('analytics')) {
+            add_action('init', [$analytics, 'init']);
+        }
+        
         // REST API is handled separately via rest_api_init
     }
     
@@ -125,11 +152,6 @@ class Hooks {
         if ($downloader = $this->bootstrap->getComponent('format_downloader')) {
             add_filter('woocommerce_account_downloads_columns', [$downloader, 'addDownloadColumns']);
             add_action('woocommerce_account_downloads_column_download-format', [$downloader, 'renderFormatColumn']);
-        }
-    }
-}
-        if ($analytics = $this->bootstrap->getComponent('analytics')) {
-            add_action('init', [$analytics, 'init']);
         }
     }
     
