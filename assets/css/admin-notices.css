@@ -1,0 +1,153 @@
+/**
+ * AJAX Admin Notices for Bandfront Player
+ */
+
+/* Container for stacked notices */
+.bfp-ajax-notices-container {
+    position: fixed;
+    top: 32px; /* Below WP admin bar */
+    right: 20px;
+    z-index: 99999;
+    width: 350px;
+    pointer-events: none;
+}
+
+.bfp-ajax-notices-container .notice {
+    pointer-events: all;
+}
+
+/* Notice wrapper with animation */
+.bfp-ajax-notice-wrapper {
+    margin-bottom: 10px;
+    animation: bfpSlideDown 0.5s ease-out;
+}
+
+/* Enhance WordPress notice styles */
+.bfp-ajax-notice-wrapper .notice {
+    margin: 0;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    border-left-width: 4px;
+    position: relative;
+    padding-right: 38px;
+}
+
+.bfp-ajax-notice-wrapper .notice-success {
+    border-left-color: #46b450;
+    background-color: #f0f8f0;
+}
+
+.bfp-ajax-notice-wrapper .notice-error {
+    border-left-color: #dc3232;
+    background-color: #fef7f7;
+}
+
+.bfp-ajax-notice-wrapper .notice-warning {
+    border-left-color: #ffb900;
+    background-color: #fffef4;
+}
+
+.bfp-ajax-notice-wrapper .notice-info {
+    border-left-color: #00a0d2;
+    background-color: #f4f9fc;
+}
+
+/* Notice content */
+.bfp-ajax-notice__message {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.bfp-ajax-notice__details {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.bfp-ajax-notice__details ul {
+    margin: 5px 0 0 20px;
+    list-style-type: disc;
+}
+
+/* Dismiss button enhancement */
+.bfp-ajax-notice-wrapper .notice-dismiss {
+    padding: 10px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.bfp-ajax-notice-wrapper .notice-dismiss:hover,
+.bfp-ajax-notice-wrapper .notice-dismiss:focus {
+    opacity: 1;
+}
+
+/* Animations */
+@keyframes bfpSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bfpSlideUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.bfp-ajax-notice-wrapper.bfp-ajax-notice--removing {
+    animation: bfpSlideUp 0.3s ease-in;
+}
+
+/* Progress indicator for saving */
+.bfp-ajax-saving-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 8px;
+    z-index: 100000;
+    display: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.bfp-ajax-saving-indicator.bfp-ajax-saving-indicator--active {
+    display: block;
+}
+
+.bfp-ajax-saving-indicator__spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: bfpSpin 1s linear infinite;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+@keyframes bfpSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .bfp-ajax-notices-container {
+        top: 46px; /* Mobile admin bar height */
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+}
