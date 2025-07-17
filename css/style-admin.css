@@ -700,3 +700,43 @@ body.admin-bar .bfp-ajax-notices-container {
     float: none;
     margin: 0 5px 0 0;
 }
+
+/* Tab navigation styles */
+.bfp-admin-wrapper {
+    margin-top: 20px;
+}
+
+.bfp-nav-tab-wrapper {
+    margin-bottom: 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.bfp-tab-content {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    padding: 20px;
+    margin-top: -1px;
+}
+
+.bfp-tab-panel {
+    display: none;
+}
+
+.bfp-tab-panel.active {
+    display: block;
+}
+
+.bfp-tab-panel h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+/* Remove old collapsible section styles if conflicting */
+.bfp-section-header,
+.bfp-section-arrow,
+.bfp-section-content {
+    display: none !important;
+}

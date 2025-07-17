@@ -79,6 +79,9 @@ class Renderer {
             // Get duration - default to 0 if not set or not numeric
             $duration = isset($file['duration']) && is_numeric($file['duration']) ? (int)$file['duration'] : 0;
             
+            // Ensure singlePlayer is an integer
+            $singlePlayer = isset($settings['single_player']) ? (int)$settings['single_player'] : 0;
+            
             $output .= $this->renderPlayerRow($audioTag, $title, $duration, $evenOdd, 
                                             $file['product'], $firstPlayerClass, 
                                             $counter, $settings, $singlePlayer);

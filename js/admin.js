@@ -491,5 +491,44 @@ jQuery(document).ready(function($) {
     // Example:
     // var audioEngine = bfp_admin_settings.audio_engine; // From localized data
     
-    // ...existing code...
+    // Tab functionality
+    $('.bfp-nav-tab-wrapper .nav-tab').on('click', function(e) {
+        e.preventDefault();
+        
+        var $this = $(this);
+        var target = $this.data('tab');
+        
+        // Update active tab
+        $('.bfp-nav-tab-wrapper .nav-tab').removeClass('nav-tab-active');
+        $this.addClass('nav-tab-active');
+        
+        // Show corresponding panel
+        $('.bfp-tab-panel').removeClass('active');
+        $('#' + target).addClass('active');
+        
+        // Update URL hash
+        window.location.hash = target;
+    });
+    
+    // Check for hash on load
+    if (window.location.hash) {
+        var hash = window.location.hash.substring(1);
+        $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + hash + '"]').click();
+    }
+    
+    // Cloud storage sub-tabs (keep existing functionality)
+    $('.bfp-cloud-tab-nav a').on('click', function(e) {
+        e.preventDefault();
+        
+        var $this = $(this);
+        var target = $this.data('cloud-tab');
+        
+        // Update active tab
+        $('.bfp-cloud-tab-nav a').removeClass('active');
+        $this.addClass('active');
+        
+        // Show corresponding content
+        $('.bfp-cloud-tab-pane').removeClass('active');
+        $('#' + target).addClass('active');
+    });
 });
