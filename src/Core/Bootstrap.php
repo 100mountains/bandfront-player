@@ -14,7 +14,8 @@ use Bandfront\WooCommerce\ProductProcessor;
 use Bandfront\WooCommerce\FormatDownloader;
 use Bandfront\Storage\FileManager;
 use Bandfront\REST\StreamController;
-use Bandfront\UI\Renderer;  // Updated from Bandfront\Renderer
+use Bandfront\UI\Renderer;
+use Bandfront\UI\AdminRenderer;  // Add this import
 use Bandfront\Utils\Debug;
 
 /**
@@ -111,6 +112,9 @@ class Bootstrap {
             $this->components['config'],
             $this->components['file_manager']
         );
+        
+        // Admin renderer - separate from main renderer
+        $this->components['admin_renderer'] = new AdminRenderer();
     }
     
     /**
@@ -146,15 +150,15 @@ class Bootstrap {
      * Initialize admin components
      */
     private function initializeAdmin(): void {
-        if (!is_admin()) {
-            return;
-        }
+        // Always create admin component - hooks will only fire in admin context
+        // This ensures AJAX handlers are registered on frontend too
         
-        // Create admin component immediately but defer hook registration
+        Debug::log('Bootstrap.php: Creating admin component'); // DEBUG-REMOVE
+        
         $this->components['admin'] = new Admin(
             $this->components['config'],
             $this->components['file_manager'],
-            $this->components['renderer']
+            $this->components['admin_renderer']
         );
         
         Debug::log('Bootstrap.php: Admin component created'); // DEBUG-REMOVE
@@ -287,5 +291,44 @@ class Bootstrap {
              WHERE option_name LIKE '_transient_bfp_%' 
              OR option_name LIKE '_transient_timeout_bfp_%'"
         );
+    }
+
+    /**
+     * Create services with dependency injection
+     */
+    private function createServices(): void {
+        Debug::log('Bootstrap: Creating services', []); // DEBUG-REMOVE
+        
+        // Core services (no dependencies)
+        $this->config = new Config();
+        
+        // Storage services
+        $this->fileManager = new FileManager();
+        
+        // UI services - Create AdminRenderer
+        $this->renderer = new Renderer($this->config);
+        
+        // Create AdminRenderer if it doesn't exist in Renderer
+        if (!class_exists('\Bandfront\UI\AdminRenderer')) {
+            Debug::log('Bootstrap: AdminRenderer class not found, creating stub', []); // DEBUG-REMOVE
+            // Create a minimal AdminRenderer if it doesn't exist
+            require_once plugin_dir_path(dirname(__FILE__)) . 'UI/AdminRenderer.php';
+        }
+        $adminRenderer = new \Bandfront\UI\AdminRenderer();
+        
+        // Admin services (depends on config, fileManager, and adminRenderer)
+        $this->admin = new Admin($this->config, $this->fileManager, $adminRenderer);
+        
+        // Audio services
+        $this->audio = new Audio($this->config, $this->fileManager);
+        
+        // Player service (depends on audio and renderer)
+        $this->player = new Player($this->config, $this->renderer, $this->audio, $this->fileManager);
+        
+        // Analytics service
+        $this->analytics = new Analytics($this->config);
+        
+        // Preview service
+        $this->preview = new Preview($this->config, $this->audio, $this->fileManager);
     }
 }

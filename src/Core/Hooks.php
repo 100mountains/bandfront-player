@@ -91,31 +91,30 @@ class Hooks {
      * Register admin hooks
      */
     private function registerAdminHooks(): void {
-        Debug::log('Hooks.php: registerAdminHooks() called, is_admin=' . (is_admin() ? 'true' : 'false')); // DEBUG-REMOVE
+        Debug::log('Hooks.php: registerAdminHooks() called'); // DEBUG-REMOVE
         
-        if (!is_admin()) {
-            Debug::log('Hooks.php: Not in admin context, skipping admin hooks'); // DEBUG-REMOVE
-            return;
-        }
+        // Don't check is_admin() here - register hooks unconditionally
+        // WordPress will only fire admin hooks in admin context
         
         $admin = $this->bootstrap->getComponent('admin');
         if (!$admin) {
-            Debug::log('Hooks.php: No admin component found'); // DEBUG-REMOVE
+            Debug::log('Hooks.php: No admin component found - this is expected on frontend'); // DEBUG-REMOVE
             return;
         }
         
         Debug::log('Hooks.php: Admin component found, registering hooks'); // DEBUG-REMOVE
         
+        // These hooks will only fire in admin context
         add_action('admin_menu', [$admin, 'menuLinks']);
         add_action('admin_init', [$admin, 'adminInit'], 99);
         add_action('save_post', [$admin, 'savePost'], 10, 3);
         add_action('after_delete_post', [$admin, 'afterDeletePost'], 10, 2);
         add_action('admin_notices', [$admin, 'showAdminNotices']);
         
-        // AJAX handlers
+        // AJAX handlers - these need to be registered globally
         add_action('wp_ajax_bfp_save_settings', [$admin, 'ajaxSaveSettings']);
         
-        Debug::log('Hooks.php: Admin hooks registered successfully, admin_menu hook added'); // DEBUG-REMOVE
+        Debug::log('Hooks.php: Admin hooks registered successfully'); // DEBUG-REMOVE
     }
     
     /**
