@@ -1,4 +1,4 @@
-check all files in this folder for references to css and js and the Views/ folder. update them if they do not point to assets/css/ or assets/js/ or templates/ in the plugin root folder.
+check all files in this folder for references to css and js and the Views/ folder. update them if they do not point to assets/css/ or assets/js/ or templates/ (previously Views) in the plugin root folder.
 
 DO NOT ADD ANY OTHER CODE OR CHANGE ANYTHING ELSE IN THE FILE
 

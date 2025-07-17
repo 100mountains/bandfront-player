@@ -4,11 +4,15 @@ declare(strict_types=1);
 namespace Bandfront\Audio;
 
 use Bandfront\Core\Config;
-use Bandfront\Renderer;
+use Bandfront\UI\Renderer;
+use Bandfront\Storage\FileManager;
 use Bandfront\Utils\Debug;
 
 /**
  * Player management functionality for Bandfront Player
+ *
+ * Handles player state, file management, and coordination between components.
+ * Delegates all HTML rendering to Renderer.
  *
  * @package Bandfront\Audio
  * @since 2.0.0
@@ -18,6 +22,7 @@ class Player {
     private Config $config;
     private Renderer $renderer;
     private Audio $audio;
+    private FileManager $fileManager;
     
     private bool $enqueuedResources = false;
     private bool $insertedPlayer = false;
@@ -28,10 +33,11 @@ class Player {
     /**
      * Constructor - accepts only needed dependencies
      */
-    public function __construct(Config $config, Renderer $renderer, Audio $audio) {
+    public function __construct(Config $config, Renderer $renderer, Audio $audio, FileManager $fileManager) {
         $this->config = $config;
         $this->renderer = $renderer;
         $this->audio = $audio;
+        $this->fileManager = $fileManager;
     }
     
     /**
@@ -105,39 +111,26 @@ class Player {
         $onCover = $this->config->getState('_bfp_on_cover');
         if ($onCover && (is_shop() || is_product_category() || is_product_tag())) {
             // Don't render the regular player on shop pages when on_cover is enabled
-            // The play button will be handled by the hook manager
             return '';
         }
 
-        $files = $this->mainPlugin->getFiles()->getProductFilesInternal([
+        $files = $this->fileManager->getProductFilesInternal([
             'product' => $product,
             'first'   => true,
         ]);
         
-        // Debug output
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('BFP Debug - Product ID: ' . $product->get_id());
-            error_log('BFP Debug - Files found: ' . print_r($files, true));
-        }
-        
         if (!empty($files)) {
             $id = $product->get_id();
 
-            // Use getState for single value with product context
-            $showIn = $this->config->getState('_bfp_show_in', null, $id);
-            if (
-                ('single' == $showIn && (!function_exists('is_product') || !is_product())) ||
-                ('multiple' == $showIn && (function_exists('is_product') && is_product()) && get_queried_object_id() == $id)
-            ) {
+            // Use smart context instead of _bfp_show_in
+            if (!$this->config->smartPlayContext($id)) {
                 return $output;
             }
             
             // CONTEXT-AWARE CONTROLS: button on shop, full on product pages
             if (function_exists('is_product') && is_product()) {
-                // Product page - always use full controls
                 $playerControls = '';  // Empty string means 'all' controls
             } else {
-                // Shop/archive pages - always use button only
                 $playerControls = 'track';  // 'track' means button controls
             }
             
@@ -151,19 +144,20 @@ class Player {
             $this->enqueueResources();
 
             $file = reset($files);
-            $index = key($files);  // This can be a string like "0_123"
-            $duration = $this->mainPlugin->getAudioCore()->getDurationByUrl($file['file']);
-            $audioUrl = $this->mainPlugin->getAudioCore()->generateAudioUrl($id, $index, $file);
+            $index = key($files);
+            $duration = $this->audio->getDurationByUrl($file['file']);
+            $audioUrl = $this->audio->generateAudioUrl($id, $index, $file);
+            
             $audioTag = apply_filters(
                 'bfp_audio_tag',
                 $this->getPlayer(
                     $audioUrl,
                     [
                         'product_id'      => $id,
-                        'player_controls' => $playerControls,  // Use context-aware controls
+                        'player_controls' => $playerControls,
                         'player_style'    => $settings['_bfp_player_layout'],
                         'media_type'      => $file['media_type'],
-                        'id'              => $index,  // Pass the file index
+                        'id'              => $index,
                         'duration'        => $duration,
                         'preload'         => $settings['_bfp_preload'],
                         'volume'          => $settings['_bfp_player_volume'],
@@ -183,7 +177,7 @@ class Player {
 
             do_action('bfp_after_player_shop_page', $id);
 
-            return $output; // phpcs:ignore WordPress.Security.EscapeOutput
+            return $output;
         }
         
         return '';
@@ -191,7 +185,6 @@ class Player {
     
     /**
      * Include all players for a product
-     * Moved from player-renderer.php
      */
     public function includeAllPlayers($product = ''): void {
         if (!$this->getInsertPlayer() || !$this->getInsertAllPlayers() || is_admin()) {
@@ -206,7 +199,7 @@ class Player {
             return;
         }
 
-        $files = $this->mainPlugin->getFiles()->getProductFilesInternal([
+        $files = $this->fileManager->getProductFilesInternal([
             'product' => $product,
             'all'     => true,
         ]);
@@ -214,12 +207,8 @@ class Player {
         if (!empty($files)) {
             $id = $product->get_id();
 
-            // Use getState for single value with product context
-            $showIn = $this->config->getState('_bfp_show_in', null, $id);
-            if (
-                ('single' == $showIn && !is_singular()) ||
-                ('multiple' == $showIn && is_singular())
-            ) {
+            // Use smart context instead of _bfp_show_in
+            if (!$this->config->smartPlayContext($id)) {
                 return;
             }
             
@@ -230,32 +219,31 @@ class Player {
                 '_bfp_player_volume',
                 '_bfp_player_title',
                 '_bfp_loop',
-                '_bfp_merge_in_grouped'
+                '_bfp_merge_in_grouped',
+                '_bfp_single_player'
             ], $id);
             
             $this->enqueueResources();
             
-            // CONTEXT-AWARE CONTROLS: Always use full controls on product pages
+            // CONTEXT-AWARE CONTROLS
             if (function_exists('is_product') && is_product()) {
-                // Product page - always use full controls ('all')
                 $playerControls = 'all';
             } else {
-                // Shop/archive pages - use button only
                 $playerControls = 'button';
             }
             
-            $mergeGroupedClass = ($settings['_bfp_merge_in_grouped']) ? 'merge_in_grouped_products' : '';
-
             $counter = count($files);
 
             do_action('bfp_before_players_product_page', $id);
             
             if (1 == $counter) {
+                // Single file - render directly
                 $playerControls = ('button' == $playerControls) ? 'track' : '';
                 $file = reset($files);
                 $index = key($files);
-                $duration = $this->mainPlugin->getAudioCore()->getDurationByUrl($file['file']);
-                $audioUrl = $this->mainPlugin->getAudioCore()->generateAudioUrl($id, $index, $file);
+                $duration = $this->audio->getDurationByUrl($file['file']);
+                $audioUrl = $this->audio->generateAudioUrl($id, $index, $file);
+                
                 $audioTag = apply_filters(
                     'bfp_audio_tag',
                     $this->getPlayer(
@@ -268,131 +256,90 @@ class Player {
                             'duration'        => $duration,
                             'preload'         => $settings['_bfp_preload'],
                             'volume'          => $settings['_bfp_player_volume'],
+                            'id'              => $index,
                         ]
                     ),
                     $id,
                     $index,
                     $audioUrl
                 );
+                
                 $title = esc_html(($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $id, $index) : '');
+                $mergeGroupedClass = ($settings['_bfp_merge_in_grouped']) ? 'merge_in_grouped_products' : '';
+                
                 print '<div class="bfp-player-container ' . esc_attr($mergeGroupedClass) . ' product-' . esc_attr($file['product']) . '" ' . ($settings['_bfp_loop'] ? 'data-loop="1"' : '') . '>' . $audioTag . '</div><div class="bfp-player-title" data-audio-url="' . esc_attr($audioUrl) . '">' . wp_kses_post($title) . '</div><div style="clear:both;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
+                
             } elseif ($counter > 1) {
-                // Use the renderer for multiple files
-                $singlePlayer = intval($this->mainPlugin->getConfig()->getState('_bfp_single_player', 0, $id));
+                // Multiple files - prepare data and use renderer
+                $preparedFiles = $this->prepareFilesForRenderer($files, $id, $settings);
                 
                 // Add player_controls to settings for renderer
                 $settings['player_controls'] = $playerControls;
-                $settings['single_player'] = $singlePlayer;
+                $settings['single_player'] = $settings['_bfp_single_player'] ?? 0;
                 
-                print $this->getRenderer()->renderPlayerTable($files, $id, $settings); // phpcs:ignore WordPress.Security.EscapeOutput
+                print $this->renderer->renderPlayerTable($preparedFiles, $id, $settings); // phpcs:ignore WordPress.Security.EscapeOutput
             }
             
-            // Fix: Check if WooCommerce integration exists
+            // Check purchase status via Bootstrap
             $purchased = false;
-            $woocommerce = $this->mainPlugin->getWooCommerce();
+            $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
+            $woocommerce = $bootstrap ? $bootstrap->getComponent('woocommerce') : null;
             if ($woocommerce) {
-                $purchased = $woocommerce->woocommerceUserProduct($id);
+                $purchased = $woocommerce->isUserProduct($id);
             }
             
-            $message = $this->mainPlugin->getConfig()->getState('_bfp_message');
+            $message = $this->config->getState('_bfp_message');
             if (!empty($message) && false === $purchased) {
                 print '<div class="bfp-message">' . wp_kses_post(__($message, 'bandfront-player')) . '</div>'; // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             }
+            
             do_action('bfp_after_players_product_page', $id);
         }
     }
     
     /**
-     * Get product files - public interface
-     * This is the method that other classes should use
+     * Prepare files for renderer with pre-generated audio tags
      */
-    public function getProductFiles($productId): array {
-        // Delegate to Files utility
-        return $this->mainPlugin->getFiles()->getProductFiles($productId);
-    }
-    
-    /**
-     * Get enqueued resources state
-     */
-    public function getEnqueuedResources(): bool {
-        return $this->enqueuedResources;
-    }
-    
-    /**
-     * Set enqueued resources state
-     */
-    public function setEnqueuedResources(bool $value): void {
-        $this->enqueuedResources = $value;
-    }
-    
-    /**
-     * Get insert player flag
-     */
-    public function getInsertPlayer(): bool {
-        return $this->insertPlayer;
-    }
-    
-    /**
-     * Set insert player flag
-     */
-    public function setInsertPlayer(bool $value): void {
-        $this->insertPlayer = $value;
-    }
-    
-    /**
-     * Get inserted player state
-     */
-    public function getInsertedPlayer(): bool {
-        return $this->insertedPlayer;
-    }
-    
-    /**
-     * Set inserted player state
-     */
-    public function setInsertedPlayer(bool $value): void {
-        $this->insertedPlayer = $value;
-    }
-    
-    /**
-     * Get insert main player flag
-     */
-    public function getInsertMainPlayer(): bool {
-        return $this->insertMainPlayer;
-    }
-    
-    /**
-     * Set insert main player flag
-     */
-    public function setInsertMainPlayer(bool $value): void {
-        $this->insertMainPlayer = $value;
-    }
-    
-    /**
-     * Get insert all players flag
-     */
-    public function getInsertAllPlayers(): bool {
-        return $this->insertAllPlayers;
-    }
-    
-    /**
-     * Set insert all players flag
-     */
-    public function setInsertAllPlayers(bool $value): void {
-        $this->insertAllPlayers = $value;
-    }
-    
-    /**
-     * Check if current device is iOS
-     */
-    private function isIosDevice(): bool {
-        static $isIos = null;
+    private function prepareFilesForRenderer(array $files, int $productId, array $settings): array {
+        $preparedFiles = [];
         
-        if ($isIos === null) {
-            $isIos = isset($_SERVER['HTTP_USER_AGENT']) && 
-                     preg_match('/(iPad|iPhone|iPod)/i', $_SERVER['HTTP_USER_AGENT']);
+        foreach ($files as $index => $file) {
+            $duration = $this->audio->getDurationByUrl($file['file']);
+            $audioUrl = $this->audio->generateAudioUrl($productId, $index, $file);
+            
+            $audioTag = apply_filters(
+                'bfp_audio_tag',
+                $this->getPlayer(
+                    $audioUrl,
+                    [
+                        'product_id'      => $productId,
+                        'player_style'    => $settings['_bfp_player_layout'],
+                        'player_controls' => ($settings['player_controls'] != 'all') ? 'track' : '',
+                        'media_type'      => $file['media_type'],
+                        'duration'        => $duration,
+                        'preload'         => $settings['_bfp_preload'],
+                        'volume'          => $settings['_bfp_player_volume'],
+                        'id'              => $index,
+                    ]
+                ),
+                $productId,
+                $index,
+                $audioUrl
+            );
+            
+            $file['audio_tag'] = $audioTag;
+            $file['duration'] = $duration;
+            $preparedFiles[$index] = $file;
         }
         
-        return $isIos;
+        return $preparedFiles;
+    }
+    
+    /**
+     * Get product files - public interface
+     */
+    public function getProductFiles(int $productId): array {
+        return $this->fileManager->getProductFiles($productId);
     }
     
     /**
@@ -403,10 +350,7 @@ class Player {
             return;
         }
         
-        global $BandfrontPlayer;
-        
-        // Use getState for single value retrieval
-        $audioEngine = $BandfrontPlayer->getConfig()->getState('_bfp_audio_engine');
+        $audioEngine = $this->config->getState('_bfp_audio_engine');
         
         // Enqueue base styles
         wp_enqueue_style(
@@ -512,284 +456,134 @@ class Player {
     }
     
     /**
-     * Render player table layout for multiple files
-     * 
-     * @param array $files Audio files to render
-     * @param int $productId Product ID
-     * @param array $settings Player settings
-     * @return string Rendered HTML
+     * Filter content to add players
      */
-    public function renderPlayerTable(array $files, int $productId, array $settings): string {
-        if (empty($files) || count($files) < 2) {
-            Debug::log('Player: Not rendering table - insufficient files', ['count' => count($files), 'productId' => $productId]); // DEBUG-REMOVE
+    public function filterContent(string $content): string {
+        if (!$this->insertPlayer || is_admin()) {
+            return $content;
+        }
+        
+        global $post;
+        if (!$post || !in_array($post->post_type, $this->config->getPostTypes())) {
+            return $content;
+        }
+        
+        $productId = $post->ID;
+        
+        // Check if player should be shown
+        if (!$this->config->getState('_bfp_enable_player', true, $productId)) {
+            return $content;
+        }
+        
+        // Use smart context
+        if (!$this->config->smartPlayContext($productId)) {
+            return $content;
+        }
+        
+        // Get player HTML
+        ob_start();
+        $this->includeAllPlayers($post->ID);
+        $playerHtml = ob_get_clean();
+        
+        if (!empty($playerHtml)) {
+            $content = $playerHtml . $content;
+        }
+        
+        return $content;
+    }
+    
+    /**
+     * Handle player shortcode
+     */
+    public function shortcode(array $atts = []): string {
+        $atts = shortcode_atts([
+            'id' => 0,
+            'style' => '',
+            'controls' => '',
+            'autoplay' => false,
+            'loop' => false,
+        ], $atts);
+        
+        $productId = absint($atts['id']);
+        if (!$productId) {
             return '';
         }
         
-        Debug::log('Player: Rendering player table', ['files_count' => count($files), 'productId' => $productId]); // DEBUG-REMOVE
-        
-        $mergeGroupedClass = ($settings['_bfp_merge_in_grouped']) ? 'merge_in_grouped_products' : '';
-        $singlePlayer = $settings['single_player'] ?? 0;
-        
-        $output = '<table class="bfp-player-list ' . $mergeGroupedClass . ($singlePlayer ? ' bfp-single-player ' : '') . '" ' . 
-                   ($settings['_bfp_loop'] ? 'data-loop="1"' : '') . '>';
-        
-        $counter = count($files);
-        $firstPlayerClass = 'bfp-first-player';
-        
-        foreach ($files as $index => $file) {
-            Debug::log('Player: Processing file in table', ['index' => $index, 'name' => $file['name'] ?? 'unnamed']); // DEBUG-REMOVE
-            
-            $evenOdd = (1 == $counter % 2) ? 'bfp-odd-row' : 'bfp-even-row';
-            $counter--;
-            
-            $audioUrl = $this->audio->generateAudioUrl($productId, $index, $file);
-            $duration = $this->audio->getDurationByUrl($file['file']);
-            
-            $audioTag = apply_filters(
-                'bfp_audio_tag',
-                $this->getPlayer(
-                    $audioUrl,
-                    [
-                        'product_id'      => $productId,
-                        'player_style'    => $settings['_bfp_player_layout'],
-                        'player_controls' => ('all' != $settings['player_controls']) ? 'track' : '',
-                        'media_type'      => $file['media_type'],
-                        'duration'        => $duration,
-                        'preload'         => $settings['_bfp_preload'],
-                        'volume'          => $settings['_bfp_player_volume'],
-                        'id'              => $index,
-                    ]
-                ),
-                $productId,
-                $index,
-                $audioUrl
-            );
-            
-            // Title processing
-            $title = '';
-            $playerTitleEnabled = $settings['_bfp_player_title'] ?? 1;
-            
-            if ($playerTitleEnabled) {
-                $rawTitle = $file['name'] ?? '';
-                $processedTitle = apply_filters('bfp_file_name', $rawTitle, $productId, $index);
-                $title = esc_html($processedTitle);
-            }
-            
-            $output .= $this->renderPlayerRow($audioTag, $title, $duration, $evenOdd, 
-                                            $file['product'], $firstPlayerClass, 
-                                            $counter, $settings, $singlePlayer);
-            
-            $firstPlayerClass = '';
-        }
-        
-        $output .= '</table>';
-        
-        Debug::log('Player: Table rendering completed', ['productId' => $productId]); // DEBUG-REMOVE
-        
-        return $output;
+        ob_start();
+        $this->includeAllPlayers($productId);
+        return ob_get_clean();
     }
     
     /**
-     * Render a single player row
-     * 
-     * @param string $audioTag Audio element HTML
-     * @param string $title Track title
-     * @param string $duration Track duration
-     * @param string $evenOdd Row class
-     * @param int $productId Product ID
-     * @param string $firstPlayerClass First player class
-     * @param int $counter Row counter
-     * @param array $settings Player settings
-     * @param int $singlePlayer Single player mode
-     * @return string Rendered row HTML
+     * Render player (simplified interface)
      */
-    private function renderPlayerRow(string $audioTag, string $title, string $duration, string $evenOdd, 
-                                   int $productId, string $firstPlayerClass, int $counter, 
-                                   array $settings, int $singlePlayer): string {
-        Debug::log('Player: Rendering row', [
-            'productId' => $productId, 
-            'title' => $title, 
-            'counter' => $counter
-        ]); // DEBUG-REMOVE
-        
-        $output = '<tr class="' . esc_attr($evenOdd) . ' product-' . esc_attr($productId) . '">';
-        
-        if ('all' != $settings['player_controls']) {
-            $output .= '<td class="bfp-column-player-' . esc_attr($settings['_bfp_player_layout']) . '">';
-            $output .= '<div class="bfp-player-container ' . $firstPlayerClass . '" data-player-id="' . esc_attr($counter) . '">';
-            $output .= $audioTag;
-            $output .= '</div></td>';
-            $output .= '<td class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr($counter) . '">';
-            $output .= wp_kses_post($title);
-            $output .= '</td>';
-            $output .= '<td class="bfp-file-duration" style="text-align:right;font-size:16px;">';
-            $output .= esc_html($duration);
-            $output .= '</td>';
-        } else {
-            $output .= '<td>';
-            $output .= '<div class="bfp-player-container ' . $firstPlayerClass . '" data-player-id="' . esc_attr($counter) . '">';
-            $output .= $audioTag;
-            $output .= '</div>';
-            $output .= '<div class="bfp-player-title bfp-column-player-title" data-player-id="' . esc_attr($counter) . '">';
-            $output .= wp_kses_post($title);
-            if ($singlePlayer) {
-                $output .= '<span class="bfp-file-duration">' . esc_html($duration) . '</span>';
-            }
-            $output .= '</div>';
-            $output .= '</td>';
-        }
-        
-        $output .= '</tr>';
-        
-        return $output;
+    public function render(int $productId): string {
+        ob_start();
+        $this->includeAllPlayers($productId);
+        return ob_get_clean();
     }
     
     /**
-     * Generate HTML for audio player
-     * 
-     * @param array $args Player arguments
-     * @return string Generated HTML
+     * Render compact player
      */
-    private function generatePlayerHtml(array $args): string {
-        $class = 'bfp-player ' . ($args['player_style'] ?? '');
-        $preload = 'none';
-        
-        // Smart preload based on context
-        $preload = $this->mainPlugin->getAudioCore()->getSmartPreload(
-            $args['single_player'] ?? false,
-            true // Always show duration in players
-        );
-        
-        // In the audio tag generation
-        $html = sprintf(
-            '<audio class="%s" %s preload="%s" %s>',
-            esc_attr($class),
-            $args['controls'] ? 'controls' : '',
-            esc_attr($preload),
-            $args['loop'] ? 'loop' : ''
-        );
-        
-        // ...existing code...
+    public function renderCompact(int $productId): string {
+        ob_start();
+        $this->includeMainPlayer($productId, false);
+        return ob_get_clean();
     }
     
     /**
-     * Determine if player should be shown for product
-     * 
-     * @param object $product WooCommerce product object
-     * @return bool Whether to show player
+     * Render player shortcode
      */
-    private function shouldShowPlayer($product): bool {
-        if (!is_object($product) || !method_exists($product, 'get_id')) {
-            return false;
-        }
-        
-        $productId = $product->get_id();
-        
-        // Check if player is enabled
-        if (!$this->config->getState('_bfp_enable_player', true, $productId)) {
-            return false;
-        }
-        
-        // Use smart context detection
-        return $this->mainPlugin->smartPlayContext($productId);
+    public function renderShortcode(array $atts): string {
+        return $this->shortcode($atts);
     }
     
     /**
-     * Check if track titles should be shown based on context
-     * 
-     * @return bool True if titles should be shown
+     * Enqueue assets (alias for enqueueScripts)
      */
-    private function shouldShowTitles(): bool {
-        // Always hide titles on main shop page and archives
-        if (is_shop() || is_product_category() || is_product_tag()) {
-            return false;
-        }
-        
-        // Always hide on home page if it shows products
-        if (is_front_page() && (is_shop() || has_shortcode(get_post_field('post_content', get_the_ID()), 'products'))) {
-            return false;
-        }
-        
-        // Show titles everywhere else (product pages, cart, etc.)
-        return true;
+    public function enqueueAssets(): void {
+        $this->enqueueResources();
     }
     
-    /**
-     * Render player
-     * 
-     * @param array $attrs Player attributes
-     * @return string Generated HTML
-     */
-    public function render(array $attrs): string {
-        $files = $attrs['files'] ?? [];
-        $id = $attrs['product_id'] ?? 0;
-        $settings = $attrs['settings'] ?? [];
-        
-        // Smart title detection replaces the config check
-        $showTitles = $this->shouldShowTitles();
-        
-        $html = '';
-        
-        foreach ($files as $index => $file) {
-            $duration = $this->mainPlugin->getAudioCore()->getDurationByUrl($file['file']);
-            $audioUrl = $this->mainPlugin->getAudioCore()->generateAudioUrl($id, $index, $file);
-            
-            // In the player generation code, use $showTitles instead of checking config
-            if ($showTitles && !empty($file['name'])) {
-                $html .= '<span class="bfp-track-title">' . esc_html($file['name']) . '</span>';
-            }
-            
-            $html .= $this->getPlayer(
-                $audioUrl,
-                [
-                    'product_id'      => $id,
-                    'player_controls' => $settings['player_controls'] ?? '',
-                    'player_style'    => $settings['_bfp_player_layout'] ?? '',
-                    'media_type'      => $file['media_type'],
-                    'id'              => $index,
-                    'duration'        => $duration,
-                    'preload'         => $settings['_bfp_preload'] ?? 'none',
-                    'volume'          => $settings['_bfp_player_volume'] ?? 1,
-                ]
-            );
-        }
-        
-        return $html;
+    // Getter/setter methods
+    public function getEnqueuedResources(): bool {
+        return $this->enqueuedResources;
     }
     
-    /**
-     * Generate JavaScript for player functionality
-     */
-    private function generatePlayerScript(array $args): string {
-        $script = '<script type="text/javascript">';
-        
-        // Always stop other players when one starts - no need to check setting
-        $script .= '
-        jQuery(document).ready(function($) {
-            // Stop all other audio/video when playing
-            $("audio, video").on("play", function() {
-                var currentPlayer = this;
-                $("audio, video").each(function() {
-                    if (this !== currentPlayer) {
-                        this.pause();
-                    }
-                });
-            });
-        });
-        ';
-        
-        $script .= '</script>';
-        return $script;
+    public function setEnqueuedResources(bool $value): void {
+        $this->enqueuedResources = $value;
     }
     
-    /**
-     * Get player volume for a product
-     */
-    private function getPlayerVolume(int $productId): float {
-        // Get product-specific volume, default to 1.0
-        $volume = $this->mainPlugin->getConfig()->getState('_bfp_player_volume', 1.0, $productId);
-        
-        // Ensure it's within valid range
-        return max(0, min(1, floatval($volume)));
+    public function getInsertPlayer(): bool {
+        return $this->insertPlayer;
+    }
+    
+    public function setInsertPlayer(bool $value): void {
+        $this->insertPlayer = $value;
+    }
+    
+    public function getInsertedPlayer(): bool {
+        return $this->insertedPlayer;
+    }
+    
+    public function setInsertedPlayer(bool $value): void {
+        $this->insertedPlayer = $value;
+    }
+    
+    public function getInsertMainPlayer(): bool {
+        return $this->insertMainPlayer;
+    }
+    
+    public function setInsertMainPlayer(bool $value): void {
+        $this->insertMainPlayer = $value;
+    }
+    
+    public function getInsertAllPlayers(): bool {
+        return $this->insertAllPlayers;
+    }
+    
+    public function setInsertAllPlayers(bool $value): void {
+        $this->insertAllPlayers = $value;
     }
 }

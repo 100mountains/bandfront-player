@@ -110,11 +110,12 @@ class Bootstrap {
             $this->components['file_manager']
         );
         
-        // Player management
+        // Player management - now includes FileManager
         $this->components['player'] = new Player(
             $this->components['config'],
             $this->components['renderer'],
-            $this->components['audio']
+            $this->components['audio'],
+            $this->components['file_manager']  // Add FileManager dependency
         );
         
         // Analytics tracking
