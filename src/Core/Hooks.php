@@ -246,8 +246,9 @@ class Hooks {
      * Check if player should be shown
      */
     private function shouldShowPlayer(): bool {
-        $config = $this->bootstrap->getConfig();
-        return $config->getState('_bfp_enable_player', true);
+        $config = $this->bootstrap->getComponent('config');
+        // Cast to boolean to ensure proper return type
+        return (bool)$config->getState('_bfp_enable_player', true);
     }
     
     /**

@@ -73,7 +73,8 @@ class Audio {
         // Use REST API endpoint
         $url = rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}");
         
-        Debug::log('Audio: REST API endpoint', $url); // DEBUG-REMOVE
+        // Fix: Wrap URL in an array for Debug::log
+        Debug::log('Audio: REST API endpoint', ['url' => $url]); // DEBUG-REMOVE
         return $url;
     }
     
