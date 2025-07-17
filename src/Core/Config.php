@@ -18,7 +18,7 @@ class Config {
    private array $globalAttrs = [];
    private array $playerLayouts = ['dark', 'light', 'custom'];
    private array $playerControls = ['button', 'all', 'default'];
-   private array $defaults = []; // Add this property declaration
+   private array $defaults = [];
 
    private array $overridableSettings = [
        '_bfp_enable_player' => false,
@@ -103,54 +103,7 @@ class Config {
     * Initialize default settings and structure
     */
    private function init(): void {
-       // Settings that can ONLY be set globally
-       $this->globalOnlySettings = [
-           '_bfp_registered_only',
-           '_bfp_purchased',
-           '_bfp_reset_purchased_interval',
-           '_bfp_fade_out',
-           '_bfp_purchased_times_text',
-           '_bfp_ffmpeg',
-           '_bfp_ffmpeg_path',
-           '_bfp_ffmpeg_watermark',
-           '_bfp_players_in_cart',
-           '_bfp_player_layout',
-           '_bfp_player_controls',
-           '_bfp_on_cover',
-           '_bfp_message',
-           '_bfp_default_extension',
-           '_bfp_force_main_player_in_title',
-           '_bfp_ios_controls',
-           '_bfp_onload',
-           '_bfp_disable_302',
-           '_bfp_analytics_integration',
-           '_bfp_analytics_property',
-           '_bfp_analytics_api_secret',
-           '_bfp_apply_to_all_players',
-           '_bfp_audio_engine',
-           '_bfp_enable_visualizations',
-           '_bfp_cloud_active_tab',
-           '_bfp_cloud_dropbox',
-           '_bfp_cloud_s3',
-           '_bfp_cloud_azure',
-       ];
-       
-       // Settings that can be overridden per-product
-       $this->overridableSettings = [
-           '_bfp_enable_player',
-           '_bfp_merge_in_grouped',
-           '_bfp_single_player',
-           '_bfp_play_all',
-           '_bfp_loop',
-           '_bfp_secure_player',
-           '_bfp_file_percent',
-           '_bfp_own_demos',
-           '_bfp_direct_own_demos',
-           '_bfp_demos_list',
-           '_bfp_audio_engine',
-       ];
-    
-       // Default values for settings
+       // Default values for settings (don't reassign the arrays above)
        $this->defaults = [
            '_bfp_registered_only' => 0,
            '_bfp_purchased' => 0,
@@ -229,7 +182,7 @@ class Config {
            $default = $this->getDefaultValue($key);
        }
 
-       if ($this->isGlobalOnly($key) || !empty($options['force_global'])) {
+       if ($this->isGlobalOnly($key)) {
            return $this->getGlobalAttr($key, $default);
        }
 
@@ -261,7 +214,7 @@ class Config {
        if ($key === '_bfp_audio_engine') {
            return !empty($value) &&
                   $value !== 'global' &&
-                  in_array($value, ['mediaelement', 'wavesurfer', 'html5']);  // Already includes 'html5'
+                  in_array($value, ['mediaelement', 'wavesurfer', 'html5']);
        } elseif (in_array($key, ['_bfp_enable_player', '_bfp_secure_player', '_bfp_merge_in_grouped',
                                 '_bfp_single_player', '_bfp_play_all', '_bfp_loop', '_bfp_own_demos',
                                 '_bfp_direct_own_demos'])) {
@@ -280,13 +233,7 @@ class Config {
    }
 
    private function getDefaultValue(string $key): mixed {
-       if (isset($this->overridableSettings[$key])) {
-           return $this->overridableSettings[$key];
-       }
-       if (isset($this->globalOnlySettings[$key])) {
-           return $this->globalOnlySettings[$key];
-       }
-       return false;
+       return $this->defaults[$key] ?? false;
    }
 
    private function isGlobalOnly(string $key): bool {
