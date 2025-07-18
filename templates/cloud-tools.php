@@ -273,28 +273,3 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
         </div>
     </div>
 </div>
-                        <tr>
-                            <th scope="row"><label for="_bfp_cloud_azure_key"><?php esc_html_e('Account Key', 'bandfront-player'); ?></label></th>
-                            <td>
-                                <input type="password" id="_bfp_cloud_azure_key" name="_bfp_cloud_azure_key" value="<?php echo esc_attr($cloud_azure['account_key'] ?? ''); ?>" class="regular-text" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="_bfp_cloud_azure_container"><?php esc_html_e('Container Name', 'bandfront-player'); ?></label></th>
-                            <td>
-                                <input type="text" id="_bfp_cloud_azure_container" name="_bfp_cloud_azure_container" value="<?php echo esc_attr($cloud_azure['container'] ?? ''); ?>" class="regular-text" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="_bfp_cloud_azure_path"><?php esc_html_e('Path Prefix', 'bandfront-player'); ?></label></th>
-                            <td>
-                                <input type="text" id="_bfp_cloud_azure_path" name="_bfp_cloud_azure_path" value="<?php echo esc_attr($cloud_azure['path_prefix'] ?? 'bandfront-demos/'); ?>" class="regular-text" />
-                                <p class="description"><?php esc_html_e('Azure path prefix for demo files', 'bandfront-player'); ?></p>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
