@@ -31,6 +31,7 @@ if (!$devMode) {
     <h3>🗄️ <?php esc_html_e('Database Monitor', 'bandfront-player'); ?></h3>
     <?php 
     // Use the DbRenderer to render this section - always available from AdminRenderer
+    // Note: We keep the header here so it's visible even when monitoring is disabled
     $dbRenderer->renderDatabaseMonitorSection();
     ?>
 </div>

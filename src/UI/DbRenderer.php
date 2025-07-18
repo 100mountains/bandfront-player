@@ -33,7 +33,6 @@ class DbRenderer {
         $monitoring_enabled = (bool) $monitoring_enabled;
         
         ?>
-        <h3>🗄️ <?php esc_html_e('Database Monitor', 'bandfront-player'); ?></h3>
         
         <!-- Simple checkbox like all the others -->
         <table class="form-table">
