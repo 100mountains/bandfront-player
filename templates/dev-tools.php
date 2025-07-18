@@ -22,36 +22,16 @@ if (!$devMode) {
     return; // Don't render anything if dev mode is off
 }
 
-// Get the DbRenderer instance if available
-$dbRenderer = null;
-if (isset($GLOBALS['BandfrontPlayer'])) {
-    $container = $GLOBALS['BandfrontPlayer']->getContainer();
-    if ($container && $container->has('db_renderer')) {
-        $dbRenderer = $container->get('db_renderer');
-    }
-}
+// The DbRenderer instance is provided by AdminRenderer
+// No fallback needed - clean architecture!
 ?>
 
 <!-- Database Monitor Tab -->
 <div id="database-monitor-panel" class="bfp-tab-panel" style="display:none;">
     <h3>🗄️ <?php esc_html_e('Database Monitor', 'bandfront-player'); ?></h3>
     <?php 
-    if ($dbRenderer) {
-        // Use the DbRenderer to render this section
-        $dbRenderer->renderDatabaseMonitorSection();
-    } else {
-        // Fallback to inline rendering if DbRenderer is not available
-        ?>
-        <table class="form-table">
-            <tr>
-                <th scope="row"><?php esc_html_e('Database Monitor', 'bandfront-player'); ?></th>
-                <td>
-                    <p class="description"><?php esc_html_e('Database monitoring features require proper initialization.', 'bandfront-player'); ?></p>
-                </td>
-            </tr>
-        </table>
-        <?php
-    }
+    // Use the DbRenderer to render this section - always available from AdminRenderer
+    $dbRenderer->renderDatabaseMonitorSection();
     ?>
 </div>
 

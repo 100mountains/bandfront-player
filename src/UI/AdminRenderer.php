@@ -6,6 +6,8 @@ namespace Bandfront\UI;
 use Bandfront\Core\Config;
 use Bandfront\Storage\FileManager;
 use Bandfront\Utils\Debug;
+use Bandfront\UI\DbRenderer;
+use Bandfront\Db\Monitor;
 
 /**
  * Admin rendering functionality
@@ -25,6 +27,11 @@ class AdminRenderer {
         // Make dependencies available to the template
         // Note: The template uses these variables directly
         $renderer = $this; // Make renderer available for any helper methods
+        
+        // Create DbRenderer and Monitor instances for dev-tools template
+        // This is the modern way: AdminRenderer manages dependencies and injects them into templates
+        $monitor = new Monitor();
+        $dbRenderer = new DbRenderer($config, $monitor);
         
         include_once plugin_dir_path(dirname(dirname(__FILE__))) . 'templates/global-admin-options.php';
         echo '</div>';

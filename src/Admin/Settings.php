@@ -138,6 +138,8 @@ class Settings {
             '_bfp_fade_out' => isset($data['_bfp_fade_out']) ? 1 : 0,
             '_bfp_purchased_times_text' => sanitize_text_field(isset($data['_bfp_purchased_times_text']) ? wp_unslash($data['_bfp_purchased_times_text']) : ''),
             '_bfp_dev_mode' => isset($data['_bfp_dev_mode']) ? 1 : 0,  // Add dev mode
+            'enable_db_monitoring' => isset($data['enable_db_monitoring']) ? 1 : 0,  // Add database monitoring
+            '_bfp_debug_mode' => isset($data['_bfp_debug_mode']) ? 1 : 0,  // Add debug mode
             '_bfp_ffmpeg' => isset($data['_bfp_ffmpeg']) ? 1 : 0,
             '_bfp_ffmpeg_path' => isset($data['_bfp_ffmpeg_path']) ? sanitize_text_field(wp_unslash($data['_bfp_ffmpeg_path'])) : '',
             '_bfp_ffmpeg_watermark' => isset($data['_bfp_ffmpeg_watermark']) ? sanitize_text_field(wp_unslash($data['_bfp_ffmpeg_watermark'])) : '',
