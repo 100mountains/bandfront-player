@@ -949,4 +949,24 @@ class Config {
        
        return $enabled;
    }
+
+   /**
+    * Debug logging method
+    * @param string $category The debug category (admin, bootstrap, ui, filemanager, audio, api)
+    * @param string $message The debug message
+    * @param array $context Optional context data
+    */
+   public function debug(string $category, string $message, array $context = []): void {
+       if (!$this->isDebugEnabled($category)) {
+           return;
+       }
+       
+       $logMessage = "BFP-" . strtoupper($category) . ": " . $message;
+       
+       if (!empty($context)) {
+           $logMessage .= " | Context: " . json_encode($context);
+       }
+       
+       error_log($logMessage);
+   }
 }
