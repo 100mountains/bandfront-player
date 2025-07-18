@@ -595,6 +595,8 @@ class WooCommerceIntegration {
      * Display format downloads on account page
      */
     public function displayFormatDownloads(): void {
+        Debug::log('WooCommerceIntegration: displayFormatDownloads called'); // DEBUG-REMOVE
+        
         // Get the download renderer via Bootstrap
         $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
         $renderer = new \Bandfront\UI\DownloadRenderer($this->config);
@@ -602,7 +604,7 @@ class WooCommerceIntegration {
         // Enqueue necessary assets
         wp_enqueue_style(
             'bfp-downloads',
-            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/downloads.css',
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/format-downloads.css',
             [],
             BFP_VERSION
         );
@@ -624,6 +626,9 @@ class WooCommerceIntegration {
             'conversionFailed' => __('Conversion failed', 'bandfront-player'),
             'errorOccurred' => __('An error occurred. Check console for details.', 'bandfront-player')
         ]);
+        
+        // Output the heading
+        echo '<h2>' . esc_html__('Available downloads', 'woocommerce') . '</h2>';
         
         // Render the downloads
         $renderer->renderDownloadsTemplate();

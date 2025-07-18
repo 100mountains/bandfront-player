@@ -336,4 +336,31 @@ class FormatDownloader {
         }
         echo '</div>';
     }
+    
+    /**
+     * Render available formats for downloads page
+     * Hook callback for 'woocommerce_account_downloads_columns_download-format'
+     */
+    public function renderAvailableFormats(int $productId): string {
+        $formats = $this->getAvailableFormats($productId);
+        if (empty($formats)) {
+            return '<span class="bfp-no-formats">—</span>';
+        }
+        
+        $html = '<div class="bfp-available-formats">';
+        foreach ($formats as $format) {
+            $url = $this->getFormatDownloadUrl($productId, $format);
+            if ($url) {
+                $html .= sprintf(
+                    '<a href="%s" class="bfp-format-link bfp-format-%s">%s</a> ',
+                    esc_url($url),
+                    esc_attr($format),
+                    esc_html($this->getFormatDisplayName($format))
+                );
+            }
+        }
+        $html .= '</div>';
+        
+        return $html;
+    }
 }

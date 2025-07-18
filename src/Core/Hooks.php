@@ -164,9 +164,11 @@ class Hooks {
             add_action('wp_ajax_bfp_handle_bulk_audio_processing', [$processor, 'handleBulkAudioProcessing']);
         }
         
-        // Replace default downloads template
-        remove_action('woocommerce_available_downloads', 'woocommerce_order_downloads_table', 10);
-        add_action('woocommerce_available_downloads', [$woocommerce, 'displayFormatDownloads'], 10);
+        // Replace default downloads template - with higher priority to ensure it runs
+        add_action('init', function() use ($woocommerce) {
+            remove_action('woocommerce_account_downloads_endpoint', 'woocommerce_account_downloads', 10);
+            add_action('woocommerce_account_downloads_endpoint', [$woocommerce, 'displayFormatDownloads'], 10);
+        }, 20);
     }
     
     /**
@@ -364,9 +366,9 @@ class Hooks {
      * Maybe add player to cart item
      */
     public function maybeAddCartPlayer(string $productName, array $cartItem, string $cartItemKey): string {
-        $config = $this->bootstrap->getConfig();
+        $config = $this->getConfig();
         
-        if (!$config->getState('_bfp_players_in_cart', false)) {
+        if (!$config || !$config->getState('_bfp_players_in_cart', false)) {
             return $productName;
         }
         
