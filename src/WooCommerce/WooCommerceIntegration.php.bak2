@@ -595,12 +595,7 @@ class WooCommerceIntegration {
      * Enqueue downloads page assets
      */
     public function enqueueDownloadsAssets(): void {
-        Debug::log('WooCommerceIntegration.php:' . __LINE__ . ' Entering enqueueDownloadsAssets()', [
-            'is_account_page' => function_exists('is_account_page') ? is_account_page() : 'function not exists',
-            'current_url' => $_SERVER['REQUEST_URI'] ?? 'unknown',
-            'BFP_PLUGIN_URL' => BFP_PLUGIN_URL,
-            'expected_css_url' => BFP_PLUGIN_URL . 'assets/css/downloads.css'
-        ]);
+        Debug::log('WooCommerceIntegration: enqueueDownloadsAssets called'); // DEBUG-REMOVE
         
         wp_enqueue_style(
             'bfp-downloads',
@@ -609,12 +604,6 @@ class WooCommerceIntegration {
             BFP_VERSION
         );
         
-        
-        Debug::log('WooCommerceIntegration.php:' . __LINE__ . ' Enqueued downloads CSS', [
-            'handle' => 'bfp-downloads',
-            'url' => BFP_PLUGIN_URL . "assets/css/downloads.css",
-            'file_exists' => file_exists(plugin_dir_path(dirname(dirname(__FILE__))) . 'assets/css/downloads.css')
-        ]);
         wp_enqueue_script(
             'bfp-downloads',
             BFP_PLUGIN_URL . "assets/js/downloads.js",

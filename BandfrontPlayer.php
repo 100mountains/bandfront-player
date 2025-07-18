@@ -19,4 +19,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 // Initialize using new Bootstrap system
 use Bandfront\Core\Bootstrap;
-Bootstrap::init(BFP_PLUGIN_PATH);
+
+// Hook initialization to ensure WordPress and other plugins are loaded
+add_action('plugins_loaded', function() {
+    Bootstrap::init(BFP_PLUGIN_PATH);
+}, 5);
+

@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
  * Builders Integration Class
  * Handles Gutenberg and Elementor page builder integrations
  */
-class BuildersManager {
+class Builders {
 
     /**
      * Initialize builders integration

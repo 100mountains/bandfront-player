@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Bandfront\Core;
 
 use Bandfront\Utils\Debug;
-use Bandfront\Widgets\PlaylistWidget;
 
 /**
  * Centralized Hook Registration
@@ -123,12 +122,8 @@ class Hooks {
      * Register frontend hooks
      */
     private function registerFrontendHooks(): void {
-        $config = $this->bootstrap->getComponent('config');
-        $player = $this->bootstrap->getComponent('player');
-        $audio = $this->bootstrap->getComponent('audio');
-        
         // Player hooks
-        if ($player) {
+        if ($player = $this->bootstrap->getComponent('player')) {
             add_action('wp_enqueue_scripts', [$player, 'enqueueAssets']);
             add_filter('the_content', [$player, 'filterContent'], 999);
             add_shortcode('bandfront_player', [$player, 'shortcode']);
@@ -139,19 +134,6 @@ class Hooks {
             add_action('wp_footer', [$analytics, 'outputTrackingCode']);
             add_action('wp_ajax_bfp_track_event', [$analytics, 'ajaxTrackEvent']);
             add_action('wp_ajax_nopriv_bfp_track_event', [$analytics, 'ajaxTrackEvent']);
-        }
-        
-        // Widget registration
-        add_action('widgets_init', [$this, 'registerWidgets']);
-    }
-    
-    /**
-     * Register widgets
-     */
-    public function registerWidgets(): void {
-        // Only register if WooCommerce is active
-        if (class_exists('WooCommerce')) {
-            register_widget(PlaylistWidget::class);
         }
     }
     
@@ -185,14 +167,11 @@ class Hooks {
         
         // Enqueue downloads page assets at the right time
         add_action('wp_enqueue_scripts', function() use ($woocommerce) {
-            Debug::log("Hooks.php:" . __LINE__ . " wp_enqueue_scripts hook registered for WooCommerce assets");
             // Check if we're on the account page
-            Debug::log("Hooks.php:" . __LINE__ . " wp_enqueue_scripts callback executing", ["is_account_page_exists" => function_exists("is_account_page"), "current_url" => $_SERVER["REQUEST_URI"] ?? "unknown"]);
             if (is_account_page()) {
-                Debug::log("Hooks.php:" . __LINE__ . " Calling enqueueDownloadsAssets", ["is_account_page" => is_account_page()]);
                 $woocommerce->enqueueDownloadsAssets();
             }
-        }, 20);
+        });
         
         // Replace default downloads template - with higher priority to ensure it runs
         add_action('init', function() use ($woocommerce) {

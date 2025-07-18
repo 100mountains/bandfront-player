@@ -1,7 +1,10 @@
 <?php
-namespace bfp\Widgets;
+declare(strict_types=1);
 
-use bfp\Plugin;
+namespace Bandfront\Widgets;
+
+use Bandfront\Core\Config;
+use Bandfront\Core\Bootstrap;
 
 /**
  * Bandfront Player - Playlist Widget
@@ -20,15 +23,12 @@ if (!defined('ABSPATH')) {
  */
 class PlaylistWidget extends \WP_Widget {
     
-    private Plugin $mainPlugin;
+    private ?Config $config = null;
     
     /**
      * Constructor
      */
     public function __construct() {
-        global $BandfrontPlayer;
-        $this->mainPlugin = $BandfrontPlayer;
-        
         $widgetOps = [
             'classname'   => 'bfp_playlist_widget',
             'description' => __('Includes a playlist with the audio files of products selected', 'bandfront-player'),
@@ -37,6 +37,17 @@ class PlaylistWidget extends \WP_Widget {
         parent::__construct('bfp_playlist_widget', __('Bandfront Player - Playlist', 'bandfront-player'), $widgetOps);
     }
     
+    /**
+     * Get config instance
+     */
+    private function getConfig(): Config {
+        if ($this->config === null) {
+            $bootstrap = Bootstrap::getInstance();
+            $this->config = $bootstrap->getComponent('config');
+        }
+        return $this->config;
+    }
+
     /**
      * Register the widget
      */
@@ -53,6 +64,8 @@ class PlaylistWidget extends \WP_Widget {
      * @param array $instance Current settings
      */
     public function form($instance): void {
+        $config = $this->getConfig();
+        
         $instance = wp_parse_args(
             (array) $instance,
             [
@@ -61,7 +74,7 @@ class PlaylistWidget extends \WP_Widget {
                 'volume'                    => '',
                 'highlight_current_product' => 0,
                 'continue_playing'          => 0,
-                'player_style'              => $this->mainPlugin->getConfig()->getState('_bfp_player_layout'),
+                'player_style'              => $config->getState('_bfp_player_layout'),
                 'playlist_layout'           => 'new',
             ]
         );
@@ -75,11 +88,11 @@ class PlaylistWidget extends \WP_Widget {
         $playlistLayout = sanitize_text_field($instance['playlist_layout']);
 
         // Get global settings
-        $playAll = $this->mainPlugin->getConfig()->getState('_bfp_play_all', 0);
-        $preload = $this->mainPlugin->getConfig()->getState('_bfp_preload', 'metadata');
+        $playAll = $config->getState('_bfp_play_all', 0);
+        $preload = $config->getState('_bfp_preload', 'metadata');
         
         // Get plugin URL for assets
-        $pluginUrl = plugin_dir_url(dirname(dirname(__DIR__)) . '/BandfrontPlayer.php');
+        $pluginUrl = plugin_dir_url(dirname(dirname(__DIR__)) . '/bandfront-player.php');
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
@@ -277,15 +290,19 @@ class PlaylistWidget extends \WP_Widget {
         $instance['player_style'] = sanitize_text_field($newInstance['player_style']);
         $instance['playlist_layout'] = sanitize_text_field($newInstance['playlist_layout'] ?? 'new');
 
-        // Update global settings
-        $globalSettings = get_option('bfp_global_settings', []);
-        $globalSettings['_bfp_play_all'] = !empty($newInstance['play_all']) ? 1 : 0;
-        $globalSettings['_bfp_preload'] = (
-            !empty($newInstance['preload']) &&
-            in_array($newInstance['preload'], ['none', 'metadata', 'auto'])
-        ) ? $newInstance['preload'] : 'metadata';
-
-        update_option('bfp_global_settings', $globalSettings);
+        // Update global settings if needed
+        $config = $this->getConfig();
+        if (isset($newInstance['play_all'])) {
+            $globalSettings = get_option('bfp_global_settings', []);
+            $globalSettings['_bfp_play_all'] = !empty($newInstance['play_all']) ? 1 : 0;
+            if (isset($newInstance['preload'])) {
+                $globalSettings['_bfp_preload'] = (
+                    !empty($newInstance['preload']) &&
+                    in_array($newInstance['preload'], ['none', 'metadata', 'auto'])
+                ) ? $newInstance['preload'] : 'metadata';
+            }
+            update_option('bfp_global_settings', $globalSettings);
+        }
 
         return $instance;
     }
@@ -309,28 +326,44 @@ class PlaylistWidget extends \WP_Widget {
 
         $title = empty($instance['title']) ? '' : apply_filters('widget_title', $instance['title']);
 
-        $attrs = [
-            'products_ids'              => $instance['products_ids'] ?? '',
-            'highlight_current_product' => $instance['highlight_current_product'] ?? 0,
-            'continue_playing'          => $instance['continue_playing'] ?? 0,
-            'player_style'              => $instance['player_style'] ?? $this->mainPlugin->getConfig()->getState('_bfp_player_layout'),
-            'layout'                    => $instance['playlist_layout'] ?? 'new',
-        ];
-
+        // Build shortcode attributes
+        $shortcodeAttrs = [];
+        
+        if (!empty($instance['products_ids'])) {
+            $shortcodeAttrs[] = 'products_ids="' . esc_attr($instance['products_ids']) . '"';
+        }
+        
+        if (!empty($instance['highlight_current_product'])) {
+            $shortcodeAttrs[] = 'highlight_current_product="1"';
+        }
+        
+        if (!empty($instance['continue_playing'])) {
+            $shortcodeAttrs[] = 'continue_playing="1"';
+        }
+        
+        if (!empty($instance['player_style'])) {
+            $shortcodeAttrs[] = 'player_style="' . esc_attr($instance['player_style']) . '"';
+        }
+        
+        if (!empty($instance['playlist_layout'])) {
+            $shortcodeAttrs[] = 'layout="' . esc_attr($instance['playlist_layout']) . '"';
+        }
+        
         if (!empty($instance['volume'])) {
             $volume = floatval($instance['volume']);
             if ($volume > 0) {
-                $attrs['volume'] = min(1, $volume);
+                $shortcodeAttrs[] = 'volume="' . min(1, $volume) . '"';
             }
         }
-
-        // Check if WooCommerce integration exists
-        $woocommerce = $this->mainPlugin->getWooCommerce();
-        if (!$woocommerce) {
-            return;
-        }
-
-        $output = $woocommerce->replacePlaylistShortcode($attrs);
+        
+        // Always add controls attribute
+        $shortcodeAttrs[] = 'controls="track"';
+        
+        // Build the shortcode
+        $shortcode = '[bfp-playlist ' . implode(' ', $shortcodeAttrs) . ']';
+        
+        // Process the shortcode
+        $output = do_shortcode($shortcode);
 
         if (empty($output)) {
             return;
@@ -343,7 +376,7 @@ class PlaylistWidget extends \WP_Widget {
         if (!empty($title)) {
             echo $beforeTitle . esc_html($title) . $afterTitle; // phpcs:ignore WordPress.Security.EscapeOutput
         }
-        echo $output; // phpcs:ignore WordPress.Security.EscapeOutput -- Already escaped in replacePlaylistShortcode
+        echo $output; // phpcs:ignore WordPress.Security.EscapeOutput -- Already escaped in shortcode handler
         echo $afterWidget; // phpcs:ignore WordPress.Security.EscapeOutput
     }
     
@@ -351,22 +384,28 @@ class PlaylistWidget extends \WP_Widget {
      * Enqueue widget-specific assets
      */
     private function enqueueWidgetAssets(): void {
-        $pluginUrl = plugin_dir_url(dirname(dirname(__DIR__)) . '/BandfrontPlayer.php');
+        $pluginUrl = plugin_dir_url(dirname(dirname(__DIR__)) . '/bandfront-player.php');
         
-        wp_enqueue_style(
-            'bfp-widget-style',
-            $pluginUrl . 'css/widget-style.css',
-            ['bfp-style'],
-            BFP_VERSION
-        );
+        // Only enqueue if main styles exist
+        if (wp_style_is('bfp-style', 'registered')) {
+            wp_enqueue_style(
+                'bfp-widget-style',
+                $pluginUrl . 'widgets/playlist_widget/css/style.css',
+                ['bfp-style'],
+                BFP_VERSION
+            );
+        }
         
-        wp_enqueue_script(
-            'bfp-widget',
-            $pluginUrl . 'js/widget.js',
-            ['jquery', 'bfp-engine'],
-            BFP_VERSION,
-            true
-        );
+        // Only enqueue if main scripts exist
+        if (wp_script_is('bfp-engine', 'registered')) {
+            wp_enqueue_script(
+                'bfp-widget',
+                $pluginUrl . 'widgets/playlist_widget/js/script.js',
+                ['jquery', 'bfp-engine'],
+                BFP_VERSION,
+                true
+            );
+        }
     }
 }
 

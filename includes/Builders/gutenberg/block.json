@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "bfp/bandfront-player-playlist",
+  "version": "1.0.0",
+  "title": "Bandfront Player Playlist",
+  "category": "media",
+  "icon": "playlist-audio",
+  "description": "Display a Bandfront Player playlist.",
+  "supports": {
+    "html": false,
+    "customClassName": true,
+    "align": ["wide", "full"]
+  },
+  "textdomain": "bandfront-player",
+  "attributes": {
+    "shortcode": {
+      "type": "string",
+      "default": "[bfp-playlist products_ids=\"*\" controls=\"track\"]"
+    }
+  },
+  "editorScript": "file:./gutenberg.js",
+  "editorStyle": "file:./gutenberg.css",
+  "style": "file:./gutenberg.css",
+  "render": "file:./render.php"
+}
