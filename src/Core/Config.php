@@ -560,4 +560,289 @@ class Config {
        // Don't show in other contexts by default
        return false;
    }
+   
+   /**
+    * Define all configuration settings with their properties
+    */
+   private function defineSettings(): void {
+       $this->settings = [
+           // Playback settings
+           '_bfp_enable_player' => [
+               'default' => 1,
+               'type' => 'boolean',
+               'label' => __('Enable Player', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_audio_engine' => [
+               'default' => 'html5',
+               'type' => 'string',
+               'label' => __('Audio Engine', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_single_player' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Single Player Mode', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_merge_in_grouped' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Merge in Grouped Player', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_play_all' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Play All in Playlist', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_loop' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Loop Playlist', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_player_volume' => [
+               'default' => 1.0,
+               'type' => 'float',
+               'label' => __('Player Volume', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_secure_player' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Secure Player Links', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_file_percent' => [
+               'default' => 50,
+               'type' => 'int',
+               'label' => __('File Percent for Streaming', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_own_demos' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Own Demos Only', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_direct_own_demos' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Direct Own Demos', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_demos_list' => [
+               'default' => [],
+               'type' => 'array',
+               'label' => __('Demos List', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           
+           // Player appearance settings
+           '_bfp_player_layout' => [
+               'default' => 'dark',
+               'type' => 'string',
+               'label' => __('Player Layout', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_player_controls' => [
+               'default' => 'default',
+               'type' => 'string',
+               'label' => __('Player Controls', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_player_title' => [
+               'default' => 1,
+               'type' => 'boolean',
+               'label' => __('Show Player Title', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_on_cover' => [
+               'default' => 1,
+               'type' => 'boolean',
+               'label' => __('Show On Cover', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_force_main_player_in_title' => [
+               'default' => 1,
+               'type' => 'boolean',
+               'label' => __('Force Main Player in Title', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           
+           // Purchase and registration settings
+           '_bfp_registered_only' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Registered Users Only', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_purchased' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Must Be Purchased', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_reset_purchased_interval' => [
+               'default' => 'daily',
+               'type' => 'string',
+               'label' => __('Reset Purchased Interval', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_fade_out' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Fade Out on Purchase', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_purchased_times_text' => [
+               'default' => 'Purchased %d time(s)',
+               'type' => 'string',
+               'label' => __('Purchased Times Text', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           
+           // Message and notification settings
+           '_bfp_message' => [
+               'default' => '',
+               'type' => 'string',
+               'label' => __('Message', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           
+           // FFmpeg settings
+           '_bfp_ffmpeg' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Enable FFmpeg', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_ffmpeg_path' => [
+               'default' => '',
+               'type' => 'string',
+               'label' => __('FFmpeg Path', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_ffmpeg_watermark' => [
+               'default' => '',
+               'type' => 'string',
+               'label' => __('FFmpeg Watermark', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           
+           // Analytics settings
+           '_bfp_analytics_integration' => [
+               'default' => 'ua',
+               'type' => 'string',
+               'label' => __('Analytics Integration', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_analytics_property' => [
+               'default' => '',
+               'type' => 'string',
+               'label' => __('Analytics Property', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_analytics_api_secret' => [
+               'default' => '',
+               'type' => 'string',
+               'label' => __('Analytics API Secret', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           
+           // Cloud settings
+           '_bfp_cloud_active_tab' => [
+               'default' => 'google-drive',
+               'type' => 'string',
+               'label' => __('Active Cloud Tab', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_cloud_dropbox' => [
+               'default' => [
+                   'enabled' => false,
+                   'access_token' => '',
+                   'folder_path' => '/bandfront-demos',
+               ],
+               'type' => 'array',
+               'label' => __('Dropbox Cloud Settings', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_cloud_s3' => [
+               'default' => [
+                   'enabled' => false,
+                   'access_key' => '',
+                   'secret_key' => '',
+                   'bucket' => '',
+                   'region' => 'us-east-1',
+                   'path_prefix' => 'bandfront-demos/',
+               ],
+               'type' => 'array',
+               'label' => __('S3 Cloud Settings', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           '_bfp_cloud_azure' => [
+               'default' => [
+                   'enabled' => false,
+                   'account_name' => '',
+                   'account_key' => '',
+                   'container' => '',
+                   'path_prefix' => 'bandfront-demos/',
+               ],
+               'type' => 'array',
+               'label' => __('Azure Cloud Settings', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           
+           // Developer settings
+           '_bfp_dev_mode' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Developer Mode', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => true,
+           ],
+           'enable_db_monitoring' => [
+               'default' => 1,
+               'type' => 'boolean', 
+               'label' => __('Enable Database Monitoring', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => false, // Shown in dev tools only
+           ],
+       ];
+   }
 }

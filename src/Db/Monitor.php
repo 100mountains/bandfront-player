@@ -19,9 +19,10 @@ class Monitor {
      * Constructor
      */
     public function __construct() {
-        // Add AJAX handlers for test actions
-        add_action('wp_ajax_bfa_generate_test_events', [$this, 'ajax_generate_test_events']);
-        add_action('wp_ajax_bfa_clean_test_events', [$this, 'ajax_clean_test_events']);
+        // Add AJAX handlers for test actions - FIXED action names
+        add_action('wp_ajax_bfp_generate_test_events', [$this, 'ajax_generate_test_events']);
+        add_action('wp_ajax_bfp_clean_test_events', [$this, 'ajax_clean_test_events']);
+        add_action('wp_ajax_bfp_get_db_activity', [$this, 'ajax_get_db_activity']);
         
         // Add maintenance AJAX handlers
         add_action('wp_ajax_bfp_clear_caches', [$this, 'ajax_clear_caches']);
@@ -125,7 +126,7 @@ class Monitor {
      * AJAX handler for generating test events
      */
     public function ajax_generate_test_events() {
-        check_ajax_referer('bfa_test_actions', 'nonce');
+        check_ajax_referer('bfp_db_actions', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error(['message' => __('Insufficient permissions', 'bandfront-analytics')]);
@@ -155,7 +156,7 @@ class Monitor {
      * AJAX handler for cleaning test events
      */
     public function ajax_clean_test_events() {
-        check_ajax_referer('bfa_test_actions', 'nonce');
+        check_ajax_referer('bfp_db_actions', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error(['message' => __('Insufficient permissions', 'bandfront-analytics')]);
@@ -176,6 +177,59 @@ class Monitor {
                 'message' => __('Failed to clean test data', 'bandfront-analytics')
             ]);
         }
+    }
+    
+    /**
+     * AJAX handler for getting database activity
+     */
+    public function ajax_get_db_activity() {
+        check_ajax_referer('bfp_db_actions', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Insufficient permissions', 'bandfront-player')]);
+        }
+        
+        global $wpdb;
+        
+        // Get recent postmeta changes for BFP
+        $recent_activity = $wpdb->get_results("
+            SELECT 
+                pm.meta_id,
+                pm.post_id,
+                pm.meta_key,
+                pm.meta_value,
+                p.post_title,
+                p.post_type,
+                p.post_modified
+            FROM {$wpdb->postmeta} pm
+            LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+            WHERE pm.meta_key LIKE '_bfp_%'
+            ORDER BY pm.meta_id DESC
+            LIMIT 50
+        ");
+        
+        // Format for display
+        $activity = [];
+        foreach ($recent_activity as $item) {
+            $type = 'update';
+            if (strpos($item->meta_key, '_bfp_file_') !== false) {
+                $type = 'file';
+            } elseif (strpos($item->meta_key, '_bfp_demo_') !== false) {
+                $type = 'demo';
+            } elseif (strpos($item->meta_key, '_bfp_play_') !== false) {
+                $type = 'play';
+            }
+            
+            $activity[] = [
+                'time' => human_time_diff(strtotime($item->post_modified), current_time('timestamp')) . ' ago',
+                'type' => $type,
+                'object' => sprintf('%s #%d', $item->post_type, $item->post_id),
+                'value' => $item->post_title ?: 'Untitled',
+                'user' => $item->meta_key,
+            ];
+        }
+        
+        wp_send_json_success(['activity' => $activity]);
     }
     
     /**
