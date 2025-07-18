@@ -58,8 +58,7 @@ class Admin {
             'woocommerce_installed' => class_exists('woocommerce')
         ]); // DEBUG-REMOVE
 
-        // Load view templates now that we're definitely in admin
-        $this->loadViewTemplates();
+        // Don't load templates here - wait for proper hook
 
         // Check if WooCommerce is installed or not
         if (!class_exists('woocommerce')) {
@@ -77,6 +76,22 @@ class Admin {
             'step' => 'done',
             'action' => 'Bandfront Player admin initialization complete'
         ]); // DEBUG-REMOVE
+    }
+    
+    /**
+     * Enqueue admin styles and scripts
+     */
+    public function enqueueAdminAssets(): void {
+        Debug::log('Admin.php: Entering enqueueAdminAssets()', []); // DEBUG-REMOVE
+        
+        // Load view templates that may enqueue assets
+        $this->loadViewTemplates();
+        
+        // Also enqueue any direct assets here
+        wp_enqueue_style('bfp-admin', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/style-admin.css', [], BFP_VERSION);
+        wp_enqueue_style('bfp-admin-notices', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/admin-notices.css', [], BFP_VERSION);
+        
+        Debug::log('Admin.php: Exiting enqueueAdminAssets()', []); // DEBUG-REMOVE
     }
     
     /**

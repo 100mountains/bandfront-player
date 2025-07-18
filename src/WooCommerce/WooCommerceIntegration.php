@@ -601,17 +601,17 @@ class WooCommerceIntegration {
         $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
         $renderer = new \Bandfront\UI\DownloadRenderer($this->config);
         
-        // Enqueue necessary assets
+        // Enqueue necessary assets with correct paths
         wp_enqueue_style(
             'bfp-downloads',
-            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/format-downloads.css',
+            plugins_url('assets/css/downloads.css', dirname(dirname(__FILE__))),
             [],
             BFP_VERSION
         );
         
         wp_enqueue_script(
             'bfp-downloads',
-            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/downloads.js',
+            plugins_url('assets/js/downloads.js', dirname(dirname(__FILE__))),
             ['jquery'],
             BFP_VERSION,
             true

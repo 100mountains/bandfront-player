@@ -7,6 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Bandfront\\Admin\\Admin' => $baseDir . '/src/Admin/Admin.php',
+    'Bandfront\\Admin\\ProductMeta' => $baseDir . '/src/Admin/ProductMeta.php',
+    'Bandfront\\Admin\\Settings' => $baseDir . '/src/Admin/Settings.php',
     'Bandfront\\Audio\\Analytics' => $baseDir . '/src/Audio/Analytics.php',
     'Bandfront\\Audio\\Audio' => $baseDir . '/src/Audio/Audio.php',
     'Bandfront\\Audio\\Player' => $baseDir . '/src/Audio/Player.php',
@@ -19,6 +21,8 @@ return array(
     'Bandfront\\REST\\StreamController' => $baseDir . '/src/REST/StreamController.php',
     'Bandfront\\Storage\\Cloud' => $baseDir . '/src/Storage/Cloud.php',
     'Bandfront\\Storage\\FileManager' => $baseDir . '/src/Storage/FileManager.php',
+    'Bandfront\\UI\\AdminRenderer' => $baseDir . '/src/UI/AdminRenderer.php',
+    'Bandfront\\UI\\DownloadRenderer' => $baseDir . '/src/UI/DownloadRenderer.php',
     'Bandfront\\UI\\Renderer' => $baseDir . '/src/UI/Renderer.php',
     'Bandfront\\Utils\\Analytics' => $baseDir . '/src/Utils/Analytics.php',
     'Bandfront\\Utils\\Cache' => $baseDir . '/src/Utils/Cache.php',

@@ -182,3 +182,12 @@ add_filter('bfp_audio_engine', function($engine, $product_id = null) {
     
     return $engine;
 }, 10, 2);
+
+// Look for wp_enqueue_style calls and update paths from /css/ to /assets/css/
+// Change any instances of:
+// plugins_url('css/style-admin.css', dirname(__FILE__))
+// plugins_url('css/admin-notices.css', dirname(__FILE__))
+
+// To:
+// plugins_url('assets/css/style-admin.css', dirname(__FILE__))
+// plugins_url('assets/css/admin-notices.css', dirname(__FILE__))

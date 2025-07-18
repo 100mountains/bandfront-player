@@ -110,6 +110,7 @@ class Hooks {
         add_action('save_post', [$admin, 'savePost'], 10, 3);
         add_action('after_delete_post', [$admin, 'afterDeletePost'], 10, 2);
         add_action('admin_notices', [$admin, 'showAdminNotices']);
+        add_action('admin_enqueue_scripts', [$admin, 'enqueueAdminAssets']);
         
         // AJAX handlers - these need to be registered globally
         add_action('wp_ajax_bfp_save_settings', [$admin, 'ajaxSaveSettings']);

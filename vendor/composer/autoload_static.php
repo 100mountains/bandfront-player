@@ -54,6 +54,8 @@ class ComposerStaticInit0c405109c72939381025ea518499511b
 
     public static $classMap = array (
         'Bandfront\\Admin\\Admin' => __DIR__ . '/../..' . '/src/Admin/Admin.php',
+        'Bandfront\\Admin\\ProductMeta' => __DIR__ . '/../..' . '/src/Admin/ProductMeta.php',
+        'Bandfront\\Admin\\Settings' => __DIR__ . '/../..' . '/src/Admin/Settings.php',
         'Bandfront\\Audio\\Analytics' => __DIR__ . '/../..' . '/src/Audio/Analytics.php',
         'Bandfront\\Audio\\Audio' => __DIR__ . '/../..' . '/src/Audio/Audio.php',
         'Bandfront\\Audio\\Player' => __DIR__ . '/../..' . '/src/Audio/Player.php',
@@ -66,6 +68,8 @@ class ComposerStaticInit0c405109c72939381025ea518499511b
         'Bandfront\\REST\\StreamController' => __DIR__ . '/../..' . '/src/REST/StreamController.php',
         'Bandfront\\Storage\\Cloud' => __DIR__ . '/../..' . '/src/Storage/Cloud.php',
         'Bandfront\\Storage\\FileManager' => __DIR__ . '/../..' . '/src/Storage/FileManager.php',
+        'Bandfront\\UI\\AdminRenderer' => __DIR__ . '/../..' . '/src/UI/AdminRenderer.php',
+        'Bandfront\\UI\\DownloadRenderer' => __DIR__ . '/../..' . '/src/UI/DownloadRenderer.php',
         'Bandfront\\UI\\Renderer' => __DIR__ . '/../..' . '/src/UI/Renderer.php',
         'Bandfront\\Utils\\Analytics' => __DIR__ . '/../..' . '/src/Utils/Analytics.php',
         'Bandfront\\Utils\\Cache' => __DIR__ . '/../..' . '/src/Utils/Cache.php',

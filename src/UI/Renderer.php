@@ -532,7 +532,7 @@ class Renderer {
         
         wp_enqueue_style(
             'bfp-format-downloads',
-            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/format-downloads.css',
+            plugins_url('assets/css/format-downloads.css', dirname(dirname(__FILE__))),
             [],
             BFP_VERSION
         );

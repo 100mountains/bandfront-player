@@ -42,6 +42,18 @@ class FormatDownloader {
             'index.php?bfp-download=1&product_id=$matches[1]&format=$matches[2]',
             'top'
         );
+        
+        // Make sure we also enqueue our CSS on download pages
+        add_action('wp_enqueue_scripts', function() {
+            if (is_account_page()) {
+                wp_enqueue_style(
+                    'bfp-downloads',
+                    plugins_url('assets/css/downloads.css', dirname(dirname(__FILE__))),
+                    [],
+                    BFP_VERSION
+                );
+            }
+        });
     }
     
     /**
