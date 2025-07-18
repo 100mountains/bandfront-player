@@ -123,6 +123,61 @@ class Monitor {
     }
     
     /**
+     * Fetch WooCommerce products
+     */
+    public function getWooCommerceProducts($limit = 10) {
+        $args = [
+            'post_type' => 'product',
+            'posts_per_page' => $limit,
+        ];
+        return get_posts($args);
+    }
+    
+    /**
+     * Get product metadata for a specific product
+     */
+    public function getProductMetadata($product_id) {
+        global $wpdb;
+        
+        // Get all BFP meta for this product
+        $metadata = $wpdb->get_results($wpdb->prepare(
+            "SELECT meta_key, meta_value 
+             FROM {$wpdb->postmeta} 
+             WHERE post_id = %d 
+             AND meta_key LIKE '_bfp_%'
+             ORDER BY meta_key",
+            $product_id
+        ));
+        
+        return $metadata;
+    }
+    
+    /**
+     * Get all Config schema variables
+     */
+    public function getConfigSchema() {
+        // This would typically read from the Config class's settingsConfig
+        // For now, return a structured array of known config variables
+        return [
+            'global_settings' => [
+                'enable_db_monitoring' => 'boolean',
+                'dev_mode' => 'boolean',
+                'enable_api_monitor' => 'boolean',
+                'enable_maintenance' => 'boolean',
+            ],
+            'product_settings' => [
+                '_bfp_tracks' => 'array',
+                '_bfp_player_theme' => 'string',
+                '_bfp_autoplay' => 'boolean',
+                '_bfp_show_playlist' => 'boolean',
+                '_bfp_show_artwork' => 'boolean',
+                '_bfp_loop' => 'boolean',
+                '_bfp_shuffle' => 'boolean',
+            ]
+        ];
+    }
+
+    /**
      * AJAX handler for generating test events
      */
     public function ajax_generate_test_events() {

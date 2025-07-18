@@ -91,6 +91,36 @@ class DbRenderer {
             </div>
         </div>
         
+        <!-- Sub-tabs for Database Monitor -->
+        <div class="bfp-db-subtabs">
+            <h3 class="nav-tab-wrapper">
+                <a href="#" class="nav-tab nav-tab-active" data-subtab="monitoring"><?php _e('Monitoring', 'bandfront-player'); ?></a>
+                <a href="#" class="nav-tab" data-subtab="products"><?php _e('Products', 'bandfront-player'); ?></a>
+                <a href="#" class="nav-tab" data-subtab="schema"><?php _e('Schema', 'bandfront-player'); ?></a>
+            </h3>
+        </div>
+
+        <!-- Monitoring Tab Content -->
+        <div class="bfp-subtab-content" id="monitoring-subtab" style="display: block;">
+            <?php if (!$monitoring_enabled): ?>
+                <div class="notice notice-info inline">
+                    <p><?php _e('Database monitoring is currently disabled. Enable it above and save settings to see real-time activity.', 'bandfront-player'); ?></p>
+                </div>
+            <?php else: ?>
+                <?php $this->renderMonitoringContent(); ?>
+            <?php endif; ?>
+        </div>
+
+        <!-- Products Tab Content -->
+        <div class="bfp-subtab-content" id="products-subtab" style="display: none;">
+            <?php $this->renderProductsContent(); ?>
+        </div>
+
+        <!-- Schema Tab Content -->
+        <div class="bfp-subtab-content" id="schema-subtab" style="display: none;">
+            <?php $this->renderSchemaContent(); ?>
+        </div>
+        
         <!-- Database Stats and Performance Grid -->
         <div class="bfa-monitor-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
             <!-- Database Stats -->
@@ -353,6 +383,25 @@ class DbRenderer {
                 window.bfpDbMonitor.init();
             }
             <?php endif; ?>
+            
+            // Sub-tab navigation
+            $('.bfp-db-subtabs .nav-tab').on('click', function(e) {
+                e.preventDefault();
+                
+                var targetTab = $(this).data('subtab');
+                
+                // Remove active class from all tabs
+                $('.bfp-db-subtabs .nav-tab').removeClass('nav-tab-active');
+                
+                // Add active class to clicked tab
+                $(this).addClass('nav-tab-active');
+                
+                // Hide all tab content
+                $('.bfp-subtab-content').hide();
+                
+                // Show target tab content
+                $('#' + targetTab + '-subtab').show();
+            });
         });
         </script>
         <?php
@@ -637,5 +686,111 @@ class DbRenderer {
             }
         </style>
         <?php
+    }
+    
+    /**
+     * Render monitoring content
+     */
+    private function renderMonitoringContent(): void {
+        // Render the current monitoring UI components
+        ?>
+        <!-- Test Action Buttons -->
+        <div class="bfa-db-test-actions" style="margin-bottom: 20px; padding: 15px; background: #f0f0f1; border: 1px solid #c3c4c7; border-radius: 4px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" class="button button-primary" id="bfa-test-events">
+                    <span class="dashicons dashicons-randomize" style="margin-top: 3px;"></span>
+                    <?php _e('Generate Test Events', 'bandfront-player'); ?>
+                </button>
+                
+                <button type="button" class="button" id="bfa-clean-events">
+                    <span class="dashicons dashicons-trash" style="margin-top: 3px;"></span>
+                    <?php _e('Clean Test Data', 'bandfront-player'); ?>
+                </button>
+                
+                <span class="spinner" style="float: none; visibility: hidden;"></span>
+                <span class="bfa-test-message" style="margin-left: 10px; color: #3c434a;"></span>
+            </div>
+        </div>
+        
+        <!-- Database Activity Monitor -->
+        <div class="bfa-api-monitor">
+            <h3><?php _e('Database Activity Monitor', 'bandfront-player'); ?></h3>
+            <div class="bfa-traffic-box" id="bfa-db-activity">
+                <div class="bfa-traffic-header">
+                    <span class="bfa-traffic-status">● <?php _e('Live', 'bandfront-player'); ?></span>
+                    <button type="button" class="button button-small" id="bfa-clear-db-activity">
+                        <?php _e('Clear', 'bandfront-player'); ?>
+                    </button>
+                </div>
+                <div class="bfa-traffic-log" id="bfa-db-activity-log">
+                    <div class="bfa-traffic-empty"><?php _e('Waiting for database activity...', 'bandfront-player'); ?></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Database Stats and Performance Grid -->
+        <div class="bfa-monitor-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <!-- Database Stats -->
+            <div class="bfa-monitor-section">
+                <h3><?php _e('Database Statistics', 'bandfront-player'); ?></h3>
+                <div class="bfa-db-stats">
+                    <?php $this->renderDatabaseStats(); ?>
+                </div>
+            </div>
+            
+            <!-- Performance Metrics -->
+            <div class="bfa-monitor-section">
+                <h3><?php _e('Performance Metrics', 'bandfront-player'); ?></h3>
+                <div class="bfa-performance-grid">
+                    <?php $this->renderPerformanceMetrics(); ?>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Render products content
+     */
+    private function renderProductsContent(): void {
+        $products = $this->monitor->getWooCommerceProducts(10);
+
+        if (empty($products)) {
+            echo '<p>' . __('No products found.', 'bandfront-player') . '</p>';
+            return;
+        }
+
+        echo '<ul class="product-list">';
+        foreach ($products as $product) {
+            $product_id = $product->ID;
+            $product_title = get_the_title($product_id);
+            $product_price = get_post_meta($product_id, '_price', true);
+
+            echo '<li>';
+            echo '<a href="#" class="product-link" data-product-id="' . esc_attr($product_id) . '">';
+            echo esc_html($product_title) . ' - ' . wc_price($product_price);
+            echo '</a>';
+            echo '</li>';
+        }
+        echo '</ul>';
+    }
+    
+    /**
+     * Render schema content
+     */
+    private function renderSchemaContent(): void {
+        $schema = $this->monitor->getConfigSchema();
+
+        echo '<ul class="config-schema">';
+        foreach ($schema as $section => $variables) {
+            echo '<li><b>' . esc_html($section) . '</b><ul>';
+            foreach ($variables as $var => $type) {
+                echo '<li>';
+                echo esc_html($var) . ': ' . esc_html($type);
+                echo '</li>';
+            }
+            echo '</ul></li>';
+        }
+        echo '</ul>';
     }
 }
