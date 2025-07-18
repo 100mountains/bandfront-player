@@ -52,6 +52,7 @@ class Player {
         $duration = $args['duration'] ?? false;
         $preload = $args['preload'] ?? 'none';
         $volume = $args['volume'] ?? 1;
+        $title = $args['title'] ?? '';  // Add title support
         
         // Apply filters
         $preload = apply_filters('bfp_preload', $preload, $audioUrl);
@@ -59,8 +60,12 @@ class Player {
         // Generate unique player ID
         $playerId = 'bfp-player-' . $productId . '-' . $id . '-' . uniqid();
         
-        // Build player HTML
-        $playerHtml = '<audio id="' . esc_attr($playerId) . '" ';
+        // Build player HTML with title
+        $playerHtml = '<div class="bfp-player-wrapper">';
+        if ($title) {
+            $playerHtml .= '<div class="bfp-player-title">' . esc_html($title) . '</div>';
+        }
+        $playerHtml .= '<audio id="' . esc_attr($playerId) . '" ';
         $playerHtml .= 'class="bfp-player ' . esc_attr($playerStyle) . '" ';
         $playerHtml .= 'data-product-id="' . esc_attr($productId) . '" ';
         $playerHtml .= 'data-file-index="' . esc_attr($id) . '" ';
@@ -78,6 +83,7 @@ class Player {
         $playerHtml .= '>';
         $playerHtml .= '<source src="' . esc_url($audioUrl) . '" type="audio/' . esc_attr($mediaType) . '" />';
         $playerHtml .= '</audio>';
+        $playerHtml .= '</div>'; // Close player wrapper
         
         return apply_filters('bfp_player_html', $playerHtml, $audioUrl, $args);
     }
@@ -148,6 +154,9 @@ class Player {
             $duration = $this->audio->getDurationByUrl($file['file']);
             $audioUrl = $this->audio->generateAudioUrl($id, $index, $file);
             
+            // Add title if enabled in settings
+            $title = ($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $id, $index) : '';
+            
             $audioTag = apply_filters(
                 'bfp_audio_tag',
                 $this->getPlayer(
@@ -161,6 +170,7 @@ class Player {
                         'duration'        => $duration,
                         'preload'         => $settings['_bfp_preload'],
                         'volume'          => $settings['_bfp_player_volume'],
+                        'title'           => $title  // Add title to args
                     ]
                 ),
                 $id,
@@ -307,6 +317,9 @@ class Player {
             $duration = $this->audio->getDurationByUrl($file['file']);
             $audioUrl = $this->audio->generateAudioUrl($productId, $index, $file);
             
+            // Add title if enabled in settings
+            $title = ($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $productId, $index) : '';
+            
             $audioTag = apply_filters(
                 'bfp_audio_tag',
                 $this->getPlayer(
@@ -320,6 +333,7 @@ class Player {
                         'preload'         => $settings['_bfp_preload'],
                         'volume'          => $settings['_bfp_player_volume'],
                         'id'              => $index,
+                        'title'           => $title  // Add title to args
                     ]
                 ),
                 $productId,

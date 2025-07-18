@@ -345,16 +345,6 @@ class DbRenderer {
                 // Show target tab content
                 $('#' + targetTab + '-subtab').show();
             });
-            
-            // Collapsible sections in Schema tab
-            $(document).on('click', '.bfa-collapsible', function() {
-                var $header = $(this);
-                var targetId = $header.data('target');
-                var $target = $('#' + targetId);
-                
-                $target.slideToggle(300);
-                $header.toggleClass('expanded');
-            });
         });
         </script>
         <?php
@@ -526,187 +516,40 @@ class DbRenderer {
                 font-size: 12px;
             }
             
-            /* Schema Tab Styles */
-            .bfa-schema-container {
-                padding: 20px;
+            /* Database Schema Styles */
+            .bfa-endpoints-list {
+                margin-top: 20px;
             }
             
-            .bfa-schema-stats {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            }
-            
-            .bfa-stat-box {
-                background: #f6f7f7;
-                border: 1px solid #c3c4c7;
-                border-radius: 4px;
-                padding: 20px;
-                text-align: center;
-            }
-            
-            .bfa-stat-number {
-                display: block;
-                font-size: 32px;
-                font-weight: 600;
-                color: #2271b1;
-                margin-bottom: 5px;
-            }
-            
-            .bfa-stat-label {
-                color: #666;
-                font-size: 14px;
-            }
-            
-            .bfa-schema-section {
-                background: #fff;
-                border: 1px solid #c3c4c7;
-                border-radius: 4px;
-                margin-bottom: 20px;
-                overflow: hidden;
-            }
-            
-            .bfa-section-header {
-                background: #f6f7f7;
-                border-bottom: 1px solid #c3c4c7;
-                padding: 15px 20px;
-                margin: 0;
-                font-size: 16px;
-                cursor: default;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            
-            .bfa-section-header .bfa-count {
-                color: #666;
-                font-size: 14px;
-                font-weight: normal;
-            }
-            
-            .bfa-section-header.bfa-collapsible {
-                cursor: pointer;
-                user-select: none;
-            }
-            
-            .bfa-section-header.bfa-collapsible:hover {
-                background: #eaeaea;
-            }
-            
-            .bfa-toggle {
-                margin-left: auto;
-                transition: transform 0.3s ease;
-            }
-            
-            .bfa-section-header.expanded .bfa-toggle {
-                transform: rotate(180deg);
-            }
-            
-            .bfa-schema-table {
-                padding: 20px;
-            }
-            
-            .bfa-config-table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            
-            .bfa-config-table th {
-                text-align: left;
-                padding: 10px;
-                background: #f6f7f7;
-                border-bottom: 2px solid #c3c4c7;
-                font-weight: 600;
-            }
-            
-            .bfa-config-table td {
-                padding: 10px;
-                border-bottom: 1px solid #f0f0f1;
-                vertical-align: top;
-            }
-            
-            .bfa-config-table tr:hover {
+            .bfa-endpoint-item {
                 background: #f9f9f9;
-            }
-            
-            .bfa-key code {
-                background: #eef;
-                padding: 3px 8px;
-                border-radius: 3px;
-                font-family: monospace;
-                font-size: 13px;
-            }
-            
-            .bfa-label {
-                display: block;
-                font-size: 12px;
-                color: #666;
-                margin-top: 4px;
-            }
-            
-            .bfa-type-badge {
-                display: inline-block;
-                padding: 3px 8px;
-                border-radius: 3px;
-                font-size: 12px;
-                font-weight: 600;
-            }
-            
-            .bfa-type-boolean { background: #e3f2fd; color: #1565c0; }
-            .bfa-type-string { background: #e8f5e9; color: #2e7d32; }
-            .bfa-type-integer { background: #fff3e0; color: #e65100; }
-            .bfa-type-array { background: #f3e5f5; color: #6a1b9a; }
-            .bfa-type-unknown { background: #efebe9; color: #5d4037; }
-            
-            .bfa-bool-true { color: #46b450; font-weight: 600; }
-            .bfa-bool-false { color: #dc3232; font-weight: 600; }
-            .bfa-null { color: #999; font-style: italic; }
-            .bfa-empty { color: #999; font-style: italic; }
-            .bfa-number { color: #e65100; font-weight: 600; }
-            .bfa-string { color: #2e7d32; }
-            .bfa-path { 
-                background: #f0f0f1; 
-                padding: 3px 6px; 
-                border-radius: 3px;
-                font-family: monospace;
-                font-size: 12px;
-            }
-            
-            .bfa-array {
-                display: block;
-                background: #f6f7f7;
-                padding: 10px;
-                border-radius: 3px;
-                font-size: 12px;
-                white-space: pre-wrap;
-                overflow-x: auto;
-                max-width: 400px;
-                font-family: monospace;
-            }
-            
-            .bfa-schema-raw {
-                padding: 20px;
-            }
-            
-            .bfa-code-block {
-                background: #23282d;
-                color: #87c540;
-                padding: 20px;
+                border: 1px solid #e5e5e5;
                 border-radius: 4px;
-                overflow-x: auto;
-                font-family: monospace;
-                font-size: 13px;
-                line-height: 1.6;
-                max-height: 600px;
-                overflow-y: auto;
+                padding: 15px;
+                margin-bottom: 10px;
             }
             
-            .bfa-no-settings {
+            .bfa-endpoint-route {
+                font-family: monospace;
+                color: #333;
+            }
+            
+            .bfa-endpoint-route code {
+                background: #eef;
+                padding: 2px 6px;
+                border-radius: 3px;
+            }
+            
+            .bfa-endpoint-item h4 {
+                margin: 0 0 10px 0;
+                font-size: 14px;
+                color: #1d2327;
+            }
+            
+            .bfa-api-endpoints .description {
+                font-size: 13px;
                 color: #666;
-                font-style: italic;
-                padding: 20px;
-                text-align: center;
+                margin-bottom: 10px;
             }
         </style>
         <?php
@@ -820,333 +663,77 @@ class DbRenderer {
                     <span class="bfa-traffic-status">● <?php _e('Live', 'bandfront-player'); ?></span>
                     <button type="button" class="button button-small" id="bfa-clear-db-activity">
                         <?php _e('Clear', 'bandfront-player'); ?>
-                  <span class="bfa-traffic-status">● <?php _e('Live', 'bandfront-player'); ?></span>
-                    <button type="button" class="button button-small" id="bfa-clear-db-activity">
-                        <?php _e('Clear', 'bandfront-player'); ?>      
-                        </button>
-               </div>
-               <div class="bfa-traffic-log" id="bfa-db-activity-log">
-                   <div class="bfa-traffic-empty"><?php _e('Waiting for database activity...', 'bandfront-player'); ?></div>
-               </div>
-           </div>
-       </div>
-       
-       <!-- Database Stats and Performance Grid -->
-       <div class="bfa-monitor-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
-           <!-- Database Stats -->
-           <div class="bfa-monitor-section">
-               <h3><?php _e('Database Statistics', 'bandfront-player'); ?></h3>
-               <div class="bfa-db-stats">
-                   <?php $this->renderDatabaseStats(); ?>
-               </div>
-           </div>
-           
-           <!-- Performance Metrics -->
-           <div class="bfa-monitor-section">
-               <h3><?php _e('Performance Metrics', 'bandfront-player'); ?></h3>
-               <div class="bfa-performance-grid">
-                   <?php $this->renderPerformanceMetrics(); ?>
-               </div>
-           </div>
-       </div>
-       <?php
-   }
-   
-   /**
-    * Render products content
-    */
-   private function renderProductsContent(): void {
-       $products = $this->monitor->getWooCommerceProducts(10);
+                    </button>
+                </div>
+                <div class="bfa-traffic-log" id="bfa-db-activity-log">
+                    <div class="bfa-traffic-empty"><?php _e('Waiting for database activity...', 'bandfront-player'); ?></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Database Stats and Performance Grid -->
+        <div class="bfa-monitor-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <!-- Database Stats -->
+            <div class="bfa-monitor-section">
+                <h3><?php _e('Database Statistics', 'bandfront-player'); ?></h3>
+                <div class="bfa-db-stats">
+                    <?php $this->renderDatabaseStats(); ?>
+                </div>
+            </div>
+            
+            <!-- Performance Metrics -->
+            <div class="bfa-monitor-section">
+                <h3><?php _e('Performance Metrics', 'bandfront-player'); ?></h3>
+                <div class="bfa-performance-grid">
+                    <?php $this->renderPerformanceMetrics(); ?>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Render products content
+     */
+    private function renderProductsContent(): void {
+        $products = $this->monitor->getWooCommerceProducts(10);
 
-       if (empty($products)) {
-           echo '<p>' . __('No products found.', 'bandfront-player') . '</p>';
-           return;
-       }
+        if (empty($products)) {
+            echo '<p>' . __('No products found.', 'bandfront-player') . '</p>';
+            return;
+        }
 
-       echo '<ul class="product-list">';
-       foreach ($products as $product) {
-           $product_id = $product->ID;
-           $product_title = get_the_title($product_id);
-           $product_price = get_post_meta($product_id, '_price', true);
+        echo '<ul class="product-list">';
+        foreach ($products as $product) {
+            $product_id = $product->ID;
+            $product_title = get_the_title($product_id);
+            $product_price = get_post_meta($product_id, '_price', true);
 
-           echo '<li>';
-           echo '<a href="#" class="product-link" data-product-id="' . esc_attr($product_id) . '">';
-           echo esc_html($product_title) . ' - ' . wc_price($product_price);
-           echo '</a>';
-           echo '</li>';
-       }
-       echo '</ul>';
-   }
-   
-   /**
-    * Render schema content with comprehensive Config dump
-    */
-   private function renderSchemaContent(): void {
-       // Get all configuration data using existing Config methods
-       $allSettings = $this->config->getAllSettings();
-       $globalAttrs = $this->config->getAllGlobalAttrs();
-       
-       // Extract the settings configuration from the Config class
-       // We'll build this from the allSettings and known keys
-       $settingsConfig = $this->buildSettingsConfig($allSettings);
-       
-       ?>
-       <div class="bfa-schema-container">
-           <h3><?php _e('Configuration Schema & Current Values', 'bandfront-player'); ?></h3>
-           
-           <!-- Quick Stats -->
-           <div class="bfa-schema-stats">
-               <div class="bfa-stat-box">
-                   <span class="bfa-stat-number"><?php echo count($allSettings); ?></span>
-                   <span class="bfa-stat-label"><?php _e('Total Settings', 'bandfront-player'); ?></span>
-               </div>
-               <div class="bfa-stat-box">
-                   <span class="bfa-stat-number"><?php echo count($globalAttrs); ?></span>
-                   <span class="bfa-stat-label"><?php _e('Global Settings', 'bandfront-player'); ?></span>
-               </div>
-               <div class="bfa-stat-box">
-                   <span class="bfa-stat-number"><?php echo count(array_filter($allSettings)); ?></span>
-                   <span class="bfa-stat-label"><?php _e('Non-empty Values', 'bandfront-player'); ?></span>
-               </div>
-           </div>
-           
-           <!-- All Settings Display -->
-           <div class="bfa-schema-sections">
-               <?php
-               // Group settings by prefix for better organization
-               $grouped = [
-                   'General' => [],
-                   'Player' => [],
-                   'Demo & Security' => [],
-                   'Audio Engine' => [],
-                   'Cloud Storage' => [],
-                   'Developer' => [],
-                   'Other' => []
-               ];
-               
-               foreach ($allSettings as $key => $value) {
-                   $item = [
-                       'key' => $key,
-                       'value' => $value,
-                       'config' => $settingsConfig[$key] ?? ['type' => 'unknown', 'default' => null]
-                   ];
-                   
-                   if (strpos($key, '_bfp_player') === 0 || strpos($key, '_bfp_enable_player') === 0 || 
-                       strpos($key, '_bfp_merge') === 0 || strpos($key, '_bfp_single') === 0 ||
-                       strpos($key, '_bfp_play') === 0 || strpos($key, '_bfp_loop') === 0 ||
-                       strpos($key, '_bfp_fade') === 0 || strpos($key, '_bfp_on_') === 0) {
-                       $grouped['Player'][] = $item;
-                   } elseif (strpos($key, '_bfp_secure') === 0 || strpos($key, '_bfp_file_percent') === 0 || 
-                             strpos($key, '_bfp_message') === 0) {
-                       $grouped['Demo & Security'][] = $item;
-                   } elseif (strpos($key, '_bfp_audio') === 0 || strpos($key, '_bfp_ffmpeg') === 0 ||
-                             strpos($key, '_bfp_enable_vis') === 0) {
-                       $grouped['Audio Engine'][] = $item;
-                   } elseif (strpos($key, '_bfp_cloud') === 0 || strpos($key, '_bfp_own_demos') === 0 ||
-                             strpos($key, '_bfp_direct_own') === 0) {
-                       $grouped['Cloud Storage'][] = $item;
-                   } elseif (strpos($key, '_bfp_debug') === 0 || strpos($key, 'enable_db_monitoring') === 0 ||
-                             strpos($key, '_bfp_dev_mode') === 0) {
-                       $grouped['Developer'][] = $item;
-                   } elseif (strpos($key, '_bfp_') === 0) {
-                       $grouped['General'][] = $item;
-                   } else {
-                       $grouped['Other'][] = $item;
-                   }
-               }
-               
-               // Display each group
-               foreach ($grouped as $groupName => $items) {
-                   if (empty($items)) continue;
-                   
-                   $icon = '';
-                   switch($groupName) {
-                       case 'General': $icon = 'dashicons-admin-generic'; break;
-                       case 'Player': $icon = 'dashicons-format-audio'; break;
-                       case 'Demo & Security': $icon = 'dashicons-shield'; break;
-                       case 'Audio Engine': $icon = 'dashicons-controls-volumeon'; break;
-                       case 'Cloud Storage': $icon = 'dashicons-cloud'; break;
-                       case 'Developer': $icon = 'dashicons-code-standards'; break;
-                       default: $icon = 'dashicons-admin-settings';
-                   }
-                   ?>
-                   <div class="bfa-schema-section">
-                       <h4 class="bfa-section-header">
-                           <span class="dashicons <?php echo esc_attr($icon); ?>"></span>
-                           <?php echo esc_html($groupName); ?>
-                           <span class="bfa-count">(<?php echo count($items); ?>)</span>
-                       </h4>
-                       <div class="bfa-schema-table">
-                           <table class="bfa-config-table">
-                               <thead>
-                                   <tr>
-                                       <th><?php _e('Setting', 'bandfront-player'); ?></th>
-                                       <th><?php _e('Current Value', 'bandfront-player'); ?></th>
-                                       <th><?php _e('Type', 'bandfront-player'); ?></th>
-                                       <th><?php _e('Default', 'bandfront-player'); ?></th>
-                                   </tr>
-                               </thead>
-                               <tbody>
-                                   <?php foreach ($items as $item): 
-                                       $displayValue = $this->formatConfigValue($item['value']);
-                                       $type = $item['config']['type'] ?? 'unknown';
-                                       $default = $item['config']['default'] ?? 'N/A';
-                                   ?>
-                                   <tr>
-                                       <td class="bfa-key">
-                                           <code><?php echo esc_html($item['key']); ?></code>
-                                           <?php if (!empty($item['config']['label'])): ?>
-                                               <span class="bfa-label"><?php echo esc_html($item['config']['label']); ?></span>
-                                           <?php endif; ?>
-                                       </td>
-                                       <td class="bfa-value"><?php echo $displayValue; ?></td>
-                                       <td class="bfa-type">
-                                           <span class="bfa-type-badge bfa-type-<?php echo esc_attr($type); ?>">
-                                               <?php echo esc_html($type); ?>
-                                           </span>
-                                       </td>
-                                       <td class="bfa-default">
-                                           <?php echo $this->formatConfigValue($default); ?>
-                                       </td>
-                                   </tr>
-                                   <?php endforeach; ?>
-                               </tbody>
-                           </table>
-                       </div>
-                   </div>
-                   <?php
-               }
-               ?>
-           </div>
-           
-           <!-- Raw dump -->
-           <div class="bfa-schema-section">
-               <h4 class="bfa-section-header bfa-collapsible" data-target="raw-values">
-                   <span class="dashicons dashicons-editor-code"></span>
-                   <?php _e('Raw Configuration Dump', 'bandfront-player'); ?>
-                   <span class="bfa-toggle dashicons dashicons-arrow-down-alt2"></span>
-               </h4>
-               <div id="raw-values" class="bfa-schema-raw" style="display: none;">
-                   <pre class="bfa-code-block"><?php 
-                       echo esc_html(json_encode($allSettings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-                   ?></pre>
-               </div>
-           </div>
-       </div>
-       <?php
-   }
-   
-   /**
-    * Format configuration value for display
-    */
-   private function formatConfigValue($value): string {
-       if (is_bool($value)) {
-           return $value ? '<span class="bfa-bool-true">✓ true</span>' : '<span class="bfa-bool-false">✗ false</span>';
-       } elseif (is_array($value)) {
-           if (empty($value)) {
-               return '<span class="bfa-empty">[ empty ]</span>';
-           }
-           return '<code class="bfa-array">' . esc_html(json_encode($value, JSON_PRETTY_PRINT)) . '</code>';
-       } elseif (is_null($value)) {
-           return '<span class="bfa-null">null</span>';
-       } elseif ($value === '') {
-           return '<span class="bfa-empty">""</span>';
-       } elseif (is_numeric($value)) {
-           return '<span class="bfa-number">' . esc_html($value) . '</span>';
-       } else {
-           // Check if it's a path or URL
-           if (strpos($value, '/') !== false || strpos($value, '\\') !== false) {
-               return '<code class="bfa-path">' . esc_html($value) . '</code>';
-           }
-           return '<span class="bfa-string">"' . esc_html($value) . '"</span>';
-       }
-   }
-   
-   /**
-    * Build settings configuration from known settings
-    */
-   private function buildSettingsConfig(array $allSettings): array {
-       $config = [];
-       
-       // Known type mappings
-       $typeMap = [
-           // Boolean settings
-           '_bfp_enable_player' => ['type' => 'boolean', 'default' => true, 'label' => 'Enable Player'],
-           '_bfp_secure_player' => ['type' => 'boolean', 'default' => false, 'label' => 'Secure Player'],
-           '_bfp_merge_in_grouped' => ['type' => 'boolean', 'default' => false, 'label' => 'Merge in Grouped'],
-           '_bfp_single_player' => ['type' => 'boolean', 'default' => false, 'label' => 'Single Player Mode'],
-           '_bfp_play_all' => ['type' => 'boolean', 'default' => false, 'label' => 'Play All Tracks'],
-           '_bfp_loop' => ['type' => 'boolean', 'default' => false, 'label' => 'Loop Playback'],
-           '_bfp_fade_out' => ['type' => 'boolean', 'default' => false, 'label' => 'Fade Out'],
-           '_bfp_registered_only' => ['type' => 'boolean', 'default' => false, 'label' => 'Registered Users Only'],
-           '_bfp_purchased' => ['type' => 'boolean', 'default' => false, 'label' => 'Purchased Only'],
-           '_bfp_players_in_cart' => ['type' => 'boolean', 'default' => false, 'label' => 'Show Players in Cart'],
-           '_bfp_on_cover' => ['type' => 'boolean', 'default' => false, 'label' => 'Show on Cover'],
-           '_bfp_ffmpeg' => ['type' => 'boolean', 'default' => false, 'label' => 'Enable FFmpeg'],
-           '_bfp_own_demos' => ['type' => 'boolean', 'default' => false, 'label' => 'Use Own Demos'],
-           '_bfp_direct_own_demos' => ['type' => 'boolean', 'default' => false, 'label' => 'Direct Demo Links'],
-           '_bfp_debug_mode' => ['type' => 'boolean', 'default' => false, 'label' => 'Debug Mode'],
-           '_bfp_dev_mode' => ['type' => 'boolean', 'default' => false, 'label' => 'Developer Mode'],
-           '_bfp_enable_vis' => ['type' => 'boolean', 'default' => false, 'label' => 'Enable Visualizer'],
-           'enable_db_monitoring' => ['type' => 'boolean', 'default' => false, 'label' => 'Database Monitoring'],
-           
-           // String settings
-           '_bfp_audio_engine' => ['type' => 'string', 'default' => 'html5', 'label' => 'Audio Engine'],
-           '_bfp_player_layout' => ['type' => 'string', 'default' => 'dark', 'label' => 'Player Layout'],
-           '_bfp_player_controls' => ['type' => 'string', 'default' => 'modern', 'label' => 'Player Controls'],
-           '_bfp_message' => ['type' => 'string', 'default' => '', 'label' => 'Custom Message'],
-           '_bfp_purchased_times_text' => ['type' => 'string', 'default' => '', 'label' => 'Purchase Times Text'],
-           '_bfp_analytics_integration' => ['type' => 'string', 'default' => '', 'label' => 'Analytics Integration'],
-           '_bfp_ffmpeg_path' => ['type' => 'string', 'default' => '', 'label' => 'FFmpeg Path'],
-           '_bfp_ffmpeg_watermark' => ['type' => 'string', 'default' => '', 'label' => 'Watermark File'],
-           
-           // Integer settings
-           '_bfp_file_percent' => ['type' => 'integer', 'default' => 30, 'label' => 'Preview Percentage'],
-           '_bfp_reset_purchased_interval' => ['type' => 'integer', 'default' => 0, 'label' => 'Reset Interval'],
-           
-           // Float settings
-           '_bfp_player_volume' => ['type' => 'float', 'default' => 0.8, 'label' => 'Default Volume'],
-           
-           // Array settings
-           '_bfp_cloud_dropbox' => ['type' => 'array', 'default' => [], 'label' => 'Dropbox Settings'],
-           '_bfp_cloud_s3' => ['type' => 'array', 'default' => [], 'label' => 'S3 Settings'],
-           '_bfp_cloud_azure' => ['type' => 'array', 'default' => [], 'label' => 'Azure Settings'],
-       ];
-       
-       // Build config for all settings
-       foreach ($allSettings as $key => $value) {
-           if (isset($typeMap[$key])) {
-               $config[$key] = $typeMap[$key];
-           } else {
-               // Infer type from value
-               $type = 'string';
-               if (is_bool($value) || $value === '1' || $value === '0' || $value === 1 || $value === 0) {
-                   $type = 'boolean';
-               } elseif (is_array($value)) {
-                   $type = 'array';
-               } elseif (is_numeric($value)) {
-                   $type = strpos($value, '.') !== false ? 'float' : 'integer';
-               }
-               
-               $config[$key] = [
-                   'type' => $type,
-                   'default' => null,
-                   'label' => $this->humanizeKey($key)
-               ];
-           }
-       }
-       
-       return $config;
-   }
-   
-   /**
-    * Convert setting key to human-readable label
-    */
-   private function humanizeKey(string $key): string {
-       // Remove prefix
-       $key = str_replace(['_bfp_', '_'], ' ', $key);
-       
-       // Capitalize words
-       return ucwords(trim($key));
-   }
+            echo '<li>';
+            echo '<a href="#" class="product-link" data-product-id="' . esc_attr($product_id) . '">';
+            echo esc_html($product_title) . ' - ' . wc_price($product_price);
+            echo '</a>';
+            echo '</li>';
+        }
+        echo '</ul>';
+    }
+    
+    /**
+     * Render schema content
+     */
+    private function renderSchemaContent(): void {
+        $schema = $this->monitor->getConfigSchema();
+
+        echo '<ul class="config-schema">';
+        foreach ($schema as $section => $variables) {
+            echo '<li><b>' . esc_html($section) . '</b><ul>';
+            foreach ($variables as $var => $type) {
+                echo '<li>';
+                echo esc_html($var) . ': ' . esc_html($type);
+                echo '</li>';
+            }
+            echo '</ul></li>';
+        }
+        echo '</ul>';
+    }
 }
