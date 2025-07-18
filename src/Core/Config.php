@@ -62,6 +62,14 @@ class Config {
            'cloud-engine' => true,
        ],
        '_bfp_dev_mode' => 0,  // Add dev mode setting
+       // Debug category settings
+       '_bfp_debug_mode' => 0,
+       '_bfp_debug_admin' => 0,
+       '_bfp_debug_bootstrap' => 0,
+       '_bfp_debug_ui' => 0,
+       '_bfp_debug_filemanager' => 0,
+       '_bfp_debug_audio' => 0,
+       '_bfp_debug_api' => 0,
        '_bfp_cloud_active_tab' => 'google-drive',
        '_bfp_cloud_dropbox' => [
            'enabled' => false,
@@ -143,6 +151,14 @@ class Config {
            '_bfp_demos_list' => [],
            '_bfp_dev_mode' => 0,  // Default to off
            '_bfp_cloud_active_tab' => 'google-drive',
+           // Debug category settings
+           '_bfp_debug_mode' => 0,
+           '_bfp_debug_admin' => 0,
+           '_bfp_debug_bootstrap' => 0,
+           '_bfp_debug_ui' => 0,
+           '_bfp_debug_filemanager' => 0,
+           '_bfp_debug_audio' => 0,
+           '_bfp_debug_api' => 0,
            '_bfp_cloud_dropbox' => [
                'enabled' => false,
                'access_token' => '',
@@ -842,6 +858,57 @@ class Config {
                'label' => __('Enable Database Monitoring', 'bandfront-player'),
                'global_only' => true,
                'show_in_admin' => false, // Shown in dev tools only
+           ],
+
+           // Debug category settings
+           '_bfp_debug_mode' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Enable Debug Mode', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => false, // Shown in dev tools only
+           ],
+           '_bfp_debug_admin' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Debug Admin', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => false,
+           ],
+           '_bfp_debug_bootstrap' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Debug Bootstrap', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => false,
+           ],
+           '_bfp_debug_ui' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Debug UI', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => false,
+           ],
+           '_bfp_debug_filemanager' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Debug FileManager', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => false,
+           ],
+           '_bfp_debug_audio' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Debug Audio', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => false,
+           ],
+           '_bfp_debug_api' => [
+               'default' => 0,
+               'type' => 'boolean',
+               'label' => __('Debug API', 'bandfront-player'),
+               'global_only' => true,
+               'show_in_admin' => false,
            ],
        ];
    }

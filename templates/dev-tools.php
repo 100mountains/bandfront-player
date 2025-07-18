@@ -47,6 +47,15 @@ if (!$devMode) {
                     <input type="checkbox" name="_bfp_debug_mode" value="1" <?php checked($config->getState('_bfp_debug_mode', 0)); ?> />
                     <?php esc_html_e('Enable debug logging', 'bandfront-player'); ?>
                 </label>
+                <div class="bfp-debug-subsections" style="margin-left: 20px; margin-top: 10px;">
+                    <h4><?php esc_html_e('Debug Categories', 'bandfront-player'); ?></h4>
+                    <label><input type="checkbox" name="_bfp_debug_admin" value="1" <?php checked($config->getState('_bfp_debug_admin', 0)); ?> /> <?php esc_html_e('Admin', 'bandfront-player'); ?></label><br>
+                    <label><input type="checkbox" name="_bfp_debug_bootstrap" value="1" <?php checked($config->getState('_bfp_debug_bootstrap', 0)); ?> /> <?php esc_html_e('Bootstrap', 'bandfront-player'); ?></label><br>
+                    <label><input type="checkbox" name="_bfp_debug_ui" value="1" <?php checked($config->getState('_bfp_debug_ui', 0)); ?> /> <?php esc_html_e('UI', 'bandfront-player'); ?></label><br>
+                    <label><input type="checkbox" name="_bfp_debug_filemanager" value="1" <?php checked($config->getState('_bfp_debug_filemanager', 0)); ?> /> <?php esc_html_e('FileManager', 'bandfront-player'); ?></label><br>
+                    <label><input type="checkbox" name="_bfp_debug_audio" value="1" <?php checked($config->getState('_bfp_debug_audio', 0)); ?> /> <?php esc_html_e('Audio', 'bandfront-player'); ?></label><br>
+                    <label><input type="checkbox" name="_bfp_debug_api" value="1" <?php checked($config->getState('_bfp_debug_api', 0)); ?> /> <?php esc_html_e('API', 'bandfront-player'); ?></label><br>
+                </div>
                 <p class="description"><?php esc_html_e('Logs debug information to the WordPress debug.log file.', 'bandfront-player'); ?></p>
             </td>
         </tr>
