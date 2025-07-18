@@ -63,6 +63,7 @@ class ComposerStaticInit0c405109c72939381025ea518499511b
         'Bandfront\\Audio\\Preview' => __DIR__ . '/../..' . '/src/Audio/Preview.php',
         'Bandfront\\Audio\\Processor' => __DIR__ . '/../..' . '/src/Audio/Processor.php',
         'Bandfront\\Audio\\Streamer' => __DIR__ . '/../..' . '/src/Audio/Streamer.php',
+        'Bandfront\\Core\\Bootstrap' => __DIR__ . '/../..' . '/src/Core/Bootstrap.php',
         'Bandfront\\Core\\Config' => __DIR__ . '/../..' . '/src/Core/Config.php',
         'Bandfront\\Core\\Hooks' => __DIR__ . '/../..' . '/src/Core/Hooks.php',
         'Bandfront\\REST\\StreamController' => __DIR__ . '/../..' . '/src/REST/StreamController.php',

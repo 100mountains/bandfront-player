@@ -16,6 +16,7 @@ return array(
     'Bandfront\\Audio\\Preview' => $baseDir . '/src/Audio/Preview.php',
     'Bandfront\\Audio\\Processor' => $baseDir . '/src/Audio/Processor.php',
     'Bandfront\\Audio\\Streamer' => $baseDir . '/src/Audio/Streamer.php',
+    'Bandfront\\Core\\Bootstrap' => $baseDir . '/src/Core/Bootstrap.php',
     'Bandfront\\Core\\Config' => $baseDir . '/src/Core/Config.php',
     'Bandfront\\Core\\Hooks' => $baseDir . '/src/Core/Hooks.php',
     'Bandfront\\REST\\StreamController' => $baseDir . '/src/REST/StreamController.php',
