@@ -594,7 +594,7 @@ class WooCommerceIntegration {
     /**
      * Display format downloads on account page
      */
-    public function displayAccountFormatDownloads(): void {
+    public function displayFormatDownloads(): void {
         // Get the download renderer via Bootstrap
         $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
         $renderer = new \Bandfront\UI\DownloadRenderer($this->config);

@@ -68,63 +68,53 @@ class DownloadRenderer {
     }
     
     /**
-     * Render a single product's downloads
+     * Render a single product's downloads - matching original template exactly
      */
     private function renderProductDownloads(int $productId, array $product): void {
+        // Get product image URL
         $productObj = wc_get_product($productId);
         $imageUrl = $productObj ? wp_get_attachment_image_url($productObj->get_image_id(), 'thumbnail') : '';
-        
         ?>
-        <div class="bfp-product-downloads" data-product-id="<?php echo esc_attr($productId); ?>">
-            <div class="bfp-download-header">
-                <div class="bfp-download-info">
-                    <h3 class="bfp-product-title"><?php echo esc_html($product['product_name']); ?></h3>
-                    <div class="bfp-download-meta">
+        <div class="product-downloads" data-product-id="<?php echo esc_attr($productId); ?>" style="background:#181818;padding:1.5em 1.5em 1em 1.5em;border-radius:12px;margin-bottom:2em;">
+            <!-- Flex row for info and image -->
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="flex:1;min-width:0;">
+                    <h3 class="bluu-text" style="margin-top:0;"><?php echo esc_html($product['product_name']); ?></h3>
+                    <div class="download-info">
                         <?php if ($product['downloads_remaining']): ?>
-                            <span class="bfp-downloads-remaining">
-                                <?php echo esc_html(sprintf(__('Downloads remaining: %s', 'bandfront-player'), $product['downloads_remaining'])); ?>
-                            </span>
+                            <span class="downloads-remaining">Downloads remaining: <?php echo esc_html($product['downloads_remaining']); ?></span>
                         <?php endif; ?>
                         <?php if ($product['access_expires']): ?>
-                            <span class="bfp-access-expires">
-                                <?php echo esc_html(sprintf(__('Expires: %s', 'bandfront-player'), date('F j, Y', strtotime($product['access_expires'])))); ?>
-                            </span>
+                            <span class="access-expires">Expires: <?php echo esc_html(date('F j, Y', strtotime($product['access_expires']))); ?></span>
                         <?php endif; ?>
                     </div>
                 </div>
                 <?php if ($imageUrl): ?>
-                    <img src="<?php echo esc_url($imageUrl); ?>" 
-                         alt="<?php echo esc_attr($product['product_name']); ?>" 
-                         class="bfp-product-image">
+                    <img src="<?php echo esc_url($imageUrl); ?>" alt="<?php echo esc_attr($product['product_name']); ?>" style="max-width:140px;max-height:140px;margin-left:1.5em;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.18);object-fit:cover;">
                 <?php endif; ?>
             </div>
-            
             <?php if (count($product['files']) > 1): ?>
-                <div class="bfp-download-controls">
-                    <div class="bfp-download-dropdown">
-                        <button class="bfp-download-all-files button alt">
-                            <span class="bfp-button-text"><?php esc_html_e('Download All As...', 'bandfront-player'); ?></span>
-                            <span class="bfp-spinner" style="display:none;"></span>
-                        </button>
-                        <div class="bfp-format-menu">
-                            <?php $this->renderFormatOptions(); ?>
+                <!-- Dropdown and caret inside the background box -->
+                <div class="download-all-wrapper" style="display:flex;align-items:center;justify-content:space-between;margin-top:1em;">
+                    <div class="download-dropdown">
+                        <button class="download-all-files button alt"><span class="button-text">Download All As...</span><span class="spinner" style="display:none;margin-left:8px;vertical-align:middle;width:18px;height:18px;"></span></button>
+                        <div class="download-format-menu">
+                            <a href="#" data-format="wav" class="format-option alacti-text">WAV (Original)</a>
+                            <a href="#" data-format="mp3" class="format-option alacti-text">MP3</a>
+                            <a href="#" data-format="flac" class="format-option alacti-text">FLAC</a>
+                            <a href="#" data-format="aiff" class="format-option alacti-text">AIFF</a>
+                            <a href="#" data-format="alac" class="format-option alacti-text">ALAC</a>
+                            <a href="#" data-format="ogg" class="format-option alacti-text">OGG Vorbis</a>
                         </div>
                     </div>
-                    <button class="bfp-expand-button" 
-                            aria-expanded="false" 
-                            aria-controls="bfp-files-<?php echo esc_attr($productId); ?>">
-                        ▼
-                    </button>
+                    <button class="expand-button" aria-expanded="false" aria-controls="files-<?php echo esc_attr($productId); ?>" style="margin-left:1em;background:none;border:none;color:#ffd700;font-size:1.2em;cursor:pointer;align-self:center;">▼</button>
                 </div>
             <?php endif; ?>
-            
-            <ul class="bfp-download-files" 
-                id="bfp-files-<?php echo esc_attr($productId); ?>" 
-                style="display:none;">
+            <!-- Product files list, hidden by default -->
+            <ul class="download-files" id="files-<?php echo esc_attr($productId); ?>" style="display:none;">
                 <?php foreach ($product['files'] as $file): ?>
-                    <li class="bfp-download-file">
-                        <a href="<?php echo esc_url($file['download_url']); ?>" 
-                           class="bfp-download-link">
+                    <li class="download-file">
+                        <a href="<?php echo esc_url($file['download_url']); ?>" class="woocommerce-MyAccount-downloads-file">
                             <?php echo esc_html($file['file']['name']); ?>
                         </a>
                     </li>
@@ -132,27 +122,5 @@ class DownloadRenderer {
             </ul>
         </div>
         <?php
-    }
-    
-    /**
-     * Render format options
-     */
-    private function renderFormatOptions(): void {
-        $formats = [
-            'wav' => __('WAV (Original)', 'bandfront-player'),
-            'mp3' => __('MP3', 'bandfront-player'),
-            'flac' => __('FLAC', 'bandfront-player'),
-            'aiff' => __('AIFF', 'bandfront-player'),
-            'alac' => __('ALAC', 'bandfront-player'),
-            'ogg' => __('OGG Vorbis', 'bandfront-player')
-        ];
-        
-        foreach ($formats as $format => $label) {
-            printf(
-                '<a href="#" data-format="%s" class="bfp-format-option">%s</a>',
-                esc_attr($format),
-                esc_html($label)
-            );
-        }
     }
 }
