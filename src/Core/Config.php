@@ -912,4 +912,41 @@ class Config {
            ],
        ];
    }
+
+   /**
+    * Helper method to check if debug logging is enabled for a specific category
+    * @param string $category The debug category (admin, bootstrap, ui, filemanager, audio, api)
+    * @return bool
+    */
+   public function isDebugEnabled(string $category): bool {
+       // First check if general debug mode is enabled
+       if (!$this->getState('_bfp_debug_mode', 0)) {
+           return false;
+       }
+       
+       // Then check the specific category
+       $categoryKey = '_bfp_debug_' . strtolower($category);
+       return (bool) $this->getState($categoryKey, 0);
+   }
+
+   /**
+    * Get all enabled debug categories
+    * @return array
+    */
+   public function getEnabledDebugCategories(): array {
+       if (!$this->getState('_bfp_debug_mode', 0)) {
+           return [];
+       }
+       
+       $categories = ['admin', 'bootstrap', 'ui', 'filemanager', 'audio', 'api'];
+       $enabled = [];
+       
+       foreach ($categories as $category) {
+           if ($this->isDebugEnabled($category)) {
+               $enabled[] = $category;
+           }
+       }
+       
+       return $enabled;
+   }
 }
