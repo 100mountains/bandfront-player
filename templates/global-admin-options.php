@@ -14,10 +14,10 @@ if (!defined('ABSPATH')) {
 }
 
 // include resources
-wp_enqueue_style( 'bfp-admin-style', BFP_PLUGIN_URL . 'css/style-admin.css', array(), '5.0.181' );
-wp_enqueue_style( 'bfp-admin-notices', BFP_PLUGIN_URL . 'css/admin-notices.css', array(), '5.0.181' );
+wp_enqueue_style( 'bfp-admin-style', BFP_PLUGIN_URL . 'assets/css/style-admin.css', array(), '5.0.181' );
+wp_enqueue_style( 'bfp-admin-notices', BFP_PLUGIN_URL . 'assets/css/admin-notices.css', array(), '5.0.181' );
 wp_enqueue_media();
-wp_enqueue_script( 'bfp-admin-js', BFP_PLUGIN_URL . 'js/admin.js', array('jquery'), '5.0.181' );
+wp_enqueue_script( 'bfp-admin-js', BFP_PLUGIN_URL . 'assets/js/admin.js', array('jquery'), '5.0.181' );
 $bfp_js = array(
 	'File Name'         => __( 'File Name', 'bandfront-player' ),
 	'Choose file'       => __( 'Choose file', 'bandfront-player' ),

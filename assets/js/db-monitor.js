@@ -390,12 +390,6 @@ jQuery(document).ready(function($) {
         initDashboardWidget();
     }
     
-    // Database Monitor functionality
-    if ($('#bfa-activity-monitor').length) {
-        // This code should be in the PHP file, not here
-        // The activity monitor is already initialized inline in DatabaseMonitor.php
-    }
-    
     // Auto-refresh every 60 seconds
     setInterval(function() {
         if ($('#bfa-main-chart').length) {
@@ -408,4 +402,251 @@ jQuery(document).ready(function($) {
             loadTopTracks();
         }
     }, 60000);
+});
+
+// Database Monitor specific functionality
+jQuery(document).ready(function($) {
+    // Test Events Handler
+    $('#bfp-test-events').on('click', function() {
+        var $button = $(this);
+        var $spinner = $('.bfp-db-test-actions .spinner');
+        var $message = $('.bfp-test-message');
+        
+        $button.prop('disabled', true);
+        $spinner.css('visibility', 'visible');
+        $message.text('');
+        
+        $.post(bfpDbMonitor.ajax_url, {
+            action: 'bfp_generate_test_events',
+            nonce: bfpDbMonitor.nonce
+        }, function(response) {
+            $button.prop('disabled', false);
+            $spinner.css('visibility', 'hidden');
+            
+            if (response.success) {
+                $message.html('<span style="color: #46b450;">' + response.data.message + '</span>');
+                // Trigger refresh of activity monitor if it exists
+                if (typeof loadDbActivity === 'function') {
+                    loadDbActivity();
+                }
+            } else {
+                $message.html('<span style="color: #dc3232;">' + (response.data.message || 'Error generating test events') + '</span>');
+            }
+            
+            // Clear message after 5 seconds
+            setTimeout(function() {
+                $message.fadeOut(function() {
+                    $(this).text('').show();
+                });
+            }, 5000);
+        });
+    });
+    
+    // Clean Events Handler
+    $('#bfp-clean-events').on('click', function() {
+        if (!confirm(bfpDbMonitor.strings.confirm_clean)) {
+            return;
+        }
+        
+        var $button = $(this);
+        var $spinner = $('.bfp-db-test-actions .spinner');
+        var $message = $('.bfp-test-message');
+        
+        $button.prop('disabled', true);
+        $spinner.css('visibility', 'visible');
+        $message.text('');
+        
+        $.post(bfpDbMonitor.ajax_url, {
+            action: 'bfp_clean_test_events',
+            nonce: bfpDbMonitor.nonce
+        }, function(response) {
+            $button.prop('disabled', false);
+            $spinner.css('visibility', 'hidden');
+            
+            if (response.success) {
+                $message.html('<span style="color: #46b450;">' + response.data.message + '</span>');
+                // Trigger refresh of activity monitor if it exists
+                if (typeof loadDbActivity === 'function') {
+                    loadDbActivity();
+                }
+            } else {
+                $message.html('<span style="color: #dc3232;">' + (response.data.message || 'Error cleaning test data') + '</span>');
+            }
+            
+            // Clear message after 5 seconds
+            setTimeout(function() {
+                $message.fadeOut(function() {
+                    $(this).text('').show();
+                });
+            }, 5000);
+        });
+    });
+    
+    // Initialize database activity monitoring
+    if ($('#bfp-db-activity-log').length) {
+        var activityPaused = false;
+        var activityInterval;
+        
+        function loadDbActivity() {
+            if (activityPaused) return;
+            
+            $.post(bfpDbMonitor.ajax_url, {
+                action: 'bfp_get_db_activity',
+                nonce: bfpDbMonitor.nonce_ajax
+            }, function(response) {
+                if (response.success && response.data.activity) {
+                    var $log = $('#bfp-db-activity-log');
+                    $log.empty();
+                    
+                    if (response.data.activity.length === 0) {
+                        $log.html('<div class="bfp-traffic-empty">' + bfpDbMonitor.strings.no_activity + '</div>');
+                    } else {
+                        response.data.activity.forEach(function(event) {
+                            var $entry = $('<div class="bfp-traffic-entry"></div>');
+                            $entry.append('<span class="bfp-traffic-time">' + event.time + '</span>');
+                            $entry.append('<span class="bfp-traffic-method bfp-method-' + event.type + '">' + event.type.toUpperCase() + '</span>');
+                            $entry.append('<span class="bfp-traffic-route">' + event.object + '</span>');
+                            $entry.append('<span class="bfp-traffic-user">' + event.referrer + '</span>');
+                            $log.append($entry);
+                        });
+                    }
+                }
+            });
+        }
+        
+        // Load initial data
+        loadDbActivity();
+        
+        // Set up auto-refresh
+        activityInterval = setInterval(loadDbActivity, 5000);
+        
+        // Clear button handler
+        $('#bfp-clear-db-activity').on('click', function() {
+            $('#bfp-db-activity-log').html('<div class="bfp-traffic-empty">' + bfpDbMonitor.strings.cleared + '</div>');
+        });
+        
+        // Pause/resume handler
+        $('#bfp-pause-monitor').on('click', function() {
+            activityPaused = !activityPaused;
+            $(this).text(activityPaused ? bfpDbMonitor.strings.resume : bfpDbMonitor.strings.pause);
+            $('.bfp-traffic-status').text(activityPaused ? '● ' + bfpDbMonitor.strings.paused : '● ' + bfpDbMonitor.strings.live);
+            if (activityPaused) {
+                $('.bfp-traffic-status').css('color', '#666');
+            } else {
+                $('.bfp-traffic-status').css('color', '#46b450');
+                loadDbActivity(); // Refresh immediately on resume
+            }
+        });
+    }
+});
+
+// Database Maintenance functionality
+jQuery(document).ready(function($) {
+    // Clear Caches Handler
+    $('#bfp-clear-caches').on('click', function() {
+        var $button = $(this);
+        $button.prop('disabled', true).text(bfpDbMonitor.strings.cleaning);
+        
+        $.post(bfpDbMonitor.ajax_url, {
+            action: 'bfp_clear_caches',
+            nonce: bfpDbMonitor.nonce
+        }, function(response) {
+            $button.prop('disabled', false).text('Clear All Caches');
+            if (response.success) {
+                alert(response.data.message || 'Caches cleared successfully!');
+            } else {
+                alert(response.data.message || 'Error clearing caches');
+            }
+        });
+    });
+    
+    // Optimize Tables Handler
+    $('#bfp-optimize-tables').on('click', function() {
+        var $button = $(this);
+        $button.prop('disabled', true).text(bfpDbMonitor.strings.optimizing);
+        
+        $.post(bfpDbMonitor.ajax_url, {
+            action: 'bfp_optimize_tables',
+            nonce: bfpDbMonitor.nonce
+        }, function(response) {
+            $button.prop('disabled', false).text('Optimize Tables');
+            if (response.success) {
+                alert(response.data.message || 'Tables optimized successfully!');
+            } else {
+                alert(response.data.message || 'Error optimizing tables');
+            }
+        });
+    });
+    
+    // Export Settings Handler
+    $('#bfp-export-settings').on('click', function() {
+        var $button = $(this);
+        $button.prop('disabled', true).text(bfpDbMonitor.strings.exporting);
+        
+        $.post(bfpDbMonitor.ajax_url, {
+            action: 'bfp_export_settings',
+            nonce: bfpDbMonitor.nonce
+        }, function(response) {
+            $button.prop('disabled', false).text('Export Settings');
+            if (response.success && response.data.download_url) {
+                window.location.href = response.data.download_url;
+            } else {
+                alert(response.data.message || 'Error exporting settings');
+            }
+        });
+    });
+    
+    // Scan Orphaned Data Handler
+    $('#bfp-scan-orphaned').on('click', function() {
+        var $button = $(this);
+        var $results = $('#bfp-orphaned-results');
+        var $resultsText = $results.find('.bfp-scan-results');
+        
+        $button.prop('disabled', true).text(bfpDbMonitor.strings.scanning);
+        $results.hide();
+        
+        $.post(bfpDbMonitor.ajax_url, {
+            action: 'bfp_scan_orphaned',
+            nonce: bfpDbMonitor.nonce
+        }, function(response) {
+            $button.prop('disabled', false).text('Scan for Orphaned Data');
+            
+            if (response.success) {
+                var data = response.data;
+                var message = 'Found: ' + data.orphaned_files + ' orphaned files, ' + 
+                             data.orphaned_meta + ' orphaned metadata entries.';
+                
+                if (data.orphaned_files > 0 || data.orphaned_meta > 0) {
+                    message += ' <button type="button" class="button button-small" id="bfp-clean-orphaned">Clean Up</button>';
+                }
+                
+                $resultsText.html(message);
+                $results.show();
+                
+                // Add clean handler if button was added
+                $('#bfp-clean-orphaned').on('click', function() {
+                    if (confirm(bfpDbMonitor.strings.confirm_clean)) {
+                        cleanOrphanedData();
+                    }
+                });
+            } else {
+                alert(response.data.message || 'Error scanning for orphaned data');
+            }
+        });
+    });
+    
+    // Clean orphaned data function
+    function cleanOrphanedData() {
+        $.post(bfpDbMonitor.ajax_url, {
+            action: 'bfp_clean_orphaned',
+            nonce: bfpDbMonitor.nonce
+        }, function(response) {
+            if (response.success) {
+                $('#bfp-orphaned-results').hide();
+                alert(response.data.message || 'Orphaned data cleaned successfully!');
+            } else {
+                alert(response.data.message || 'Error cleaning orphaned data');
+            }
+        });
+    }
 });

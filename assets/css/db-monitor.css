@@ -1,0 +1,722 @@
+/* Analytics Dashboard Styles */
+.bfa-analytics-wrap {
+    margin: 20px 20px 20px 0;
+}
+
+.bfa-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* 5-column grid for main analytics page */
+.bfa-stats-grid-5 {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px; /* Slightly smaller gap for 5 columns */
+}
+
+/* Responsive breakpoints for 5-column grid */
+@media (max-width: 1600px) {
+    .bfa-stats-grid-5 .bfa-stat-card {
+        padding: 15px; /* Reduce padding on smaller screens */
+    }
+    
+    .bfa-stats-grid-5 .bfa-stat-icon {
+        font-size: 28px; /* Slightly smaller icon */
+    }
+    
+    .bfa-stats-grid-5 .bfa-stat-value {
+        font-size: 24px; /* Slightly smaller value text */
+    }
+}
+
+@media (max-width: 1400px) {
+    .bfa-stats-grid-5 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .bfa-stats-grid-5 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .bfa-stats-grid-5 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.bfa-stat-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: box-shadow 0.3s ease;
+    min-width: 0; /* Prevent overflow */
+}
+
+.bfa-stat-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.bfa-stat-icon {
+    font-size: 32px;
+    opacity: 0.8;
+    flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.bfa-stat-content {
+    flex: 1;
+    min-width: 0; /* Allow content to shrink */
+}
+
+.bfa-stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #23282d;
+    line-height: 1;
+    white-space: nowrap; /* Prevent number wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bfa-stat-label {
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bfa-change-positive {
+    color: #46b450;
+}
+
+.bfa-change-negative {
+    color: #dc3232;
+}
+
+.bfa-controls {
+    margin-bottom: 20px;
+}
+
+.bfa-date-range {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.bfa-chart-container {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    height: 400px;
+    position: relative;
+}
+
+.bfa-top-content {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.bfa-top-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.bfa-top-content table {
+    margin: 0;
+}
+
+.bfa-top-content td:last-child {
+    text-align: right;
+    width: 100px;
+}
+
+/* Dashboard Widget */
+.bfa-dashboard-widget {
+    padding: 12px 0;
+}
+
+.bfa-widget-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.bfa-widget-stat {
+    text-align: center;
+}
+
+.bfa-widget-stat strong {
+    display: block;
+    font-size: 24px;
+    color: #23282d;
+    margin-bottom: 5px;
+}
+
+.bfa-widget-stat span {
+    color: #666;
+    font-size: 12px;
+}
+
+.bfa-widget-chart {
+    height: 150px;
+    margin-bottom: 15px;
+}
+
+.bfa-widget-footer {
+    margin: 0;
+    text-align: center;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+/* Settings Page */
+.form-table th {
+    width: 200px;
+}
+
+.form-table td label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.form-table input[type="number"] {
+    width: 100px;
+}
+
+.form-table .description {
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+/* Two Column Layout */
+.bfa-two-column-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 1200px) {
+    .bfa-two-column-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.bfa-column {
+    min-width: 0;
+}
+
+/* Content Boxes */
+.bfa-content-box {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.bfa-content-box h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #23282d;
+}
+
+.bfa-content-box h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #23282d;
+}
+
+/* Placeholder Boxes */
+.bfa-placeholder-box {
+    text-align: center;
+    padding: 40px 20px;
+    background: #f8f9fa;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+}
+
+.bfa-placeholder-box-wide {
+    padding: 60px 40px;
+}
+
+.bfa-placeholder-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.bfa-placeholder-box h4 {
+    margin: 0 0 15px 0;
+    font-size: 20px;
+    color: #23282d;
+}
+
+.bfa-placeholder-box p {
+    color: #666;
+    margin-bottom: 20px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.bfa-placeholder-box .button {
+    margin-top: 10px;
+}
+
+/* Feature List */
+.bfa-feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    text-align: left;
+    display: inline-block;
+}
+
+.bfa-feature-list li {
+    padding: 8px 0;
+    color: #555;
+}
+
+/* Feature Grid */
+.bfa-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.bfa-feature-item {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+}
+
+.bfa-feature-icon {
+    display: block;
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.bfa-feature-item strong {
+    display: block;
+    margin-bottom: 10px;
+    color: #23282d;
+    font-size: 16px;
+}
+
+.bfa-feature-item p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Member Analytics Specific */
+.bfa-member-stat-value {
+    font-size: 32px;
+    font-weight: 600;
+    color: #23282d;
+    margin-bottom: 5px;
+}
+
+.bfa-member-stat-label {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Tab Navigation */
+.bfa-nav-tab-wrapper {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.bfa-settings-wrap .nav-tab {
+    font-size: 14px;
+    padding: 10px 20px;
+}
+
+.bfa-tab-content {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
+    margin-bottom: 20px;
+}
+
+/* REST API Monitor */
+.bfa-api-monitor {
+    margin-top: 30px;
+}
+
+.bfa-traffic-box {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.bfa-traffic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+}
+
+.bfa-traffic-status {
+    color: #46b450;
+    font-weight: 600;
+}
+
+.bfa-traffic-log {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.bfa-traffic-entry {
+    display: grid;
+    grid-template-columns: 80px 60px 1fr 150px;
+    gap: 10px;
+    padding: 8px;
+    background: #fff;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    font-size: 12px;
+    align-items: center;
+}
+
+.bfa-traffic-time {
+    color: #666;
+}
+
+.bfa-traffic-method {
+    text-align: center;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.bfa-method-get {
+    background: #e7f3ff;
+    color: #0073aa;
+}
+
+.bfa-method-post {
+    background: #d4edda;
+    color: #155724;
+}
+
+.bfa-method-pageview {
+    background: #e7f3ff;
+    color: #0073aa;
+}
+
+.bfa-method-music_play {
+    background: #f0e6ff;
+    color: #8B5CF6;
+}
+
+.bfa-method-download {
+    background: #d4edda;
+    color: #155724;
+}
+
+.bfa-method-user_login {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.bfa-method-add_to_cart {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.bfa-traffic-route {
+    font-family: monospace;
+    color: #333;
+}
+
+.bfa-traffic-user {
+    color: #666;
+    text-align: right;
+}
+
+.bfa-no-traffic {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+/* API Endpoints List */
+.bfa-api-endpoints {
+    margin-top: 30px;
+}
+
+.bfa-endpoints-list {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.bfa-endpoint-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.bfa-endpoint-route {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.bfa-endpoint-route code {
+    background: #f1f1f1;
+    padding: 3px 8px;
+    border-radius: 3px;
+}
+
+.bfa-endpoint-methods {
+    margin-bottom: 5px;
+}
+
+.bfa-method-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.bfa-endpoint-url {
+    color: #666;
+    word-break: break-all;
+}
+
+/* Database Test Actions */
+.bfa-db-test-actions {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.bfa-db-test-actions .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.bfa-db-test-actions .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
+}
+
+.bfa-test-message {
+    font-weight: 500;
+}
+
+/* Database Monitor Specific Styles */
+.bfp-database-table {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.bfp-table-fields {
+    margin-top: 15px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.bfp-table-fields h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #23282d;
+}
+
+.bfp-table-fields h5 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    color: #23282d;
+}
+
+.bfp-key-badge {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.bfp-key-primary {
+    background: #0073aa;
+    color: white;
+}
+
+.bfp-key-unique {
+    background: #46b450;
+    color: white;
+}
+
+.bfp-key-index {
+    background: #826eb4;
+    color: white;
+}
+
+.bfp-index-list {
+    background: white;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid #e5e5e5;
+}
+
+.bfp-index-item {
+    padding: 5px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.bfp-index-item:last-child {
+    border-bottom: none;
+}
+
+.bfp-table-meta {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e5e5;
+    color: #666;
+    font-size: 13px;
+}
+
+.bfp-table-meta span {
+    margin-right: 15px;
+}
+
+/* Traffic Monitor Styles */
+.bfp-traffic-box {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.bfp-traffic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+}
+
+.bfp-traffic-status {
+    color: #46b450;
+    font-weight: 600;
+}
+
+.bfp-traffic-log {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.bfp-traffic-empty {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.bfp-traffic-entry {
+    display: grid;
+    grid-template-columns: 80px 60px 1fr 150px;
+    gap: 10px;
+    padding: 8px;
+    background: #fff;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    font-size: 12px;
+    align-items: center;
+}
+
+.bfp-api-monitor,
+.bfp-api-endpoints {
+    margin-top: 30px;
+}
+
+.bfp-endpoints-list {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.bfp-endpoint-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.bfp-endpoint-route {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.bfp-endpoint-route code {
+    background: #f1f1f1;
+    padding: 3px 8px;
+    border-radius: 3px;
+}
+
+.bfp-endpoint-methods {
+    margin-bottom: 5px;
+}
+
+.bfp-method-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.bfp-method-get {
+    background: #e7f3ff;
+    color: #0073aa;
+}

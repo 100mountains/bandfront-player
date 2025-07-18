@@ -22,83 +22,37 @@ if (!$devMode) {
     return; // Don't render anything if dev mode is off
 }
 
-// Helper functions for stats
-function bfp_getProductsWithAudioCount() {
-    global $wpdb;
-    $count = $wpdb->get_var("
-        SELECT COUNT(DISTINCT post_id) 
-        FROM {$wpdb->postmeta} 
-        WHERE meta_key = '_bfp_enable_player' 
-        AND meta_value = '1'
-    ");
-    return $count ?: 0;
-}
-
-function bfp_getDemoFilesCount() {
-    $upload_dir = wp_upload_dir();
-    $demo_dir = $upload_dir['basedir'] . '/bandfront-player-files/';
-    if (is_dir($demo_dir)) {
-        $files = glob($demo_dir . '*.mp3');
-        return count($files);
+// Get the DbRenderer instance if available
+$dbRenderer = null;
+if (isset($GLOBALS['BandfrontPlayer'])) {
+    $container = $GLOBALS['BandfrontPlayer']->getContainer();
+    if ($container && $container->has('db_renderer')) {
+        $dbRenderer = $container->get('db_renderer');
     }
-    return 0;
-}
-
-function bfp_getCacheSize() {
-    global $wpdb;
-    $size = $wpdb->get_var("
-        SELECT SUM(LENGTH(option_value)) 
-        FROM {$wpdb->options} 
-        WHERE option_name LIKE '_transient_bfp_%'
-    ");
-    return $size ? size_format($size) : '0 B';
-}
-
-function bfp_getLastCacheClear() {
-    $last_clear = get_option('_bfp_last_cache_clear', 0);
-    return $last_clear ? human_time_diff($last_clear) . ' ' . __('ago', 'bandfront-player') : __('Never', 'bandfront-player');
 }
 ?>
 
 <!-- Database Monitor Tab -->
 <div id="database-monitor-panel" class="bfp-tab-panel" style="display:none;">
     <h3>🗄️ <?php esc_html_e('Database Monitor', 'bandfront-player'); ?></h3>
-    <table class="form-table">
-        <tr>
-            <th scope="row"><?php esc_html_e('Database Tables', 'bandfront-player'); ?></th>
-            <td>
-                <p class="description"><?php esc_html_e('Monitor and manage plugin database tables and cached data.', 'bandfront-player'); ?></p>
-                <div class="bfp-database-stats">
-                    <h4><?php esc_html_e('Plugin Data Statistics', 'bandfront-player'); ?></h4>
-                    <ul>
-                        <li>📊 <?php esc_html_e('Total Products with Audio:', 'bandfront-player'); ?> <strong><?php echo esc_html(bfp_getProductsWithAudioCount()); ?></strong></li>
-                        <li>🎵 <?php esc_html_e('Total Demo Files:', 'bandfront-player'); ?> <strong><?php echo esc_html(bfp_getDemoFilesCount()); ?></strong></li>
-                        <li>💾 <?php esc_html_e('Cache Size:', 'bandfront-player'); ?> <strong><?php echo esc_html(bfp_getCacheSize()); ?></strong></li>
-                        <li>⏱️ <?php esc_html_e('Last Cache Clear:', 'bandfront-player'); ?> <strong><?php echo esc_html(bfp_getLastCacheClear()); ?></strong></li>
-                    </ul>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <th scope="row"><?php esc_html_e('Database Maintenance', 'bandfront-player'); ?></th>
-            <td>
-                <button type="button" class="button" id="bfp-clear-caches"><?php esc_html_e('Clear All Caches', 'bandfront-player'); ?></button>
-                <button type="button" class="button" id="bfp-optimize-tables"><?php esc_html_e('Optimize Tables', 'bandfront-player'); ?></button>
-                <button type="button" class="button" id="bfp-export-settings"><?php esc_html_e('Export Settings', 'bandfront-player'); ?></button>
-                <p class="description"><?php esc_html_e('Perform database maintenance operations.', 'bandfront-player'); ?></p>
-            </td>
-        </tr>
-        <tr>
-            <th scope="row"><?php esc_html_e('Orphaned Data', 'bandfront-player'); ?></th>
-            <td>
-                <p class="description"><?php esc_html_e('Check for and clean up orphaned demo files and metadata.', 'bandfront-player'); ?></p>
-                <button type="button" class="button" id="bfp-scan-orphaned"><?php esc_html_e('Scan for Orphaned Data', 'bandfront-player'); ?></button>
-                <div id="bfp-orphaned-results" style="margin-top: 10px; display: none;">
-                    <p class="bfp-scan-results"></p>
-                </div>
-            </td>
-        </tr>
-    </table>
+    <?php 
+    if ($dbRenderer) {
+        // Use the DbRenderer to render this section
+        $dbRenderer->renderDatabaseMonitorSection();
+    } else {
+        // Fallback to inline rendering if DbRenderer is not available
+        ?>
+        <table class="form-table">
+            <tr>
+                <th scope="row"><?php esc_html_e('Database Monitor', 'bandfront-player'); ?></th>
+                <td>
+                    <p class="description"><?php esc_html_e('Database monitoring features require proper initialization.', 'bandfront-player'); ?></p>
+                </td>
+            </tr>
+        </table>
+        <?php
+    }
+    ?>
 </div>
 
 <!-- Dev Tab -->
@@ -162,6 +116,28 @@ function bfp_getLastCacheClear() {
             </td>
         </tr>
         <tr>
+            <th scope="row"><?php esc_html_e('Database Maintenance', 'bandfront-player'); ?></th>
+            <td>
+                <div class="bfp-db-maintenance">
+                    <div class="button-group">
+                        <button type="button" class="button" id="bfp-clear-caches">
+                            <?php esc_html_e('Clear All Caches', 'bandfront-player'); ?>
+                        </button>
+                        <button type="button" class="button" id="bfp-optimize-tables">
+                            <?php esc_html_e('Optimize DB Tables', 'bandfront-player'); ?>
+                        </button>
+                        <button type="button" class="button" id="bfp-scan-orphaned">
+                            <?php esc_html_e('Scan Orphaned Data', 'bandfront-player'); ?>
+                        </button>
+                        <button type="button" class="button" id="bfp-export-settings">
+                            <?php esc_html_e('Export Settings', 'bandfront-player'); ?>
+                        </button>
+                    </div>
+                    <div id="bfp-maintenance-results" style="margin-top: 10px;"></div>
+                </div>
+            </td>
+        </tr>
+        <tr>
             <th scope="row"><?php esc_html_e('Developer Actions', 'bandfront-player'); ?></th>
             <td>
                 <button type="button" class="button" id="bfp-export-debug-log"><?php esc_html_e('Export Debug Log', 'bandfront-player'); ?></button>
@@ -173,3 +149,106 @@ function bfp_getLastCacheClear() {
     </table>
 </div>
 
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    // Database maintenance handlers
+    $('#bfp-clear-caches').on('click', function() {
+        var $button = $(this);
+        var $results = $('#bfp-maintenance-results');
+        
+        $button.prop('disabled', true);
+        $results.html('<div class="notice notice-info inline"><p>Clearing caches...</p></div>');
+        
+        $.post(ajaxurl, {
+            action: 'bfp_clear_caches',
+            nonce: '<?php echo wp_create_nonce('bfp_db_actions'); ?>'
+        }, function(response) {
+            $button.prop('disabled', false);
+            if (response.success) {
+                $results.html('<div class="notice notice-success inline"><p>' + response.data.message + '</p></div>');
+            } else {
+                $results.html('<div class="notice notice-error inline"><p>' + (response.data.message || 'Error occurred') + '</p></div>');
+            }
+        });
+    });
+    
+    $('#bfp-optimize-tables').on('click', function() {
+        var $button = $(this);
+        var $results = $('#bfp-maintenance-results');
+        
+        $button.prop('disabled', true);
+        $results.html('<div class="notice notice-info inline"><p>Optimizing database tables...</p></div>');
+        
+        $.post(ajaxurl, {
+            action: 'bfp_optimize_tables',
+            nonce: '<?php echo wp_create_nonce('bfp_db_actions'); ?>'
+        }, function(response) {
+            $button.prop('disabled', false);
+            if (response.success) {
+                $results.html('<div class="notice notice-success inline"><p>' + response.data.message + '</p></div>');
+            } else {
+                $results.html('<div class="notice notice-error inline"><p>' + (response.data.message || 'Error occurred') + '</p></div>');
+            }
+        });
+    });
+    
+    $('#bfp-scan-orphaned').on('click', function() {
+        var $button = $(this);
+        var $results = $('#bfp-maintenance-results');
+        
+        $button.prop('disabled', true);
+        $results.html('<div class="notice notice-info inline"><p>Scanning for orphaned data...</p></div>');
+        
+        $.post(ajaxurl, {
+            action: 'bfp_scan_orphaned',
+            nonce: '<?php echo wp_create_nonce('bfp_db_actions'); ?>'
+        }, function(response) {
+            $button.prop('disabled', false);
+            if (response.success) {
+                $results.html('<div class="notice notice-info inline"><p>Found ' + response.data.orphaned_meta + ' orphaned meta entries and ' + response.data.orphaned_files + ' orphaned files. <button type="button" class="button button-small" id="bfp-clean-orphaned">Clean Now</button></p></div>');
+            } else {
+                $results.html('<div class="notice notice-error inline"><p>' + (response.data.message || 'Error occurred') + '</p></div>');
+            }
+        });
+    });
+    
+    $(document).on('click', '#bfp-clean-orphaned', function() {
+        var $button = $(this);
+        var $results = $('#bfp-maintenance-results');
+        
+        $button.prop('disabled', true);
+        $results.html('<div class="notice notice-info inline"><p>Cleaning orphaned data...</p></div>');
+        
+        $.post(ajaxurl, {
+            action: 'bfp_clean_orphaned',
+            nonce: '<?php echo wp_create_nonce('bfp_db_actions'); ?>'
+        }, function(response) {
+            if (response.success) {
+                $results.html('<div class="notice notice-success inline"><p>' + response.data.message + '</p></div>');
+            } else {
+                $results.html('<div class="notice notice-error inline"><p>' + (response.data.message || 'Error occurred') + '</p></div>');
+            }
+        });
+    });
+    
+    $('#bfp-export-settings').on('click', function() {
+        var $button = $(this);
+        var $results = $('#bfp-maintenance-results');
+        
+        $button.prop('disabled', true);
+        $results.html('<div class="notice notice-info inline"><p>Exporting settings...</p></div>');
+        
+        $.post(ajaxurl, {
+            action: 'bfp_export_settings',
+            nonce: '<?php echo wp_create_nonce('bfp_db_actions'); ?>'
+        }, function(response) {
+            $button.prop('disabled', false);
+            if (response.success) {
+                $results.html('<div class="notice notice-success inline"><p>' + response.data.message + ' <a href="' + response.data.download_url + '" class="button button-small">Download</a></p></div>');
+            } else {
+                $results.html('<div class="notice notice-error inline"><p>' + (response.data.message || 'Error occurred') + '</p></div>');
+            }
+        });
+    });
+});
+</script>
