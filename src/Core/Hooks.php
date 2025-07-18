@@ -158,6 +158,15 @@ class Hooks {
             add_filter('woocommerce_account_downloads_columns', [$downloader, 'addDownloadColumns']);
             add_action('woocommerce_account_downloads_column_download-format', [$downloader, 'renderFormatColumn']);
         }
+        
+        // Download processor hooks
+        if ($processor = $this->bootstrap->getComponent('download_processor')) {
+            add_action('wp_ajax_bfp_handle_bulk_audio_processing', [$processor, 'handleBulkAudioProcessing']);
+        }
+        
+        // Replace default downloads template
+        remove_action('woocommerce_available_downloads', 'woocommerce_order_downloads_table', 10);
+        add_action('woocommerce_available_downloads', [$woocommerce, 'displayFormatDownloads'], 10);
     }
     
     /**

@@ -191,6 +191,12 @@ class Bootstrap {
             $this->components['config'],
             $this->components['file_manager']
         );
+        
+        // Download processor for bulk audio downloads
+        $this->components['download_processor'] = new \Bandfront\Audio\DownloadProcessor(
+            $this->components['config'],
+            $this->components['file_manager']
+        );
     }
     
     /**

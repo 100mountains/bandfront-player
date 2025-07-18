@@ -555,11 +555,11 @@ class WooCommerceIntegration {
     /**
      * Display format download buttons on product page
      */
-    public function displayFormatDownloads(): void {
+    public function displayProductFormatDownloads(): void {
         global $product;
         
         if (!$product || !is_a($product, 'WC_Product')) {
-            Debug::log('WooCommerceIntegration.php:' . __LINE__ . ' displayFormatDownloads: No valid product found', []); // DEBUG-REMOVE
+            Debug::log('WooCommerceIntegration.php:' . __LINE__ . ' displayProductFormatDownloads: No valid product found', []); // DEBUG-REMOVE
             return;
         }
         
@@ -589,6 +589,44 @@ class WooCommerceIntegration {
             echo '</div>';
             Debug::log('WooCommerceIntegration.php:' . __LINE__ . ' Displayed format download buttons', ['productId' => $productId]); // DEBUG-REMOVE
         }
+    }
+    
+    /**
+     * Display format downloads on account page
+     */
+    public function displayAccountFormatDownloads(): void {
+        // Get the download renderer via Bootstrap
+        $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
+        $renderer = new \Bandfront\UI\DownloadRenderer($this->config);
+        
+        // Enqueue necessary assets
+        wp_enqueue_style(
+            'bfp-downloads',
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/downloads.css',
+            [],
+            BFP_VERSION
+        );
+        
+        wp_enqueue_script(
+            'bfp-downloads',
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/downloads.js',
+            ['jquery'],
+            BFP_VERSION,
+            true
+        );
+        
+        // Localize script
+        wp_localize_script('bfp-downloads', 'bfpDownloads', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('audio_conversion_nonce'),
+            'converting' => __('Converting... Please wait', 'bandfront-player'),
+            'downloadAllAs' => __('Download All As...', 'bandfront-player'),
+            'conversionFailed' => __('Conversion failed', 'bandfront-player'),
+            'errorOccurred' => __('An error occurred. Check console for details.', 'bandfront-player')
+        ]);
+        
+        // Render the downloads
+        $renderer->renderDownloadsTemplate();
     }
     
     /**
