@@ -40,7 +40,7 @@ jQuery(document).ready(function($) {
             url: bfpDownloads.ajaxurl,
             type: 'POST',
             data: {
-                action: 'bfp_handle_bulk_audio_processing',
+                action: 'handle_bulk_audio_processing',  // Remove 'bfp_' prefix
                 format: format,
                 product_id: productId,
                 security: bfpDownloads.nonce

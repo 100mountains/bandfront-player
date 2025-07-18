@@ -592,16 +592,12 @@ class WooCommerceIntegration {
     }
     
     /**
-     * Display format downloads on account page
+     * Display custom format downloads template
      */
     public function displayFormatDownloads(): void {
         Debug::log('WooCommerceIntegration: displayFormatDownloads called'); // DEBUG-REMOVE
         
-        // Get the download renderer via Bootstrap
-        $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
-        $renderer = new \Bandfront\UI\DownloadRenderer($this->config);
-        
-        // Enqueue necessary assets with correct paths
+        // Enqueue the required CSS and JS for the downloads page
         wp_enqueue_style(
             'bfp-downloads',
             plugins_url('assets/css/downloads.css', dirname(dirname(__FILE__))),
@@ -617,21 +613,19 @@ class WooCommerceIntegration {
             true
         );
         
-        // Localize script
+        // Localize script for AJAX
         wp_localize_script('bfp-downloads', 'bfpDownloads', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('audio_conversion_nonce'),
-            'converting' => __('Converting... Please wait', 'bandfront-player'),
+            'converting' => __('Converting...', 'bandfront-player'),
             'downloadAllAs' => __('Download All As...', 'bandfront-player'),
             'conversionFailed' => __('Conversion failed', 'bandfront-player'),
-            'errorOccurred' => __('An error occurred. Check console for details.', 'bandfront-player')
+            'errorOccurred' => __('An error occurred. Please try again.', 'bandfront-player')
         ]);
         
-        // Output the heading
-        echo '<h2>' . esc_html__('Available downloads', 'woocommerce') . '</h2>';
-        
-        // Render the downloads
-        $renderer->renderDownloadsTemplate();
+        // Use the DownloadRenderer to render the template
+        $downloadRenderer = new DownloadRenderer($this->config);
+        $downloadRenderer->renderDownloadsTemplate();
     }
     
     /**

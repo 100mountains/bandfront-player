@@ -48,30 +48,7 @@ class FormatDownloader {
         // Handle endpoint requests
         add_action('template_redirect', [$this, 'handleDownloadEndpoint']);
         
-        // Enqueue styles for account page - properly on the right hook
-        add_action('wp_enqueue_scripts', function() {
-            if (is_account_page()) {
-                wp_enqueue_style(
-                    'bfp-downloads',
-                    plugins_url('assets/css/downloads.css', dirname(dirname(__FILE__))),
-                    [],
-                    BFP_VERSION
-                );
-                wp_enqueue_script(
-                    'bfp-downloads',
-                    plugins_url('assets/js/downloads.js', dirname(dirname(__FILE__))),
-                    ['jquery'],
-                    BFP_VERSION,
-                    true
-                );
-                
-                // Localize script for AJAX
-                wp_localize_script('bfp-downloads', 'bfp_downloads', [
-                    'ajax_url' => admin_url('admin-ajax.php'),
-                    'nonce' => wp_create_nonce('audio_conversion_nonce')
-                ]);
-            }
-        });
+        // Remove the wp_enqueue_scripts action from here - it only runs on activation
     }
     
     /**
