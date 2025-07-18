@@ -87,9 +87,12 @@ class Admin {
         // Load view templates that may enqueue assets
         $this->loadViewTemplates();
         
-        // Also enqueue any direct assets here
-        wp_enqueue_style('bfp-admin', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/style-admin.css', [], BFP_VERSION);
-        wp_enqueue_style('bfp-admin-notices', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/admin-notices.css', [], BFP_VERSION);
+        // Enqueue admin styles for our settings page
+        $screen = get_current_screen();
+        if ($screen && $screen->id === 'toplevel_page_bandfront-player-settings') {
+            wp_enqueue_style('bfp-admin', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/style-admin.css', [], BFP_VERSION);
+            wp_enqueue_style('bfp-admin-notices', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/admin-notices.css', [], BFP_VERSION);
+        }
         
         Debug::log('Admin.php: Exiting enqueueAdminAssets()', []); // DEBUG-REMOVE
     }

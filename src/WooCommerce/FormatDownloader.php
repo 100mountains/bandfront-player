@@ -34,16 +34,21 @@ class FormatDownloader {
      * Register custom rewrite endpoint for downloads
      */
     public function registerDownloadEndpoint(): void {
-        add_rewrite_endpoint('bfp-download', EP_ROOT);
+        Debug::log('FormatDownloader: Registering download endpoint'); // DEBUG-REMOVE
         
-        // Add rewrite rules for pretty URLs
-        add_rewrite_rule(
-            '^bfp-download/([0-9]+)/([a-z]+)/?$',
-            'index.php?bfp-download=1&product_id=$matches[1]&format=$matches[2]',
-            'top'
-        );
+        // Add custom rewrite endpoint
+        add_rewrite_endpoint('bfp-download', EP_PERMALINK | EP_PAGES);
         
-        // Make sure we also enqueue our CSS on download pages
+        // Register query var
+        add_filter('query_vars', function($vars) {
+            $vars[] = 'bfp-download';
+            return $vars;
+        });
+        
+        // Handle endpoint requests
+        add_action('template_redirect', [$this, 'handleDownloadEndpoint']);
+        
+        // Enqueue styles for account page - properly on the right hook
         add_action('wp_enqueue_scripts', function() {
             if (is_account_page()) {
                 wp_enqueue_style(
@@ -52,6 +57,19 @@ class FormatDownloader {
                     [],
                     BFP_VERSION
                 );
+                wp_enqueue_script(
+                    'bfp-downloads',
+                    plugins_url('assets/js/downloads.js', dirname(dirname(__FILE__))),
+                    ['jquery'],
+                    BFP_VERSION,
+                    true
+                );
+                
+                // Localize script for AJAX
+                wp_localize_script('bfp-downloads', 'bfp_downloads', [
+                    'ajax_url' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('audio_conversion_nonce')
+                ]);
             }
         });
     }

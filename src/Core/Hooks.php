@@ -162,7 +162,7 @@ class Hooks {
         
         // Download processor hooks
         if ($processor = $this->bootstrap->getComponent('download_processor')) {
-            add_action('wp_ajax_bfp_handle_bulk_audio_processing', [$processor, 'handleBulkAudioProcessing']);
+            add_action('wp_ajax_handle_bulk_audio_processing', [$processor, 'handleBulkAudioProcessing']);
         }
         
         // Replace default downloads template - with higher priority to ensure it runs

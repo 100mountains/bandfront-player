@@ -389,12 +389,3 @@ class Settings {
         }
     }
 }
-
-// Look for wp_enqueue_style calls and update the paths
-// Change from:
-// wp_enqueue_style('bfp-admin', plugins_url('css/style-admin.css', dirname(dirname(__FILE__))), [], BFP_VERSION);
-// wp_enqueue_style('bfp-admin-notices', plugins_url('css/admin-notices.css', dirname(dirname(__FILE__))), [], BFP_VERSION);
-
-// To:
-wp_enqueue_style('bfp-admin', plugins_url('assets/css/style-admin.css', dirname(dirname(__FILE__))), [], BFP_VERSION);
-wp_enqueue_style('bfp-admin-notices', plugins_url('assets/css/admin-notices.css', dirname(dirname(__FILE__))), [], BFP_VERSION);
