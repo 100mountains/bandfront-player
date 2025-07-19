@@ -242,6 +242,12 @@ class Bootstrap {
      * Plugin activation handler
      */
     public function activate(): void {
+        // Database installation with proper versioning
+        \Bandfront\Db\Installer::install();
+        
+        // Migrate from old structure if needed
+        \Bandfront\Db\Installer::migrateFromOldStructure();
+        
         // Register download endpoint if format downloader exists
         if ($formatDownloader = $this->getComponent('format_downloader')) {
             $formatDownloader->registerDownloadEndpoint();

@@ -92,9 +92,9 @@ $playerControls = $config->getPlayerControls();
             <h3>⚙️ <?php esc_html_e('General Settings', 'bandfront-player'); ?></h3>
             <table class="form-table">
                 <tr>
-                    <th scope="row"><label for="_bfp_registered_only">👤 <?php esc_html_e( 'Registered users only', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_require_login">👤 <?php esc_html_e( 'Registered users only', 'bandfront-player' ); ?></label></th>
                     <td>
-                        <input aria-label="<?php esc_attr_e( 'Include the players only for registered users', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_registered_only" name="_bfp_registered_only" <?php checked( $settings['_bfp_registered_only'] ); ?> />
+                        <input aria-label="<?php esc_attr_e( 'Include the players only for registered users', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_require_login" name="_bfp_require_login" <?php checked( $settings['_bfp_require_login'] ); ?> />
                         <p class="description"><?php esc_html_e( 'Only show audio players to logged-in users', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
@@ -146,9 +146,9 @@ $playerControls = $config->getPlayerControls();
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="_bfp_merge_in_grouped">📦 <?php esc_html_e( 'Merge grouped products', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_group_cart_control">📦 <?php esc_html_e( 'Merge grouped products', 'bandfront-player' ); ?></label></th>
                     <td>
-                        <input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_merge_in_grouped" name="_bfp_merge_in_grouped" <?php checked( $settings['_bfp_merge_in_grouped'] ); ?> />
+                        <input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_group_cart_control" name="_bfp_group_cart_control" <?php checked( $settings['_bfp_group_cart_control'] ); ?> />
                         <p class="description"><?php esc_html_e( 'Show "Add to cart" buttons and quantity fields within player rows for grouped products', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
@@ -158,7 +158,7 @@ $playerControls = $config->getPlayerControls();
                         <label><input type="radio" name="_bfp_player_layout" value="dark" <?php checked( $settings['_bfp_player_layout'], 'dark' ); ?>> 🌙 <?php esc_html_e('Dark', 'bandfront-player'); ?></label><br>
                         <label><input type="radio" name="_bfp_player_layout" value="light" <?php checked( $settings['_bfp_player_layout'], 'light' ); ?>> ☀️ <?php esc_html_e('Light', 'bandfront-player'); ?></label><br>
                         <label><input type="radio" name="_bfp_player_layout" value="custom" <?php checked( $settings['_bfp_player_layout'], 'custom' ); ?>> 🎨 <?php esc_html_e('Custom', 'bandfront-player'); ?></label><br><br>
-                        <label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php checked( $settings['_bfp_single_player'] ); ?> />
+                        <label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_unified_player" type="checkbox" <?php checked( $settings['_bfp_unified_player'] ); ?> />
                         <span class="bfp-single-player-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
                     </td>
                 </tr>
@@ -203,16 +203,16 @@ $playerControls = $config->getPlayerControls();
             <h3>🔒 <?php esc_html_e('Create Demo Files', 'bandfront-player'); ?></h3>
             <table class="form-table">
                 <tr>
-                    <th scope="row"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Enable demo files', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_play_demos">🛡️ <?php esc_html_e( 'Enable demo files', 'bandfront-player' ); ?></label></th>
                     <td>
-                        <input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php checked( $settings['_bfp_secure_player'] ); ?> />
+                        <input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_demos" name="_bfp_play_demos" <?php checked( $settings['_bfp_play_demos'] ); ?> />
                         <p class="description"><?php esc_html_e( 'Create truncated demo versions to prevent unauthorized downloading of full tracks', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="_bfp_file_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_demo_duration_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></th>
                     <td>
-                        <input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_file_percent" name="_bfp_file_percent" min="0" max="100" value="<?php echo esc_attr( $settings['_bfp_file_percent'] ); ?>" /> %
+                        <input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_demo_duration_percent" name="_bfp_demo_duration_percent" min="0" max="100" value="<?php echo esc_attr( $settings['_bfp_demo_duration_percent'] ); ?>" /> %
                         <p class="description"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>

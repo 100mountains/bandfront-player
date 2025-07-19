@@ -97,7 +97,7 @@ class Settings {
         $oldSettings = $this->config->getStates([
             '_bfp_audio_engine',
             '_bfp_enable_player',
-            '_bfp_secure_player',
+            '_bfp_play_demos',
             '_bfp_ffmpeg'
         ]);
         
@@ -135,7 +135,7 @@ class Settings {
     private function parseFormData(array $data): array {
         // Extract all settings from form data
         $settings = [
-            '_bfp_registered_only' => isset($data['_bfp_registered_only']) ? 1 : 0,
+            '_bfp_require_login' => isset($data['_bfp_require_login']) ? 1 : 0,
             '_bfp_purchased' => isset($data['_bfp_purchased']) ? 1 : 0,
             '_bfp_reset_purchased_interval' => (isset($data['_bfp_reset_purchased_interval']) && 'never' == $data['_bfp_reset_purchased_interval']) ? 'never' : 'daily',
             '_bfp_fade_out' => isset($data['_bfp_fade_out']) ? 1 : 0,
@@ -149,11 +149,11 @@ class Settings {
             '_bfp_enable_player' => isset($data['_bfp_enable_player']) ? 1 : 0,
             '_bfp_players_in_cart' => isset($data['_bfp_players_in_cart']) ? true : false,
             '_bfp_player_layout' => $this->parsePlayerLayout($data),
-            '_bfp_single_player' => isset($data['_bfp_single_player']) ? 1 : 0,
-            '_bfp_secure_player' => isset($data['_bfp_secure_player']) ? 1 : 0,
+            '_bfp_unified_player' => isset($data['_bfp_unified_player']) ? 1 : 0,
+            '_bfp_play_demos' => isset($data['_bfp_play_demos']) ? 1 : 0,
             '_bfp_player_controls' => $this->parsePlayerControls($data),
-            '_bfp_file_percent' => $this->parseFilePercent($data),
-            '_bfp_merge_in_grouped' => isset($data['_bfp_merge_in_grouped']) ? 1 : 0,
+            '_bfp_demo_duration_percent' => $this->parseFilePercent($data),
+            '_bfp_group_cart_control' => isset($data['_bfp_group_cart_control']) ? 1 : 0,
             '_bfp_play_all' => isset($data['_bfp_play_all']) ? 1 : 0,
             '_bfp_loop' => isset($data['_bfp_loop']) ? 1 : 0,
             '_bfp_on_cover' => $this->parseOnCover($data),
@@ -243,8 +243,8 @@ class Settings {
      * Parse file percent setting
      */
     private function parseFilePercent(array $data): int {
-        if (isset($data['_bfp_file_percent']) && is_numeric($data['_bfp_file_percent'])) {
-            $percent = intval($data['_bfp_file_percent']);
+        if (isset($data['_bfp_demo_duration_percent']) && is_numeric($data['_bfp_demo_duration_percent'])) {
+            $percent = intval($data['_bfp_demo_duration_percent']);
             return min(max($percent, 0), 100);
         }
         return 0;
@@ -389,12 +389,12 @@ class Settings {
             
             // Update the settings that can still be overridden
             update_post_meta($productId, '_bfp_enable_player', $globalSettings['_bfp_enable_player']);
-            update_post_meta($productId, '_bfp_merge_in_grouped', $globalSettings['_bfp_merge_in_grouped']);
-            update_post_meta($productId, '_bfp_single_player', $globalSettings['_bfp_single_player']);
+            update_post_meta($productId, '_bfp_group_cart_control', $globalSettings['_bfp_group_cart_control']);
+            update_post_meta($productId, '_bfp_unified_player', $globalSettings['_bfp_unified_player']);
             update_post_meta($productId, '_bfp_play_all', $globalSettings['_bfp_play_all']);
             update_post_meta($productId, '_bfp_loop', $globalSettings['_bfp_loop']);
-            update_post_meta($productId, '_bfp_secure_player', $globalSettings['_bfp_secure_player']);
-            update_post_meta($productId, '_bfp_file_percent', $globalSettings['_bfp_file_percent']);
+            update_post_meta($productId, '_bfp_play_demos', $globalSettings['_bfp_play_demos']);
+            update_post_meta($productId, '_bfp_demo_duration_percent', $globalSettings['_bfp_demo_duration_percent']);
 
             $this->config->clearProductAttrsCache($productId);
         }

@@ -442,13 +442,13 @@ class DbRenderer {
                 strpos($key, '_bfp_play') === 0 || strpos($key, '_bfp_loop') === 0 ||
                 strpos($key, '_bfp_fade') === 0 || strpos($key, '_bfp_on_') === 0) {
                 $grouped['Player'][] = $item;
-            } elseif (strpos($key, '_bfp_secure') === 0 || strpos($key, '_bfp_file_percent') === 0 || 
+            } elseif (strpos($key, '_bfp_secure') === 0 || strpos($key, '_bfp_demo_duration_percent') === 0 || 
                       strpos($key, '_bfp_message') === 0) {
                 $grouped['Demo & Security'][] = $item;
             } elseif (strpos($key, '_bfp_audio') === 0 || strpos($key, '_bfp_ffmpeg') === 0 ||
                       strpos($key, '_bfp_enable_vis') === 0) {
                 $grouped['Audio Engine'][] = $item;
-            } elseif (strpos($key, '_bfp_cloud') === 0 || strpos($key, '_bfp_own_demos') === 0 ||
+            } elseif (strpos($key, '_bfp_cloud') === 0 || strpos($key, '_bfp_use_custom_demos') === 0 ||
                       strpos($key, '_bfp_direct_own') === 0) {
                 $grouped['Cloud Storage'][] = $item;
             } elseif (strpos($key, '_bfp_debug') === 0 || strpos($key, 'enable_db_monitoring') === 0 ||
@@ -604,7 +604,7 @@ class DbRenderer {
         }
         
         // Check for own demos
-        $ownDemos = intval($this->config->getState('_bfp_own_demos', 0, $product_id));
+        $ownDemos = intval($this->config->getState('_bfp_use_custom_demos', 0, $product_id));
         $demosList = $this->config->getState('_bfp_demos_list', [], $product_id);
         if ($ownDemos && !empty($demosList)) {
             return true;
@@ -827,13 +827,13 @@ class DbRenderer {
             '_bfp_enable_player' => ['type' => 'boolean', 'default' => true],
             '_bfp_audio_engine' => ['type' => 'string', 'default' => 'mediaelement'],
             '_bfp_player_theme' => ['type' => 'string', 'default' => 'default'],
-            '_bfp_secure_player' => ['type' => 'boolean', 'default' => false],
-            '_bfp_file_percent' => ['type' => 'integer', 'default' => 30],
+            '_bfp_play_demos' => ['type' => 'boolean', 'default' => false],
+            '_bfp_demo_duration_percent' => ['type' => 'integer', 'default' => 30],
             '_bfp_ffmpeg' => ['type' => 'boolean', 'default' => false],
             '_bfp_ffmpeg_path' => ['type' => 'string', 'default' => '/usr/bin/ffmpeg'],
             '_bfp_player_layout' => ['type' => 'string', 'default' => 'list'],
-            '_bfp_single_player' => ['type' => 'boolean', 'default' => false],
-            '_bfp_merge_in_grouped' => ['type' => 'boolean', 'default' => false],
+            '_bfp_unified_player' => ['type' => 'boolean', 'default' => false],
+            '_bfp_group_cart_control' => ['type' => 'boolean', 'default' => false],
             '_bfp_play_all' => ['type' => 'boolean', 'default' => false],
             '_bfp_loop' => ['type' => 'boolean', 'default' => false],
             '_bfp_player_volume' => ['type' => 'float', 'default' => 0.8],

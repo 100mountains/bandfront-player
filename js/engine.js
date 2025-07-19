@@ -146,7 +146,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
         (1 * bfp_global_settings.fade_out) : true;
     
     // Define the missing groupedSelector variable
-    var groupedSelector = '.merge_in_grouped_products';
+    var groupedSelector = '.group_cart_control_products';
 
     // FIX: Ensure MediaElement.js compatibility
     function smoothFadeOutMediaElement(mediaElement, fadeTime) {
@@ -907,7 +907,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                    var productId = ($element.data("product_id") || 
                                    $element.attr("name") || 
                                    $element.attr("id")).replace(/[^\d]/g, "");
-                   var $playerTitle = $(".bfp-player-list.merge_in_grouped_products .product-" + 
+                   var $playerTitle = $(".bfp-player-list.group_cart_control_products .product-" + 
                                       productId + ":first .bfp-player-title");
                    var $table = $("<table></table>");
                    

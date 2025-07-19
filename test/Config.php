@@ -24,15 +24,15 @@ class Config {
    private array $overridableSettings = [
        '_bfp_enable_player' => false,
        '_bfp_audio_engine' => 'html5',
-       '_bfp_single_player' => 0,
-       '_bfp_merge_in_grouped' => 0,
+       '_bfp_unified_player' => 0,
+       '_bfp_group_cart_control' => 0,
        '_bfp_play_all' => 0,
        '_bfp_loop' => 0,
        '_bfp_player_volume' => 1.0,
-       '_bfp_secure_player' => false,
-       '_bfp_file_percent' => 50,
-       '_bfp_own_demos' => 0,
-       '_bfp_direct_own_demos' => 0,
+       '_bfp_play_demos' => false,
+       '_bfp_demo_duration_percent' => 50,
+       '_bfp_use_custom_demos' => 0,
+       '_bfp_direct_demo_links' => 0,
        '_bfp_demos_list' => [],
    ];
 
@@ -43,8 +43,8 @@ class Config {
        '_bfp_on_cover' => 1,
        '_bfp_force_main_player_in_title' => 1,
        '_bfp_players_in_cart' => false,
-       '_bfp_play_simultaneously' => 0,
-       '_bfp_registered_only' => 0,
+       '_bfp_allow_concurrent_audio' => 0,
+       '_bfp_require_login' => 0,
        '_bfp_purchased' => 0,
        '_bfp_reset_purchased_interval' => 'daily',
        '_bfp_fade_out' => 0,
@@ -106,7 +106,7 @@ class Config {
    private function init(): void {
        // Settings that can ONLY be set globally
        $this->globalOnlySettings = [
-           '_bfp_registered_only',
+           '_bfp_require_login',
            '_bfp_purchased',
            '_bfp_reset_purchased_interval',
            '_bfp_fade_out',
@@ -139,21 +139,21 @@ class Config {
        // Settings that can be overridden per-product
        $this->overridableSettings = [
            '_bfp_enable_player',
-           '_bfp_merge_in_grouped',
-           '_bfp_single_player',
+           '_bfp_group_cart_control',
+           '_bfp_unified_player',
            '_bfp_play_all',
            '_bfp_loop',
-           '_bfp_secure_player',
-           '_bfp_file_percent',
-           '_bfp_own_demos',
-           '_bfp_direct_own_demos',
+           '_bfp_play_demos',
+           '_bfp_demo_duration_percent',
+           '_bfp_use_custom_demos',
+           '_bfp_direct_demo_links',
            '_bfp_demos_list',
            '_bfp_audio_engine',
        ];
     
        // Default values for settings
        $this->defaults = [
-           '_bfp_registered_only' => 0,
+           '_bfp_require_login' => 0,
            '_bfp_purchased' => 0,
            '_bfp_reset_purchased_interval' => 'daily',
            '_bfp_fade_out' => 0,
@@ -165,11 +165,11 @@ class Config {
            '_bfp_players_in_cart' => 0,
            '_bfp_player_layout' => 'dark',
            '_bfp_player_volume' => 1,
-           '_bfp_single_player' => 0,
-           '_bfp_secure_player' => 0,
+           '_bfp_unified_player' => 0,
+           '_bfp_play_demos' => 0,
            '_bfp_player_controls' => 'default',
-           '_bfp_file_percent' => 30,
-           '_bfp_merge_in_grouped' => 0,
+           '_bfp_demo_duration_percent' => 30,
+           '_bfp_group_cart_control' => 0,
            '_bfp_play_all' => 0,
            '_bfp_loop' => 0,
            '_bfp_on_cover' => 0,
@@ -185,8 +185,8 @@ class Config {
            '_bfp_apply_to_all_players' => 0,
            '_bfp_audio_engine' => 'html5',
            '_bfp_enable_visualizations' => 0,
-           '_bfp_own_demos' => 0,
-           '_bfp_direct_own_demos' => 0,
+           '_bfp_use_custom_demos' => 0,
+           '_bfp_direct_demo_links' => 0,
            '_bfp_demos_list' => [],
            '_bfp_cloud_active_tab' => 'google-drive',
            '_bfp_cloud_dropbox' => [
@@ -274,11 +274,11 @@ class Config {
            return !empty($value) &&
                   $value !== 'global' &&
                   in_array($value, ['mediaelement', 'wavesurfer', 'html5']);  // Already includes 'html5'
-       } elseif (in_array($key, ['_bfp_enable_player', '_bfp_secure_player', '_bfp_merge_in_grouped',
-                                '_bfp_single_player', '_bfp_play_all', '_bfp_loop', '_bfp_own_demos',
-                                '_bfp_direct_own_demos'])) {
+       } elseif (in_array($key, ['_bfp_enable_player', '_bfp_play_demos', '_bfp_group_cart_control',
+                                '_bfp_unified_player', '_bfp_play_all', '_bfp_loop', '_bfp_use_custom_demos',
+                                '_bfp_direct_demo_links'])) {
            return $value === '1' || $value === 1 || $value === true;
-       } elseif ($key === '_bfp_file_percent') {
+       } elseif ($key === '_bfp_demo_duration_percent') {
            return is_numeric($value) && $value >= 0 && $value <= 100;
        } elseif ($key === '_bfp_player_volume') {
            return is_numeric($value) && $value >= 0 && $value <= 1;
@@ -413,12 +413,12 @@ class Config {
            'player_style' => ['key' => '_bfp_player_layout', 'type' => 'string'],
            'volume' => ['key' => '_bfp_player_volume', 'type' => 'float'],
            'player_controls' => ['key' => '_bfp_player_controls', 'type' => 'string'],
-           'single_player' => ['key' => '_bfp_single_player', 'type' => 'bool'],
-           'secure_player' => ['key' => '_bfp_secure_player', 'type' => 'bool'],
-           'file_percent' => ['key' => '_bfp_file_percent', 'type' => 'int'],
+           'single_player' => ['key' => '_bfp_unified_player', 'type' => 'bool'],
+           'secure_player' => ['key' => '_bfp_play_demos', 'type' => 'bool'],
+           'file_percent' => ['key' => '_bfp_demo_duration_percent', 'type' => 'int'],
            'player_title' => ['key' => '_bfp_player_title', 'type' => 'int'],
-           'merge_grouped' => ['key' => '_bfp_merge_in_grouped', 'type' => 'int'],
-           'play_simultaneously' => ['key' => '_bfp_play_simultaneously', 'type' => 'int'],
+           'merge_grouped' => ['key' => '_bfp_group_cart_control', 'type' => 'int'],
+           'play_simultaneously' => ['key' => '_bfp_allow_concurrent_audio', 'type' => 'int'],
            'play_all' => ['key' => '_bfp_play_all', 'type' => 'int'],
            'loop' => ['key' => '_bfp_loop', 'type' => 'int'],
            'on_cover' => ['key' => '_bfp_on_cover', 'type' => 'int'],
@@ -430,7 +430,7 @@ class Config {
            
            // General settings
            'message' => ['key' => '_bfp_message', 'type' => 'string'],
-           'registered_only' => ['key' => '_bfp_registered_only', 'type' => 'int'],
+           'registered_only' => ['key' => '_bfp_require_login', 'type' => 'int'],
            'purchased' => ['key' => '_bfp_purchased', 'type' => 'int'],
            'reset_purchased_interval' => ['key' => '_bfp_reset_purchased_interval', 'type' => 'string'],
            'fade_out' => ['key' => '_bfp_fade_out', 'type' => 'int'],
@@ -496,13 +496,13 @@ class Config {
            '_bfp_player_layout',
            '_bfp_player_controls',
            '_bfp_player_volume',
-           '_bfp_single_player',
-           '_bfp_secure_player',
-           '_bfp_file_percent',
+           '_bfp_unified_player',
+           '_bfp_play_demos',
+           '_bfp_demo_duration_percent',
            '_bfp_play_all',
            '_bfp_loop',
            '_bfp_audio_engine',
-           '_bfp_merge_in_grouped',
+           '_bfp_group_cart_control',
        ];
        
        // Use bulk fetch for efficiency

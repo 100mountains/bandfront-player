@@ -259,10 +259,10 @@ class FileManager {
                return $filesArr;
            }
 
-           $ownDemos = intval($this->config->getState('_bfp_own_demos', 0, $id));
+           $ownDemos = intval($this->config->getState('_bfp_use_custom_demos', 0, $id));
            $files = $this->config->getState('_bfp_demos_list', [], $id);
            if (false === $purchased && $ownDemos && !empty($files)) {
-               $directOwnDemos = intval($this->config->getState('_bfp_direct_own_demos', 0, $id));
+               $directOwnDemos = intval($this->config->getState('_bfp_direct_demo_links', 0, $id));
                $files = $this->editFilesArray($id, $files, $directOwnDemos);
                $filesArr = array_merge($filesArr, $files);
            } else {

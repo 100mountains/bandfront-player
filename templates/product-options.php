@@ -44,30 +44,30 @@ if ( empty( $post ) ) {
 $product_settings = $config->getStates(array(
     '_bfp_enable_player',
     '_bfp_audio_engine',
-    '_bfp_merge_in_grouped',
-    '_bfp_single_player',
+    '_bfp_group_cart_control',
+    '_bfp_unified_player',
     '_bfp_play_all',
     '_bfp_loop',
     '_bfp_player_volume',
-    '_bfp_secure_player',
-    '_bfp_file_percent',
-    '_bfp_own_demos',
-    '_bfp_direct_own_demos',
+    '_bfp_play_demos',
+    '_bfp_demo_duration_percent',
+    '_bfp_use_custom_demos',
+    '_bfp_direct_demo_links',
     '_bfp_demos_list'
 ), $post->ID);
 
 // Extract variables for easier use
 $enable_player = $product_settings['_bfp_enable_player'];
 $audio_engine = $product_settings['_bfp_audio_engine'];
-$merge_in_grouped = $product_settings['_bfp_merge_in_grouped'];
-$single_player = $product_settings['_bfp_single_player'];
+$group_cart_control = $product_settings['_bfp_group_cart_control'];
+$single_player = $product_settings['_bfp_unified_player'];
 $play_all = $product_settings['_bfp_play_all'];
 $loop = $product_settings['_bfp_loop'];
 $volume = $product_settings['_bfp_player_volume'];
-$secure_player = $product_settings['_bfp_secure_player'];
-$file_percent = $product_settings['_bfp_file_percent'];
-$own_demos = $product_settings['_bfp_own_demos'];
-$direct_own_demos = $product_settings['_bfp_direct_own_demos'];
+$secure_player = $product_settings['_bfp_play_demos'];
+$file_percent = $product_settings['_bfp_demo_duration_percent'];
+$own_demos = $product_settings['_bfp_use_custom_demos'];
+$direct_own_demos = $product_settings['_bfp_direct_demo_links'];
 $demos_list = $product_settings['_bfp_demos_list'];
 
 // Get global audio engine for comparison
@@ -88,14 +88,14 @@ $global_audio_engine = $config->getState('_bfp_audio_engine');
 					<td><div class="bfp-tooltip"><span class="bfp-tooltiptext"><?php esc_html_e( 'Player shows only if product is downloadable with audio files, or you\'ve selected custom audio files', 'bandfront-player' ); ?></span><input aria-label="<?php esc_attr_e( 'Enable player', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_enable_player" name="_bfp_enable_player" <?php checked( $enable_player ); ?> /></div></td>
 				</tr>
 				<tr>
-					<td><label for="_bfp_merge_in_grouped">📦 <?php esc_html_e( 'Merge grouped products', 'bandfront-player' ); ?></label></td>
-					<td><input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_merge_in_grouped" name="_bfp_merge_in_grouped" <?php checked( $merge_in_grouped ); ?> /><br /><em class="bfp-em-text"><?php esc_html_e( 'Show "Add to cart" buttons and quantity fields within player rows for grouped products', 'bandfront-player' ); ?></em></td>
+					<td><label for="_bfp_group_cart_control">📦 <?php esc_html_e( 'Merge grouped products', 'bandfront-player' ); ?></label></td>
+					<td><input aria-label="<?php esc_attr_e( 'Merge in grouped products', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_group_cart_control" name="_bfp_group_cart_control" <?php checked( $group_cart_control ); ?> /><br /><em class="bfp-em-text"><?php esc_html_e( 'Show "Add to cart" buttons and quantity fields within player rows for grouped products', 'bandfront-player' ); ?></em></td>
 				</tr>
 				<tr>
 					<td valign="top">🎭 <?php esc_html_e( 'Player behavior', 'bandfront-player' ); ?></td>
 					<td>
 						<div class="bfp-checkbox-box">
-							<label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_single_player" type="checkbox" <?php checked( $single_player ); ?> />
+							<label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_unified_player" type="checkbox" <?php checked( $single_player ); ?> />
 							<span class="bfp-checkbox-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
 						</div>
 					</td>
@@ -138,14 +138,14 @@ $global_audio_engine = $config->getState('_bfp_audio_engine');
 						<table class="widefat bfp-settings-table">
 							<tr><td colspan="2"><h2>🔒 <?php esc_html_e( 'File Truncation', 'bandfront-player' ); ?></h2></td></tr>
 							<tr>
-								<td width="30%"><label for="_bfp_secure_player">🛡️ <?php esc_html_e( 'Truncate audio files', 'bandfront-player' ); ?></label></td>
-								<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_secure_player" name="_bfp_secure_player" <?php checked( $secure_player ); ?> /><br>
+								<td width="30%"><label for="_bfp_play_demos">🛡️ <?php esc_html_e( 'Truncate audio files', 'bandfront-player' ); ?></label></td>
+								<td><input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_demos" name="_bfp_play_demos" <?php checked( $secure_player ); ?> /><br>
 								<em class="bfp-em-text"><?php esc_html_e( 'Create demo versions to prevent unauthorized downloading', 'bandfront-player' ); ?></em></td>
 							</tr>
 							<tr valign="top">
-								<td width="30%"><label for="_bfp_file_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></td>
+								<td width="30%"><label for="_bfp_demo_duration_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></td>
 								<td>
-									<input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_file_percent" name="_bfp_file_percent" value="<?php echo esc_attr( $file_percent ); ?>" /> % <br />
+									<input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_demo_duration_percent" name="_bfp_demo_duration_percent" value="<?php echo esc_attr( $file_percent ); ?>" /> % <br />
 									<em class="bfp-em-text"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></em>
 								</td>
 							</tr>
@@ -165,7 +165,7 @@ $global_audio_engine = $config->getState('_bfp_audio_engine');
 				</tr>
 				<tr valign="top">
 					<td colspan="2" class="bfp-demo-checkbox-box">
-						<label><input aria-label="<?php esc_attr_e( 'Own demo files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_own_demos" <?php checked( $own_demos ); ?> /> 
+						<label><input aria-label="<?php esc_attr_e( 'Own demo files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_use_custom_demos" <?php checked( $own_demos ); ?> /> 
 						<strong>🎵 <?php esc_html_e( 'Use my own custom demo files', 'bandfront-player' ); ?></strong></label>
 						<p class="bfp-demo-description">
 							<?php esc_html_e( 'Upload your own demo versions instead of auto-generating them from the original files', 'bandfront-player' ); ?>
@@ -222,7 +222,7 @@ $global_audio_engine = $config->getState('_bfp_audio_engine');
 				</tr>
 				<tr valign="top">
 					<td colspan="2" class="bfp-direct-demo-box">
-						<label><input aria-label="<?php esc_attr_e( 'Load directly the original demo files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_direct_own_demos" <?php checked( $direct_own_demos ); ?> /> 
+						<label><input aria-label="<?php esc_attr_e( 'Load directly the original demo files', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_direct_demo_links" <?php checked( $direct_own_demos ); ?> /> 
 						<strong>⚡ <?php esc_html_e( 'Load demo files directly (no preprocessing)', 'bandfront-player' ); ?></strong></label>
 						<p class="bfp-demo-description">
 							<?php esc_html_e( 'Skip processing and use your demo files exactly as uploaded', 'bandfront-player' ); ?>

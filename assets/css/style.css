@@ -80,11 +80,11 @@
 .bfp-single-player .bfp-player-title{cursor:pointer;}
 .bfp-single-player .bfp-player-title.bfp-playing{font-weight:bold;}
 .bfp-single-player .bfp-player-title.bfp-playing::before{content: '\1F782';margin-right:10px;}
-.bfp-single-player.merge_in_grouped_products .bfp-player-title.bfp-playing::before{display:none !important;}
-/* table.bfp-single-player.merge_in_grouped_products{margin:0 !important;} */
-.bfp-single-player.merge_in_grouped_products .bfp-odd-row>td,
-.bfp-single-player.merge_in_grouped_products .bfp-even-row>td{padding:0;}
-.bfp-single-player.merge_in_grouped_products .bfp-column-player-title>table{margin:0 !important;}
+.bfp-single-player.group_cart_control_products .bfp-player-title.bfp-playing::before{display:none !important;}
+/* table.bfp-single-player.group_cart_control_products{margin:0 !important;} */
+.bfp-single-player.group_cart_control_products .bfp-odd-row>td,
+.bfp-single-player.group_cart_control_products .bfp-even-row>td{padding:0;}
+.bfp-single-player.group_cart_control_products .bfp-column-player-title>table{margin:0 !important;}
 
 .bfp-download-link{font-weight:700;}
 

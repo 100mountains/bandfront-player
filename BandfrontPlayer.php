@@ -23,5 +23,8 @@ use Bandfront\Core\Bootstrap;
 // Hook initialization to ensure WordPress and other plugins are loaded
 add_action('plugins_loaded', function() {
     Bootstrap::init(BFP_PLUGIN_PATH);
+
+// Register uninstall hook
+register_uninstall_hook(__FILE__, ['Bandfront\Db\Installer', 'uninstall']);
 }, 5);
 

@@ -51,7 +51,7 @@ class Renderer {
         
         Debug::log('Renderer: Rendering player table', ['files_count' => count($files), 'productId' => $productId]);
         
-        $mergeGroupedClass = ($settings['_bfp_merge_in_grouped']) ? 'merge_in_grouped_products' : '';
+        $mergeGroupedClass = ($settings['_bfp_group_cart_control']) ? 'group_cart_control_products' : '';
         $singlePlayer = $settings['single_player'] ?? 0;
         
         $output = '<table class="bfp-player-list ' . $mergeGroupedClass . ($singlePlayer ? ' bfp-single-player ' : '') . '" ' . 

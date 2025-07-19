@@ -232,8 +232,8 @@ class Player {
                 '_bfp_player_volume',
                 '_bfp_player_title',
                 '_bfp_loop',
-                '_bfp_merge_in_grouped',
-                '_bfp_single_player'
+                '_bfp_group_cart_control',
+                '_bfp_unified_player'
             ], $id);
             
             $this->enqueueResources();
@@ -278,7 +278,7 @@ class Player {
                 );
                 
                 $title = esc_html(($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $id, $index) : '');
-                $mergeGroupedClass = ($settings['_bfp_merge_in_grouped']) ? 'merge_in_grouped_products' : '';
+                $mergeGroupedClass = ($settings['_bfp_group_cart_control']) ? 'group_cart_control_products' : '';
                 
                 print '<div class="bfp-player-container ' . esc_attr($mergeGroupedClass) . ' product-' . esc_attr($file['product']) . '" ' . ($settings['_bfp_loop'] ? 'data-loop="1"' : '') . '>' . $audioTag . '</div><div class="bfp-player-title" data-audio-url="' . esc_attr($audioUrl) . '">' . wp_kses_post($title) . '</div><div style="clear:both;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
                 
@@ -288,7 +288,7 @@ class Player {
                 
                 // Add player_controls to settings for renderer
                 $settings['player_controls'] = $playerControls;
-                $settings['single_player'] = $settings['_bfp_single_player'] ?? 0;
+                $settings['single_player'] = $settings['_bfp_unified_player'] ?? 0;
                 
                 print $this->renderer->renderPlayerTable($preparedFiles, $id, $settings); // phpcs:ignore WordPress.Security.EscapeOutput
             }
@@ -446,7 +446,7 @@ class Player {
         
         // Localize script with settings
         $settingsKeys = [
-            '_bfp_play_simultaneously',
+            '_bfp_allow_concurrent_audio',
             '_bfp_ios_controls',
             '_bfp_fade_out',
             '_bfp_on_cover',
@@ -459,7 +459,7 @@ class Player {
         $jsSettings = [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'audio_engine' => $audioEngine,
-            'play_simultaneously' => $settings['_bfp_play_simultaneously'],
+            'play_simultaneously' => $settings['_bfp_allow_concurrent_audio'],
             'ios_controls' => $settings['_bfp_ios_controls'],
             'fade_out' => $settings['_bfp_fade_out'],
             'on_cover' => $settings['_bfp_on_cover'],

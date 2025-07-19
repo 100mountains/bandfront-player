@@ -105,13 +105,13 @@ class ProductMeta {
         // KEEP ONLY these product-specific settings:
         $settings = [
             '_bfp_enable_player' => isset($data['_bfp_enable_player']) ? 1 : 0,
-            '_bfp_merge_in_grouped' => isset($data['_bfp_merge_in_grouped']) ? 1 : 0,
-            '_bfp_single_player' => isset($data['_bfp_single_player']) ? 1 : 0,
+            '_bfp_group_cart_control' => isset($data['_bfp_group_cart_control']) ? 1 : 0,
+            '_bfp_unified_player' => isset($data['_bfp_unified_player']) ? 1 : 0,
             '_bfp_play_all' => isset($data['_bfp_play_all']) ? 1 : 0,
             '_bfp_loop' => isset($data['_bfp_loop']) ? 1 : 0,
             '_bfp_player_volume' => $this->parseVolume($data),
-            '_bfp_secure_player' => isset($data['_bfp_secure_player']) ? 1 : 0,
-            '_bfp_file_percent' => $this->parseFilePercent($data),
+            '_bfp_play_demos' => isset($data['_bfp_play_demos']) ? 1 : 0,
+            '_bfp_demo_duration_percent' => $this->parseFilePercent($data),
         ];
         
         // Save to database
@@ -145,8 +145,8 @@ class ProductMeta {
      * Parse file percent setting
      */
     private function parseFilePercent(array $data): int {
-        if (isset($data['_bfp_file_percent']) && is_numeric($data['_bfp_file_percent'])) {
-            $percent = intval($data['_bfp_file_percent']);
+        if (isset($data['_bfp_demo_duration_percent']) && is_numeric($data['_bfp_demo_duration_percent'])) {
+            $percent = intval($data['_bfp_demo_duration_percent']);
             return min(max($percent, 0), 100);
         }
         return 0;
@@ -177,8 +177,8 @@ class ProductMeta {
     private function saveDemoFiles(int $postId, array $data): void {
         Debug::log('ProductMeta.php: Entering saveDemoFiles()', ['postId' => $postId]); // DEBUG-REMOVE
         
-        $ownDemos = isset($data['_bfp_own_demos']) ? 1 : 0;
-        $directOwnDemos = isset($data['_bfp_direct_own_demos']) ? 1 : 0;
+        $ownDemos = isset($data['_bfp_use_custom_demos']) ? 1 : 0;
+        $directOwnDemos = isset($data['_bfp_direct_demo_links']) ? 1 : 0;
         $demosList = [];
 
         if (isset($data['_bfp_file_urls']) && is_array($data['_bfp_file_urls'])) {
@@ -194,8 +194,8 @@ class ProductMeta {
             }
         }
 
-        update_post_meta($postId, '_bfp_own_demos', $ownDemos);
-        update_post_meta($postId, '_bfp_direct_own_demos', $directOwnDemos);
+        update_post_meta($postId, '_bfp_use_custom_demos', $ownDemos);
+        update_post_meta($postId, '_bfp_direct_demo_links', $directOwnDemos);
         update_post_meta($postId, '_bfp_demos_list', $demosList);
         Debug::log('ProductMeta.php: Saved demo files meta', ['postId' => $postId, 'demosList' => $demosList]); // DEBUG-REMOVE
     }

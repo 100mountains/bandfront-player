@@ -50,14 +50,14 @@ function bfp_admin()
 	//
 	$( document ).on(
 		'change',
-		'[name="_bfp_own_demos"]',
+		'[name="_bfp_use_custom_demos"]',
 		function()
 		{
 			$('.bfp-demo-files')[ ( this.checked ) ? 'show' : 'hide' ]();
 		}
 	);
 
-	$('[name="_bfp_own_demos"]').trigger('change');
+	$('[name="_bfp_use_custom_demos"]').trigger('change');
 
 	// Select file button
 	$( document ).on(

@@ -73,8 +73,8 @@ class StreamController {
         $this->audio->outputFile([
             'url' => $fileData['file'],
             'product_id' => $productId,
-            'secure_player' => $this->config->getState('_bfp_secure_player', false, $productId),
-            'file_percent' => $this->config->getState('_bfp_file_percent', 30, $productId)
+            'secure_player' => $this->config->getState('_bfp_play_demos', false, $productId),
+            'file_percent' => $this->config->getState('_bfp_demo_duration_percent', 30, $productId)
         ]);
         
         // This won't be reached if streaming succeeds
@@ -86,7 +86,7 @@ class StreamController {
      */
     public function checkPermission(\WP_REST_Request $request): bool {
         // Check if registered users only
-        if ($this->config->getState('_bfp_registered_only') && !is_user_logged_in()) {
+        if ($this->config->getState('_bfp_require_login') && !is_user_logged_in()) {
             return false;
         }
         
