@@ -20,7 +20,8 @@ class DbRenderer {
         $this->config = $config;
         $this->monitor = $monitor;
     }
-    
+   
+
     /**
      * Render the complete Database Monitor section
      * This is used in the dev-tools.php template
@@ -28,7 +29,24 @@ class DbRenderer {
     public function renderDatabaseMonitorSection(): void {
         // Include template functions
         require_once dirname(dirname(__DIR__)) . '/templates/db-templates.php';
+  
+        // Enqueue admin styles
+        wp_enqueue_style(
+            'bfp-db-monitor',
+            BFP_PLUGIN_URL . 'assets/css/db-monitor.css',
+            [],
+            BFP_VERSION
+        );
         
+        // Enqueue admin scripts
+        wp_enqueue_script(
+            'bfp-db-monitor',
+            BFP_PLUGIN_URL . 'assets/js/db-monitor.js',
+            ['jquery'],
+            BFP_VERSION,
+            true
+        );
+
         // Get the monitoring setting
         $monitoring_enabled = (bool) $this->config->getState('enable_db_monitoring', false);
         
@@ -461,5 +479,304 @@ class DbRenderer {
         }
         
         return $files;
+    }
+    
+    /**
+     * Count products that have audio files
+     */
+    private function countProductsWithAudio(array $products): int {
+        $count = 0;
+        foreach ($products as $product) {
+            if ($this->productHasAudio($product->ID)) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+    
+    /**
+     * Check if a product has audio files
+     */
+    private function productHasAudio(int $product_id): bool {
+        $audio_keys = ['_bfp_file_url', '_bfp_file_urls', '_bfp_demo_file_url', '_bfp_demo_file_urls'];
+        
+        foreach ($audio_keys as $key) {
+            $value = get_post_meta($product_id, $key, true);
+            if (!empty($value)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get total count of audio files
+     */
+    private function getTotalAudioFiles(): int {
+        global $wpdb;
+        
+        $count = 0;
+        
+        // Count single file URLs
+        $single_files = $wpdb->get_var("
+            SELECT COUNT(*) FROM {$wpdb->postmeta} 
+            WHERE meta_key IN ('_bfp_file_url', '_bfp_demo_file_url')
+            AND meta_value != ''
+        ");
+        $count += (int) $single_files;
+        
+        // Count multiple file URLs (serialized arrays)
+        $multi_files = $wpdb->get_results("
+            SELECT meta_value FROM {$wpdb->postmeta} 
+            WHERE meta_key IN ('_bfp_file_urls', '_bfp_demo_file_urls')
+            AND meta_value != ''
+        ");
+        
+        foreach ($multi_files as $row) {
+            $value = maybe_unserialize($row->meta_value);
+            if (is_array($value)) {
+                $count += count($value);
+            }
+        }
+        
+        return $count;
+    }
+    
+    /**
+     * Analyze file URL and get information
+     */
+    private function analyzeFileUrl(string $url, string $meta_key): array {
+        $parsed = parse_url($url);
+        $path = $parsed['path'] ?? '';
+        $filename = basename($path);
+        
+        // Determine file type
+        $type = 'Full Audio';
+        if (strpos($meta_key, 'demo') !== false) {
+            $type = 'Demo/Preview';
+        }
+        
+        // Check if file exists locally
+        $exists = false;
+        $size = 0;
+        
+        if (!empty($url)) {
+            $upload_dir = wp_upload_dir();
+            $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $url);
+            
+            if (file_exists($local_path)) {
+                $exists = true;
+                $size = filesize($local_path);
+            }
+        }
+        
+        return [
+            'path' => $url,
+            'filename' => $filename,
+            'type' => $type,
+            'exists' => $exists,
+            'size' => $size
+        ];
+    }
+    
+    /**
+     * Scan directory and get file information
+     */
+    private function scanDirectory(string $path): array {
+        $count = 0;
+        $size = 0;
+        
+        if (!is_dir($path)) {
+            return ['count' => $count, 'size' => $size];
+        }
+        
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+        
+        foreach ($iterator as $file) {
+            if ($file->isFile()) {
+                $count++;
+                $size += $file->getSize();
+            }
+        }
+        
+        return ['count' => $count, 'size' => $size];
+    }
+    
+    /**
+     * Get file type statistics
+     */
+    private function getFileTypeStats(): array {
+        $upload_dir = wp_upload_dir();
+        $bfp_dir = $upload_dir['basedir'] . '/bandfront-player-files/';
+        
+        if (!is_dir($bfp_dir)) {
+            return [];
+        }
+        
+        $stats = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($bfp_dir, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+        
+        foreach ($iterator as $file) {
+            if ($file->isFile()) {
+                $ext = strtolower($file->getExtension());
+                if (!isset($stats[$ext])) {
+                    $stats[$ext] = ['count' => 0, 'size' => 0];
+                }
+                $stats[$ext]['count']++;
+                $stats[$ext]['size'] += $file->getSize();
+            }
+        }
+        
+        // Sort by count descending
+        uasort($stats, function($a, $b) {
+            return $b['count'] - $a['count'];
+        });
+        
+        return $stats;
+    }
+    
+    /**
+     * Format file size for display
+     */
+    private function formatFileSize(int $bytes): string {
+        if ($bytes < 1024) {
+            return $bytes . ' B';
+        } elseif ($bytes < 1048576) {
+            return round($bytes / 1024, 2) . ' KB';
+        } elseif ($bytes < 1073741824) {
+            return round($bytes / 1048576, 2) . ' MB';
+        } else {
+            return round($bytes / 1073741824, 2) . ' GB';
+        }
+    }
+    
+    /**
+     * Format configuration value for display
+     */
+    private function formatConfigValue($value): string {
+        if (is_bool($value)) {
+            return $value ? '<span class="bfa-bool-true">✓ True</span>' : '<span class="bfa-bool-false">✗ False</span>';
+        } elseif (is_null($value)) {
+            return '<span class="bfa-null">null</span>';
+        } elseif (is_array($value)) {
+            if (empty($value)) {
+                return '<span class="bfa-empty">[]</span>';
+            }
+            return '<div class="bfa-array"><pre>' . esc_html(json_encode($value, JSON_PRETTY_PRINT)) . '</pre></div>';
+        } elseif (is_numeric($value)) {
+            return '<span class="bfa-number">' . esc_html($value) . '</span>';
+        } elseif (empty($value)) {
+            return '<span class="bfa-empty">empty</span>';
+        } else {
+            // Check if it's a path
+            if (strpos($value, '/') !== false || strpos($value, '\\') !== false) {
+                return '<span class="bfa-path">' . esc_html($value) . '</span>';
+            }
+            return '<span class="bfa-string">' . esc_html($value) . '</span>';
+        }
+    }
+    
+    /**
+     * Get value type
+     */
+    private function getValueType($value): string {
+        if (is_bool($value)) {
+            return 'boolean';
+        } elseif (is_int($value)) {
+            return 'integer';
+        } elseif (is_float($value)) {
+            return 'float';
+        } elseif (is_string($value)) {
+            return 'string';
+        } elseif (is_array($value)) {
+            return 'array';
+        } elseif (is_null($value)) {
+            return 'null';
+        } else {
+            return 'unknown';
+        }
+    }
+    
+    /**
+     * Build settings configuration array
+     */
+    private function buildSettingsConfig(array $allSettings): array {
+        $config = [];
+        
+        // Define known settings and their types/defaults
+        $knownSettings = [
+            '_bfp_enable_player' => ['type' => 'boolean', 'default' => true],
+            '_bfp_audio_engine' => ['type' => 'string', 'default' => 'mediaelement'],
+            '_bfp_player_theme' => ['type' => 'string', 'default' => 'default'],
+            '_bfp_secure_player' => ['type' => 'boolean', 'default' => false],
+            '_bfp_file_percent' => ['type' => 'integer', 'default' => 30],
+            '_bfp_ffmpeg' => ['type' => 'boolean', 'default' => false],
+            '_bfp_ffmpeg_path' => ['type' => 'string', 'default' => '/usr/bin/ffmpeg'],
+            '_bfp_player_layout' => ['type' => 'string', 'default' => 'list'],
+            '_bfp_single_player' => ['type' => 'boolean', 'default' => false],
+            '_bfp_merge_in_grouped' => ['type' => 'boolean', 'default' => false],
+            '_bfp_play_all' => ['type' => 'boolean', 'default' => false],
+            '_bfp_loop' => ['type' => 'boolean', 'default' => false],
+            '_bfp_player_volume' => ['type' => 'float', 'default' => 0.8],
+            '_bfp_enable_vis' => ['type' => 'boolean', 'default' => false],
+            '_bfp_dev_mode' => ['type' => 'boolean', 'default' => false],
+            'enable_db_monitoring' => ['type' => 'boolean', 'default' => false],
+        ];
+        
+        // Build config for all settings
+        foreach ($allSettings as $key => $value) {
+            if (isset($knownSettings[$key])) {
+                $config[$key] = $knownSettings[$key];
+            } else {
+                // Auto-detect type for unknown settings
+                $config[$key] = [
+                    'type' => $this->getValueType($value),
+                    'default' => null
+                ];
+            }
+        }
+        
+        return $config;
+    }
+    
+    /**
+     * Render JavaScript for Database Monitor
+     */
+    private function renderDatabaseMonitorScripts(): void {
+        ?>
+        <script type="text/javascript">
+        var bfpDbMonitor = {
+            ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            nonce: '<?php echo wp_create_nonce('bfp_db_actions'); ?>',
+            monitoring_enabled: <?php echo $this->config->getState('enable_db_monitoring', false) ? 'true' : 'false'; ?>,
+            strings: {
+                confirm_clean: '<?php _e('Are you sure you want to clean all test data?', 'bandfront-player'); ?>',
+                generating: '<?php _e('Generating...', 'bandfront-player'); ?>',
+                cleaning: '<?php _e('Cleaning...', 'bandfront-player'); ?>',
+                no_activity: '<?php _e('No database activity detected', 'bandfront-player'); ?>',
+                cleared: '<?php _e('Activity log cleared', 'bandfront-player'); ?>',
+                paused: '<?php _e('Paused', 'bandfront-player'); ?>',
+                live: '<?php _e('Live', 'bandfront-player'); ?>',
+                resume: '<?php _e('Resume', 'bandfront-player'); ?>',
+                pause: '<?php _e('Pause', 'bandfront-player'); ?>',
+                clear: '<?php _e('Clear', 'bandfront-player'); ?>'
+            }
+        };
+        </script>
+        <?php
+    }
+    
+    /**
+     * Render CSS for Database Monitor
+     */
+    private function renderDatabaseMonitorStyles(): void {
+        // Styles are now loaded from db-monitor.css
+        // This method kept for backwards compatibility
     }
 }
