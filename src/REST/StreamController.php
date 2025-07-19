@@ -112,11 +112,11 @@ class StreamController {
             return new \WP_REST_Response(['error' => 'File not found'], 404);
         }
         
-        // Check if user has purchased the product (if demos are off)
+        // Check if user has purchased the product (only if demos are on)
         $demosEnabled = $this->config->getState('_bfp_play_demos', false, $productId);
-        if (!$demosEnabled && !$this->userHasPurchased($productId)) {
-            Debug::log('User has not purchased product and demos are disabled');
-            return new \WP_REST_Response(['error' => 'Unauthorized'], 403);
+        if ($demosEnabled && !$this->userHasPurchased($productId)) {
+            Debug::log('User has not purchased product and demos are enabled - will serve demo');
+            // Continue to serve demo version below
         }
         
         // Get the file URL
@@ -131,10 +131,10 @@ class StreamController {
             'demos_enabled' => $demosEnabled
         ]);
         
-        // If demos are off and user has purchased, serve the file properly
+        // If demos are off, assume everyone is authenticated and serve the full file
         if (!$demosEnabled) {
             // WooCommerce files are protected, we need to serve them properly
-            Debug::log('Serving purchased file');
+            Debug::log('Serving full file (demos disabled - all users authenticated)');
             
             // Check if it's a local file in WooCommerce uploads
             $upload_dir = wp_upload_dir();
