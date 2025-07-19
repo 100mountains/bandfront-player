@@ -70,7 +70,7 @@ class Player {
         }
         $playerHtml .= '<audio id="' . esc_attr($playerId) . '" ';
         $playerHtml .= 'class="bfp-player ' . esc_attr($playerStyle) . '" ';
-        $playerHtml .= 'data-product-id="' . esc_attr($productId) . '" ';
+        $playerHtml .= 'data-product="' . esc_attr($productId) . '" ';
         $playerHtml .= 'data-file-index="' . esc_attr($id) . '" ';
         $playerHtml .= 'preload="' . esc_attr($preload) . '" ';
         $playerHtml .= 'data-volume="' . esc_attr($volume) . '" ';
@@ -183,7 +183,14 @@ class Player {
 
             do_action('bfp_before_player_shop_page', $id);
 
-            $output = '<div class="bfp-player-container product-' . esc_attr($file['product']) . '">' . $audioTag . '</div>';
+            // Add data attributes for AJAX tracking
+            $nonce = wp_create_nonce('bfp_ajax_nonce');
+            $output = '<div class="bfp-player-container product-' . esc_attr($file['product']) . '" ';
+            $output .= 'data-product="' . esc_attr($id) . '" ';
+            $output .= 'data-file-index="' . esc_attr($index) . '" ';
+            $output .= 'data-nonce="' . esc_attr($nonce) . '">';
+            $output .= $audioTag . '</div>';
+            
             if ($echo) {
                 print $output; // phpcs:ignore WordPress.Security.EscapeOutput
             }
@@ -257,22 +264,27 @@ class Player {
                 $duration = $this->audio->getDurationByUrl($file['file']);
                 $audioUrl = $this->audio->generateAudioUrl($id, $index, $file);
 
-                // Create audio tag and render server-side
-                $audioTag = '<audio id="bfp-audio-' . $id . '" class="bfp-player" src="' . esc_url($audioUrl) . '" controls="controls"></audio>';
+                // Create audio tag with proper data attributes
+                $audioTag = '<audio id="bfp-audio-' . $id . '" class="bfp-player" src="' . esc_url($audioUrl) . '" ';
+                $audioTag .= 'data-product="' . esc_attr($id) . '" ';
+                $audioTag .= 'data-file-index="' . esc_attr($index) . '" ';
+                $audioTag .= 'controls="controls"></audio>';
+                
                 $title = esc_html(($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $id, $index) : '');
                 $mergeGroupedClass = ($settings['_bfp_group_cart_control']) ? 'group_cart_control_products' : '';
                 
-                // Remove direct JS interaction, handle on PHP side using AJAX
-                $ajaxData = array(
-                    'action'      => 'bfp_track_play',
-                    'product_id'  => $id,
-                    'file_index'  => $index,
-                    'track_title' => $title,
-                    'nonce'       => wp_create_nonce('bfp_ajax_nonce')
-                );
+                // Generate nonce for AJAX requests
+                $nonce = wp_create_nonce('bfp_ajax_nonce');
                 
-                // Output player with AJAX data attributes
-                print '<div class="bfp-player-container ' . esc_attr($mergeGroupedClass) . ' product-' . esc_attr($file['product']) . '" ' . ($settings['_bfp_loop'] ? 'data-loop="1"' : '') . ' data-ajax=' . json_encode($ajaxData) . '>' . $audioTag . '</div><div class="bfp-player-title" data-audio-url="' . esc_attr($audioUrl) . '">' . wp_kses_post($title) . '</div><div style="clear:both;"></div>';
+                // Output player with proper data attributes for AJAX tracking
+                print '<div class="bfp-player-container ' . esc_attr($mergeGroupedClass) . ' product-' . esc_attr($file['product']) . '" ';
+                print 'data-product="' . esc_attr($id) . '" ';
+                print 'data-file-index="' . esc_attr($index) . '" ';
+                print 'data-nonce="' . esc_attr($nonce) . '" ';
+                print ($settings['_bfp_loop'] ? 'data-loop="1" ' : '') . '>';
+                print $audioTag . '</div>';
+                print '<div class="bfp-player-title" data-audio-url="' . esc_attr($audioUrl) . '">' . wp_kses_post($title) . '</div>';
+                print '<div style="clear:both;"></div>';
                 
             } elseif ($counter > 1) {
                 // Multiple files - prepare data and use renderer
