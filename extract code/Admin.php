@@ -134,17 +134,17 @@ class Admin {
         // Enqueue admin styles
         wp_enqueue_style(
             'bfa-admin',
-            BFA_PLUGIN_URL . 'assets/css/admin.css',
+            BFP_PLUGIN_URL . 'assets/css/admin.css',
             [],
-            BFA_VERSION
+            BFP_VERSION
         );
         
         // Enqueue admin scripts
         wp_enqueue_script(
             'bfa-admin',
-            BFA_PLUGIN_URL . 'assets/js/admin.js',
+            BFP_PLUGIN_URL . 'assets/js/admin.js',
             ['jquery', 'chart-js'],
-            BFA_VERSION,
+            BFP_VERSION,
             true
         );
         
@@ -152,9 +152,9 @@ class Admin {
         if ($hook === 'analytics_page_bandfront-analytics-settings') {
             wp_enqueue_script(
                 'bfa-settings',
-                BFA_PLUGIN_URL . 'assets/js/settings.js',
+                BFP_PLUGIN_URL . 'assets/js/settings.js',
                 ['jquery'],
-                BFA_VERSION,
+                BFP_VERSION,
                 true
             );
         }
