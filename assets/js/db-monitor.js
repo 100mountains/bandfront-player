@@ -650,3 +650,168 @@ jQuery(document).ready(function($) {
         });
     }
 });
+
+// Database Monitor functionality
+jQuery(document).ready(function($) {
+    // Test Events Handler
+    $('#bfa-test-events').on('click', function() {
+        var $button = $(this);
+        var $spinner = $('.bfa-db-test-actions .spinner');
+        var $message = $('.bfa-test-message');
+        
+        $button.prop('disabled', true);
+        $spinner.css('visibility', 'visible');
+        $message.text('');
+        
+        $.post(ajaxurl, {
+            action: 'bfp_generate_test_events',
+            nonce: bfpDbMonitor.nonce
+        }, function(response) {
+            $button.prop('disabled', false);
+            $spinner.css('visibility', 'hidden');
+            
+            if (response.success) {
+                $message.html('<span style="color: #46b450;">' + response.data.message + '</span>');
+                // Trigger refresh of activity monitor
+                if (typeof window.bfpDbMonitor !== 'undefined') {
+                    window.bfpDbMonitor.loadActivity();
+                }
+            } else {
+                $message.html('<span style="color: #dc3232;">' + (response.data.message || 'Error generating test events') + '</span>');
+            }
+            
+            // Clear message after 5 seconds
+            setTimeout(function() {
+                $message.fadeOut(function() {
+                    $(this).text('').show();
+                });
+            }, 5000);
+        });
+    });
+    
+    // Clean Events Handler
+    $('#bfa-clean-events').on('click', function() {
+        if (!confirm(bfpDbMonitor.strings.confirm_clean)) {
+            return;
+        }
+        
+        var $button = $(this);
+        var $spinner = $('.bfa-db-test-actions .spinner');
+        var $message = $('.bfa-test-message');
+        
+        $button.prop('disabled', true);
+        $spinner.css('visibility', 'visible');
+        $message.text('');
+        
+        $.post(ajaxurl, {
+            action: 'bfp_clean_test_events',
+            nonce: bfpDbMonitor.nonce
+        }, function(response) {
+            $button.prop('disabled', false);
+            $spinner.css('visibility', 'hidden');
+            
+            if (response.success) {
+                $message.html('<span style="color: #46b450;">' + response.data.message + '</span>');
+                // Trigger refresh
+                if (typeof window.bfpDbMonitor !== 'undefined') {
+                    window.bfpDbMonitor.loadActivity();
+                }
+            } else {
+                $message.html('<span style="color: #dc3232;">' + (response.data.message || 'Error cleaning test data') + '</span>');
+            }
+            
+            setTimeout(function() {
+                $message.fadeOut(function() {
+                    $(this).text('').show();
+                });
+            }, 5000);
+        });
+    });
+    
+    // Database Activity Monitor - only init if monitoring is enabled
+    if (bfpDbMonitor.monitoring_enabled && $('#bfa-db-activity-log').length) {
+        window.bfpDbMonitor = {
+            interval: null,
+            paused: false,
+            
+            init: function() {
+                var self = this;
+                
+                // Load initial data
+                this.loadActivity();
+                
+                // Set up auto-refresh
+                this.interval = setInterval(function() {
+                    if (!self.paused) {
+                        self.loadActivity();
+                    }
+                }, 5000);
+                
+                // Clear button
+                $('#bfa-clear-db-activity').on('click', function() {
+                    $('#bfa-db-activity-log').html('<div class="bfa-traffic-empty">' + bfpDbMonitor.strings.cleared + '</div>');
+                });
+            },
+            
+            loadActivity: function() {
+                $.post(ajaxurl, {
+                    action: 'bfp_get_db_activity',
+                    nonce: bfpDbMonitor.nonce
+                }, function(response) {
+                    if (response.success && response.data.activity) {
+                        var $log = $('#bfa-db-activity-log');
+                        $log.empty();
+                        
+                        if (response.data.activity.length === 0) {
+                            $log.html('<div class="bfa-traffic-empty">' + bfpDbMonitor.strings.no_activity + '</div>');
+                        } else {
+                            response.data.activity.forEach(function(event) {
+                                var $entry = $('<div class="bfa-traffic-entry"></div>');
+                                $entry.append('<span class="bfa-traffic-time">' + event.time + '</span>');
+                                $entry.append('<span class="bfa-traffic-method bfa-method-' + event.type + '">' + event.type.toUpperCase() + '</span>');
+                                $entry.append('<span class="bfa-traffic-route">' + event.object + '</span>');
+                                if (event.value) {
+                                    $entry.append('<span class="bfa-traffic-value">= ' + event.value + '</span>');
+                                }
+                                $entry.append('<span class="bfa-traffic-user">' + event.user + '</span>');
+                                $log.append($entry);
+                            });
+                        }
+                    }
+                });
+            }
+        };
+        
+        // Initialize
+        window.bfpDbMonitor.init();
+    }
+    
+    // Sub-tab navigation
+    $('.bfp-db-subtabs .nav-tab').on('click', function(e) {
+        e.preventDefault();
+        
+        var targetTab = $(this).data('subtab');
+        
+        // Remove active class from all tabs
+        $('.bfp-db-subtabs .nav-tab').removeClass('nav-tab-active');
+        
+        // Add active class to clicked tab
+        $(this).addClass('nav-tab-active');
+        
+        // Hide all tab content
+        $('.bfp-subtab-content').hide();
+        
+        // Show target tab content
+        $('#' + targetTab + '-subtab').show();
+    });
+    
+    // Collapsible sections in Schema tab
+    $(document).on('click', '.bfa-collapsible', function() {
+        var $header = $(this);
+        var targetId = $header.data('target');
+        var $target = $('#' + targetId);
+        
+        $target.slideToggle(300);
+        $header.toggleClass('expanded');
+    });
+});

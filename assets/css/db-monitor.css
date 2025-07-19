@@ -720,3 +720,397 @@
     background: #e7f3ff;
     color: #0073aa;
 }
+
+.bfp-method-post {
+    background: #d4edda;
+    color: #155724;
+}
+
+.bfp-method-put {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.bfp-method-delete {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.bfp-method-file {
+    background: #f3e5f5;
+    color: #6a1b9a;
+}
+
+.bfp-method-demo {
+    background: #e0f2f1;
+    color: #00695c;
+}
+
+/* Database Monitor Styles */
+.bfa-monitor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.bfa-monitor-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+}
+
+.bfa-monitor-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #1d2327;
+}
+
+/* Stats Grid */
+.bfa-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.bfa-stat-item {
+    text-align: center;
+    padding: 15px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.bfa-stat-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.bfa-stat-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2271b1;
+}
+
+/* Performance Metrics */
+.bfa-performance-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.bfa-metric-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.bfa-metric-label {
+    color: #666;
+}
+
+.bfa-metric-value {
+    font-weight: 600;
+    color: #2271b1;
+}
+
+/* Activity Monitor */
+.bfa-traffic-box {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    max-height: 400px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.bfa-traffic-header {
+    padding: 10px 15px;
+    background: #f6f7f7;
+    border-bottom: 1px solid #c3c4c7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bfa-traffic-status {
+    color: #46b450;
+    font-weight: 600;
+}
+
+.bfa-traffic-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.bfa-traffic-empty {
+    text-align: center;
+    color: #666;
+    padding: 40px 20px;
+}
+
+.bfa-traffic-entry {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 5px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+}
+
+.bfa-traffic-entry:last-child {
+    border-bottom: none;
+}
+
+.bfa-traffic-time {
+    color: #666;
+    min-width: 80px;
+}
+
+.bfa-traffic-method {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    min-width: 60px;
+    text-align: center;
+}
+
+.bfa-method-get, .bfa-method-view, .bfa-method-play { background: #e8f5e9; color: #2e7d32; }
+.bfa-method-post, .bfa-method-create { background: #e3f2fd; color: #1565c0; }
+.bfa-method-put, .bfa-method-update { background: #fff3e0; color: #e65100; }
+.bfa-method-delete { background: #ffebee; color: #c62828; }
+.bfa-method-file { background: #f3e5f5; color: #6a1b9a; }
+.bfa-method-demo { background: #e0f2f1; color: #00695c; }
+
+.bfa-traffic-route {
+    flex: 1;
+    color: #2271b1;
+    font-family: monospace;
+}
+
+.bfa-traffic-value {
+    color: #666;
+    font-style: italic;
+}
+
+.bfa-traffic-user {
+    color: #666;
+    font-size: 12px;
+}
+
+/* Schema Tab Styles */
+.bfa-schema-container {
+    padding: 20px;
+}
+
+.bfa-schema-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.bfa-stat-box {
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+}
+
+.bfa-stat-number {
+    display: block;
+    font-size: 32px;
+    font-weight: 600;
+    color: #2271b1;
+    margin-bottom: 5px;
+}
+
+.bfa-schema-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.bfa-section-header {
+    background: #f6f7f7;
+    border-bottom: 1px solid #c3c4c7;
+    padding: 15px 20px;
+    margin: 0;
+    font-size: 16px;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bfa-section-header .bfa-count {
+    color: #666;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.bfa-section-header.bfa-collapsible {
+    cursor: pointer;
+    user-select: none;
+}
+
+.bfa-section-header.bfa-collapsible:hover {
+    background: #eaeaea;
+}
+
+.bfa-toggle {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+}
+
+.bfa-section-header.expanded .bfa-toggle {
+    transform: rotate(180deg);
+}
+
+.bfa-schema-table {
+    padding: 20px;
+}
+
+.bfa-config-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.bfa-config-table th {
+    text-align: left;
+    padding: 10px;
+    background: #f6f7f7;
+    border-bottom: 2px solid #c3c4c7;
+    font-weight: 600;
+}
+
+.bfa-config-table td {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f1;
+    vertical-align: top;
+}
+
+.bfa-config-table tr:hover {
+    background: #f9f9f9;
+}
+
+.bfa-key code {
+    background: #eef;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.bfa-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.bfa-type-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.bfa-type-boolean { background: #e3f2fd; color: #1565c0; }
+.bfa-type-string { background: #e8f5e9; color: #2e7d32; }
+.bfa-type-integer { background: #fff3e0; color: #e65100; }
+.bfa-type-array { background: #f3e5f5; color: #6a1b9a; }
+.bfa-type-unknown { background: #efebe9; color: #5d4037; }
+
+.bfa-bool-true { color: #46b450; font-weight: 600; }
+.bfa-bool-false { color: #dc3232; font-weight: 600; }
+.bfa-null { color: #999; font-style: italic; }
+.bfa-empty { color: #999; font-style: italic; }
+.bfa-number { color: #e65100; font-weight: 600; }
+.bfa-string { color: #2e7d32; }
+.bfa-path { 
+    background: #f0f0f1; 
+    padding: 3px 6px; 
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.bfa-array {
+    display: block;
+    background: #f6f7f7;
+    padding: 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    max-width: 400px;
+    font-family: monospace;
+}
+
+.bfa-schema-raw {
+    padding: 20px;
+}
+
+.bfa-code-block {
+    background: #23282d;
+    color: #87c540;
+    padding: 20px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.bfa-no-settings {
+    color: #666;
+    font-style: italic;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Database sub-tabs */
+.bfp-db-subtabs {
+    margin-top: 20px;
+}
+
+.bfp-subtab-content {
+    padding: 20px 0;
+}
+
+/* Meta keys grid */
+.bfa-meta-keys-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.bfa-meta-key-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+    background: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+}
+
+.bfa-meta-count {
+    color: #666;
+    font-size: 12px;
+}
