@@ -35,12 +35,16 @@ class Audio {
      * Generate secure audio URL using REST API
      * 
      * @param int $productId Product ID
-     * @param string|int $fileIndex File index
+     * @param string|int $fileIndex File index (GUID or numeric)
      * @param array $fileData Optional file data
      * @return string Audio URL
      */
     public function generateAudioUrl(int $productId, string|int $fileIndex, array $fileData = []): string {
-        Debug::log('Audio: generateAudioUrl', ['productId' => $productId, 'fileIndex' => $fileIndex]); // DEBUG-REMOVE
+        Debug::log('Audio: generateAudioUrl', [
+            'productId' => $productId, 
+            'fileIndex' => $fileIndex,
+            'fileData' => $fileData
+        ]); // DEBUG-REMOVE
         
         // Check if user owns the product
         $purchased = $this->checkPurchaseStatus($productId);
@@ -59,10 +63,9 @@ class Audio {
                 }
                 
                 // If no pre-generated file, return original URL for HTML5
-                if ($this->fileManager->isValidAudioUrl($fileData['file'])) {
-                    Debug::log('Audio: using original URL for HTML5', $fileData['file']); // DEBUG-REMOVE
-                    return $fileData['file'];
-                }
+                // Trust WooCommerce URLs - they should be valid
+                Debug::log('Audio: using original URL for HTML5', $fileData['file']); // DEBUG-REMOVE
+                return $fileData['file'];
             }
         }
         
@@ -76,8 +79,10 @@ class Audio {
         // Use REST API endpoint
         $url = rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}");
         
-        // Fix: Wrap URL in an array for Debug::log
-        Debug::log('Audio: REST API endpoint', ['url' => $url]); // DEBUG-REMOVE
+        Debug::log('Audio: REST API endpoint', [
+            'url' => $url,
+            'file_index' => $fileIndex
+        ]); // DEBUG-REMOVE
         return $url;
     }
     
@@ -190,5 +195,37 @@ class Audio {
         // Note: ProductProcessor adds track numbers, but we can't know which
         // This is a limitation - we might need to scan the directory
         return sanitize_file_name($filename);
+    }
+    
+    /**
+     * Output file for streaming
+     * Used by REST API endpoint for demo streaming
+     */
+    public function outputFile(array $args): void {
+        $url = $args['url'] ?? '';
+        $productId = $args['product_id'] ?? 0;
+        $securPlayer = $args['secure_player'] ?? false;
+        $filePercent = $args['file_percent'] ?? 100;
+        
+        Debug::log('Audio::outputFile called', $args);
+        
+        if (empty($url)) {
+            Debug::log('Audio::outputFile - empty URL');
+            status_header(404);
+            exit;
+        }
+        
+        // For demos, we need to use FileManager to create/stream truncated file
+        if ($securPlayer && $filePercent < 100) {
+            $demoFile = $this->fileManager->getDemoFile($url, $filePercent);
+            if ($demoFile && file_exists($demoFile)) {
+                $this->fileManager->streamFile($demoFile);
+                exit;
+            }
+        }
+        
+        // For full files, just redirect
+        wp_redirect($url);
+        exit;
     }
 }

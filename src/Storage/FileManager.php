@@ -309,13 +309,13 @@ class FileManager {
        Debug::log('Entering editFilesArray()', ['productId' => $productId, 'filesCount' => count($files), 'playSrc' => $playSrc]); // DEBUG-REMOVE
        $pFiles = [];
        foreach ($files as $key => $file) {
-           $pKey = $key . '_' . $productId;
+           // Just use the key as-is (GUID)
            if (gettype($file) == 'object') {
                $file = (array) $file->get_data();
            }
            $file['product'] = $productId;
            $file['play_src'] = $playSrc;
-           $pFiles[$pKey] = $file;
+           $pFiles[$key] = $file;
        }
        Debug::log('Product files array edited', ['pFilesCount' => count($pFiles)]); // DEBUG-REMOVE
        return $pFiles;

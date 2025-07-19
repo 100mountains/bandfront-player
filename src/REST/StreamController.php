@@ -89,11 +89,20 @@ class StreamController {
         
         // Find the file by ID
         $fileData = null;
+        
+        Debug::log('Looking for file', [
+            'file_id' => $fileId,
+            'available_files' => array_keys($files)
+        ]);
+        
         foreach ($files as $key => $file) {
-            Debug::log('Checking file', ['key' => $key, 'file' => $file]);
-            if ($key === $fileId || (isset($file['id']) && $file['id'] === $fileId)) {
+            // Check if this file matches our ID
+            if ($key === $fileId) {
                 $fileData = $file;
-                Debug::log('Matched file', ['file_data' => $fileData]);
+                Debug::log('Matched file', [
+                    'key' => $key,
+                    'file' => $file
+                ]);
                 break;
             }
         }
