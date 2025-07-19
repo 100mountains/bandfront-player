@@ -849,6 +849,19 @@
     padding: 10px;
 }
 
+/* Pure CSS Collapsible for BFP Settings */
+.bfp-collapsible-toggle:checked ~ .bfp-collapsible-content {
+    max-height: 2000px !important;
+}
+
+.bfp-collapsible-toggle:checked ~ .bfp-collapsible-header .dashicons-arrow-down-alt2 {
+    transform: rotate(180deg);
+}
+
+.bfp-collapsible-header:hover {
+    opacity: 0.8;
+}
+
 .bfa-traffic-empty {
     text-align: center;
     color: #666;

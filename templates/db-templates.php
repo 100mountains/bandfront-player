@@ -416,59 +416,47 @@ function bfp_render_audio_files_enhanced(array $audio_files): void {
  * Render BFP settings in a collapsible section
  */
 function bfp_render_bfp_settings_collapsible(array $settings): void {
+    $unique_id = 'bfp-settings-' . uniqid();
     ?>
-    <div style="margin-top: 20px;">
-        <h5 class="bfa-collapsible" data-target="bfp-settings-<?php echo uniqid(); ?>" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+    <div class="bfp-collapsible-section" style="margin-top: 20px;">
+        <input type="checkbox" id="<?php echo esc_attr($unique_id); ?>" class="bfp-collapsible-toggle" style="display: none;">
+        <label for="<?php echo esc_attr($unique_id); ?>" class="bfp-collapsible-header" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
             <span><?php _e('Bandfront Player Settings', 'bandfront-player'); ?> <small style="color: #666;">(<?php echo count($settings); ?> overrides)</small></span>
             <span class="dashicons dashicons-arrow-down-alt2" style="transition: transform 0.3s;"></span>
-        </h5>
+        </label>
         <?php if (empty($settings)): ?>
             <p class="bfa-no-settings"><?php _e('No Bandfront Player settings found for this product.', 'bandfront-player'); ?></p>
         <?php else: ?>
-            <div class="bfp-settings-content" style="display: none; margin-top: 10px;">
-                <table class="bfa-config-table">
-                    <thead>
-                        <tr>
-                            <th><?php _e('Setting Key', 'bandfront-player'); ?></th>
-                            <th><?php _e('Value', 'bandfront-player'); ?></th>
-                            <th><?php _e('Type', 'bandfront-player'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($settings as $setting): ?>
-                        <tr>
-                            <td class="bfa-key">
-                                <code><?php echo esc_html($setting['key']); ?></code>
-                            </td>
-                            <td class="bfa-value"><?php echo $setting['formatted_value']; ?></td>
-                            <td class="bfa-type">
-                                <span class="bfa-type-badge bfa-type-<?php echo esc_attr($setting['type']); ?>">
-                                    <?php echo esc_html($setting['type']); ?>
-                                </span>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div class="bfp-collapsible-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                <div style="padding-top: 10px;">
+                    <table class="bfa-config-table">
+                        <thead>
+                            <tr>
+                                <th><?php _e('Setting Key', 'bandfront-player'); ?></th>
+                                <th><?php _e('Value', 'bandfront-player'); ?></th>
+                                <th><?php _e('Type', 'bandfront-player'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($settings as $setting): ?>
+                            <tr>
+                                <td class="bfa-key">
+                                    <code><?php echo esc_html($setting['key']); ?></code>
+                                </td>
+                                <td class="bfa-value"><?php echo $setting['formatted_value']; ?></td>
+                                <td class="bfa-type">
+                                    <span class="bfa-type-badge bfa-type-<?php echo esc_attr($setting['type']); ?>">
+                                        <?php echo esc_html($setting['type']); ?>
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         <?php endif; ?>
     </div>
-    <script>
-    jQuery(document).ready(function($) {
-        $('.bfa-collapsible[data-target^="bfp-settings-"]').on('click', function() {
-            var $content = $(this).next('.bfp-settings-content');
-            var $arrow = $(this).find('.dashicons');
-            
-            if ($content.is(':visible')) {
-                $content.slideUp();
-                $arrow.css('transform', 'rotate(0deg)');
-            } else {
-                $content.slideDown();
-                $arrow.css('transform', 'rotate(180deg)');
-            }
-        });
-    });
-    </script>
     <?php
 }
 
