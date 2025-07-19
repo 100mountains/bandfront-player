@@ -663,7 +663,7 @@ jQuery(document).ready(function($) {
         $spinner.css('visibility', 'visible');
         $message.text('');
         
-        $.post(ajaxurl, {
+        $.post(bfpDbMonitor.ajax_url, {
             action: 'bfp_generate_test_events',
             nonce: bfpDbMonitor.nonce
         }, function(response) {
@@ -703,7 +703,7 @@ jQuery(document).ready(function($) {
         $spinner.css('visibility', 'visible');
         $message.text('');
         
-        $.post(ajaxurl, {
+        $.post(bfpDbMonitor.ajax_url, {
             action: 'bfp_clean_test_events',
             nonce: bfpDbMonitor.nonce
         }, function(response) {
@@ -754,7 +754,7 @@ jQuery(document).ready(function($) {
             },
             
             loadActivity: function() {
-                $.post(ajaxurl, {
+                $.post(bfpDbMonitor.ajax_url, {
                     action: 'bfp_get_db_activity',
                     nonce: bfpDbMonitor.nonce
                 }, function(response) {

@@ -338,39 +338,36 @@ class DbRenderer {
                     <span class="bfa-traffic-status">● <?php _e('Live', 'bandfront-player'); ?></span>
                     <button type="button" class="button button-small" id="bfa-clear-db-activity">
                         <?php _e('Clear', 'bandfront-player'); ?>
-                  <span class="bfa-traffic-status">● <?php _e('Live', 'bandfront-player'); ?></span>
-                    <button type="button" class="button button-small" id="bfa-clear-db-activity">
-                        <?php _e('Clear', 'bandfront-player'); ?>      
-                        </button>
-               </div>
-               <div class="bfa-traffic-log" id="bfa-db-activity-log">
-                   <div class="bfa-traffic-empty"><?php _e('Waiting for database activity...', 'bandfront-player'); ?></div>
-               </div>
-           </div>
-       </div>
-       
-       <!-- Database Stats and Performance Grid -->
-       <div class="bfa-monitor-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
-           <!-- Database Stats -->
-           <div class="bfa-monitor-section">
-               <h3><?php _e('Database Statistics', 'bandfront-player'); ?></h3>
-               <div class="bfa-db-stats">
-                   <?php $this->renderDatabaseStats(); ?>
-               </div>
-           </div>
-           
-           <!-- Performance Metrics -->
-           <div class="bfa-monitor-section">
-               <h3><?php _e('Performance Metrics', 'bandfront-player'); ?></h3>
-               <div class="bfa-performance-grid">
-                   <?php $this->renderPerformanceMetrics(); ?>
-               </div>
-           </div>
-       </div>
-       <?php
-   }
-   
-   /**
+                    </button>
+                </div>
+                <div class="bfa-traffic-log" id="bfa-db-activity-log">
+                    <div class="bfa-traffic-empty"><?php _e('Waiting for database activity...', 'bandfront-player'); ?></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Database Stats and Performance Grid -->
+        <div class="bfa-monitor-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+            <!-- Database Stats -->
+            <div class="bfa-monitor-section">
+                <h3><?php _e('Database Statistics', 'bandfront-player'); ?></h3>
+                <div class="bfa-db-stats">
+                    <?php $this->renderDatabaseStats(); ?>
+                </div>
+            </div>
+            
+            <!-- Performance Metrics -->
+            <div class="bfa-monitor-section">
+                <h3><?php _e('Performance Metrics', 'bandfront-player'); ?></h3>
+                <div class="bfa-performance-grid">
+                    <?php $this->renderPerformanceMetrics(); ?>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+    
+    /**
     * Render products content
     */
    private function renderProductsContent(): void {
