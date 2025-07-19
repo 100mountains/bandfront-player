@@ -34,7 +34,7 @@ class AdminRenderer {
         // Create DbRenderer and Monitor instances for dev-tools template
         // This is the modern way: AdminRenderer manages dependencies and injects them into templates
         $monitor = new Monitor();
-        $dbRenderer = new DbRenderer($config, $monitor);
+        $dbRenderer = new DbRenderer($config, $monitor, $fileManager);
         
         include_once plugin_dir_path(dirname(dirname(__FILE__))) . 'templates/global-admin-options.php';
         echo '</div>';

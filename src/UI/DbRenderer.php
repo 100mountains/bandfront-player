@@ -3,6 +3,7 @@ namespace Bandfront\UI;
 
 use Bandfront\Core\Config;
 use Bandfront\Db\Monitor;
+use Bandfront\Storage\FileManager;
 use Bandfront\Utils\Debug;
 
 // Set domain for UI
@@ -19,10 +20,12 @@ class DbRenderer {
     
     private Config $config;
     private Monitor $monitor;
+    private FileManager $fileManager;
     
-    public function __construct(Config $config, Monitor $monitor) {
+    public function __construct(Config $config, Monitor $monitor, FileManager $fileManager) {
         $this->config = $config;
         $this->monitor = $monitor;
+        $this->fileManager = $fileManager;
     }
    
 
@@ -251,13 +254,13 @@ class DbRenderer {
         // Render product info table
         bfp_render_product_info_table($product_info);
         
-        // Get and render BFP settings
-        $bfp_settings = $this->getProductBfpSettings($product_id);
-        bfp_render_bfp_settings_table($bfp_settings);
-        
-        // Get and render audio files
+        // Get and render audio files (moved before settings for better UX)
         $audio_files = $this->getProductAudioFiles($product_id);
-        bfp_render_audio_files_table($audio_files);
+        bfp_render_audio_files_enhanced($audio_files);
+        
+        // Get and render BFP settings in collapsible section
+        $bfp_settings = $this->getProductBfpSettings($product_id);
+        bfp_render_bfp_settings_collapsible($bfp_settings);
     }
     
     /**
@@ -482,6 +485,8 @@ class DbRenderer {
      */
     private function getProductAudioFiles(int $product_id): array {
         $files = [];
+        
+        // Get basic file URLs from meta
         $meta_keys = ['_bfp_file_url', '_bfp_file_urls', '_bfp_demo_file_url', '_bfp_demo_file_urls'];
         
         foreach ($meta_keys as $key) {
@@ -491,12 +496,59 @@ class DbRenderer {
                     foreach ($value as $file_url) {
                         $file_info = $this->analyzeFileUrl($file_url, $key);
                         $file_info['formatted_size'] = $this->formatFileSize($file_info['size']);
+                        $file_info['source'] = 'meta';
                         $files[] = $file_info;
                     }
                 } else {
                     $file_info = $this->analyzeFileUrl($value, $key);
                     $file_info['formatted_size'] = $this->formatFileSize($file_info['size']);
+                    $file_info['source'] = 'meta';
                     $files[] = $file_info;
+                }
+            }
+        }
+        
+        // Get detailed file information from FileManager
+        $product = wc_get_product($product_id);
+        if ($product) {
+            // Get all product files
+            $allFiles = $this->fileManager->getAllProductFiles($product, []);
+            
+            // Get internal file details
+            $internalFiles = $this->fileManager->getProductFilesInternal([
+                'product' => $product,
+                'all' => true
+            ]);
+            
+            // Add FileManager data
+            if (!empty($internalFiles)) {
+                foreach ($internalFiles as $index => $file) {
+                    $fileData = [
+                        'path' => $file['file'] ?? '',
+                        'filename' => basename($file['file'] ?? ''),
+                        'type' => isset($file['play_src']) && $file['play_src'] ? 'Demo/Preview' : 'Full Audio',
+                        'media_type' => $file['media_type'] ?? 'unknown',
+                        'product_id' => $file['product'] ?? $product_id,
+                        'index' => $index,
+                        'source' => 'filemanager',
+                        'exists' => false,
+                        'size' => 0,
+                        'formatted_size' => 'N/A'
+                    ];
+                    
+                    // Check file existence
+                    if (!empty($file['file'])) {
+                        $upload_dir = wp_upload_dir();
+                        $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $file['file']);
+                        
+                        if (file_exists($local_path)) {
+                            $fileData['exists'] = true;
+                            $fileData['size'] = filesize($local_path);
+                            $fileData['formatted_size'] = $this->formatFileSize($fileData['size']);
+                        }
+                    }
+                    
+                    $files[] = $fileData;
                 }
             }
         }

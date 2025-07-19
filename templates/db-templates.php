@@ -300,6 +300,179 @@ function bfp_render_audio_files_table(array $audio_files): void {
 }
 
 /**
+ * Render enhanced audio files table with FileManager data
+ */
+function bfp_render_audio_files_enhanced(array $audio_files): void {
+    if (empty($audio_files)) {
+        ?>
+        <h5 style="margin-top: 20px;"><?php _e('Audio Files', 'bandfront-player'); ?></h5>
+        <p class="bfa-no-settings"><?php _e('No audio files found for this product.', 'bandfront-player'); ?></p>
+        <?php
+        return;
+    }
+    
+    // Separate files by source
+    $filesBySource = [
+        'filemanager' => [],
+        'meta' => []
+    ];
+    
+    foreach ($audio_files as $file) {
+        $source = $file['source'] ?? 'meta';
+        $filesBySource[$source][] = $file;
+    }
+    ?>
+    <h5 style="margin-top: 20px;"><?php _e('Audio Files', 'bandfront-player'); ?></h5>
+    
+    <?php if (!empty($filesBySource['filemanager'])): ?>
+    <h6 style="margin-top: 15px; margin-bottom: 10px;"><?php _e('Files from FileManager (Active)', 'bandfront-player'); ?></h6>
+    <table class="bfa-config-table">
+        <thead>
+            <tr>
+                <th><?php _e('Index', 'bandfront-player'); ?></th>
+                <th><?php _e('File', 'bandfront-player'); ?></th>
+                <th><?php _e('Type', 'bandfront-player'); ?></th>
+                <th><?php _e('Media Type', 'bandfront-player'); ?></th>
+                <th><?php _e('Size', 'bandfront-player'); ?></th>
+                <th><?php _e('Status', 'bandfront-player'); ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($filesBySource['filemanager'] as $file): ?>
+            <tr>
+                <td class="bfa-key">
+                    <code><?php echo esc_html($file['index'] ?? 'N/A'); ?></code>
+                </td>
+                <td class="bfa-path" style="word-break: break-all;">
+                    <code><?php echo esc_html($file['filename']); ?></code>
+                    <br>
+                    <small style="color: #666;"><?php echo esc_html($file['path']); ?></small>
+                </td>
+                <td class="bfa-value">
+                    <span class="bfa-type-badge" style="background: <?php echo $file['type'] === 'Demo/Preview' ? '#ff6b6b' : '#4ecdc4'; ?>; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">
+                        <?php echo esc_html($file['type']); ?>
+                    </span>
+                </td>
+                <td class="bfa-value">
+                    <code><?php echo esc_html($file['media_type']); ?></code>
+                </td>
+                <td class="bfa-value">
+                    <?php echo $file['exists'] ? esc_html($file['formatted_size']) : '<span class="bfa-empty">N/A</span>'; ?>
+                </td>
+                <td class="bfa-value">
+                    <?php if ($file['exists']): ?>
+                        <span class="bfa-bool-true">✓ Found</span>
+                    <?php else: ?>
+                        <span class="bfa-bool-false">✗ Missing</span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
+    
+    <?php if (!empty($filesBySource['meta'])): ?>
+    <h6 style="margin-top: 15px; margin-bottom: 10px;"><?php _e('Files from Metadata', 'bandfront-player'); ?></h6>
+    <table class="bfa-config-table">
+        <thead>
+            <tr>
+                <th><?php _e('File', 'bandfront-player'); ?></th>
+                <th><?php _e('Type', 'bandfront-player'); ?></th>
+                <th><?php _e('Size', 'bandfront-player'); ?></th>
+                <th><?php _e('Status', 'bandfront-player'); ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($filesBySource['meta'] as $file): ?>
+            <tr>
+                <td class="bfa-path" style="word-break: break-all;">
+                    <code><?php echo esc_html($file['filename']); ?></code>
+                    <br>
+                    <small style="color: #666;"><?php echo esc_html($file['path']); ?></small>
+                </td>
+                <td class="bfa-value">
+                    <?php echo esc_html($file['type']); ?>
+                </td>
+                <td class="bfa-value">
+                    <?php echo $file['exists'] ? esc_html($file['formatted_size']) : '<span class="bfa-empty">N/A</span>'; ?>
+                </td>
+                <td class="bfa-value">
+                    <?php if ($file['exists']): ?>
+                        <span class="bfa-bool-true">✓ Found</span>
+                    <?php else: ?>
+                        <span class="bfa-bool-false">✗ Missing</span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
+    <?php
+}
+
+/**
+ * Render BFP settings in a collapsible section
+ */
+function bfp_render_bfp_settings_collapsible(array $settings): void {
+    ?>
+    <div style="margin-top: 20px;">
+        <h5 class="bfa-collapsible" data-target="bfp-settings-<?php echo uniqid(); ?>" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+            <span><?php _e('Bandfront Player Settings', 'bandfront-player'); ?> <small style="color: #666;">(<?php echo count($settings); ?> overrides)</small></span>
+            <span class="dashicons dashicons-arrow-down-alt2" style="transition: transform 0.3s;"></span>
+        </h5>
+        <?php if (empty($settings)): ?>
+            <p class="bfa-no-settings"><?php _e('No Bandfront Player settings found for this product.', 'bandfront-player'); ?></p>
+        <?php else: ?>
+            <div class="bfp-settings-content" style="display: none; margin-top: 10px;">
+                <table class="bfa-config-table">
+                    <thead>
+                        <tr>
+                            <th><?php _e('Setting Key', 'bandfront-player'); ?></th>
+                            <th><?php _e('Value', 'bandfront-player'); ?></th>
+                            <th><?php _e('Type', 'bandfront-player'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($settings as $setting): ?>
+                        <tr>
+                            <td class="bfa-key">
+                                <code><?php echo esc_html($setting['key']); ?></code>
+                            </td>
+                            <td class="bfa-value"><?php echo $setting['formatted_value']; ?></td>
+                            <td class="bfa-type">
+                                <span class="bfa-type-badge bfa-type-<?php echo esc_attr($setting['type']); ?>">
+                                    <?php echo esc_html($setting['type']); ?>
+                                </span>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+    <script>
+    jQuery(document).ready(function($) {
+        $('.bfa-collapsible[data-target^="bfp-settings-"]').on('click', function() {
+            var $content = $(this).next('.bfp-settings-content');
+            var $arrow = $(this).find('.dashicons');
+            
+            if ($content.is(':visible')) {
+                $content.slideUp();
+                $arrow.css('transform', 'rotate(0deg)');
+            } else {
+                $content.slideDown();
+                $arrow.css('transform', 'rotate(180deg)');
+            }
+        });
+    });
+    </script>
+    <?php
+}
+
+/**
  * Render file system section
  */
 function bfp_render_filesystem_section(): void {
