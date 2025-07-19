@@ -573,23 +573,41 @@ class DbRenderer {
      * Check if a product has audio files
      */
     private function productHasAudio(int $product_id): bool {
-        $audio_keys = ['_bfp_file_url', '_bfp_file_urls', '_bfp_demo_file_url', '_bfp_demo_file_urls'];
+        // First check if BFP is enabled for this product
+        if (!$this->config->getState('_bfp_enable_player', false, $product_id)) {
+            return false;
+        }
         
-        foreach ($audio_keys as $key) {
-            $value = get_post_meta($product_id, $key, true);
-            if (!empty($value)) {
-                // Handle both single URLs and arrays
-                if (is_array($value)) {
-                    // Check if array has non-empty values
-                    foreach ($value as $url) {
-                        if (!empty($url)) {
-                            return true;
-                        }
-                    }
-                } elseif (!empty($value)) {
-                    return true;
-                }
+        // Get the product
+        $product = wc_get_product($product_id);
+        if (!$product) {
+            return false;
+        }
+        
+        // Use FileManager to get all files for this product
+        $files = $this->fileManager->getProductFilesInternal([
+            'product' => $product,
+            'all' => true
+        ]);
+        
+        // If we have any files from FileManager, we have audio
+        if (!empty($files)) {
+            return true;
+        }
+        
+        // Also check if product has downloadable files
+        if ($product->is_downloadable()) {
+            $downloads = $product->get_downloads();
+            if (!empty($downloads)) {
+                return true;
             }
+        }
+        
+        // Check for own demos
+        $ownDemos = intval($this->config->getState('_bfp_own_demos', 0, $product_id));
+        $demosList = $this->config->getState('_bfp_demos_list', [], $product_id);
+        if ($ownDemos && !empty($demosList)) {
+            return true;
         }
         
         return false;
@@ -599,49 +617,29 @@ class DbRenderer {
      * Get total count of audio files
      */
     private function getTotalAudioFiles(): int {
-        global $wpdb;
-        
         $count = 0;
         
-        // Count single file URLs
-        $single_files = $wpdb->get_results("
-            SELECT meta_value FROM {$wpdb->postmeta} 
-            WHERE meta_key IN ('_bfp_file_url', '_bfp_demo_file_url')
-            AND meta_value != ''
-            AND meta_value != 'a:0:{}'
-        ");
+        // Get the same products we're displaying
+        $products = $this->monitor->getWooCommerceProducts(20);
         
-        foreach ($single_files as $row) {
-            $value = maybe_unserialize($row->meta_value);
-            if (is_array($value)) {
-                // Count non-empty array elements
-                foreach ($value as $url) {
-                    if (!empty($url)) {
-                        $count++;
-                    }
-                }
-            } elseif (!empty($value)) {
-                $count++;
+        foreach ($products as $product_obj) {
+            $product = wc_get_product($product_obj->ID);
+            if (!$product) {
+                continue;
             }
-        }
-        
-        // Count multiple file URLs (serialized arrays)
-        $multi_files = $wpdb->get_results("
-            SELECT meta_value FROM {$wpdb->postmeta} 
-            WHERE meta_key IN ('_bfp_file_urls', '_bfp_demo_file_urls')
-            AND meta_value != ''
-            AND meta_value != 'a:0:{}'
-        ");
-        
-        foreach ($multi_files as $row) {
-            $value = maybe_unserialize($row->meta_value);
-            if (is_array($value)) {
-                foreach ($value as $url) {
-                    if (!empty($url)) {
-                        $count++;
-                    }
-                }
+            
+            // Skip if player not enabled
+            if (!$this->config->getState('_bfp_enable_player', false, $product_obj->ID)) {
+                continue;
             }
+            
+            // Get files using FileManager
+            $files = $this->fileManager->getProductFilesInternal([
+                'product' => $product,
+                'all' => true
+            ]);
+            
+            $count += count($files);
         }
         
         return $count;
