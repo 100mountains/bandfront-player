@@ -1,8 +1,28 @@
 <?php
 declare(strict_types=1);
 
+// Set the domain for this file
+// Debug::domain('admin');
+
+// class AdminClass {
+//     public function processRequest() {
+//         Debug::log('Processing admin request', ['user' => $userId]);
+//         // This will only log if 'admin' domain is enabled
+//     }
+// }
+// // Anywhere in your code
+// Debug::admin('Admin action performed', ['action' => 'save_settings']);
+// Debug::ui('Rendering player interface', ['theme' => 'dark']);
+// Debug::filemanager('File uploaded', ['size' => $fileSize]);
+// Debug::audio('Processing audio file', ['format' => 'mp3']);
+// Debug::api('API request received', ['endpoint' => '/stream']);
+// // Pass domain as parameter
+// Debug::bootstrap('Component initialized', ['component' => 'player']);
+
+namespace Bandfront\Admin;
 namespace Bandfront\Utils;
 
+use Bandfront\Utils\Debug;
 use Bandfront\Core\Config;
 
 
