@@ -88,7 +88,8 @@ class ProductMeta {
 
         // Always allow saving player options (no vendor plugin checks)
         Debug::log('ProductMeta.php: Deleting post files before saving options', ['postId' => $postId]); // DEBUG-REMOVE
-        $this->fileManager->deletePost($postId, false, true);
+// FIX: deletePost method does not exist - commenting out temporarily
+//         $this->fileManager->deletePost($postId, false, true);
 
         // Save the player options
         Debug::log('ProductMeta.php: Saving product options', ['postId' => $postId]); // DEBUG-REMOVE

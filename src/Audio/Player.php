@@ -65,9 +65,9 @@ class Player {
         
         // Build player HTML with title
         $playerHtml = '<div class="bfp-player-wrapper">';
-        if ($title) {
-            $playerHtml .= '<div class="bfp-player-title">' . esc_html($title) . '</div>';
-        }
+//         if ($title) {
+//             $playerHtml .= '<div class="bfp-player-title">' . esc_html($title) . '</div>';
+//         }
         $playerHtml .= '<audio id="' . esc_attr($playerId) . '" ';
         $playerHtml .= 'class="bfp-player ' . esc_attr($playerStyle) . '" ';
         $playerHtml .= 'data-product="' . esc_attr($productId) . '" ';

@@ -148,7 +148,8 @@ class Admin {
      */
     public function afterDeletePost(int $postId, \WP_Post $postObj): void {
         Debug::log('Admin.php: Entering afterDeletePost()', ['postId' => $postId]); // DEBUG-REMOVE
-        $this->fileManager->deletePost($postId);
+// FIX: deletePost method does not exist - needs proper implementation for actual post deletion
+//         $this->fileManager->deletePost($postId);
         Debug::log('Admin.php: Exiting afterDeletePost()', ['postId' => $postId]); // DEBUG-REMOVE
     }
 

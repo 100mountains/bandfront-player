@@ -756,47 +756,9 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                                             console.log('[BFP] REST API URL is accessible');
                                         },
                                         error: function(xhr) {
-                                        error: function(xhr) {
                                             console.error('[BFP] REST API URL failed:', xhr.status, xhr.statusText);
-                                            
-                                            // START WORKAROUND FOR PRODUCT 185 - REMOVE WHEN FIXED
-                                            // This is a temporary hack for the UFORB product which has corrupted download links
-                                            if (xhr.status === 500 && src.indexOf('/stream/185/') !== -1) {
-                                                console.warn('[BFP] PRODUCT 185 WORKAROUND ACTIVATED - Using hardcoded fallback URLs');
-                                                
-                                                // Hardcoded mapping for product 185 files
-                                                var product185Files = {
-                                                    'd4dc747d-f1fa-4791-ad49-4a75d5dd84c9': 'https://therob.lol/wp-content/uploads/woocommerce_uploads/2025/05/The-Rob-UFORB-DIRECTORS-CUT-01-O.O.B.E-THE-ROB-REMASTER-2025.wav',
-                                                    'eeb1f07d-d1c2-4052-8108-58047de76ebe': 'https://therob.lol/wp-content/uploads/woocommerce_uploads/2025/05/The-Rob-UFORB-DIRECTORS-CUT-02-UFORB-THE-ROB-REMASTER-2025.wav',
-                                                    '5bd4b5a9-a590-4ecb-a6da-8a126c445cab': 'https://therob.lol/wp-content/uploads/woocommerce_uploads/2025/05/The-Rob-UFORB-DIRECTORS-CUT-03-BLUE-ROOM-THE-ROB-REMASTER-2025.wav',
-                                                    'bf7ba4e1-08ea-4c87-9171-1b9292ac87ba': 'https://therob.lol/wp-content/uploads/woocommerce_uploads/2025/05/The-Rob-UFORB-DIRECTORS-CUT-04-TOWERS-OF-DUB-THE-ROB-REMASTER-2025.wav',
-                                                    'f8b69b14-218f-48ab-84c9-969990679ce2': 'https://therob.lol/wp-content/uploads/woocommerce_uploads/2025/05/The-Rob-UFORB-DIRECTORS-CUT-05-CLOSE-ENCOUNTERS-THE-ROB-REMASTER-2025-ak2mld.wav',
-                                                    'afa4844a-ea81-4f3f-a3f2-86a9b747fc70': 'https://therob.lol/wp-content/uploads/woocommerce_uploads/2025/05/The-Rob-UFORB-DIRECTORS-CUT-06-MAJESTIC-THE-ROB-REMASTER-2025.wav',
-                                                    '57698e72-e5d2-4d70-aa5d-a6b8672e7939': 'https://therob.lol/wp-content/uploads/woocommerce_uploads/2025/05/The-Rob-UFORB-DIRECTORS-CUT-07-EXTRANEOUS-DETRITUS-THE-ROB-REMASTER-2025.wav',
-                                                    '2a8f31be-01c3-4d9f-97ad-dc5ccad7d080': 'https://therob.lol/wp-content/uploads/woocommerce_uploads/2025/05/The-Rob-UFORB-DIRECTORS-CUT-08-UFORB-2025-GAPLESS-MIX.wav'
-                                                };
-                                                
-                                                // Extract file ID from URL
-                                                var matches = src.match(/\/stream\/185\/([a-f0-9-]+)/);
-                                                if (matches && matches[1] && product185Files[matches[1]]) {
-                                                    var fallbackUrl = product185Files[matches[1]];
-                                                    console.log('[BFP] PRODUCT 185 WORKAROUND - Using fallback URL:', fallbackUrl);
-                                                    
-                                                    $(this).attr('src', fallbackUrl);
-                                                    
-                                                    // Force reload with fallback URL
-                                                    if (media && media.setSrc) {
-                                                        media.setSrc(fallbackUrl);
-                                                        media.load();
-                                                    }
-                                                } else {
-                                                    console.error('[BFP] PRODUCT 185 WORKAROUND - No fallback URL found for file ID');
-                                                }
-                                            }
-                                            // END WORKAROUND FOR PRODUCT 185
                                         }
-                                            // END WORKAROUND FOR PRODUCT 185
-                                        }
+                                    });
                                 }
                                 
                                 // Convert old action URLs to REST API URLs
