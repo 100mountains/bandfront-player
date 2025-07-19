@@ -216,8 +216,6 @@ function initWaveSurferPlayer(container, audioUrl, options) {
          * Play next player in sequence
          */
         function _playNext(playernumber, loop) {
-            console.log('[BFP Debug] _playNext called - Current player: ' + playernumber + ', Loop: ' + loop);
-            
             if (playernumber + 1 < bfp_player_counter || loop) {
                 var toPlay = playernumber + 1;
                 
@@ -246,15 +244,9 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                 } 
                 // Handle full players
                 else {
-                    var $nextPlayer = jQuery(bfp_players[toPlay].domNode || bfp_players[toPlay]);
-                    var nextTitle = $nextPlayer.closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
-                                   $nextPlayer.closest('tr').find('.bfp-player-title').text() || 
-                                   'Unknown Track';
-                    console.log('[BFP Debug] Switching to next track: "' + nextTitle + '" (Player #' + toPlay + ')');
-                    
-                    if (jQuery(bfp_players[toPlay].domNode).closest('.bfp-single-player').length) {
-                        _hideShowPlayersAndPositioning(jQuery(bfp_players[toPlay].domNode).closest('.bfp-player-container'));
-                    } else if (jQuery(bfp_players[toPlay].domNode).closest('.bfp-player-container').is(':visible')) {
+                    if (jQuery(bfp_players[toPlay].domNode).closest(".bfp-single-player").length) {
+                        _hideShowPlayersAndPositioning(jQuery(bfp_players[toPlay].domNode).closest(".bfp-player-container"));
+                    } else if (jQuery(bfp_players[toPlay].domNode).closest(".bfp-player-container").is(":visible")) {
                         // Handle different player types
                         if (bfp_players[toPlay].domNode && bfp_players[toPlay].domNode.play) {
                             bfp_players[toPlay].domNode.play();
@@ -272,8 +264,6 @@ function initWaveSurferPlayer(container, audioUrl, options) {
          * Play previous player in sequence
          */
         function _playPrev(playernumber, loop) {
-            console.log('[BFP Debug] _playPrev called - Current player: ' + playernumber + ', Loop: ' + loop);
-            
             if (playernumber - 1 >= 0 || loop) {
                 var toPlay = playernumber - 1;
 
@@ -292,17 +282,12 @@ function initWaveSurferPlayer(container, audioUrl, options) {
 
                 // Handle button players
                 if (bfp_players[toPlay] instanceof jQuery && bfp_players[toPlay].is('a')) {
-                    var nextTitle = bfp_players[toPlay].closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
-                                   bfp_players[toPlay].closest('tr').find('.bfp-player-title').text() || 
-                                   'Unknown Track';
-                    console.log('[BFP Debug] Switching to next track: "' + nextTitle + '" (Player #' + toPlay + ')');
-                    
                     if (bfp_players[toPlay].closest('.bfp-single-player').length) {
                         _hideShowPlayersAndPositioning(bfp_players[toPlay].closest('.bfp-player-container'));
                     } else if (bfp_players[toPlay].is(':visible')) {
                         bfp_players[toPlay].trigger('click');
                     } else {
-                        _playNext(playernumber + 1, loop);
+                        _playPrev(playernumber - 1, loop);
                     }
                 }
                 // Handle full players
@@ -438,13 +423,6 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     // Track play events
                     $player.on('play', function() {
                         var productId = $player.attr("data-product");
-                        var trackTitle = $player.closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
-                                        $player.closest('tr').find('.bfp-player-title').text() || 
-                                        'Unknown Track';
-                        var fileIndex = $player.attr("data-file-index") || '0';
-                        
-                        console.log('[BFP Debug] PLAY pressed - Product ID: ' + productId + ', Track: "' + trackTitle + '", File Index: ' + fileIndex);
-                        
                         if (productId) {
                             var trackUrl = window.location.protocol + "//" + 
                                 window.location.host + "/" +
@@ -465,17 +443,6 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                                 }
                             }
                         }
-                    });
-                    
-                    // Track pause events
-                    $player.on('pause', function() {
-                        var productId = $player.attr("data-product");
-                        var trackTitle = $player.closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
-                                        $player.closest('tr').find('.bfp-player-title').text() || 
-                                        'Unknown Track';
-                        var fileIndex = $player.attr("data-file-index") || '0';
-                        
-                        console.log('[BFP Debug] PAUSE pressed - Product ID: ' + productId + ', Track: "' + trackTitle + '", File Index: ' + fileIndex);
                     });
                     
                     // Handle fade out for HTML5
@@ -502,20 +469,11 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     
                     // Handle ended event
                     $player.on('ended', function() {
-                        var productId = $player.attr("data-product");
-                        var trackTitle = $player.closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
-                                        $player.closest('tr').find('.bfp-player-title').text() || 
-                                        'Unknown Track';
-                        var fileIndex = $player.attr("data-file-index") || '0';
-                        
-                        console.log('[BFP Debug] TRACK ENDED - Product ID: ' + productId + ', Track: "' + trackTitle + '", File Index: ' + fileIndex);
-                        
                         this.currentTime = 0;
                         
                         // Play next if enabled
                         if (playAll * 1) {
                             var currentPlayerNumber = parseInt($player.attr("playernumber"));
-                            console.log('[BFP Debug] Auto-playing next track...');
                             _playNext(currentPlayerNumber, $player.closest('[data-loop="1"]').length > 0);
                         }
                     });
@@ -539,13 +497,6 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                         // Enhanced event handling for WaveSurfer
                         wavesurfer.on('play', function() {
                             var productId = $player.attr("data-product");
-                            var trackTitle = $player.closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
-                                            $player.closest('tr').find('.bfp-player-title').text() || 
-                                            'Unknown Track';
-                            var fileIndex = $player.attr("data-file-index") || '0';
-                            
-                            console.log('[BFP Debug] WAVESURFER PLAY - Product ID: ' + productId + ', Track: "' + trackTitle + '", File Index: ' + fileIndex);
-                            
                             if (productId) {
                                 var trackUrl = window.location.protocol + "//" + 
                                     window.location.host + "/" +
@@ -567,27 +518,9 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                             }
                         });
                         
-                        wavesurfer.on('pause', function() {
-                            var productId = $player.attr("data-product");
-                            var trackTitle = $player.closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
-                                            $player.closest('tr').find('.bfp-player-title').text() || 
-                                            'Unknown Track';
-                            var fileIndex = $player.attr("data-file-index") || '0';
-                            
-                            console.log('[BFP Debug] WAVESURFER PAUSE - Product ID: ' + productId + ', Track: "' + trackTitle + '", File Index: ' + fileIndex);
-                        });
-                        
                         wavesurfer.on('finish', function() {
-                            var productId = $player.attr("data-product");
-                            var trackTitle = $player.closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
-                                            $player.closest('tr').find('.bfp-player-title').text() || 
-                                            'Unknown Track';
-                            
-                            console.log('[BFP Debug] WAVESURFER TRACK FINISHED - Product ID: ' + productId + ', Track: "' + trackTitle + '"');
-                            
                             wavesurfer.seekTo(0);
                             if (playAll * 1) {
-                                console.log('[BFP Debug] Auto-playing next track (WaveSurfer)...');
                                 _playNext(parseInt($player.attr("playernumber")), false);
                             }
                         });
