@@ -164,21 +164,22 @@ class Settings {
             // ...additional settings...
         ];
         
-        // Handle debug configuration
+        // Handle debug configuration - using the correct form field names
         $debugConfig = [
-            'enabled' => isset($data['debug_enabled']) ? true : false,
+            'enabled' => isset($data['_bfp_debug']['enabled']) ? true : false,
             'domains' => []
         ];
         
-        // Parse debug domains
-        if (isset($data['debug_domains']) && is_array($data['debug_domains'])) {
-            $availableDomains = [
-                'admin', 'audio', 'core', 'core-bootstrap', 'core-config', 'core-hooks',
-                'db', 'api', 'storage', 'ui', 'utils', 'wordpress-elements', 'woocommerce'
-            ];
-            
+        // Parse debug domains from the nested array structure
+        $availableDomains = [
+            'admin', 'audio', 'core', 'core-bootstrap', 'core-config', 'core-hooks',
+            'db', 'api', 'storage', 'ui', 'utils', 'wordpress-elements', 'woocommerce'
+        ];
+        
+        // Check if domains were submitted in the form
+        if (isset($data['_bfp_debug']['domains']) && is_array($data['_bfp_debug']['domains'])) {
             foreach ($availableDomains as $domain) {
-                $debugConfig['domains'][$domain] = isset($data['debug_domains'][$domain]) ? true : false;
+                $debugConfig['domains'][$domain] = isset($data['_bfp_debug']['domains'][$domain]) ? true : false;
             }
         } else {
             // All domains disabled if none selected
