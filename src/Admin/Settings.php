@@ -164,6 +164,43 @@ class Settings {
             // ...additional settings...
         ];
         
+        // Handle debug configuration
+        $debugConfig = [
+            'enabled' => isset($data['debug_enabled']) ? true : false,
+            'domains' => []
+        ];
+        
+        // Parse debug domains
+        if (isset($data['debug_domains']) && is_array($data['debug_domains'])) {
+            $availableDomains = [
+                'admin', 'audio', 'core', 'core-bootstrap', 'core-config', 'core-hooks',
+                'db', 'api', 'storage', 'ui', 'utils', 'wordpress-elements', 'woocommerce'
+            ];
+            
+            foreach ($availableDomains as $domain) {
+                $debugConfig['domains'][$domain] = isset($data['debug_domains'][$domain]) ? true : false;
+            }
+        } else {
+            // All domains disabled if none selected
+            $debugConfig['domains'] = [
+                'admin' => false,
+                'audio' => false,
+                'core' => false,
+                'core-bootstrap' => false,
+                'core-config' => false,
+                'core-hooks' => false,
+                'db' => false,
+                'api' => false,
+                'storage' => false,
+                'ui' => false,
+                'utils' => false,
+                'wordpress-elements' => false,
+                'woocommerce' => false,
+            ];
+        }
+        
+        $settings['_bfp_debug'] = $debugConfig;
+        
         // Handle cloud storage settings
         $settings = array_merge($settings, $this->parseCloudSettings($data));
         

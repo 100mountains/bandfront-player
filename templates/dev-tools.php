@@ -22,8 +22,38 @@ if (!$devMode) {
     return; // Don't render anything if dev mode is off
 }
 
-// The DbRenderer instance is provided by AdminRenderer
-// No fallback needed - clean architecture!
+// Get current debug settings - handle the new structure
+$debugSettings = $config->getState('_bfp_debug', [
+    'enabled' => false,
+    'domains' => []
+]);
+
+// Extract enabled and domains from the settings
+$debugEnabled = $debugSettings['enabled'] ?? false;
+$debugDomains = $debugSettings['domains'] ?? [];
+
+// Define domains with labels and groups
+$domainGroups = [
+    'Core' => [
+        'core' => __('Core (All)', 'bandfront-player'),
+        'core-bootstrap' => __('Bootstrap', 'bandfront-player'),
+        'core-config' => __('Config', 'bandfront-player'),
+        'core-hooks' => __('Hooks', 'bandfront-player'),
+    ],
+    'Components' => [
+        'admin' => __('Admin', 'bandfront-player'),
+        'audio' => __('Audio', 'bandfront-player'),
+        'storage' => __('Storage', 'bandfront-player'),
+        'ui' => __('UI', 'bandfront-player'),
+        'api' => __('REST API', 'bandfront-player'),
+    ],
+    'Other' => [
+        'db' => __('Database', 'bandfront-player'),
+        'utils' => __('Utilities', 'bandfront-player'),
+        'wordpress-elements' => __('WP Elements', 'bandfront-player'),
+        'woocommerce' => __('WooCommerce', 'bandfront-player'),
+    ]
+];
 ?>
 
 <!-- Database Monitor Tab -->
@@ -44,19 +74,56 @@ if (!$devMode) {
             <th scope="row"><?php esc_html_e('Debug Mode', 'bandfront-player'); ?></th>
             <td>
                 <label>
-                    <input type="checkbox" name="_bfp_debug_mode" value="1" <?php checked($config->getState('_bfp_debug_mode', 0)); ?> />
+                    <input type="checkbox" id="debug_enabled" name="_bfp_debug[enabled]" value="1" <?php checked($debugEnabled, true); ?> />
                     <?php esc_html_e('Enable debug logging', 'bandfront-player'); ?>
                 </label>
-                <div class="bfp-debug-subsections" style="margin-left: 20px; margin-top: 10px;">
-                    <h4><?php esc_html_e('Debug Categories', 'bandfront-player'); ?></h4>
-                    <label><input type="checkbox" name="_bfp_debug_admin" value="1" <?php checked($config->getState('_bfp_debug_admin', 0)); ?> /> <?php esc_html_e('Admin', 'bandfront-player'); ?></label><br>
-                    <label><input type="checkbox" name="_bfp_debug_bootstrap" value="1" <?php checked($config->getState('_bfp_debug_bootstrap', 0)); ?> /> <?php esc_html_e('Bootstrap', 'bandfront-player'); ?></label><br>
-                    <label><input type="checkbox" name="_bfp_debug_ui" value="1" <?php checked($config->getState('_bfp_debug_ui', 0)); ?> /> <?php esc_html_e('UI', 'bandfront-player'); ?></label><br>
-                    <label><input type="checkbox" name="_bfp_debug_filemanager" value="1" <?php checked($config->getState('_bfp_debug_filemanager', 0)); ?> /> <?php esc_html_e('FileManager', 'bandfront-player'); ?></label><br>
-                    <label><input type="checkbox" name="_bfp_debug_audio" value="1" <?php checked($config->getState('_bfp_debug_audio', 0)); ?> /> <?php esc_html_e('Audio', 'bandfront-player'); ?></label><br>
-                    <label><input type="checkbox" name="_bfp_debug_api" value="1" <?php checked($config->getState('_bfp_debug_api', 0)); ?> /> <?php esc_html_e('API', 'bandfront-player'); ?></label><br>
+                <p class="description"><?php esc_html_e('Master switch for all debug logging. Individual domains can be enabled below.', 'bandfront-player'); ?></p>
+                
+                <div id="debug-domains" style="<?php echo $debugEnabled ? 'margin-top: 20px;' : 'display:none; margin-top: 20px;'; ?>">
+                    <h4><?php esc_html_e('Debug Domains', 'bandfront-player'); ?></h4>
+                    <p class="description"><?php esc_html_e('Enable logging for specific areas of the plugin:', 'bandfront-player'); ?></p>
+                    
+                    <?php foreach ($domainGroups as $groupName => $domains): ?>
+                    <div style="margin-top: 15px;">
+                        <strong><?php echo esc_html($groupName); ?></strong>
+                        <div class="debug-domains-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; margin-left: 20px;">
+                            <?php foreach ($domains as $domain => $label): ?>
+                            <label style="display: flex; align-items: center;">
+                                <input type="checkbox" 
+                                       name="_bfp_debug[domains][<?php echo esc_attr($domain); ?>]" 
+                                       value="1" 
+                                       <?php checked(!empty($debugDomains[$domain]), true); ?> />
+                                <span style="margin-left: 5px;">
+                                    <?php echo esc_html($label); ?>
+                                    <?php if ($domain === 'core'): ?>
+                                    <small style="color: #666;">(enables all core-*)</small>
+                                    <?php endif; ?>
+                                </span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                    
+                    <div style="margin-top: 15px;">
+                        <button type="button" class="button" id="enable-all-domains"><?php esc_html_e('Enable All', 'bandfront-player'); ?></button>
+                        <button type="button" class="button" id="disable-all-domains"><?php esc_html_e('Disable All', 'bandfront-player'); ?></button>
+                        <button type="button" class="button" id="enable-core-domains"><?php esc_html_e('Enable Core Only', 'bandfront-player'); ?></button>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #f0f0f1; border-radius: 4px;">
+                        <h5 style="margin-top: 0;"><?php esc_html_e('Usage Examples:', 'bandfront-player'); ?></h5>
+                        <pre style="background: #fff; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px;">// Domain-specific methods (automatic domain detection):
+Debug::admin('Processing admin request', ['action' => $action]);
+Debug::ui('Rendering player', ['product_id' => $productId]);
+Debug::storage('Uploading file', ['filename' => $filename]);
+Debug::api('API request received', ['endpoint' => '/stream']);
+
+// Or set domain at file level:
+Debug::domain('admin');
+Debug::log('Processing request', ['data' => $data]);</pre>
+                    </div>
                 </div>
-                <p class="description"><?php esc_html_e('Logs debug information to the WordPress debug.log file.', 'bandfront-player'); ?></p>
             </td>
         </tr>
         <tr>
@@ -137,10 +204,50 @@ if (!$devMode) {
             </td>
         </tr>
     </table>
+    
+    <!-- Add save notice for debug settings -->
+    <div class="notice notice-info inline" style="margin-top: 20px;">
+        <p><?php esc_html_e('Remember to save your settings using the "Save Settings" button at the bottom of the page to persist debug configuration changes.', 'bandfront-player'); ?></p>
+    </div>
 </div>
 
 <script type="text/javascript">
 jQuery(document).ready(function($) {
+    // Debug domain toggle functionality
+    $('#debug_enabled').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#debug-domains').slideDown();
+        } else {
+            $('#debug-domains').slideUp();
+        }
+    });
+    
+    // Enable all domains
+    $('#enable-all-domains').on('click', function() {
+        $('input[name^="_bfp_debug[domains]"]').prop('checked', true);
+    });
+    
+    // Disable all domains
+    $('#disable-all-domains').on('click', function() {
+        $('input[name^="_bfp_debug[domains]"]').prop('checked', false);
+    });
+    
+    // Enable core domains only
+    $('#enable-core-domains').on('click', function() {
+        $('input[name^="_bfp_debug[domains]"]').prop('checked', false);
+        $('input[name="_bfp_debug[domains][core]"]').prop('checked', true);
+        $('input[name="_bfp_debug[domains][core-bootstrap]"]').prop('checked', true);
+        $('input[name="_bfp_debug[domains][core-config]"]').prop('checked', true);
+        $('input[name="_bfp_debug[domains][core-hooks]"]').prop('checked', true);
+    });
+    
+    // When 'core' is checked, also check all core-* domains
+    $('input[name="_bfp_debug[domains][core]"]').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('input[name^="_bfp_debug[domains][core-"]').prop('checked', true);
+        }
+    });
+    
     // Database maintenance handlers
     $('#bfp-clear-caches').on('click', function() {
         var $button = $(this);

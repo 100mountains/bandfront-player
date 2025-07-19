@@ -904,21 +904,21 @@ class Config {
               // Debug settings 
   '_bfp_debug' => [
                'default' => [
-                   'enabled' => true,
+                   'enabled' => false,
                    'domains' => [
-                       'admin' => true,
-                       'audio' => true,
-                       'core' => true, // setting for over-ride all core and any runoff from utils
-                       'core-bootstrap' => true,
-                       'core-config' => true,
-                       'core-hooks' => true,
-                       'db' => true,
-                       'api' => true,
-                       'storage' => true,
-                       'ui' => true,
-                       'utils' => true,
-                       'wordpress-elements' => true, //widgets/blocks
-                       'woocommerce' => true,
+                       'admin' => false,
+                       'audio' => false,
+                       'core' => false,
+                       'core-bootstrap' => false,
+                       'core-config' => false,
+                       'core-hooks' => false,
+                       'db' => false,
+                       'api' => false,
+                       'storage' => false,
+                       'ui' => false,
+                       'utils' => false,
+                       'wordpress-elements' => false,
+                       'woocommerce' => false,
                    ]
                ],
                'type' => 'array',

@@ -53,8 +53,11 @@ class Debug {
             return;
         }
         
-        // Check if this domain is enabled
-        if (!self::$config->isDebugEnabled($domain)) {
+        // Check if core override is enabled (affects all core-* domains)
+        if (strpos($domain, 'core-') === 0 && self::$config->isDebugEnabled('core')) {
+            // Core override is enabled, proceed with logging
+        } else if (!self::$config->isDebugEnabled($domain)) {
+            // Domain not enabled
             return;
         }
 
@@ -88,7 +91,7 @@ class Debug {
     }
 
     public static function bootstrap(string $message, array $context = []): void {
-        self::log($message, $context, 'bootstrap');
+        self::log($message, $context, 'core-bootstrap');
     }
 
     public static function ui(string $message, array $context = []): void {
@@ -96,7 +99,7 @@ class Debug {
     }
 
     public static function filemanager(string $message, array $context = []): void {
-        self::log($message, $context, 'filemanager');
+        self::log($message, $context, 'storage');
     }
 
     public static function audio(string $message, array $context = []): void {
@@ -106,7 +109,28 @@ class Debug {
     public static function api(string $message, array $context = []): void {
         self::log($message, $context, 'api');
     }
-
+    
+    // New convenience methods
+    public static function storage(string $message, array $context = []): void {
+        self::log($message, $context, 'storage');
+    }
+    
+    public static function db(string $message, array $context = []): void {
+        self::log($message, $context, 'db');
+    }
+    
+    public static function woocommerce(string $message, array $context = []): void {
+        self::log($message, $context, 'woocommerce');
+    }
+    
+    public static function core(string $message, array $context = []): void {
+        self::log($message, $context, 'core');
+    }
+    
+    public static function utils(string $message, array $context = []): void {
+        self::log($message, $context, 'utils');
+    }
+    
     /**
      * Get the log file path
      */
