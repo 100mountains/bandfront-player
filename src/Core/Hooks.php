@@ -134,6 +134,8 @@ class Hooks {
             add_action('wp_ajax_nopriv_bfp_track_playback', [$playbackController, 'handlePlaybackTracking']);
             add_action('wp_ajax_bfp_get_next_track', [$playbackController, 'handleGetNextTrack']);
             add_action('wp_ajax_nopriv_bfp_get_next_track', [$playbackController, 'handleGetNextTrack']);
+            add_action('wp_ajax_bfp_get_previous_track', [$playbackController, 'handleGetPreviousTrack']);
+            add_action('wp_ajax_nopriv_bfp_get_previous_track', [$playbackController, 'handleGetPreviousTrack']);
         }
         
         // Widget registration
