@@ -163,5 +163,3 @@ When something doesn't work, check if the new code has:
 - [ ] Same user permission checks
 - [ ] Same file path handling
 - [ ] Same return value structure
-
-Ready to analyze your legacy code and fix the issue!

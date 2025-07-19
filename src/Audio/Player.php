@@ -301,7 +301,7 @@ class Player {
                 $purchased = $woocommerce->isUserProduct($id);
             }
             
-            $message = $this->config->getState('_bfp_message');
+            $message = $this->config->getState('_bfp_demo_message');
             if (!empty($message) && false === $purchased) {
                 print '<div class="bfp-message">' . wp_kses_post(__($message, 'bandfront-player')) . '</div>'; // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             }
@@ -459,7 +459,7 @@ class Player {
         $jsSettings = [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'audio_engine' => $audioEngine,
-            'play_simultaneously' => $settings['_bfp_allow_concurrent_audio'],
+            'bfp_allow_concurrent_audio' => $settings['_bfp_allow_concurrent_audio'],
             'ios_controls' => $settings['_bfp_ios_controls'],
             'fade_out' => $settings['_bfp_fade_out'],
             'on_cover' => $settings['_bfp_on_cover'],

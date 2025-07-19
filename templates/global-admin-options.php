@@ -217,9 +217,9 @@ $playerControls = $config->getPlayerControls();
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="_bfp_message">💬 <?php esc_html_e( 'Demo notice text', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_demo_message">💬 <?php esc_html_e( 'Demo notice text', 'bandfront-player' ); ?></label></th>
                     <td>
-                        <textarea aria-label="<?php esc_attr_e( 'Explaining that demos are partial versions of the original files', 'bandfront-player' ); ?>" id="_bfp_message" name="_bfp_message" class="large-text" rows="4"><?php echo esc_textarea( $settings['_bfp_message'] ); ?></textarea>
+                        <textarea aria-label="<?php esc_attr_e( 'Explaining that demos are partial versions of the original files', 'bandfront-player' ); ?>" id="_bfp_demo_message" name="_bfp_demo_message" class="large-text" rows="4"><?php echo esc_textarea( $settings['_bfp_demo_message'] ); ?></textarea>
                         <p class="description"><?php esc_html_e( 'Text shown next to players to explain these are preview versions', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>

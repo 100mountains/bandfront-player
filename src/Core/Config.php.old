@@ -48,7 +48,7 @@ class Config {
        '_bfp_reset_purchased_interval' => 'daily',
        '_bfp_fade_out' => 0,
        '_bfp_purchased_times_text' => '- purchased %d time(s)',
-       '_bfp_message' => '',
+       '_bfp_demo_message' => '',
        '_bfp_ffmpeg' => 0,
        '_bfp_ffmpeg_path' => '',
        '_bfp_ffmpeg_watermark' => '',
@@ -134,7 +134,7 @@ class Config {
            '_bfp_play_all' => 0,
            '_bfp_loop' => 0,
            '_bfp_on_cover' => 0,
-           '_bfp_message' => '',
+           '_bfp_demo_message' => '',
            '_bfp_default_extension' => 0,
            '_bfp_force_main_player_in_title' => 0,
            '_bfp_ios_controls' => 0,
@@ -382,7 +382,7 @@ class Config {
            'analytics_api_secret' => ['key' => '_bfp_analytics_api_secret', 'type' => 'string'],
            
            // General settings
-           'message' => ['key' => '_bfp_message', 'type' => 'string'],
+           'message' => ['key' => '_bfp_demo_message', 'type' => 'string'],
            'registered_only' => ['key' => '_bfp_require_login', 'type' => 'int'],
            'purchased' => ['key' => '_bfp_purchased', 'type' => 'int'],
            'reset_purchased_interval' => ['key' => '_bfp_reset_purchased_interval', 'type' => 'string'],
@@ -743,7 +743,7 @@ class Config {
            ],
            
            // Message and notification settings
-           '_bfp_message' => [
+           '_bfp_demo_message' => [
                'default' => '',
                'type' => 'string',
                'label' => __('Message', 'bandfront-player'),

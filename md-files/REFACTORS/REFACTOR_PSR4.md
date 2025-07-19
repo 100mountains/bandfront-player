@@ -1637,7 +1637,7 @@ class Config {
         '_bfp_on_cover',
         '_bfp_force_main_player_in_title',
         '_bfp_players_in_cart',
-        '_bfp_play_simultaneously',
+        '_bfp_bfp_allow_concurrent_audio',
         '_bfp_registered_only',
         '_bfp_purchased',
         '_bfp_reset_purchased_interval',

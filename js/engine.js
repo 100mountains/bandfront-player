@@ -373,7 +373,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
             var playAll = (typeof bfp_global_settings !== 'undefined') ? 
                 bfp_global_settings.play_all : true;
             var pauseOthers = (typeof bfp_global_settings !== 'undefined') ? 
-                !(1 * bfp_global_settings.play_simultaneously) : true;
+                !(1 * bfp_global_settings.bfp_allow_concurrent_audio) : true;
             var fadeOut = (typeof bfp_global_settings !== 'undefined') ? 
                 (1 * bfp_global_settings.fade_out) : true;
             var iosNativeControls = (typeof bfp_global_settings !== 'undefined' && 
@@ -1008,7 +1008,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
        // Use localized settings if available
        if (typeof bfp_global_settings !== 'undefined') {
            var audioEngine = bfp_global_settings.audio_engine;
-           var playSim = bfp_global_settings.play_simultaneously;
+           var playSim = bfp_global_settings.bfp_allow_concurrent_audio;
            var onCover = bfp_global_settings.on_cover;
            
            // Play button on cover functionality

@@ -443,7 +443,7 @@ class DbRenderer {
                 strpos($key, '_bfp_fade') === 0 || strpos($key, '_bfp_on_') === 0) {
                 $grouped['Player'][] = $item;
             } elseif (strpos($key, '_bfp_secure') === 0 || strpos($key, '_bfp_demo_duration_percent') === 0 || 
-                      strpos($key, '_bfp_message') === 0) {
+                      strpos($key, '_bfp_demo_message') === 0) {
                 $grouped['Demo & Security'][] = $item;
             } elseif (strpos($key, '_bfp_audio') === 0 || strpos($key, '_bfp_ffmpeg') === 0 ||
                       strpos($key, '_bfp_enable_vis') === 0) {

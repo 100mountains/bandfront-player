@@ -5,8 +5,8 @@ namespace Bandfront\Db;
 
 use Bandfront\Utils\Debug;
 
-// Set domain for Database operations
-Debug::domain('db-installer');
+// Set domain for Db
+Debug::domain('db');
 
 /**
  * Database Installer
@@ -127,7 +127,7 @@ class Installer {
             '_bfp_reset_purchased_interval' => 'daily',
             '_bfp_fade_out' => 0,
             '_bfp_purchased_times_text' => '- purchased %d time(s)',
-            '_bfp_message' => '',
+            '_bfp_demo_message' => '',
             
             // Audio processing
             '_bfp_ffmpeg' => 0,
@@ -152,28 +152,67 @@ class Installer {
             '_bfp_debug' => [
                 'enabled' => false,
                 'domains' => [
+                    'core' => false,
+                    'core-bootstrap' => false,
+                    'core-config' => false,
+                    'core-hooks' => false,
                     'admin' => false,
-                    'bootstrap' => false,
-                    'ui' => false,
-                    'filemanager' => false,
                     'audio' => false,
+                    'storage' => false,
+                    'ui' => false,
                     'api' => false,
+                    'db' => false,
+                    'utils' => false,
+                    'wordpress-elements' => false,
+                    'woocommerce' => false,
                 ]
             ],
             
+            // Database monitoring
+            'enable_db_monitoring' => false,
+            
+            // Cloud storage settings
+            '_bfp_cloud_active_tab' => 'google-drive',
+            '_bfp_cloud_dropbox' => [
+                'enabled' => false,
+                'access_token' => '',
+                'folder_path' => '/bandfront-demos',
+            ],
+            '_bfp_cloud_s3' => [
+                'enabled' => false,
+                'access_key' => '',
+                'secret_key' => '',
+                'bucket' => '',
+                'region' => 'us-east-1',
+                'path_prefix' => 'bandfront-demos/',
+            ],
+            '_bfp_cloud_azure' => [
+                'enabled' => false,
+                'account_name' => '',
+                'account_key' => '',
+                'container' => '',
+                'path_prefix' => 'bandfront-demos/',
+            ],
+            
             // Overridable defaults (these can be overridden per-product)
-            '_bfp_enable_player' => false,
+            '_bfp_enable_player' => 1,
             '_bfp_audio_engine' => 'html5',
-            '_bfp_unified_player' => 0,
+            '_bfp_unified_player' => 1,
             '_bfp_group_cart_control' => 0,
             '_bfp_play_all' => 0,
             '_bfp_loop' => 0,
             '_bfp_player_volume' => 1.0,
             '_bfp_play_demos' => false,
-            '_bfp_demo_duration_percent' => 50,
+            '_bfp_demo_duration_percent' => 30,
             '_bfp_use_custom_demos' => 0,
             '_bfp_direct_demo_links' => 0,
             '_bfp_demos_list' => [],
+            
+            // Additional settings from Config defaults
+            '_bfp_default_extension' => 0,
+            '_bfp_ios_controls' => 0,
+            '_bfp_disable_302' => 0,
+            '_bfp_apply_to_all_players' => 0,
         ];
         
         // Merge with existing settings, keeping user customizations

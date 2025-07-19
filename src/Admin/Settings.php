@@ -157,7 +157,7 @@ class Settings {
             '_bfp_play_all' => isset($data['_bfp_play_all']) ? 1 : 0,
             '_bfp_loop' => isset($data['_bfp_loop']) ? 1 : 0,
             '_bfp_on_cover' => $this->parseOnCover($data),
-            '_bfp_message' => isset($data['_bfp_message']) ? wp_kses_post(wp_unslash($data['_bfp_message'])) : '',
+            '_bfp_demo_message' => isset($data['_bfp_demo_message']) ? wp_kses_post(wp_unslash($data['_bfp_demo_message'])) : '',
             '_bfp_audio_engine' => $this->parseAudioEngine($data),
             '_bfp_enable_visualizations' => $this->parseVisualizations($data),
             '_bfp_apply_to_all_players' => isset($data['_bfp_apply_to_all_players']) ? 1 : 0,
