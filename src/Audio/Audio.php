@@ -76,12 +76,17 @@ class Audio {
             return $fileData['file'];
         }
         
-        // Use REST API endpoint
+        // Use REST API endpoint with nonce for authentication
         $url = rest_url("bandfront-player/v1/stream/{$productId}/{$fileIndex}");
+        
+        // Add nonce for authentication
+        $nonce = wp_create_nonce('wp_rest');
+        $url = add_query_arg('_wpnonce', $nonce, $url);
         
         Debug::log('Audio: REST API endpoint', [
             'url' => $url,
-            'file_index' => $fileIndex
+            'file_index' => $fileIndex,
+            'has_nonce' => true
         ]); // DEBUG-REMOVE
         return $url;
     }

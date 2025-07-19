@@ -131,8 +131,29 @@ class StreamController {
             'demos_enabled' => $demosEnabled
         ]);
         
-        // If demos are off and user has purchased, just redirect to the file
+        // If demos are off and user has purchased, serve the file properly
         if (!$demosEnabled) {
+            // WooCommerce files are protected, we need to serve them properly
+            Debug::log('Serving purchased file');
+            
+            // Check if it's a local file in WooCommerce uploads
+            $upload_dir = wp_upload_dir();
+            $wc_upload_dir = $upload_dir['basedir'] . '/woocommerce_uploads/';
+            
+            // Convert URL to local path
+            $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $fileUrl);
+            
+            // If it's in WooCommerce uploads, we need to serve it directly
+            if (strpos($local_path, $wc_upload_dir) === 0 && file_exists($local_path)) {
+                Debug::log('Streaming WooCommerce protected file', ['path' => $local_path]);
+                
+                // Use FileManager to stream the file with proper headers
+                $this->fileManager->streamFile($local_path);
+                exit;
+            }
+            
+            // For non-protected files, redirect is fine
+            Debug::log('Redirecting to non-protected file', ['url' => $fileUrl]);
             wp_redirect($fileUrl);
             exit;
         }
@@ -153,11 +174,22 @@ class StreamController {
      * Check streaming permissions
      */
     public function checkPermission(\WP_REST_Request $request): bool {
+        $requireLogin = $this->config->getState('_bfp_require_login', false);
+        $isLoggedIn = is_user_logged_in();
+        
+        Debug::log('Permission check', [
+            'require_login' => $requireLogin,
+            'is_logged_in' => $isLoggedIn,
+            'user_id' => get_current_user_id()
+        ]);
+        
         // Check if registered users only
-        if ($this->config->getState('_bfp_require_login') && !is_user_logged_in()) {
+        if ($requireLogin && !$isLoggedIn) {
+            Debug::log('Permission denied - login required');
             return false;
         }
         
+        Debug::log('Permission granted');
         return true;
     }
     
