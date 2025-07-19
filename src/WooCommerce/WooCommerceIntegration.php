@@ -8,6 +8,9 @@ use Bandfront\Audio\Player;
 use Bandfront\UI\Renderer;
 use Bandfront\Utils\Debug;
 
+// Set domain for WooCommerce
+Debug::domain('woocommerce');
+
 /**
  * WooCommerce integration functionality for Bandfront Player
  * 

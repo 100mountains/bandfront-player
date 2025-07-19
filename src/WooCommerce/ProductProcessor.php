@@ -8,6 +8,9 @@ use Bandfront\Audio\Audio;
 use Bandfront\Storage\FileManager;
 use Bandfront\Utils\Debug;
 
+// Set domain for WooCommerce
+Debug::domain('woocommerce');
+
 /**
  * Product Audio Processing
  * 
