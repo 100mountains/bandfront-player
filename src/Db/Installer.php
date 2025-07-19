@@ -26,20 +26,20 @@ class Installer {
      * Install/Update database schema
      */
     public static function install(): void {
-        Debug::log('Starting database installation/update');
+        error_log('Starting database installation/update');
         
         $installed_version = get_option(self::$version_option, '0.0.0');
         
         if (version_compare($installed_version, self::$version, '<')) {
-            Debug::log("Upgrading database from {$installed_version} to " . self::$version);
+            error_log("Upgrading database from {$installed_version} to " . self::$version);
             
             self::createTables();
             self::ensureDefaultSettings();
             self::updateVersion();
             
-            Debug::log('Database installation/update completed');
+            error_log('Database installation/update completed');
         } else {
-            Debug::log('Database already up to date: ' . $installed_version);
+            error_log('Database already up to date: ' . $installed_version);
         }
     }
     
@@ -71,7 +71,7 @@ class Installer {
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
         
-        Debug::log("Created/updated table: $player_table");
+        error_log("Created/updated table: $player_table");
         
         // Optional: Analytics table for enhanced tracking
         $analytics_table = $wpdb->prefix . 'bfp_analytics';
@@ -98,7 +98,7 @@ class Installer {
 
         dbDelta($analytics_sql);
         
-        Debug::log("Created/updated table: $analytics_table");
+        error_log("Created/updated table: $analytics_table");
     }
     
     /**
@@ -106,7 +106,7 @@ class Installer {
      * Based on Config.php defaults
      */
     private static function ensureDefaultSettings(): void {
-        Debug::log('Ensuring default settings');
+        error_log('Ensuring default settings');
         
         $current_settings = get_option('bfp_global_settings', []);
         
@@ -229,7 +229,7 @@ class Installer {
             update_option('bfp_native_addon_skin', 'modern-skin');
         }
         
-        Debug::log('Default settings ensured');
+        error_log('Default settings ensured');
     }
     
     /**
@@ -237,7 +237,7 @@ class Installer {
      */
     private static function updateVersion(): void {
         update_option(self::$version_option, self::$version);
-        Debug::log('Updated database version to: ' . self::$version);
+        error_log('Updated database version to: ' . self::$version);
     }
     
     /**
@@ -258,7 +258,7 @@ class Installer {
             $new_count = $wpdb->get_var("SELECT COUNT(*) FROM $new_table");
             
             if ($old_count > 0 && $new_count === '0') {
-                Debug::log("Migrating $old_count records from $old_table to $new_table");
+                error_log("Migrating $old_count records from $old_table to $new_table");
                 
                 $wpdb->query("
                     INSERT INTO $new_table (player_name, config, playlist, version, created_at)
@@ -266,7 +266,7 @@ class Installer {
                     FROM $old_table
                 ");
                 
-                Debug::log('Migration completed successfully');
+                error_log('Migration completed successfully');
             }
         }
     }
@@ -279,7 +279,7 @@ class Installer {
         
         // Only drop tables if user confirms data deletion
         if (get_option('bfp_delete_data_on_uninstall', false)) {
-            Debug::log('Starting database cleanup');
+            error_log('Starting database cleanup');
             
             // Drop tables
             $wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}bfp_analytics");
@@ -302,9 +302,9 @@ class Installer {
             // Clean up postmeta
             $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE '_bfp_%'");
             
-            Debug::log('Database cleanup completed');
+            error_log('Database cleanup completed');
         } else {
-            Debug::log('Database cleanup skipped - user data preserved');
+            error_log('Database cleanup skipped - user data preserved');
         }
     }
     
