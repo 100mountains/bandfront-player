@@ -230,6 +230,14 @@ class Bootstrap {
     public function getComponent(string $name): ?object {
         return $this->components[$name] ?? null;
     }
+
+    /**
+     * Get all components
+     * @return array All registered components
+     */
+    public function getComponents(): array {
+        return $this->components;
+    }
     
     /**
      * Get plugin file path
@@ -242,12 +250,6 @@ class Bootstrap {
      * Plugin activation handler
      */
     public function activate(): void {
-        // Database installation with proper versioning
-        \Bandfront\Db\Installer::install();
-        
-        // Migrate from old structure if needed
-        \Bandfront\Db\Installer::migrateFromOldStructure();
-        
         // Register download endpoint if format downloader exists
         if ($formatDownloader = $this->getComponent('format_downloader')) {
             $formatDownloader->registerDownloadEndpoint();

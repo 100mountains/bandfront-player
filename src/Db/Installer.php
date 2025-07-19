@@ -7,6 +7,7 @@ use Bandfront\Utils\Debug;
 
 // Set domain for Db
 Debug::domain('db');
+error_log("[BFP] Installer.php file loaded");
 
 /**
  * Database Installer
@@ -26,6 +27,7 @@ class Installer {
      * Install/Update database schema
      */
     public static function install(): void {
+        error_log("[BFP] Installer::install() method called");
         error_log('Starting database installation/update');
         
         $installed_version = get_option(self::$version_option, '0.0.0');

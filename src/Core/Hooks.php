@@ -35,9 +35,8 @@ class Hooks {
      */
     private function registerHooks(): void {
         Debug::log('Hooks.php: registerHooks() called'); // DEBUG-REMOVE
-        
-        // Core hooks
-        $this->registerCoreHooks();
+    
+        // Core Hooks initialization from BandfrontPlayer.php
         
         // Admin hooks
         $this->registerAdminHooks();
@@ -75,22 +74,7 @@ class Hooks {
         // REST API is handled separately via rest_api_init
     }
     
-    /**
-     * Register core plugin hooks
-     */
-    private function registerCoreHooks(): void {
-        // Activation/Deactivation
-        register_activation_hook(
-            $this->bootstrap->getPluginFile(), 
-            [$this->bootstrap, 'activate']
-        );
-        
-        register_deactivation_hook(
-            $this->bootstrap->getPluginFile(), 
-            [$this->bootstrap, 'deactivate']
-        );
-    }
-    
+    /*
     /**
      * Register admin hooks
      */
