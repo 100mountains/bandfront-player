@@ -7,6 +7,9 @@ use Bandfront\Core\Config;
 use Bandfront\Storage\FileManager;
 use Bandfront\Utils\Debug;
 
+// Set domain for Streamer
+Debug::domain('Audio');
+
 /**
  * Audio Streaming Handler
  * 

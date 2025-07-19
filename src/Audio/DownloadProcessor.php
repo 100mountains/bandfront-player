@@ -7,6 +7,10 @@ use Exception;
 use ZipArchive;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
+use Bandfront\Utils\Debug;
+
+// Set domain for DownloadProcessor
+Debug::domain('Audio');
 
 /**
  * Audio Processing Security and Validation

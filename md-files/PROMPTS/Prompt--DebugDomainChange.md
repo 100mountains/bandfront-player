@@ -7,9 +7,10 @@ Update all file references in PHP files to match the new plugin structure and fi
 
 Check each PHP file in the plugin and add the following, if not already there:
 
-### 1. DEBUG USAGE
-use Bandfront\Utils\Debug;
+### 1. add the following
+1. use Bandfront\Utils\Debug;
 
-// Set the domain for this file according to its folder
-Debug::domain('admin');
+2. Debug::domain('FOLDERNAME');
+
+only use the folder name you have been given, this is not the filename this is the PSR4 group it is in. if the file has no use statement in, add one in.
 
