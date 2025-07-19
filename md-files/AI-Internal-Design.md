@@ -94,6 +94,26 @@ Bandfront\
     ├── Integration             # WooCommerce integration
     └── ProductProcessor        # Product processing
 
+# Getting Product file information
+
+getProductFilesInternal(array $args) method in FileManager.php is the main internal function for retrieving all audio files for a WooCommerce product, including handling variations, grouped products, and demo files.
+
+How it works:
+
+Accepts an array of arguments, with at least 'product' => $productObj.
+Calls getAllProductFiles($product, []) to recursively collect all files (downloads, demos, children).
+Filters the files to only include audio (using isAudio()).
+Supports filtering by file index (file_id), first file, or all files.
+Usage Example:
+
+Returned Structure: Each file in the returned array will have at least:
+
+file (URL or path)
+media_type (e.g. mp3, wav, etc.)
+plus any extra context added by editFilesArray().
+Summary:
+This is the correct internal method for retrieving all audio files for a product, with flexible filtering and full support for Bandfront's file logic. If you need to expose this for external use, wrap it with a public method or use getProductFiles($productId) for a simpler interface.
+
 
 Namespace Mapping
 
