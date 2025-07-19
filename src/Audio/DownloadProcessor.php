@@ -9,8 +9,8 @@ use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Bandfront\Utils\Debug;
 
-// Set domain for DownloadProcessor
-Debug::domain('Audio');
+// Set domain for Audio
+Debug::domain('audio');
 
 /**
  * Audio Processing Security and Validation

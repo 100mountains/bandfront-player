@@ -9,6 +9,9 @@ use Bandfront\UI\AdminRenderer;
 use Bandfront\Utils\Debug;
 use Bandfront\Utils\Cache;
 
+// Set domain for Admin
+Debug::domain('admin');
+
 /**
  * Global settings management
  * 

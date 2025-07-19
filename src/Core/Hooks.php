@@ -6,6 +6,9 @@ namespace Bandfront\Core;
 use Bandfront\Utils\Debug;
 use Bandfront\Widgets\PlaylistWidget;
 
+// Set domain for Core
+Debug::domain('core-hooks');
+
 /**
  * Centralized Hook Registration
  * 

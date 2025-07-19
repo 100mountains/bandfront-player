@@ -9,6 +9,9 @@ use Bandfront\Utils\Debug;
 use Bandfront\UI\DbRenderer;
 use Bandfront\Db\Monitor;
 
+// Set domain for UI
+Debug::domain('ui');
+
 /**
  * Admin rendering functionality
  * 

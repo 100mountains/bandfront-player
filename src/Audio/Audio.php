@@ -7,8 +7,8 @@ use Bandfront\Core\Config;
 use Bandfront\Storage\FileManager;
 use Bandfront\Utils\Debug;
 
-// Set domain for Audio component
-Debug::domain('Audio');
+// Set domain for Audio
+Debug::domain('audio');
 
 /**
  * Main Audio Coordinator

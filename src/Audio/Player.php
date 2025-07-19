@@ -8,8 +8,8 @@ use Bandfront\UI\Renderer;
 use Bandfront\Storage\FileManager;
 use Bandfront\Utils\Debug;
 
-// Set domain for Player
-Debug::domain('Audio');
+// Set domain for Audio
+Debug::domain('audio');
 
 /**
  * Player management functionality for Bandfront Player

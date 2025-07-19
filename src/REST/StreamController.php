@@ -6,6 +6,10 @@ namespace Bandfront\REST;
 use Bandfront\Core\Config;  // Fix: was Bandfront\Config
 use Bandfront\Audio\Audio;
 use Bandfront\Storage\FileManager;
+use Bandfront\Utils\Debug;
+
+// Set domain for API
+Debug::domain('api');
 
 /**
  * REST API Streaming Controller

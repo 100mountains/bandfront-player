@@ -3,6 +3,9 @@ namespace Bandfront\Db;
 
 use Bandfront\Utils\Debug;
 
+// Set domain for Db
+Debug::domain('db');
+
 /**
  * Test class for generating and cleaning test events in the database
  * 

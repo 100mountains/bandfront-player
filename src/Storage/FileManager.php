@@ -8,6 +8,9 @@ use Bandfront\Utils\Debug;
 use Bandfront\Utils\Utils;
 use Bandfront\Utils\Cloud;
 
+// Set domain for Storage
+Debug::domain('storage');
+
 /**
  * File handling functionality for Bandfront Player
  */

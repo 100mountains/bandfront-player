@@ -1,7 +1,10 @@
 <?php
 namespace Bandfront\Utils;
 
-use Bandfront\Utils\Debug; // DEBUG-REMOVE
+use Bandfront\Utils\Debug;
+
+// Set domain for Utils
+Debug::domain('utils');
 
 /**
  * Utility functions for Bandfront Player

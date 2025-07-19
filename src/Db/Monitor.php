@@ -3,6 +3,10 @@ namespace Bandfront\Db;
 
 use Bandfront\Db\Test;
 use Bandfront\Db\Clean;
+use Bandfront\Utils\Debug;
+
+// Set domain for Db
+Debug::domain('db');
 
 /**
  * Database Monitor class

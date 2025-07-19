@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 namespace Bandfront\Core;
 
+use Bandfront\Utils\Debug;
+
+// Set domain for Core
+Debug::domain('core-config');
+
 /**
  * Configuration and State Management
  * 

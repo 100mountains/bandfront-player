@@ -6,6 +6,9 @@ namespace Bandfront\Storage;
 use Bandfront\Core\Config;
 use Bandfront\Utils\Debug;
 
+// Set domain for Storage
+Debug::domain('storage');
+
 /**
  * Cloud Storage Handler
  * 

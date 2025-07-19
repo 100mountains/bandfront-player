@@ -6,8 +6,8 @@ namespace Bandfront\Audio;
 use Bandfront\Core\Config;
 use Bandfront\Utils\Debug;
 
-// Set domain for Analytics
-Debug::domain('Audio');
+// Set domain for Audio
+Debug::domain('audio');
 
 /**
  * Analytics Class

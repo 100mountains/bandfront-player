@@ -3,6 +3,10 @@ namespace Bandfront\UI;
 
 use Bandfront\Core\Config;
 use Bandfront\Db\Monitor;
+use Bandfront\Utils\Debug;
+
+// Set domain for UI
+Debug::domain('ui');
 
 if (!defined('ABSPATH')) {
     exit;

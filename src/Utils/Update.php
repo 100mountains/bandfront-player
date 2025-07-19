@@ -2,7 +2,10 @@
 namespace Bandfront\Utils;
 
 use Bandfront\Plugin;
-use Bandfront\Utils\Debug; // DEBUG-REMOVE
+use Bandfront\Utils\Debug;
+
+// Set domain for Utils
+Debug::domain('utils');
 
 /**
  * Auto Updater for Bandfront Player

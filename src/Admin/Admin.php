@@ -8,6 +8,9 @@ use Bandfront\Storage\FileManager;
 use Bandfront\UI\AdminRenderer;
 use Bandfront\Utils\Debug;
 
+// Set domain for Admin
+Debug::domain('admin');
+
 /**
  * Admin functionality coordinator
  * 

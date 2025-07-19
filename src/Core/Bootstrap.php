@@ -18,6 +18,9 @@ use Bandfront\UI\Renderer;
 use Bandfront\UI\AdminRenderer;
 use Bandfront\Utils\Debug;
 
+// Set domain for Core
+Debug::domain('core-bootstrap');
+
 /**
  * Plugin Bootstrap
  * 
