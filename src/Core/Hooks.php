@@ -128,6 +128,14 @@ class Hooks {
             add_action('wp_ajax_nopriv_bfp_track_event', [$analytics, 'ajaxTrackEvent']);
         }
         
+        // Playback controller AJAX handlers
+        if ($playbackController = $this->bootstrap->getComponent('playback_controller')) {
+            add_action('wp_ajax_bfp_track_playback', [$playbackController, 'handlePlaybackTracking']);
+            add_action('wp_ajax_nopriv_bfp_track_playback', [$playbackController, 'handlePlaybackTracking']);
+            add_action('wp_ajax_bfp_get_next_track', [$playbackController, 'handleGetNextTrack']);
+            add_action('wp_ajax_nopriv_bfp_get_next_track', [$playbackController, 'handleGetNextTrack']);
+        }
+        
         // Widget registration
         add_action('widgets_init', [$this, 'registerWidgets']);
     }

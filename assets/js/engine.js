@@ -367,7 +367,27 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                 .on("click", "*", function(event) {
                     event.preventDefault();
                     event.stopPropagation();
-                    return false;
+                    
+                    // Send play event to server
+                    var playerContainer = $(this).closest('.bfp-player-container');
+                    var ajaxData = {
+                        action: 'bfp_track_playback',
+                        nonce: playerContainer.data('nonce'),
+                        product_id: playerContainer.data('product'),
+                        file_index: playerContainer.data('file-index') || 0,
+                        track_title: playerContainer.siblings('.bfp-player-title').text() || 'Unknown Track',
+                        event_type: 'play'
+                    };
+                    
+                    if (typeof ajaxurl !== 'undefined') {
+                        $.post(ajaxurl, ajaxData, function(response) {
+                            if (response.success) {
+                                console.log('[BFP Debug] Play event tracked:', ajaxData);
+                            } else {
+                                console.error('[BFP Debug] Play event failed to track:', response);
+                            }
+                        });
+                    }
                 })
                 .parent()
                 .removeAttr("title");
@@ -437,20 +457,33 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     
                     // Track play events
                     $player.on('play', function() {
-                        var productId = $player.attr("data-product");
-                        var trackTitle = $player.closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
+                        var $container = $player.closest('.bfp-player-container');
+                        var productId = $player.attr("data-product") || $container.data('product');
+                        var trackTitle = $container.siblings('.bfp-player-title').text() || 
                                         $player.closest('tr').find('.bfp-player-title').text() || 
                                         'Unknown Track';
-                        var fileIndex = $player.attr("data-file-index") || '0';
+                        var fileIndex = $player.attr("data-file-index") || $container.data('file-index') || '0';
                         
                         console.log('[BFP Debug] PLAY pressed - Product ID: ' + productId + ', Track: "' + trackTitle + '", File Index: ' + fileIndex);
                         
-                        if (productId) {
-                            var trackUrl = window.location.protocol + "//" + 
-                                window.location.host + "/" +
-                                window.location.pathname.replace(/^\//g, '').replace(/\/$/g, '') +
-                                "?bfp-action=play&bfp-product=" + productId;
-                            $.get(trackUrl);
+                        // Send AJAX request to track playback
+                        if (productId && typeof ajaxurl !== 'undefined') {
+                            var ajaxData = {
+                                action: 'bfp_track_playback',
+                                nonce: $container.data('nonce') || bfp_global_settings.nonce,
+                                product_id: productId,
+                                file_index: fileIndex,
+                                track_title: trackTitle,
+                                event_type: 'play'
+                            };
+                            
+                            $.post(ajaxurl, ajaxData, function(response) {
+                                if (response.success) {
+                                    console.log('[BFP Debug] Play event tracked successfully');
+                                } else {
+                                    console.error('[BFP Debug] Play tracking failed:', response);
+                                }
+                            });
                         }
                         
                         // Pause other players if needed
@@ -538,20 +571,32 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                         
                         // Enhanced event handling for WaveSurfer
                         wavesurfer.on('play', function() {
-                            var productId = $player.attr("data-product");
-                            var trackTitle = $player.closest('.bfp-player-container').siblings('.bfp-player-title').text() || 
+                            var productId = $player.attr("data-product") || $container.data('product');
+                            var trackTitle = $container.siblings('.bfp-player-title').text() || 
                                             $player.closest('tr').find('.bfp-player-title').text() || 
                                             'Unknown Track';
-                            var fileIndex = $player.attr("data-file-index") || '0';
+                            var fileIndex = $player.attr("data-file-index") || $container.data('file-index') || '0';
                             
                             console.log('[BFP Debug] WAVESURFER PLAY - Product ID: ' + productId + ', Track: "' + trackTitle + '", File Index: ' + fileIndex);
                             
-                            if (productId) {
-                                var trackUrl = window.location.protocol + "//" + 
-                                    window.location.host + "/" +
-                                    window.location.pathname.replace(/^\//g, '').replace(/\/$/g, '') +
-                                    "?bfp-action=play&bfp-product=" + productId;
-                                $.get(trackUrl);
+                            // Send AJAX request to track playback
+                            if (productId && typeof ajaxurl !== 'undefined') {
+                                var ajaxData = {
+                                    action: 'bfp_track_playback',
+                                    nonce: $container.data('nonce') || bfp_global_settings.nonce,
+                                    product_id: productId,
+                                    file_index: fileIndex,
+                                    track_title: trackTitle,
+                                    event_type: 'play'
+                                };
+                                
+                                $.post(ajaxurl, ajaxData, function(response) {
+                                    if (response.success) {
+                                        console.log('[BFP Debug] WaveSurfer play event tracked successfully');
+                                    } else {
+                                        console.error('[BFP Debug] WaveSurfer play tracking failed:', response);
+                                    }
+                                });
                             }
                             
                             if (pauseOthers) {

@@ -8,6 +8,7 @@ use Bandfront\Audio\Audio;
 use Bandfront\Audio\Player;
 use Bandfront\Audio\Analytics;
 use Bandfront\Audio\Preview;
+use Bandfront\Audio\PlaybackController;
 use Bandfront\Admin\Admin;
 use Bandfront\WooCommerce\WooCommerceIntegration;
 use Bandfront\WooCommerce\ProductProcessor;
@@ -143,6 +144,12 @@ class Bootstrap {
             $this->components['config'],
             $this->components['audio'],
             $this->components['file_manager']
+        );
+        
+        // Playback controller for AJAX handling
+        $this->components['playback_controller'] = new PlaybackController(
+            $this->components['config'],
+            $this->components['analytics']
         );
     }
     

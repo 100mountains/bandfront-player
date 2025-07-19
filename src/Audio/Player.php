@@ -256,31 +256,23 @@ class Player {
                 $index = key($files);
                 $duration = $this->audio->getDurationByUrl($file['file']);
                 $audioUrl = $this->audio->generateAudioUrl($id, $index, $file);
-                
-                $audioTag = apply_filters(
-                    'bfp_audio_tag',
-                    $this->getPlayer(
-                        $audioUrl,
-                        [
-                            'product_id'      => $id,
-                            'player_controls' => $playerControls,
-                            'player_style'    => $settings['_bfp_player_layout'],
-                            'media_type'      => $file['media_type'],
-                            'duration'        => $duration,
-                            'preload'         => $settings['_bfp_preload'],
-                            'volume'          => $settings['_bfp_player_volume'],
-                            'id'              => $index,
-                        ]
-                    ),
-                    $id,
-                    $index,
-                    $audioUrl
-                );
-                
+
+                // Create audio tag and render server-side
+                $audioTag = '<audio id="bfp-audio-' . $id . '" class="bfp-player" src="' . esc_url($audioUrl) . '" controls="controls"></audio>';
                 $title = esc_html(($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $id, $index) : '');
                 $mergeGroupedClass = ($settings['_bfp_group_cart_control']) ? 'group_cart_control_products' : '';
                 
-                print '<div class="bfp-player-container ' . esc_attr($mergeGroupedClass) . ' product-' . esc_attr($file['product']) . '" ' . ($settings['_bfp_loop'] ? 'data-loop="1"' : '') . '>' . $audioTag . '</div><div class="bfp-player-title" data-audio-url="' . esc_attr($audioUrl) . '">' . wp_kses_post($title) . '</div><div style="clear:both;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
+                // Remove direct JS interaction, handle on PHP side using AJAX
+                $ajaxData = array(
+                    'action'      => 'bfp_track_play',
+                    'product_id'  => $id,
+                    'file_index'  => $index,
+                    'track_title' => $title,
+                    'nonce'       => wp_create_nonce('bfp_ajax_nonce')
+                );
+                
+                // Output player with AJAX data attributes
+                print '<div class="bfp-player-container ' . esc_attr($mergeGroupedClass) . ' product-' . esc_attr($file['product']) . '" ' . ($settings['_bfp_loop'] ? 'data-loop="1"' : '') . ' data-ajax=' . json_encode($ajaxData) . '>' . $audioTag . '</div><div class="bfp-player-title" data-audio-url="' . esc_attr($audioUrl) . '">' . wp_kses_post($title) . '</div><div style="clear:both;"></div>';
                 
             } elseif ($counter > 1) {
                 // Multiple files - prepare data and use renderer
