@@ -35,7 +35,9 @@ class StreamController {
      * Register REST routes
      */
     public function registerRoutes(): void {
-        register_rest_route('bandfront-player/v1', '/stream/(?P<product_id>\d+)/(?P<track_index>\d+)', [
+        Debug::log('StreamController::registerRoutes() called - registering file_id based route');
+        
+        $result = register_rest_route('bandfront-player/v1', '/stream/(?P<product_id>\d+)/(?P<file_id>[^/]+)', [
             'methods' => 'GET',
             'callback' => [$this, 'handleStreamRequest'],
             'permission_callback' => [$this, 'checkPermission'],
@@ -45,13 +47,15 @@ class StreamController {
                         return is_numeric($param);
                     }
                 ],
-                'track_index' => [
+                'file_id' => [
                     'validate_callback' => function($param) {
-                        return is_numeric($param);
+                        return !empty($param);
                     }
                 ]
             ]
         ]);
+        
+        Debug::log('Route registration result', ['success' => $result]);
     }
     
     /**
@@ -59,21 +63,76 @@ class StreamController {
      */
     public function handleStreamRequest(\WP_REST_Request $request): \WP_REST_Response {
         $productId = (int) $request->get_param('product_id');
-        $trackIndex = (int) $request->get_param('track_index');
+        $fileId = $request->get_param('file_id');
         
-        // Get file data
+        Debug::log('Stream request received', [
+            'product_id' => $productId,
+            'file_id' => $fileId
+        ]);
+        
+        if (!$productId || !$fileId) {
+            Debug::log('Invalid request parameters', [
+                'product_id' => $productId,
+                'file_id' => $fileId
+            ]);
+            return new \WP_REST_Response(['error' => 'Invalid parameters'], 400);
+        }
+        
+        Debug::log('Fetching files linked to product ID', ['product_id' => $productId]);
+        
+        // Get file data from WooCommerce
         $files = get_post_meta($productId, '_downloadable_files', true);
-        if (empty($files) || !isset($files[$trackIndex])) {
+        if (empty($files)) {
+            Debug::log('No downloadable files found for product', ['product_id' => $productId]);
+            return new \WP_REST_Response(['error' => 'No files found for product'], 404);
+        }
+        
+        // Find the file by ID
+        $fileData = null;
+        foreach ($files as $key => $file) {
+            Debug::log('Checking file', ['key' => $key, 'file' => $file]);
+            if ($key === $fileId || (isset($file['id']) && $file['id'] === $fileId)) {
+                $fileData = $file;
+                Debug::log('Matched file', ['file_data' => $fileData]);
+                break;
+            }
+        }
+        
+        if (!$fileData) {
+            Debug::log('File not found', ['file_id' => $fileId, 'available_keys' => array_keys($files)]);
             return new \WP_REST_Response(['error' => 'File not found'], 404);
         }
         
-        $fileData = array_values($files)[$trackIndex];
+        // Check if user has purchased the product (if demos are off)
+        $demosEnabled = $this->config->getState('_bfp_play_demos', false, $productId);
+        if (!$demosEnabled && !$this->userHasPurchased($productId)) {
+            Debug::log('User has not purchased product and demos are disabled');
+            return new \WP_REST_Response(['error' => 'Unauthorized'], 403);
+        }
         
-        // Stream the file using Audio component
+        // Get the file URL
+        $fileUrl = $fileData['file'] ?? '';
+        if (empty($fileUrl)) {
+            Debug::log('File URL is empty');
+            return new \WP_REST_Response(['error' => 'Invalid file URL'], 500);
+        }
+        
+        Debug::log('Streaming file', [
+            'url' => $fileUrl,
+            'demos_enabled' => $demosEnabled
+        ]);
+        
+        // If demos are off and user has purchased, just redirect to the file
+        if (!$demosEnabled) {
+            wp_redirect($fileUrl);
+            exit;
+        }
+        
+        // If demos are on, use Audio component for demo streaming
         $this->audio->outputFile([
-            'url' => $fileData['file'],
+            'url' => $fileUrl,
             'product_id' => $productId,
-            'secure_player' => $this->config->getState('_bfp_play_demos', false, $productId),
+            'secure_player' => true,
             'file_percent' => $this->config->getState('_bfp_demo_duration_percent', 30, $productId)
         ]);
         
@@ -91,5 +150,17 @@ class StreamController {
         }
         
         return true;
+    }
+    
+    /**
+     * Check if user has purchased the product
+     */
+    private function userHasPurchased(int $productId): bool {
+        if (!is_user_logged_in()) {
+            return false;
+        }
+        
+        $currentUser = wp_get_current_user();
+        return wc_customer_bought_product($currentUser->user_email, $currentUser->ID, $productId);
     }
 }

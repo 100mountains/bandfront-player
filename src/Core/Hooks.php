@@ -323,9 +323,15 @@ class Hooks {
      * Register REST routes
      */
     public function registerRestRoutes(): void {
-        $endpoint = $this->bootstrap->getComponent('rest_streaming');
+        Debug::log('Hooks::registerRestRoutes() called');
+        $endpoint = $this->bootstrap->getComponent('stream_controller');
         if ($endpoint) {
+            Debug::log('StreamController found, registering routes');
             $endpoint->registerRoutes();
+        } else {
+            Debug::log('StreamController not found in components', [
+                'available_components' => array_keys($this->bootstrap->getComponents())
+            ]);
         }
     }
     
