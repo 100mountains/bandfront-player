@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Bandfront\Utils;
 
+use Bandfront\Core\Config;
+
 
 if (!defined('ABSPATH')) {
     exit;
@@ -10,16 +12,100 @@ if (!defined('ABSPATH')) {
 
 /**
  * Debug Class
- * Handles logging for debugging purposes
+ * Domain-based logging system for development
  * 
  * @package Bandfront\Utils
  * @since 2.0.0
  */
 class Debug {
-    private static bool $enabled = false; // Default to false, enable via WP_DEBUG
+    private static ?Config $config = null;
+    private static ?string $currentDomain = null;
     private static int $maxDepth = 3;
     private static int $maxStringLength = 500;
     private static ?string $logFile = null;
+
+    /**
+     * Initialize Debug with Config instance
+     */
+    public static function init(Config $config): void {
+        self::$config = $config;
+    }
+
+    /**
+     * Set the current debug domain for this file/class
+     */
+    public static function domain(string $domain): void {
+        self::$currentDomain = strtolower($domain);
+    }
+
+    /**
+     * Log a message
+     * @param string $message The message to log
+     * @param array $context Optional context data
+     * @param string|null $domain Optional domain override
+     */
+    public static function log(string $message, array $context = [], ?string $domain = null): void {
+        // Use provided domain, fall back to current domain
+        $domain = $domain ? strtolower($domain) : self::$currentDomain;
+        
+        // If no domain set, don't log
+        if (!$domain || !self::$config) {
+            return;
+        }
+        
+        // Check if this domain is enabled
+        if (!self::$config->isDebugEnabled($domain)) {
+            return;
+        }
+
+        // Format the log entry
+        $timestamp = date('Y-m-d H:i:s');
+        $domainPrefix = strtoupper($domain);
+        $logEntry = "[BFP:{$domainPrefix}] [{$timestamp}] {$message}";
+
+        // Add context if provided
+        if (!empty($context)) {
+            $contextStr = self::formatContext($context);
+            $logEntry .= " | Context: {$contextStr}";
+        }
+
+        // Write to error log
+        error_log($logEntry);
+        
+        // Also write to debug.log file if configured
+        $logFile = self::getLogFile();
+        if ($logFile) {
+            $logEntry .= PHP_EOL;
+            @file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
+        }
+    }
+
+    /**
+     * Domain-specific convenience methods
+     */
+    public static function admin(string $message, array $context = []): void {
+        self::log($message, $context, 'admin');
+    }
+
+    public static function bootstrap(string $message, array $context = []): void {
+        self::log($message, $context, 'bootstrap');
+    }
+
+    public static function ui(string $message, array $context = []): void {
+        self::log($message, $context, 'ui');
+    }
+
+    public static function filemanager(string $message, array $context = []): void {
+        self::log($message, $context, 'filemanager');
+    }
+
+    public static function audio(string $message, array $context = []): void {
+        self::log($message, $context, 'audio');
+    }
+
+    public static function api(string $message, array $context = []): void {
+        self::log($message, $context, 'api');
+    }
 
     /**
      * Get the log file path
@@ -29,21 +115,17 @@ class Debug {
             // First try WordPress debug.log if WP_DEBUG_LOG is enabled
             if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
                 if (is_string(WP_DEBUG_LOG)) {
-                    // WP 5.1+ allows specifying custom log file path
                     self::$logFile = WP_DEBUG_LOG;
                 } else {
-                    // Default WordPress debug.log location
                     self::$logFile = WP_CONTENT_DIR . '/debug.log';
                 }
             } else {
-                // Create our own debug log in the plugin directory
+                // Create our own debug log
                 $uploadDir = wp_upload_dir();
                 $logDir = $uploadDir['basedir'] . '/bfp-logs';
                 
-                // Create directory if it doesn't exist
                 if (!file_exists($logDir)) {
                     wp_mkdir_p($logDir);
-                    // Protect directory with .htaccess
                     file_put_contents($logDir . '/.htaccess', 'deny from all');
                 }
                 
@@ -52,57 +134,6 @@ class Debug {
         }
         
         return self::$logFile;
-    }
-
-    /**
-     * Enable debugging globally
-     */
-    public static function enable(): void {
-        self::$enabled = true;
-    }
-
-    /**
-     * Disable debugging globally
-     */
-    public static function disable(): void {
-        self::$enabled = false;
-    }
-
-    /**
-     * Check if debugging is enabled
-     */
-    public static function isEnabled(): bool {
-        return self::$enabled;
-    }
-
-    /**
-     * Log a message with automatic context detection
-     */
-    public static function log(string $message, array $context = []): void {
-        // Simple global check
-        if (!self::$enabled) {
-            return;
-        }
-
-        // Format the log entry
-        $timestamp = date('Y-m-d H:i:s');
-        $logEntry = "[BFP $timestamp] $message";
-
-        // Format context data if provided
-        if (!empty($context)) {
-            $contextStr = self::formatContext($context);
-            $logEntry .= " | Context: $contextStr";
-        }
-
-        // Write to both error log and debug.log for now
-        error_log($logEntry);
-        
-        // Also write to debug.log file
-        $logFile = self::getLogFile();
-        if ($logFile) {
-            $logEntry .= PHP_EOL;
-            @file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
-        }
     }
 
     /**
@@ -210,5 +241,34 @@ class Debug {
         self::log("Performance: $operation", array_merge([
             'duration_ms' => round($duration * 1000, 2)
         ], $extra));
+    }
+
+    /**
+     * Log with timing information
+     */
+    public static function timing(string $operation, callable $callback, ?string $domain = null) {
+        $start = microtime(true);
+        $result = $callback();
+        $duration = microtime(true) - $start;
+        
+        self::log("Timing: {$operation}", [
+            'duration_ms' => round($duration * 1000, 2)
+        ], $domain);
+        
+        return $result;
+    }
+
+    /**
+     * Check if debugging is enabled (for any domain)
+     */
+    public static function isEnabled(): bool {
+        return self::$config && self::$config->isDebugEnabled();
+    }
+
+    /**
+     * Check if a specific domain is enabled
+     */
+    public static function isDomainEnabled(string $domain): bool {
+        return self::$config && self::$config->isDebugEnabled($domain);
     }
 }

@@ -61,35 +61,17 @@ class Config {
            'audio-engine' => true,
            'cloud-engine' => true,
        ],
-       '_bfp_dev_mode' => 0,  // Add dev mode setting
-       // Debug category settings
-       '_bfp_debug_mode' => 0,
-       '_bfp_debug_admin' => 0,
-       '_bfp_debug_bootstrap' => 0,
-       '_bfp_debug_ui' => 0,
-       '_bfp_debug_filemanager' => 0,
-       '_bfp_debug_audio' => 0,
-       '_bfp_debug_api' => 0,
-       '_bfp_cloud_active_tab' => 'google-drive',
-       '_bfp_cloud_dropbox' => [
+       '_bfp_dev_mode' => 0,
+       '_bfp_debug' => [
            'enabled' => false,
-           'access_token' => '',
-           'folder_path' => '/bandfront-demos',
-       ],
-       '_bfp_cloud_s3' => [
-           'enabled' => false,
-           'access_key' => '',
-           'secret_key' => '',
-           'bucket' => '',
-           'region' => 'us-east-1',
-           'path_prefix' => 'bandfront-demos/',
-       ],
-       '_bfp_cloud_azure' => [
-           'enabled' => false,
-           'account_name' => '',
-           'account_key' => '',
-           'container' => '',
-           'path_prefix' => 'bandfront-demos/',
+           'domains' => [
+               'admin' => false,
+               'bootstrap' => false,
+               'ui' => false,
+               'filemanager' => false,
+               'audio' => false,
+               'api' => false,
+           ]
        ],
    ];
 
@@ -149,7 +131,18 @@ class Config {
            '_bfp_own_demos' => 0,
            '_bfp_direct_own_demos' => 0,
            '_bfp_demos_list' => [],
-           '_bfp_dev_mode' => 0,  // Default to off
+           '_bfp_dev_mode' => 0,
+           '_bfp_debug' => [
+               'enabled' => false,
+               'domains' => [
+                   'admin' => false,
+                   'bootstrap' => false,
+                   'ui' => false,
+                   'filemanager' => false,
+                   'audio' => false,
+                   'api' => false,
+               ]
+           ],
            '_bfp_cloud_active_tab' => 'google-drive',
            // Debug category settings
            '_bfp_debug_mode' => 0,
@@ -578,6 +571,49 @@ class Config {
    }
    
    /**
+    * Get debug configuration
+    * @return array
+    */
+   public function getDebugConfig(): array {
+       return $this->getState('_bfp_debug', $this->defaults['_bfp_debug']);
+   }
+
+   /**
+    * Check if debug is enabled for a specific domain
+    * @param string $domain The debug domain
+    * @return bool
+    */
+   public function isDebugEnabled(string $domain = ''): bool {
+       $debug = $this->getDebugConfig();
+       
+       // Check if debug is enabled globally
+       if (!$debug['enabled']) {
+           return false;
+       }
+       
+       // If no domain specified, return global state
+       if (empty($domain)) {
+           return true;
+       }
+       
+       // Check specific domain
+       $domain = strtolower($domain);
+       return isset($debug['domains'][$domain]) && $debug['domains'][$domain];
+   }
+
+   /**
+    * Update debug configuration
+    * @param bool $enabled Global debug state
+    * @param array $domains Domain states
+    */
+   public function updateDebugConfig(bool $enabled, array $domains): void {
+       $this->updateState('_bfp_debug', [
+           'enabled' => $enabled,
+           'domains' => $domains
+       ]);
+   }
+   
+   /**
     * Define all configuration settings with their properties
     */
    private function defineSettings(): void {
@@ -860,113 +896,24 @@ class Config {
                'show_in_admin' => false, // Shown in dev tools only
            ],
 
-           // Debug category settings
-           '_bfp_debug_mode' => [
-               'default' => 0,
-               'type' => 'boolean',
-               'label' => __('Enable Debug Mode', 'bandfront-player'),
+              // Debug settings 
+           '_bfp_debug' => [
+               'default' => [
+                   'enabled' => true,
+                   'domains' => [
+                       'admin' => true,
+                       'bootstrap' => true,
+                       'ui' => true,
+                       'filemanager' => true,
+                       'audio' => true,
+                       'api' => true,
+                   ]
+               ],
+               'type' => 'array',
+               'label' => __('Debug Configuration', 'bandfront-player'),
                'global_only' => true,
                'show_in_admin' => false, // Shown in dev tools only
            ],
-           '_bfp_debug_admin' => [
-               'default' => 0,
-               'type' => 'boolean',
-               'label' => __('Debug Admin', 'bandfront-player'),
-               'global_only' => true,
-               'show_in_admin' => false,
-           ],
-           '_bfp_debug_bootstrap' => [
-               'default' => 0,
-               'type' => 'boolean',
-               'label' => __('Debug Bootstrap', 'bandfront-player'),
-               'global_only' => true,
-               'show_in_admin' => false,
-           ],
-           '_bfp_debug_ui' => [
-               'default' => 0,
-               'type' => 'boolean',
-               'label' => __('Debug UI', 'bandfront-player'),
-               'global_only' => true,
-               'show_in_admin' => false,
-           ],
-           '_bfp_debug_filemanager' => [
-               'default' => 0,
-               'type' => 'boolean',
-               'label' => __('Debug FileManager', 'bandfront-player'),
-               'global_only' => true,
-               'show_in_admin' => false,
-           ],
-           '_bfp_debug_audio' => [
-               'default' => 0,
-               'type' => 'boolean',
-               'label' => __('Debug Audio', 'bandfront-player'),
-               'global_only' => true,
-               'show_in_admin' => false,
-           ],
-           '_bfp_debug_api' => [
-               'default' => 0,
-               'type' => 'boolean',
-               'label' => __('Debug API', 'bandfront-player'),
-               'global_only' => true,
-               'show_in_admin' => false,
-           ],
        ];
-   }
-
-   /**
-    * Helper method to check if debug logging is enabled for a specific category
-    * @param string $category The debug category (admin, bootstrap, ui, filemanager, audio, api)
-    * @return bool
-    */
-   public function isDebugEnabled(string $category): bool {
-       // First check if general debug mode is enabled
-       if (!$this->getState('_bfp_debug_mode', 0)) {
-           return false;
-       }
-       
-       // Then check the specific category
-       $categoryKey = '_bfp_debug_' . strtolower($category);
-       return (bool) $this->getState($categoryKey, 0);
-   }
-
-   /**
-    * Get all enabled debug categories
-    * @return array
-    */
-   public function getEnabledDebugCategories(): array {
-       if (!$this->getState('_bfp_debug_mode', 0)) {
-           return [];
-       }
-       
-       $categories = ['admin', 'bootstrap', 'ui', 'filemanager', 'audio', 'api'];
-       $enabled = [];
-       
-       foreach ($categories as $category) {
-           if ($this->isDebugEnabled($category)) {
-               $enabled[] = $category;
-           }
-       }
-       
-       return $enabled;
-   }
-
-   /**
-    * Debug logging method
-    * @param string $category The debug category (admin, bootstrap, ui, filemanager, audio, api)
-    * @param string $message The debug message
-    * @param array $context Optional context data
-    */
-   public function debug(string $category, string $message, array $context = []): void {
-       if (!$this->isDebugEnabled($category)) {
-           return;
-       }
-       
-       $logMessage = "BFP-" . strtoupper($category) . ": " . $message;
-       
-       if (!empty($context)) {
-           $logMessage .= " | Context: " . json_encode($context);
-       }
-       
-       error_log($logMessage);
    }
 }

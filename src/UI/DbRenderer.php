@@ -215,7 +215,17 @@ class DbRenderer {
                 </div>
             <?php endif; ?>
             
-            <?php bfp_render_filesystem_section(); ?>
+            <!-- File System Section -->
+            <div class="bfa-schema-section" style="margin-top: 30px;">
+                <h4 class="bfa-section-header bfa-collapsible" data-target="filesystem-info">
+                    <span class="dashicons dashicons-admin-generic"></span>
+                    <?php _e('File System & Directories', 'bandfront-player'); ?>
+                    <span class="bfa-toggle dashicons dashicons-arrow-down-alt2"></span>
+                </h4>
+                <div id="filesystem-info" class="bfa-schema-table" style="display: none;">
+                    <?php $this->renderFileSystemInfo(); ?>
+                </div>
+            </div>
         </div>
         <?php
     }
@@ -356,24 +366,33 @@ class DbRenderer {
      * Get directory information
      */
     private function getDirectoryInfo(): array {
+        // Use WordPress best practices for directory paths
         $upload_dir = wp_upload_dir();
-        $plugin_dir = plugin_dir_path(dirname(dirname(__DIR__)) . '/bandfront-player.php');
+        
+        // Get plugin directory using WordPress functions
+        $plugin_dir = plugin_dir_path(dirname(dirname(__DIR__)));
         
         $directories = [
             'Plugin Root' => $plugin_dir,
             'Plugin Assets' => $plugin_dir . 'assets/',
             'Upload Directory' => $upload_dir['basedir'] . '/',
+            'Upload URL' => $upload_dir['baseurl'] . '/',
             'BFP Files' => $upload_dir['basedir'] . '/bandfront-player-files/',
             'BFP Demos' => $upload_dir['basedir'] . '/bandfront-player-files/demos/',
             'BFP Previews' => $upload_dir['basedir'] . '/bandfront-player-files/previews/',
             'BFP Temp' => $upload_dir['basedir'] . '/bandfront-player-files/temp/',
+            'WP Content' => WP_CONTENT_DIR . '/',
+            'WP Plugins' => WP_PLUGIN_DIR . '/',
         ];
         
         $result = [];
         foreach ($directories as $name => $path) {
             $exists = is_dir($path);
             $writable = $exists && is_writable($path);
-            $files = $exists ? $this->scanDirectory($path) : ['count' => 0, 'size' => 0];
+            
+            // Don't scan large directories
+            $skip_scan = in_array($name, ['WP Content', 'WP Plugins', 'Upload Directory']);
+            $files = ($exists && !$skip_scan) ? $this->scanDirectory($path) : ['count' => 0, 'size' => 0];
             
             $result[] = [
                 'name' => $name,
@@ -503,7 +522,17 @@ class DbRenderer {
         foreach ($audio_keys as $key) {
             $value = get_post_meta($product_id, $key, true);
             if (!empty($value)) {
-                return true;
+                // Handle both single URLs and arrays
+                if (is_array($value)) {
+                    // Check if array has non-empty values
+                    foreach ($value as $url) {
+                        if (!empty($url)) {
+                            return true;
+                        }
+                    }
+                } elseif (!empty($value)) {
+                    return true;
+                }
             }
         }
         
@@ -519,24 +548,43 @@ class DbRenderer {
         $count = 0;
         
         // Count single file URLs
-        $single_files = $wpdb->get_var("
-            SELECT COUNT(*) FROM {$wpdb->postmeta} 
+        $single_files = $wpdb->get_results("
+            SELECT meta_value FROM {$wpdb->postmeta} 
             WHERE meta_key IN ('_bfp_file_url', '_bfp_demo_file_url')
             AND meta_value != ''
+            AND meta_value != 'a:0:{}'
         ");
-        $count += (int) $single_files;
+        
+        foreach ($single_files as $row) {
+            $value = maybe_unserialize($row->meta_value);
+            if (is_array($value)) {
+                // Count non-empty array elements
+                foreach ($value as $url) {
+                    if (!empty($url)) {
+                        $count++;
+                    }
+                }
+            } elseif (!empty($value)) {
+                $count++;
+            }
+        }
         
         // Count multiple file URLs (serialized arrays)
         $multi_files = $wpdb->get_results("
             SELECT meta_value FROM {$wpdb->postmeta} 
             WHERE meta_key IN ('_bfp_file_urls', '_bfp_demo_file_urls')
             AND meta_value != ''
+            AND meta_value != 'a:0:{}'
         ");
         
         foreach ($multi_files as $row) {
             $value = maybe_unserialize($row->meta_value);
             if (is_array($value)) {
-                $count += count($value);
+                foreach ($value as $url) {
+                    if (!empty($url)) {
+                        $count++;
+                    }
+                }
             }
         }
         
@@ -591,16 +639,27 @@ class DbRenderer {
             return ['count' => $count, 'size' => $size];
         }
         
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::SELF_FIRST
-        );
-        
-        foreach ($iterator as $file) {
-            if ($file->isFile()) {
-                $count++;
-                $size += $file->getSize();
+        try {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::SELF_FIRST
+            );
+            
+            // Limit iterations to prevent timeout
+            $max_files = 1000;
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $count++;
+                    $size += $file->getSize();
+                    
+                    if ($count >= $max_files) {
+                        $count = $max_files . '+';
+                        break;
+                    }
+                }
             }
+        } catch (\Exception $e) {
+            // Handle permission errors silently
         }
         
         return ['count' => $count, 'size' => $size];

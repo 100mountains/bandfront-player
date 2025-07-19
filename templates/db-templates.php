@@ -311,7 +311,7 @@ function bfp_render_filesystem_section(): void {
             <span class="bfa-toggle dashicons dashicons-arrow-down-alt2"></span>
         </h4>
         <div id="filesystem-info" class="bfa-schema-table" style="display: none;">
-            <!-- Content will be added by renderer -->
+            <!-- Content will be filled by DbRenderer::renderFileSystemInfo() -->
         </div>
     </div>
     <?php
@@ -353,8 +353,10 @@ function bfp_render_directory_table(array $directories): void {
                     <?php endif; ?>
                 </td>
                 <td class="bfa-value">
-                    <?php if ($dir['exists']): ?>
-                        <?php echo sprintf('%d files (%s)', $dir['file_count'], esc_html($dir['formatted_size'])); ?>
+                    <?php if ($dir['exists'] && $dir['file_count'] > 0): ?>
+                        <?php echo sprintf('%s files (%s)', $dir['file_count'], esc_html($dir['formatted_size'])); ?>
+                    <?php elseif ($dir['exists']): ?>
+                        <span class="bfa-empty">Empty</span>
                     <?php else: ?>
                         <span class="bfa-empty">—</span>
                     <?php endif; ?>
