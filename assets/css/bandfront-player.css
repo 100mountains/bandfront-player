@@ -1,0 +1,57 @@
+/* Bandfront Player CSS */
+
+/* Purchasers Display Section */
+.bfp-purchasers-section {
+    margin: 30px 0;
+    padding: 20px 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+.bfp-purchasers-title {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.bfp-purchasers-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.bfp-purchaser-item {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.bfp-purchaser-item:hover {
+    transform: scale(1.1);
+}
+
+.bfp-purchaser-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 2px solid #fff;
+}
+
+.bfp-purchasers-more {
+    color: #666;
+    font-size: 0.9em;
+    font-style: italic;
+    margin-left: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .bfp-purchaser-avatar {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .bfp-purchasers-list {
+        gap: 8px;
+    }
+}

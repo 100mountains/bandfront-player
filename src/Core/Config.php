@@ -249,6 +249,22 @@ class Config {
                ],
            ],
            'enable_db_monitoring' => false,
+           
+           // Purchasers Display Settings
+           '_bfp_show_purchasers' => [
+               'default' => true,
+               'type' => 'bool',
+               'overridable' => false,
+               'label' => __('Show Product Purchasers', 'bandfront-player'),
+               'description' => __('Display users who purchased this product', 'bandfront-player')
+           ],
+           '_bfp_max_purchasers_display' => [
+               'default' => 10,
+               'type' => 'int',
+               'overridable' => false,
+               'label' => __('Maximum Purchasers to Display', 'bandfront-player'),
+               'description' => __('Maximum number of purchaser avatars to show', 'bandfront-player')
+           ],
        ];
    }
 

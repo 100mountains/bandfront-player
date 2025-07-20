@@ -140,6 +140,18 @@ class Hooks {
         
         // Widget registration
         add_action('widgets_init', [$this, 'registerWidgets']);
+        
+        // WooCommerce specific hooks
+        if ($this->bootstrap->getComponent('woocommerce_integration')) {
+            $wooIntegration = $this->bootstrap->getComponent('woocommerce_integration');
+            add_action('woocommerce_before_add_to_cart_form', [$wooIntegration, 'displayProductPlayer']);
+            
+            // Add purchasers display hook
+            $purchasersDisplay = $this->bootstrap->getComponent('purchasers_display');
+            if ($purchasersDisplay) {
+                add_action('woocommerce_single_product_summary', [$purchasersDisplay, 'displayPurchasers'], 25);
+            }
+        }
     }
     
     /**

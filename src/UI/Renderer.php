@@ -536,4 +536,45 @@ class Renderer {
             BFP_VERSION
         );
     }
+    
+    /**
+     * Render purchasers section
+     * 
+     * @param array $purchasers Array of purchaser data
+     * @param int $totalCount Total number of purchasers
+     * @return string HTML output
+     */
+    public function renderPurchasersSection(array $purchasers, int $totalCount): string {
+        if (empty($purchasers)) {
+            return '';
+        }
+        
+        $html = '<div class="bfp-purchasers-section">';
+        $html .= '<h3 class="bfp-purchasers-title">' . esc_html__('Customers who bought this', 'bandfront-player') . '</h3>';
+        $html .= '<div class="bfp-purchasers-list">';
+        
+        foreach ($purchasers as $purchaser) {
+            $html .= sprintf(
+                '<a href="%s" class="bfp-purchaser-item" title="%s">
+                    <img src="%s" alt="%s" class="bfp-purchaser-avatar" loading="lazy" />
+                </a>',
+                esc_url($purchaser['profile_url']),
+                esc_attr(sprintf(__('View %s\'s profile', 'bandfront-player'), $purchaser['display_name'])),
+                esc_url($purchaser['avatar_url']),
+                esc_attr($purchaser['display_name'])
+            );
+        }
+        
+        if ($totalCount > count($purchasers)) {
+            $html .= sprintf(
+                '<span class="bfp-purchasers-more">%s</span>',
+                esc_html(sprintf(__('and %d more', 'bandfront-player'), $totalCount - count($purchasers)))
+            );
+        }
+        
+        $html .= '</div>';
+        $html .= '</div>';
+        
+        return $html;
+    }
 }

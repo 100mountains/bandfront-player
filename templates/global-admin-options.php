@@ -124,6 +124,22 @@ $playerControls = $config->getPlayerControls();
                         <p class="description"><?php esc_html_e( 'Enable database monitoring and developer tools tabs', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
+                <!-- Purchasers Display Settings -->
+                <tr>
+                    <th scope="row"><label for="_bfp_show_purchasers">👥 <?php esc_html_e( 'Show Product Purchasers', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Show product purchasers', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_show_purchasers" name="_bfp_show_purchasers" <?php checked( $settings['_bfp_show_purchasers'] ); ?> />
+                        <p class="description"><?php esc_html_e( 'Display avatars of users who purchased the product on product pages', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_max_purchasers_display">🔢 <?php esc_html_e( 'Maximum Purchasers to Display', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Maximum purchasers to display', 'bandfront-player' ); ?>" type="number" id="_bfp_max_purchasers_display" name="_bfp_max_purchasers_display" value="<?php echo esc_attr( $settings['_bfp_max_purchasers_display'] ); ?>" min="1" max="50" step="1" class="small-text" />
+                        <p class="description"><?php esc_html_e( 'Maximum number of purchaser avatars to show', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                
                 <?php do_action( 'bfp_general_settings' ); ?>
             </table>
         </div>
@@ -287,6 +303,49 @@ $playerControls = $config->getPlayerControls();
                 <tr>
                     <td colspan="2">
                         <p class="bfp-troubleshoot-protip">💡<?php esc_html_e( 'After changing troubleshooting settings, clear your website and browser caches for best results.', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Purchasers Display Settings -->
+        <div id="purchasers-display-panel" class="bfp-tab-panel" style="display:none;">
+            <h2><?php esc_html_e('Purchasers Display Settings', 'bandfront-player'); ?></h2>
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="_bfp_show_purchasers">
+                            <?php esc_html_e('Show Product Purchasers', 'bandfront-player'); ?>
+                        </label>
+                    </th>
+                    <td>
+                        <input type="checkbox" 
+                               id="_bfp_show_purchasers" 
+                               name="_bfp_show_purchasers" 
+                               value="1" 
+                               <?php checked($settings['_bfp_show_purchasers'], true); ?> />
+                        <p class="description">
+                            <?php esc_html_e('Display avatars of users who purchased the product on product pages.', 'bandfront-player'); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="_bfp_max_purchasers_display">
+                            <?php esc_html_e('Maximum Purchasers to Display', 'bandfront-player'); ?>
+                        </label>
+                    </th>
+                    <td>
+                        <input type="number" 
+                               id="_bfp_max_purchasers_display" 
+                               name="_bfp_max_purchasers_display" 
+                               value="<?php echo esc_attr($settings['_bfp_max_purchasers_display']); ?>" 
+                               min="1" 
+                               max="50" 
+                               step="1" />
+                        <p class="description">
+                            <?php esc_html_e('Maximum number of purchaser avatars to show on product pages.', 'bandfront-player'); ?>
+                        </p>
                     </td>
                 </tr>
             </table>

@@ -13,6 +13,7 @@ use Bandfront\Admin\Admin;
 use Bandfront\WooCommerce\WooCommerceIntegration;
 use Bandfront\WooCommerce\ProductProcessor;
 use Bandfront\WooCommerce\FormatDownloader;
+use Bandfront\WooCommerce\PurchasersDisplay;
 use Bandfront\Storage\FileManager;
 use Bandfront\REST\StreamController;
 use Bandfront\UI\Renderer;
@@ -201,6 +202,12 @@ class Bootstrap {
         $this->components['download_processor'] = new \Bandfront\Audio\DownloadProcessor(
             $this->components['config'],
             $this->components['file_manager']
+        );
+        
+        // Add PurchasersDisplay component
+        $this->components['purchasers_display'] = new PurchasersDisplay(
+            $this->components['config'],
+            $this->components['renderer']
         );
     }
     
