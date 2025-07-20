@@ -318,6 +318,17 @@ class DbRenderer {
                     <span class="bfa-stat-number"><?php echo count(array_filter($allSettings)); ?></span>
                     <span class="bfa-stat-label"><?php _e('Non-empty Values', 'bandfront-player'); ?></span>
                 </div>
+                <div class="bfa-stat-box">
+                    <span class="bfa-stat-number"><?php 
+                        // Get plugin version from plugin data
+                        if (!function_exists('get_plugin_data')) {
+                            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+                        }
+                        $plugin_data = get_plugin_data(BFP_PLUGIN_PATH);
+                        echo esc_html($plugin_data['Version'] ?? '0.1');
+                    ?></span>
+                    <span class="bfa-stat-label"><?php _e('Plugin Version', 'bandfront-player'); ?></span>
+                </div>
             </div>
             
             <!-- All Settings Display -->
@@ -416,17 +427,19 @@ class DbRenderer {
     }
     
     /**
-     * Group settings by category
+     * Group settings by category with improved categorization
      */
     private function groupSettings(array $allSettings, array $settingsConfig): array {
         $grouped = [
-            'General' => [],
-            'Player' => [],
+            'Player Settings' => [],
             'Demo & Security' => [],
-            'Audio Engine' => [],
+            'Audio Processing' => [],
+            'Analytics' => [],
             'Cloud Storage' => [],
-            'Developer' => [],
-            'Other' => []
+            'Developer & Debug' => [],
+            'WooCommerce Integration' => [],
+            'Legacy/Deprecated' => [],
+            'System' => []
         ];
         
         foreach ($allSettings as $key => $value) {
@@ -436,32 +449,85 @@ class DbRenderer {
                 'config' => $settingsConfig[$key] ?? ['type' => 'unknown', 'default' => null]
             ];
             
-            // Categorize by key prefix
-            if (strpos($key, '_bfp_player') === 0 || strpos($key, '_bfp_enable_player') === 0 || 
-                strpos($key, '_bfp_merge') === 0 || strpos($key, '_bfp_single') === 0 ||
-                strpos($key, '_bfp_play') === 0 || strpos($key, '_bfp_loop') === 0 ||
-                strpos($key, '_bfp_fade') === 0 || strpos($key, '_bfp_on_') === 0) {
-                $grouped['Player'][] = $item;
-            } elseif (strpos($key, '_bfp_secure') === 0 || strpos($key, '_bfp_demo_duration_percent') === 0 || 
-                      strpos($key, '_bfp_demo_message') === 0) {
+            // Improved categorization based on actual functionality
+            if (in_array($key, [
+                '_bfp_enable_player',
+                '_bfp_player_layout',
+                '_bfp_player_volume',
+                '_bfp_player_controls',
+                '_bfp_player_title',
+                '_bfp_unified_player',
+                '_bfp_play_all',
+                '_bfp_loop',
+                '_bfp_fade_out',
+                '_bfp_on_cover',
+                '_bfp_force_main_player_in_title',
+                '_bfp_ios_controls',
+                '_bfp_onload',
+                '_bfp_allow_concurrent_audio'
+            ])) {
+                $grouped['Player Settings'][] = $item;
+            } elseif (in_array($key, [
+                '_bfp_play_demos',
+                '_bfp_demo_duration_percent',
+                '_bfp_demo_message',
+                '_bfp_use_custom_demos',
+                '_bfp_direct_demo_links',
+                '_bfp_demos_list',
+                '_bfp_require_login',
+                '_bfp_purchased',
+                '_bfp_reset_purchased_interval',
+                '_bfp_purchased_times_text'
+            ])) {
                 $grouped['Demo & Security'][] = $item;
-            } elseif (strpos($key, '_bfp_audio') === 0 || strpos($key, '_bfp_ffmpeg') === 0 ||
-                      strpos($key, '_bfp_enable_vis') === 0) {
-                $grouped['Audio Engine'][] = $item;
-            } elseif (strpos($key, '_bfp_cloud') === 0 || strpos($key, '_bfp_use_custom_demos') === 0 ||
-                      strpos($key, '_bfp_direct_own') === 0) {
+            } elseif (in_array($key, [
+                '_bfp_audio_engine',
+                '_bfp_ffmpeg',
+                '_bfp_ffmpeg_path',
+                '_bfp_ffmpeg_watermark',
+                '_bfp_enable_visualizations'
+            ])) {
+                $grouped['Audio Processing'][] = $item;
+            } elseif (in_array($key, [
+                '_bfp_analytics_integration',
+                '_bfp_analytics_property',
+                '_bfp_analytics_api_secret',
+                '_bfp_apply_to_all_players'
+            ])) {
+                $grouped['Analytics'][] = $item;
+            } elseif (strpos($key, '_bfp_cloud') === 0) {
                 $grouped['Cloud Storage'][] = $item;
-            } elseif (strpos($key, '_bfp_debug') === 0 || strpos($key, 'enable_db_monitoring') === 0 ||
-                      strpos($key, '_bfp_dev_mode') === 0) {
-                $grouped['Developer'][] = $item;
-            } elseif (strpos($key, '_bfp_') === 0) {
-                $grouped['General'][] = $item;
+            } elseif (in_array($key, [
+                '_bfp_dev_mode',
+                '_bfp_debug',
+                'enable_db_monitoring'
+            ])) {
+                $grouped['Developer & Debug'][] = $item;
+            } elseif (in_array($key, [
+                '_bfp_players_in_cart',
+                '_bfp_group_cart_control'
+            ])) {
+                $grouped['WooCommerce Integration'][] = $item;
+            } elseif (in_array($key, [
+                '_bfp_disable_302',
+                '_bfp_default_extension'
+            ])) {
+                $grouped['Legacy/Deprecated'][] = $item;
             } else {
-                $grouped['Other'][] = $item;
+                // System or runtime keys
+                $grouped['System'][] = $item;
             }
         }
         
-        return $grouped;
+        // Sort groups to have non-empty ones first
+        $sorted = [];
+        foreach ($grouped as $group => $items) {
+            if (!empty($items)) {
+                $sorted[$group] = $items;
+            }
+        }
+        
+        return $sorted;
     }
     
     /**
