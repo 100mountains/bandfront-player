@@ -58,9 +58,19 @@ class Config {
        '_bfp_ffmpeg_path' => '',
        '_bfp_ffmpeg_watermark' => '',
        '_bfp_onload' => false,
-       '_bfp_analytics_integration' => 'ua',
+       '_bfp_analytics_integration' => 'internal',
        '_bfp_analytics_property' => '',
        '_bfp_analytics_api_secret' => '',
+       '_bfp_analytics_endpoints' => [
+           'internal' => [
+               'track_play' => '/wp-json/bandfront-analytics/v1/track/play',
+               'track_download' => '/wp-json/bandfront-analytics/v1/track/download',
+           ],
+           'google' => [
+               'ua' => 'http://www.google-analytics.com/collect',
+               'ga4' => 'https://www.google-analytics.com/mp/collect',
+           ],
+       ],
        '_bfp_enable_visualizations' => 0,
        '_bfp_dev_mode' => 0,
        '_bfp_debug' => [
@@ -158,9 +168,19 @@ class Config {
            '_bfp_ios_controls' => 0,
            '_bfp_onload' => 0,
            '_bfp_disable_302' => 0,
-           '_bfp_analytics_integration' => 'ua',
+           '_bfp_analytics_integration' => 'internal',
            '_bfp_analytics_property' => '',
            '_bfp_analytics_api_secret' => '',
+           '_bfp_analytics_endpoints' => [
+               'internal' => [
+                   'track_play' => '/wp-json/bandfront-analytics/v1/track/play',
+                   'track_download' => '/wp-json/bandfront-analytics/v1/track/download',
+               ],
+               'google' => [
+                   'ua' => 'http://www.google-analytics.com/collect',
+                   'ga4' => 'https://www.google-analytics.com/mp/collect',
+               ],
+           ],
            '_bfp_apply_to_all_players' => 0,
            '_bfp_audio_engine' => 'html5',
            '_bfp_enable_visualizations' => 0,
@@ -415,6 +435,7 @@ class Config {
            'analytics_integration' => ['key' => '_bfp_analytics_integration', 'type' => 'string'],
            'analytics_property' => ['key' => '_bfp_analytics_property', 'type' => 'string'],
            'analytics_api_secret' => ['key' => '_bfp_analytics_api_secret', 'type' => 'string'],
+           'analytics_endpoints' => ['key' => '_bfp_analytics_endpoints', 'type' => 'array'],
            
            // General settings
            'message' => ['key' => '_bfp_demo_message', 'type' => 'string'],

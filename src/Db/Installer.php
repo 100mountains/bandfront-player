@@ -20,7 +20,7 @@ error_log("[BFP] Installer.php file loaded");
  */
 class Installer {
     
-    private static string $version = '2.1.0';
+    private static string $version = '2.2.0';
     private static string $version_option = 'bfp_db_version';
     
     /**
@@ -37,6 +37,10 @@ class Installer {
             // Run migrations if needed
             if (version_compare($installed_version, '2.1.0', '<')) {
                 self::migrateOldMetaKeys();
+            }
+            
+            if (version_compare($installed_version, '2.2.0', '<')) {
+                self::migrateAnalyticsSettings();
             }
             
             self::createTables();
@@ -145,6 +149,38 @@ class Installer {
             if ($count > 0) {
                 error_log("Migrated {$count} instances of {$old_key} to {$new_key}");
             }
+        }
+    }
+    
+    /**
+     * Migrate analytics settings from 'ua' to 'internal'
+     */
+    private static function migrateAnalyticsSettings(): void {
+        error_log('Migrating analytics settings');
+        
+        // Get current global settings
+        $global_settings = get_option('bfp_global_settings', []);
+        
+        // Check if analytics integration is set to 'ua' and update to 'internal'
+        if (isset($global_settings['_bfp_analytics_integration']) && $global_settings['_bfp_analytics_integration'] === 'ua') {
+            $global_settings['_bfp_analytics_integration'] = 'internal';
+            
+            // Add the endpoints structure if not present
+            if (!isset($global_settings['_bfp_analytics_endpoints'])) {
+                $global_settings['_bfp_analytics_endpoints'] = [
+                    'internal' => [
+                        'track_play' => '/wp-json/bandfront-analytics/v1/track/play',
+                        'track_download' => '/wp-json/bandfront-analytics/v1/track/download',
+                    ],
+                    'google' => [
+                        'ua' => 'http://www.google-analytics.com/collect',
+                        'ga4' => 'https://www.google-analytics.com/mp/collect',
+                    ],
+                ];
+            }
+            
+            update_option('bfp_global_settings', $global_settings);
+            error_log('Analytics settings migrated from ua to internal');
         }
     }
     
