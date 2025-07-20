@@ -20,7 +20,7 @@ error_log("[BFP] Installer.php file loaded");
  */
 class Installer {
     
-    private static string $version = '2.3.1';
+    private static string $version = '2.2.0';
     private static string $version_option = 'bfp_db_version';
     
     /**
@@ -41,21 +41,6 @@ class Installer {
             
             if (version_compare($installed_version, '2.2.0', '<')) {
                 self::migrateAnalyticsSettings();
-            }
-            
-            if (version_compare($installed_version, '2.3.1', '<')) {
-                // Ensure player settings exist with default values
-                $global_settings = get_option('bfp_global_settings', []);
-                if (!isset($global_settings['_bfp_player_on_cover'])) {
-                    $global_settings['_bfp_player_on_cover'] = 1;
-                }
-                if (!isset($global_settings['_bfp_show_purchasers'])) {
-                    $global_settings['_bfp_show_purchasers'] = 1;
-                }
-                if (!isset($global_settings['_bfp_max_purchasers_display'])) {
-                    $global_settings['_bfp_max_purchasers_display'] = 10;
-                }
-                update_option('bfp_global_settings', $global_settings);
             }
             
             self::createTables();

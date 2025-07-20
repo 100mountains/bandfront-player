@@ -1,9 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Bandfront;
+namespace Bandfront\Core;
 
-use Bandfront\Core\Bootstrap;
+use Bandfront\Utils\Debug;
+
+// Set domain for Core
+Debug::domain('core-config');
 
 /**
  * Configuration and State Management
@@ -11,7 +14,7 @@ use Bandfront\Core\Bootstrap;
  * Provides context-aware state management with automatic inheritance:
  * Product Setting → Global Setting → Default Value
  * 
- * @package Bandfront
+ * @package Bandfront\Core
  * @since 2.0.0
  */
 class Config {
@@ -20,6 +23,7 @@ class Config {
    private array $globalAttrs = [];
    private array $playerLayouts = ['dark', 'light', 'custom'];
    private array $playerControls = ['button', 'all', 'default'];
+   private array $defaults = [];
 
    private array $overridableSettings = [
        '_bfp_enable_player' => false,
@@ -39,8 +43,7 @@ class Config {
    private array $globalOnlySettings = [
        '_bfp_player_layout' => 'dark',
        '_bfp_player_controls' => 'default',
-       '_bfp_player_title' => 1,
-       '_bfp_player_on_cover' => 1,
+       '_bfp_on_cover' => 1,
        '_bfp_force_main_player_in_title' => 1,
        '_bfp_players_in_cart' => false,
        '_bfp_allow_concurrent_audio' => 0,
@@ -54,34 +57,74 @@ class Config {
        '_bfp_ffmpeg_path' => '',
        '_bfp_ffmpeg_watermark' => '',
        '_bfp_onload' => false,
-       '_bfp_analytics_integration' => 'ua',
-       '_bfp_analytics_property' => '',
-       '_bfp_analytics_api_secret' => '',
+       '_bfp_analytics_integration' => 'internal',
+       '_bfp_analytics_config' => [
+           'internal' => [
+               'endpoints' => [
+                   'events' => '/wp-json/bandfront-analytics/v1/events',
+                   'metrics' => '/wp-json/bandfront-analytics/v1/metrics',
+               ],
+               'api_key' => '',
+           ],
+           'google' => [
+               'ua' => [
+                   'endpoint' => 'http://www.google-analytics.com/collect',
+                   'property_id' => '',  // UA-XXXXX-X format
+               ],
+               'ga4' => [
+                   'endpoint' => 'https://www.google-analytics.com/mp/collect',
+                   'measurement_id' => '',  // G-XXXXXXXXXX format
+                   'api_secret' => '',
+               ],
+           ],
+       ],
        '_bfp_enable_visualizations' => 0,
-       '_bfp_modules_enabled' => [
-           'audio-engine' => true,
-           'cloud-engine' => true,
-       ],
-       '_bfp_cloud_active_tab' => 'google-drive',
-       '_bfp_cloud_dropbox' => [
+       '_bfp_dev_mode' => 0,
+       '_bfp_debug' => [
            'enabled' => false,
-           'access_token' => '',
-           'folder_path' => '/bandfront-demos',
+           'domains' => [
+               'core' => false,
+               'core-bootstrap' => false,
+               'core-config' => false,
+               'core-hooks' => false,
+               'admin' => false,
+               'audio' => false,
+               'storage' => false,
+               'ui' => false,
+               'api' => false,
+               'db' => false,
+               'utils' => false,
+               'wordpress-elements' => false,
+               'woocommerce' => false,
+           ]
        ],
-       '_bfp_cloud_s3' => [
-           'enabled' => false,
-           'access_key' => '',
-           'secret_key' => '',
-           'bucket' => '',
-           'region' => 'us-east-1',
-           'path_prefix' => 'bandfront-demos/',
-       ],
-       '_bfp_cloud_azure' => [
-           'enabled' => false,
-           'account_name' => '',
-           'account_key' => '',
-           'container' => '',
-           'path_prefix' => 'bandfront-demos/',
+       'enable_db_monitoring' => false,
+       '_bfp_plugin_version' => BFP_VERSION,
+       '_bfp_cloud_storage' => [
+           'active_provider' => 'none',  // none, dropbox, s3, azure, google-drive
+           'dropbox' => [
+               'access_token' => '',
+               'folder_path' => '/bandfront-demos',
+           ],
+           's3' => [
+               'access_key' => '',
+               'secret_key' => '',
+               'bucket' => '',
+               'region' => 'us-east-1',
+               'path_prefix' => 'bandfront-demos/',
+           ],
+           'azure' => [
+               'account_name' => '',
+               'account_key' => '',
+               'container' => '',
+               'path_prefix' => 'bandfront-demos/',
+           ],
+           'google-drive' => [
+               'client_id' => '',
+               'client_secret' => '',
+               'refresh_token' => '',
+               'folder_id' => '',
+           ],
        ],
    ];
 
@@ -104,53 +147,6 @@ class Config {
     * Initialize default settings and structure
     */
    private function init(): void {
-       // Settings that can ONLY be set globally
-       $this->globalOnlySettings = [
-           '_bfp_require_login',
-           '_bfp_purchased',
-           '_bfp_reset_purchased_interval',
-           '_bfp_fade_out',
-           '_bfp_purchased_times_text',
-           '_bfp_ffmpeg',
-           '_bfp_ffmpeg_path',
-           '_bfp_ffmpeg_watermark',
-           '_bfp_players_in_cart',
-           '_bfp_player_layout',
-           '_bfp_player_controls',
-           '_bfp_player_on_cover',
-           '_bfp_demo_message',
-           '_bfp_default_extension',
-           '_bfp_force_main_player_in_title',
-           '_bfp_ios_controls',
-           '_bfp_onload',
-           '_bfp_disable_302',
-           '_bfp_analytics_integration',
-           '_bfp_analytics_property',
-           '_bfp_analytics_api_secret',
-           '_bfp_apply_to_all_players',
-           '_bfp_audio_engine',
-           '_bfp_enable_visualizations',
-           '_bfp_cloud_active_tab',
-           '_bfp_cloud_dropbox',
-           '_bfp_cloud_s3',
-           '_bfp_cloud_azure',
-       ];
-       
-       // Settings that can be overridden per-product
-       $this->overridableSettings = [
-           '_bfp_enable_player',
-           '_bfp_group_cart_control',
-           '_bfp_unified_player',
-           '_bfp_play_all',
-           '_bfp_loop',
-           '_bfp_play_demos',
-           '_bfp_demo_duration_percent',
-           '_bfp_use_custom_demos',
-           '_bfp_direct_demo_links',
-           '_bfp_demos_list',
-           '_bfp_audio_engine',
-       ];
-    
        // Default values for settings
        $this->defaults = [
            '_bfp_require_login' => 0,
@@ -165,62 +161,111 @@ class Config {
            '_bfp_players_in_cart' => 0,
            '_bfp_player_layout' => 'dark',
            '_bfp_player_volume' => 1,
-           '_bfp_unified_player' => 0,
+           '_bfp_unified_player' => 1,
            '_bfp_play_demos' => 0,
            '_bfp_player_controls' => 'default',
            '_bfp_demo_duration_percent' => 30,
            '_bfp_group_cart_control' => 0,
            '_bfp_play_all' => 0,
            '_bfp_loop' => 0,
-           '_bfp_player_on_cover' => 0,
+           '_bfp_on_cover' => 0,
            '_bfp_demo_message' => '',
            '_bfp_default_extension' => 0,
            '_bfp_force_main_player_in_title' => 0,
            '_bfp_ios_controls' => 0,
            '_bfp_onload' => 0,
            '_bfp_disable_302' => 0,
-           '_bfp_analytics_integration' => 'ua',
-           '_bfp_analytics_property' => '',
-           '_bfp_analytics_api_secret' => '',
+           '_bfp_analytics_integration' => 'internal',
+           '_bfp_analytics_config' => [
+               'internal' => [
+                   'endpoints' => [
+                       'events' => '/wp-json/bandfront-analytics/v1/events',
+                       'metrics' => '/wp-json/bandfront-analytics/v1/metrics',
+                   ],
+                   'api_key' => '',
+               ],
+               'google' => [
+                   'ua' => [
+                       'endpoint' => 'http://www.google-analytics.com/collect',
+                       'property_id' => '',  // UA-XXXXX-X format
+                   ],
+                   'ga4' => [
+                       'endpoint' => 'https://www.google-analytics.com/mp/collect',
+                       'measurement_id' => '',  // G-XXXXXXXXXX format
+                       'api_secret' => '',
+                   ],
+               ],
+           ],
            '_bfp_apply_to_all_players' => 0,
            '_bfp_audio_engine' => 'html5',
            '_bfp_enable_visualizations' => 0,
            '_bfp_use_custom_demos' => 0,
            '_bfp_direct_demo_links' => 0,
            '_bfp_demos_list' => [],
-           '_bfp_cloud_active_tab' => 'google-drive',
-           '_bfp_cloud_dropbox' => [
+           '_bfp_dev_mode' => 0,
+           '_bfp_debug' => [
                'enabled' => false,
-               'access_token' => '',
-               'folder_path' => '/bandfront-demos',
+               'domains' => [
+                   'core' => false,
+                   'core-bootstrap' => false,
+                   'core-config' => false,
+                   'core-hooks' => false,
+                   'admin' => false,
+                   'audio' => false,
+                   'storage' => false,
+                   'ui' => false,
+                   'api' => false,
+                   'db' => false,
+                   'utils' => false,
+                   'wordpress-elements' => false,
+                   'woocommerce' => false,
+               ]
            ],
-           '_bfp_cloud_s3' => [
-               'enabled' => false,
-               'access_key' => '',
-               'secret_key' => '',
-               'bucket' => '',
-               'region' => 'us-east-1',
-               'path_prefix' => 'bandfront-demos/',
+           '_bfp_plugin_version' => BFP_VERSION,
+           '_bfp_cloud_storage' => [
+               'active_provider' => 'none',  // none, dropbox, s3, azure, google-drive
+               'dropbox' => [
+                   'access_token' => '',
+                   'folder_path' => '/bandfront-demos',
+               ],
+               's3' => [
+                   'access_key' => '',
+                   'secret_key' => '',
+                   'bucket' => '',
+                   'region' => 'us-east-1',
+                   'path_prefix' => 'bandfront-demos/',
+               ],
+               'azure' => [
+                   'account_name' => '',
+                   'account_key' => '',
+                   'container' => '',
+                   'path_prefix' => 'bandfront-demos/',
+               ],
+               'google-drive' => [
+                   'client_id' => '',
+                   'client_secret' => '',
+                   'refresh_token' => '',
+                   'folder_id' => '',
+               ],
            ],
-           '_bfp_cloud_azure' => [
-               'enabled' => false,
-               'account_name' => '',
-               'account_key' => '',
-               'container' => '',
-               'path_prefix' => 'bandfront-demos/',
+           'enable_db_monitoring' => false,
+           
+           // Purchasers Display Settings
+           '_bfp_show_purchasers' => [
+               'default' => true,
+               'type' => 'bool',
+               'overridable' => false,
+               'label' => __('Show Product Purchasers', 'bandfront-player'),
+               'description' => __('Display users who purchased this product', 'bandfront-player')
+           ],
+           '_bfp_max_purchasers_display' => [
+               'default' => 10,
+               'type' => 'int',
+               'overridable' => false,
+               'label' => __('Maximum Purchasers to Display', 'bandfront-player'),
+               'description' => __('Maximum number of purchaser avatars to show', 'bandfront-player')
            ],
        ];
-   }
-
-   /**
-    * Get a component from Bootstrap when dynamic access is needed
-    * 
-    * @param string $componentName Component name
-    * @return object|null Component instance or null
-    */
-   protected function getComponent(string $componentName): ?object {
-       $bootstrap = Bootstrap::getInstance();
-       return $bootstrap ? $bootstrap->getComponent($componentName) : null;
    }
 
    /**
@@ -241,7 +286,7 @@ class Config {
            $default = $this->getDefaultValue($key);
        }
 
-       if ($this->isGlobalOnly($key) || !empty($options['force_global'])) {
+       if ($this->isGlobalOnly($key)) {
            return $this->getGlobalAttr($key, $default);
        }
 
@@ -273,7 +318,7 @@ class Config {
        if ($key === '_bfp_audio_engine') {
            return !empty($value) &&
                   $value !== 'global' &&
-                  in_array($value, ['mediaelement', 'wavesurfer', 'html5']);  // Already includes 'html5'
+                  in_array($value, ['mediaelement', 'wavesurfer', 'html5']);
        } elseif (in_array($key, ['_bfp_enable_player', '_bfp_play_demos', '_bfp_group_cart_control',
                                 '_bfp_unified_player', '_bfp_play_all', '_bfp_loop', '_bfp_use_custom_demos',
                                 '_bfp_direct_demo_links'])) {
@@ -292,17 +337,11 @@ class Config {
    }
 
    private function getDefaultValue(string $key): mixed {
-       if (isset($this->overridableSettings[$key])) {
-           return $this->overridableSettings[$key];
-       }
-       if (isset($this->globalOnlySettings[$key])) {
-           return $this->globalOnlySettings[$key];
-       }
-       return false;
+       return $this->defaults[$key] ?? false;
    }
 
    private function isGlobalOnly(string $key): bool {
-       return isset($this->globalOnlySettings[$key]);
+       return isset($this->globalOnlySettings[$key]) || array_key_exists($key, $this->globalOnlySettings);
    }
 
    private function isOverridable(string $key): bool {
@@ -416,17 +455,17 @@ class Config {
            'single_player' => ['key' => '_bfp_unified_player', 'type' => 'bool'],
            'secure_player' => ['key' => '_bfp_play_demos', 'type' => 'bool'],
            'file_percent' => ['key' => '_bfp_demo_duration_percent', 'type' => 'int'],
-           'player_title' => ['key' => '_bfp_player_title', 'type' => 'int'],
            'merge_grouped' => ['key' => '_bfp_group_cart_control', 'type' => 'int'],
-           'play_simultaneously' => ['key' => '_bfp_allow_concurrent_audio', 'type' => 'int'],
+           'bfp_allow_concurrent_audio' => ['key' => '_bfp_allow_concurrent_audio', 'type' => 'int'],
            'play_all' => ['key' => '_bfp_play_all', 'type' => 'int'],
            'loop' => ['key' => '_bfp_loop', 'type' => 'int'],
-           'on_cover' => ['key' => '_bfp_player_on_cover', 'type' => 'int'],
+           'on_cover' => ['key' => '_bfp_on_cover', 'type' => 'int'],
            
-           // Analytics settings - NOTE: Playback analytics now sent via REST API to external analytics plugin
+           // Analytics settings
            'analytics_integration' => ['key' => '_bfp_analytics_integration', 'type' => 'string'],
            'analytics_property' => ['key' => '_bfp_analytics_property', 'type' => 'string'],
            'analytics_api_secret' => ['key' => '_bfp_analytics_api_secret', 'type' => 'string'],
+           'analytics_endpoints' => ['key' => '_bfp_analytics_endpoints', 'type' => 'array'],
            
            // General settings
            'message' => ['key' => '_bfp_demo_message', 'type' => 'string'],
@@ -436,6 +475,7 @@ class Config {
            'fade_out' => ['key' => '_bfp_fade_out', 'type' => 'int'],
            'purchased_times_text' => ['key' => '_bfp_purchased_times_text', 'type' => 'string'],
            'apply_to_all_players' => ['key' => '_bfp_apply_to_all_players', 'type' => 'int'],
+           'dev_mode' => ['key' => '_bfp_dev_mode', 'type' => 'int'],
            
            // Audio engine settings
            'audio_engine' => ['key' => '_bfp_audio_engine', 'type' => 'string'],
@@ -481,7 +521,7 @@ class Config {
        }
        
        // Force on_cover to 1
-       $formattedSettings['_bfp_player_on_cover'] = 1;
+       $formattedSettings['_bfp_on_cover'] = 1;
        
        return $formattedSettings;
    }
@@ -555,30 +595,6 @@ class Config {
    }
    
    /**
-    * Check if a module is enabled
-    */
-   public function isModuleEnabled(string $moduleName): bool {
-       $modulesEnabled = $this->getState('_bfp_modules_enabled');
-       return isset($modulesEnabled[$moduleName]) ? $modulesEnabled[$moduleName] : false;
-   }
-   
-   /**
-    * Enable or disable a module
-    */
-   public function setModuleState(string $moduleName, bool $enabled): void {
-       $modulesEnabled = $this->getState('_bfp_modules_enabled');
-       $modulesEnabled[$moduleName] = $enabled;
-       $this->updateState('_bfp_modules_enabled', $modulesEnabled);
-   }
-   
-   /**
-    * Get all available modules and their states
-    */
-   public function getAllModules(): array {
-       return $this->getState('_bfp_modules_enabled');
-   }
-   
-   /**
     * Get supported post types
     * 
     * @return array Post types
@@ -599,16 +615,76 @@ class Config {
            return true;
        }
        
-       // Show on shop/archive pages based on setting
-       if (function_exists('is_shop') && is_shop()) {
-           return true;
-       }
+       // Get shop display settings
+       $enablePlayer = $this->getState('_bfp_enable_player', true, $productId);
+       $onCover = $this->getState('_bfp_on_cover', true); // Default to true for shop pages
+       $playerControls = $this->getState('_bfp_player_controls', 'default');
        
-       if (function_exists('is_product_category') && is_product_category()) {
-           return true;
+       // Shop/archive pages logic
+       if ((function_exists('is_shop') && is_shop()) || 
+           (function_exists('is_product_category') && is_product_category()) ||
+           (function_exists('is_product_tag') && is_product_tag())) {
+           
+           // For smart controls (default), respect on_cover setting
+           // For button controls, also respect on_cover setting
+           // For all controls, always show regardless of on_cover
+           if ($playerControls === 'all') {
+               return $enablePlayer;
+           } else {
+               return $enablePlayer && $onCover;
+           }
        }
        
        // Don't show in other contexts by default
        return false;
+   }
+   
+   /**
+    * Get debug configuration
+    * @return array
+    */
+   public function getDebugConfig(): array {
+       return $this->getState('_bfp_debug', $this->defaults['_bfp_debug']);
+   }
+
+   /**
+    * Check if debug is enabled for a specific domain
+    * @param string $domain The debug domain
+    * @return bool
+    */
+   public function isDebugEnabled(string $domain = ''): bool {
+       $debug = $this->getDebugConfig();
+       
+       // Check if debug is enabled globally
+       if (!$debug['enabled']) {
+           return false;
+       }
+       
+       // If no domain specified, return global state
+       if (empty($domain)) {
+           return true;
+       }
+       
+       // Check specific domain
+       $domain = strtolower($domain);
+       
+       // If 'core' is enabled, all core-* domains are enabled
+       if (strpos($domain, 'core-') === 0 && !empty($debug['domains']['core'])) {
+           return true;
+       }
+       
+       return isset($debug['domains'][$domain]) && $debug['domains'][$domain];
+   }
+
+   /**
+    * Update debug configuration
+    * @param bool $enabled Global debug state
+    * @param array $domains Domain states
+    */
+   public function updateDebugConfig(bool $enabled, array $domains): void {
+       $this->updateState('_bfp_debug', [
+           'enabled' => $enabled,
+           'domains' => $domains
+       ]);
    }
 }

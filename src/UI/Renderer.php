@@ -427,7 +427,7 @@ class Renderer {
     public function shouldRenderCover(): bool {
         // Only render on shop/archive pages
         $shouldRender = is_shop() || is_product_category() || is_product_tag();
-        $onCover = $this->config->getState('_bfp_on_cover');
+        $onCover = $this->config->getState('_bfp_player_on_cover');
         $result = $shouldRender && (bool) $onCover;
         
         Debug::log('Renderer: Checking if cover should render', [

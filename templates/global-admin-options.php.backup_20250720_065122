@@ -204,16 +204,6 @@ $playerControls = $config->getPlayerControls();
                         <label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="all" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'all' ); ?> /> <?php esc_html_e( 'Full controls (progress bar, volume, etc.)', 'bandfront-player' ); ?></label><br />
                     </td>
                 </tr>
-                <tr class="bfp-player-on-cover-row">
-                    <th scope="row">📍 <?php esc_html_e( 'Show on product image', 'bandfront-player' ); ?></th>
-                    <td>
-                        <label>
-                            <input aria-label="<?php esc_attr_e( 'Show player on product image', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_player_on_cover" name="_bfp_player_on_cover" <?php checked( $settings['_bfp_player_on_cover'] ); ?> />
-                            <?php esc_html_e( 'Display player controls on the product image (shop pages)', 'bandfront-player' ); ?>
-                        </label>
-                        <p class="description"><?php esc_html_e( 'When enabled, play/pause/track buttons will appear on the product image in shop archives', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
                
             </table>
         </div>
@@ -318,7 +308,48 @@ $playerControls = $config->getPlayerControls();
             </table>
         </div>
         
-       
+        <!-- Purchasers Display Settings -->
+        <div id="purchasers-display-panel" class="bfp-tab-panel" style="display:none;">
+            <h2><?php esc_html_e('Purchasers Display Settings', 'bandfront-player'); ?></h2>
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="_bfp_show_purchasers">
+                            <?php esc_html_e('Show Product Purchasers', 'bandfront-player'); ?>
+                        </label>
+                    </th>
+                    <td>
+                        <input type="checkbox" 
+                               id="_bfp_show_purchasers" 
+                               name="_bfp_show_purchasers" 
+                               value="1" 
+                               <?php checked($settings['_bfp_show_purchasers'], true); ?> />
+                        <p class="description">
+                            <?php esc_html_e('Display avatars of users who purchased the product on product pages.', 'bandfront-player'); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="_bfp_max_purchasers_display">
+                            <?php esc_html_e('Maximum Purchasers to Display', 'bandfront-player'); ?>
+                        </label>
+                    </th>
+                    <td>
+                        <input type="number" 
+                               id="_bfp_max_purchasers_display" 
+                               name="_bfp_max_purchasers_display" 
+                               value="<?php echo esc_attr($settings['_bfp_max_purchasers_display']); ?>" 
+                               min="1" 
+                               max="50" 
+                               step="1" />
+                        <p class="description">
+                            <?php esc_html_e('Maximum number of purchaser avatars to show on product pages.', 'bandfront-player'); ?>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
         
         <?php 
         // Include cloud tools template

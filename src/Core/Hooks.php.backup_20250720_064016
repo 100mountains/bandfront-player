@@ -296,7 +296,7 @@ class Hooks {
         
         // Simplified: Just check if player is enabled and on_cover is true
         $playerEnabled = (bool)$config->getState('_bfp_enable_player', true, get_the_ID());
-        $onCover = (bool)$config->getState('_bfp_player_on_cover', false);
+        $onCover = (bool)$config->getState('_bfp_on_cover', false);
         
         Debug::log('Hooks.php: maybeAddShopPlayer check', [
             'productId' => get_the_ID(),

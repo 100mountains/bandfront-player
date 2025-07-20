@@ -459,7 +459,7 @@ class DbRenderer {
                 '_bfp_play_all',
                 '_bfp_loop',
                 '_bfp_fade_out',
-                '_bfp_on_cover',
+                '_bfp_player_on_cover',
                 '_bfp_force_main_player_in_title',
                 '_bfp_ios_controls',
                 '_bfp_onload',

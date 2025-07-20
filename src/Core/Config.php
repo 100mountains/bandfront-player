@@ -43,7 +43,9 @@ class Config {
    private array $globalOnlySettings = [
        '_bfp_player_layout' => 'dark',
        '_bfp_player_controls' => 'default',
-       '_bfp_on_cover' => 1,
+       '_bfp_player_on_cover' => 1,
+       '_bfp_show_purchasers' => 1,
+       '_bfp_max_purchasers_display' => 10,
        '_bfp_force_main_player_in_title' => 1,
        '_bfp_players_in_cart' => false,
        '_bfp_allow_concurrent_audio' => 0,
@@ -168,7 +170,9 @@ class Config {
            '_bfp_group_cart_control' => 0,
            '_bfp_play_all' => 0,
            '_bfp_loop' => 0,
-           '_bfp_on_cover' => 0,
+           '_bfp_player_on_cover' => 1,
+       '_bfp_show_purchasers' => 1,
+       '_bfp_max_purchasers_display' => 10,
            '_bfp_demo_message' => '',
            '_bfp_default_extension' => 0,
            '_bfp_force_main_player_in_title' => 0,
@@ -250,21 +254,6 @@ class Config {
            ],
            'enable_db_monitoring' => false,
            
-           // Purchasers Display Settings
-           '_bfp_show_purchasers' => [
-               'default' => true,
-               'type' => 'bool',
-               'overridable' => false,
-               'label' => __('Show Product Purchasers', 'bandfront-player'),
-               'description' => __('Display users who purchased this product', 'bandfront-player')
-           ],
-           '_bfp_max_purchasers_display' => [
-               'default' => 10,
-               'type' => 'int',
-               'overridable' => false,
-               'label' => __('Maximum Purchasers to Display', 'bandfront-player'),
-               'description' => __('Maximum number of purchaser avatars to show', 'bandfront-player')
-           ],
        ];
    }
 
@@ -436,6 +425,7 @@ class Config {
     */
    public function getAdminFormSettings(): array {
        // Define all settings with their defaults
+       // Clear cache to ensure fresh data\n       $this->globalAttrs = [];
        $settingsConfig = [
            // FFmpeg settings
            'ffmpeg' => ['key' => '_bfp_ffmpeg', 'type' => 'bool'],
@@ -459,7 +449,11 @@ class Config {
            'bfp_allow_concurrent_audio' => ['key' => '_bfp_allow_concurrent_audio', 'type' => 'int'],
            'play_all' => ['key' => '_bfp_play_all', 'type' => 'int'],
            'loop' => ['key' => '_bfp_loop', 'type' => 'int'],
-           'on_cover' => ['key' => '_bfp_on_cover', 'type' => 'int'],
+           'on_cover' => ['key' => '_bfp_player_on_cover', 'type' => 'int'],
+           
+           // Purchaser settings
+           'show_purchasers' => ['key' => '_bfp_show_purchasers', 'type' => 'int'],
+           'max_purchasers_display' => ['key' => '_bfp_max_purchasers_display', 'type' => 'int'],
            
            // Analytics settings
            'analytics_integration' => ['key' => '_bfp_analytics_integration', 'type' => 'string'],
@@ -520,8 +514,6 @@ class Config {
            $formattedSettings[$config['key']] = $value;
        }
        
-       // Force on_cover to 1
-       $formattedSettings['_bfp_on_cover'] = 1;
        
        return $formattedSettings;
    }
@@ -616,8 +608,8 @@ class Config {
        }
        
        // Get shop display settings
-       $enablePlayer = $this->getState('_bfp_enable_player', true, $productId);
-       $onCover = $this->getState('_bfp_on_cover', true); // Default to true for shop pages
+       $enablePlayer = (bool)$this->getState('_bfp_enable_player', true, $productId);
+       $onCover = (bool)$this->getState('_bfp_player_on_cover', true); // Default to true for shop pages
        $playerControls = $this->getState('_bfp_player_controls', 'default');
        
        // Shop/archive pages logic

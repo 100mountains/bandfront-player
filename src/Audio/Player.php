@@ -115,7 +115,7 @@ class Player {
         }
 
         // Use getState for single value retrieval
-        $onCover = $this->config->getState('_bfp_on_cover');
+        $onCover = $this->config->getState('_bfp_player_on_cover');
         if ($onCover && (is_shop() || is_product_category() || is_product_tag())) {
             // Don't render the regular player on shop pages when on_cover is enabled
             return '';
@@ -466,7 +466,7 @@ class Player {
             '_bfp_allow_concurrent_audio',
             '_bfp_ios_controls',
             '_bfp_fade_out',
-            '_bfp_on_cover',
+            '_bfp_player_on_cover',
             '_bfp_enable_visualizations',
             '_bfp_player_layout'
         ];
@@ -479,7 +479,7 @@ class Player {
             'bfp_allow_concurrent_audio' => $settings['_bfp_allow_concurrent_audio'],
             'ios_controls' => $settings['_bfp_ios_controls'],
             'fade_out' => $settings['_bfp_fade_out'],
-            'on_cover' => $settings['_bfp_on_cover'],
+            'on_cover' => $settings['_bfp_player_on_cover'],
             'visualizations' => $settings['_bfp_enable_visualizations'],
             'player_skin' => $settings['_bfp_player_layout']
         ];

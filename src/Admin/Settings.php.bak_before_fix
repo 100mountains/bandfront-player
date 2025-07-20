@@ -160,9 +160,7 @@ class Settings {
             '_bfp_group_cart_control' => isset($data['_bfp_group_cart_control']) ? 1 : 0,
             '_bfp_play_all' => isset($data['_bfp_play_all']) ? 1 : 0,
             '_bfp_loop' => isset($data['_bfp_loop']) ? 1 : 0,
-            '_bfp_player_on_cover' => isset($data['_bfp_player_on_cover']) ? 1 : 0,
-            '_bfp_show_purchasers' => isset($data['_bfp_show_purchasers']) ? 1 : 0,
-            '_bfp_max_purchasers_display' => isset($data['_bfp_max_purchasers_display']) ? intval($data['_bfp_max_purchasers_display']) : 10,
+            '_bfp_player_on_cover' =>$this->parseOnCover($data),
             '_bfp_demo_message' => isset($data['_bfp_demo_message']) ? wp_kses_post(wp_unslash($data['_bfp_demo_message'])) : '',
             '_bfp_audio_engine' => $this->parseAudioEngine($data),
             '_bfp_enable_visualizations' => $this->parseVisualizations($data),
@@ -256,6 +254,12 @@ class Settings {
         return 0;
     }
     
+    /**
+     * Parse on cover setting
+     */
+    private function parseOnCover(array $data): int {
+        return isset($data['_bfp_player_on_cover']) ? 1 : 0;
+    }
     
     /**
      * Parse audio engine setting
