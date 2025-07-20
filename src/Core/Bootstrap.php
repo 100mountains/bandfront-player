@@ -14,6 +14,7 @@ use Bandfront\WooCommerce\WooCommerceIntegration;
 use Bandfront\WooCommerce\ProductProcessor;
 use Bandfront\WooCommerce\FormatDownloader;
 use Bandfront\WooCommerce\PurchasersDisplay;
+use Bandfront\WooCommerce\AccountMenu;
 use Bandfront\Storage\FileManager;
 use Bandfront\REST\StreamController;
 use Bandfront\UI\Renderer;
@@ -208,6 +209,11 @@ class Bootstrap {
         $this->components['purchasers_display'] = new PurchasersDisplay(
             $this->components['config'],
             $this->components['renderer']
+        );
+        
+        // Add AccountMenu component (no activation/deactivation here!)
+        $this->components['account_menu'] = new AccountMenu(
+            $this->components['config']
         );
     }
     
