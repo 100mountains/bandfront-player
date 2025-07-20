@@ -29,80 +29,21 @@ define('BFP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 // Composer autoloader
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Include activation and deactivation handlers
+require_once __DIR__ . '/activation.php';
+require_once __DIR__ . '/deactivation.php';
+
 use Bandfront\Core\Bootstrap;
-use Bandfront\Db\Installer;
 
 /**
  * Plugin activation
  */
-register_activation_hook(__FILE__, function() {
-
-    
-    // Run database installation/updates
-    Installer::install();
-    
-    // Migrate from old structure if needed
-    Installer::migrateFromOldStructure();
-    
-    // Initialize Bootstrap for activation tasks
-    Bootstrap::init(BFP_PLUGIN_PATH);
-    $bootstrap = Bootstrap::getInstance();
-    
-    if ($bootstrap) {
-        // Register download endpoint if format downloader exists
-        if ($formatDownloader = $bootstrap->getComponent('format_downloader')) {
-            $formatDownloader->registerDownloadEndpoint();
-        }
-        
-        // Run component activation routines
-        $components = $bootstrap->getComponents();
-        foreach ($components as $component) {
-            if (method_exists($component, 'activate')) {
-                $component->activate();
-            }
-        }
-    }
-    
-    // Set activation flag
-    update_option('bandfront_player_activated', time());
-    
-    // Flush rewrite rules
-    flush_rewrite_rules();
-});
+register_activation_hook(__FILE__, 'bandfront_player_activate');
 
 /**
  * Plugin deactivation
  */
-register_deactivation_hook(__FILE__, function() {
-    // Initialize Bootstrap for deactivation tasks
-    $bootstrap = Bootstrap::getInstance();
-    
-    if ($bootstrap) {
-        // Clean up purchased files
-        if ($fileManager = $bootstrap->getComponent('file_manager')) {
-            $fileManager->deletePurchasedFiles();
-        }
-        
-        // Run component deactivation routines
-        $components = $bootstrap->getComponents();
-        foreach ($components as $component) {
-            if (method_exists($component, 'deactivate')) {
-                $component->deactivate();
-            }
-        }
-    }
-    
-    // Clean up transients
-    global $wpdb;
-    $wpdb->query(
-        "DELETE FROM {$wpdb->options} 
-         WHERE option_name LIKE '_transient_bfp_%' 
-         OR option_name LIKE '_transient_timeout_bfp_%'"
-    );
-    
-    // Flush rewrite rules
-    flush_rewrite_rules();
-});
+register_deactivation_hook(__FILE__, 'bandfront_player_deactivate');
 
 /**
  * Plugin uninstall
