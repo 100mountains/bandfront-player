@@ -123,6 +123,7 @@ $global_audio_engine = $config->getState('_bfp_audio_engine');
 						<br><em class="bfp-em-text"><?php esc_html_e( 'Default is 1.0 (maximum volume)', 'bandfront-player' ); ?></em>
 					</td>
 				</tr>
+				<?php if ( $config->isModuleEnabled( 'audio-engine' ) ) : ?>
 				<tr>
 					<td>🎛️ <?php esc_html_e( 'Audio Engine', 'bandfront-player' ); ?></td>
 					<td>
@@ -131,6 +132,7 @@ $global_audio_engine = $config->getState('_bfp_audio_engine');
 						<label><input type="radio" name="_bfp_audio_engine" value="wavesurfer" <?php checked( $audio_engine, 'wavesurfer' ); ?>> <?php esc_html_e( 'WaveSurfer.js', 'bandfront-player' ); ?></label>
 					</td>
 				</tr>
+				<?php endif; ?>
 				<tr>
 					<td colspan="2">
 						<table class="widefat bfp-settings-table">

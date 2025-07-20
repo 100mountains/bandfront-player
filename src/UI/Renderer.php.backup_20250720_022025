@@ -71,9 +71,13 @@ class Renderer {
             
             // Title processing
             $title = '';
-            $rawTitle = $file['name'] ?? '';
-            $processedTitle = apply_filters('bfp_file_name', $rawTitle, $productId, $index);
-            $title = esc_html($processedTitle);
+            $playerTitleEnabled = $settings['_bfp_player_title'] ?? 1;
+            
+            if ($playerTitleEnabled) {
+                $rawTitle = $file['name'] ?? '';
+                $processedTitle = apply_filters('bfp_file_name', $rawTitle, $productId, $index);
+                $title = esc_html($processedTitle);
+            }
             
             // Get duration - default to 0 if not set or not numeric
             $duration = isset($file['duration']) && is_numeric($file['duration']) ? (int)$file['duration'] : 0;

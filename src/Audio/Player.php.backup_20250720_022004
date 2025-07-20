@@ -65,6 +65,9 @@ class Player {
         
         // Build player HTML with title
         $playerHtml = '<div class="bfp-player-wrapper">';
+        if ($title) {
+            $playerHtml .= '<div class="bfp-player-title">' . esc_html($title) . '</div>';
+        }
         $playerHtml .= '<audio id="' . esc_attr($playerId) . '" ';
         $playerHtml .= 'class="bfp-player ' . esc_attr($playerStyle) . '" ';
         $playerHtml .= 'data-product="' . esc_attr($productId) . '" ';
@@ -155,7 +158,7 @@ class Player {
             $audioUrl = $this->audio->generateAudioUrl($id, $index, $file);
             
             // Add title if enabled in settings
-            $title = apply_filters('bfp_file_name', $file['name'], $id, $index);
+            $title = ($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $id, $index) : '';
             
             $audioTag = apply_filters(
                 'bfp_audio_tag',
@@ -234,6 +237,7 @@ class Player {
                 '_bfp_preload',
                 '_bfp_player_layout',
                 '_bfp_player_volume',
+                '_bfp_player_title',
                 '_bfp_loop',
                 '_bfp_group_cart_control',
                 '_bfp_unified_player'
@@ -266,7 +270,7 @@ class Player {
                 $audioTag .= 'data-file-index="' . esc_attr($index) . '" ';
                 $audioTag .= 'controls="controls"></audio>';
                 
-                $title = esc_html(apply_filters('bfp_file_name', $file['name'], $id, $index));
+                $title = esc_html(($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $id, $index) : '');
                 $mergeGroupedClass = ($settings['_bfp_group_cart_control']) ? 'group_cart_control_products' : '';
                 
                 // Generate nonce for AJAX requests
@@ -279,6 +283,7 @@ class Player {
                 print 'data-nonce="' . esc_attr($nonce) . '" ';
                 print ($settings['_bfp_loop'] ? 'data-loop="1" ' : '') . '>';
                 print $audioTag . '</div>';
+                print '<div class="bfp-player-title" data-audio-url="' . esc_attr($audioUrl) . '">' . wp_kses_post($title) . '</div>';
                 print '<div style="clear:both;"></div>';
                 
             } elseif ($counter > 1) {
@@ -320,7 +325,7 @@ class Player {
             $audioUrl = $this->audio->generateAudioUrl($productId, $index, $file);
             
             // Add title if enabled in settings
-            $title = apply_filters('bfp_file_name', $file['name'], $productId, $index);
+            $title = ($settings['_bfp_player_title']) ? apply_filters('bfp_file_name', $file['name'], $productId, $index) : '';
             
             $audioTag = apply_filters(
                 'bfp_audio_tag',

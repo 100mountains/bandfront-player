@@ -65,6 +65,9 @@ class Player {
         
         // Build player HTML with title
         $playerHtml = '<div class="bfp-player-wrapper">';
+        if ($title) {
+            $playerHtml .= '<div class="bfp-player-title">' . esc_html($title) . '</div>';
+        }
         $playerHtml .= '<audio id="' . esc_attr($playerId) . '" ';
         $playerHtml .= 'class="bfp-player ' . esc_attr($playerStyle) . '" ';
         $playerHtml .= 'data-product="' . esc_attr($productId) . '" ';
@@ -279,6 +282,7 @@ class Player {
                 print 'data-nonce="' . esc_attr($nonce) . '" ';
                 print ($settings['_bfp_loop'] ? 'data-loop="1" ' : '') . '>';
                 print $audioTag . '</div>';
+                print '<div class="bfp-player-title" data-audio-url="' . esc_attr($audioUrl) . '">' . wp_kses_post($title) . '</div>';
                 print '<div style="clear:both;"></div>';
                 
             } elseif ($counter > 1) {

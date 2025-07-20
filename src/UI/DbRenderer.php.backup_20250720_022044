@@ -455,6 +455,7 @@ class DbRenderer {
                 '_bfp_player_layout',
                 '_bfp_player_volume',
                 '_bfp_player_controls',
+                '_bfp_player_title',
                 '_bfp_unified_player',
                 '_bfp_play_all',
                 '_bfp_loop',

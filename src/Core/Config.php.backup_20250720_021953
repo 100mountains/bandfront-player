@@ -43,6 +43,7 @@ class Config {
    private array $globalOnlySettings = [
        '_bfp_player_layout' => 'dark',
        '_bfp_player_controls' => 'default',
+       '_bfp_player_title' => 1,
        '_bfp_on_cover' => 1,
        '_bfp_force_main_player_in_title' => 1,
        '_bfp_players_in_cart' => false,
@@ -439,6 +440,7 @@ class Config {
            'single_player' => ['key' => '_bfp_unified_player', 'type' => 'bool'],
            'secure_player' => ['key' => '_bfp_play_demos', 'type' => 'bool'],
            'file_percent' => ['key' => '_bfp_demo_duration_percent', 'type' => 'int'],
+           'player_title' => ['key' => '_bfp_player_title', 'type' => 'int'],
            'merge_grouped' => ['key' => '_bfp_group_cart_control', 'type' => 'int'],
            'bfp_allow_concurrent_audio' => ['key' => '_bfp_allow_concurrent_audio', 'type' => 'int'],
            'play_all' => ['key' => '_bfp_play_all', 'type' => 'int'],
