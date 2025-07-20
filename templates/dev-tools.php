@@ -129,30 +129,43 @@ Debug::log('Processing request', ['data' => $data]);</pre>
         <tr>
             <th scope="row"><?php esc_html_e('System Information', 'bandfront-player'); ?></th>
             <td>
-                <div class="bfp-system-info">
-                    <h4><?php esc_html_e('Environment', 'bandfront-player'); ?></h4>
-                    <ul>
-                        <li>🖥️ <?php esc_html_e('PHP Version:', 'bandfront-player'); ?> <code><?php echo PHP_VERSION; ?></code></li>
-                        <li>🌐 <?php esc_html_e('WordPress Version:', 'bandfront-player'); ?> <code><?php echo get_bloginfo('version'); ?></code></li>
-                        <li>🛒 <?php esc_html_e('WooCommerce:', 'bandfront-player'); ?> <code><?php echo class_exists('WooCommerce') ? WC()->version : __('Not Active', 'bandfront-player'); ?></code></li>
-                        <li>🎵 <?php esc_html_e('Plugin Version:', 'bandfront-player'); ?> <code><?php 
-                            // Get plugin version the WordPress way
-                            if (!function_exists('get_plugin_data')) {
-                                require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-                            }
-                            $plugin_data = get_plugin_data(BFP_PLUGIN_PATH);
-                            echo esc_html($plugin_data['Version'] ?? '0.1');
-                        ?></code></li>
-                    </ul>
+                <div class="bfp-system-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div>
+                        <h4 style="margin-top: 0;"><?php esc_html_e('Environment', 'bandfront-player'); ?></h4>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            <li>🖥️ <?php esc_html_e('PHP Version:', 'bandfront-player'); ?> <code><?php echo PHP_VERSION; ?></code></li>
+                            <li>🌐 <?php esc_html_e('WordPress Version:', 'bandfront-player'); ?> <code><?php echo get_bloginfo('version'); ?></code></li>
+                            <li>🛒 <?php esc_html_e('WooCommerce:', 'bandfront-player'); ?> <code><?php echo class_exists('WooCommerce') ? WC()->version : __('Not Active', 'bandfront-player'); ?></code></li>
+                            <li>🎵 <?php esc_html_e('Plugin Version:', 'bandfront-player'); ?> <code><?php 
+                                // Get plugin version the WordPress way
+                                if (!function_exists('get_plugin_data')) {
+                                    require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+                                }
+                                $plugin_data = get_plugin_data(BFP_PLUGIN_PATH);
+                                echo esc_html($plugin_data['Version'] ?? '0.1');
+                            ?></code></li>
+                        </ul>
+                    </div>
                     
-                    <h4><?php esc_html_e('Server Configuration', 'bandfront-player'); ?></h4>
-                    <ul>
-                        <li>⏰ <?php esc_html_e('Max Execution Time:', 'bandfront-player'); ?> <code><?php echo ini_get('max_execution_time'); ?>s</code></li>
-                        <li>💾 <?php esc_html_e('Memory Limit:', 'bandfront-player'); ?> <code><?php echo ini_get('memory_limit'); ?></code></li>
-                        <li>📤 <?php esc_html_e('Upload Max Size:', 'bandfront-player'); ?> <code><?php echo ini_get('upload_max_filesize'); ?></code></li>
-                        <li>📁 <?php esc_html_e('FFmpeg Available:', 'bandfront-player'); ?> <code><?php echo function_exists('shell_exec') && @shell_exec('which ffmpeg') ? __('Yes', 'bandfront-player') : __('No', 'bandfront-player'); ?></code></li>
-                    </ul>
+                    <div>
+                        <h4 style="margin-top: 0;"><?php esc_html_e('Server Configuration', 'bandfront-player'); ?></h4>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            <li>⏰ <?php esc_html_e('Max Execution Time:', 'bandfront-player'); ?> <code><?php echo ini_get('max_execution_time'); ?>s</code></li>
+                            <li>💾 <?php esc_html_e('Memory Limit:', 'bandfront-player'); ?> <code><?php echo ini_get('memory_limit'); ?></code></li>
+                            <li>📤 <?php esc_html_e('Upload Max Size:', 'bandfront-player'); ?> <code><?php echo ini_get('upload_max_filesize'); ?></code></li>
+                            <li>📁 <?php esc_html_e('FFmpeg Available:', 'bandfront-player'); ?> <code><?php echo function_exists('shell_exec') && @shell_exec('which ffmpeg') ? __('Yes', 'bandfront-player') : __('No', 'bandfront-player'); ?></code></li>
+                        </ul>
+                    </div>
                 </div>
+                
+                <!-- Add responsive behavior for mobile -->
+                <style>
+                @media (max-width: 768px) {
+                    .bfp-system-info {
+                        grid-template-columns: 1fr !important;
+                    }
+                }
+                </style>
             </td>
         </tr>
         <tr>
@@ -160,10 +173,48 @@ Debug::log('Processing request', ['data' => $data]);</pre>
             <td>
                 <div class="bfp-api-info">
                     <h4><?php esc_html_e('REST API Endpoints', 'bandfront-player'); ?></h4>
-                    <ul>
-                        <li>🔗 <code>/wp-json/bandfront/v1/stream/{file_id}</code> - <?php esc_html_e('Audio streaming endpoint', 'bandfront-player'); ?></li>
-                        <li>🔗 <code>/wp-json/bandfront/v1/analytics/track</code> - <?php esc_html_e('Analytics tracking endpoint', 'bandfront-player'); ?></li>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                        <p style="margin: 0 0 10px 0;"><strong><?php esc_html_e('Base URL:', 'bandfront-player'); ?></strong> <code><?php echo esc_url(home_url('/wp-json/bandfront-player/v1')); ?></code></p>
+                        <p style="margin: 0;"><strong><?php esc_html_e('Namespace:', 'bandfront-player'); ?></strong> <code>bandfront-player/v1</code></p>
+                    </div>
+                    
+                    <h5><?php esc_html_e('Available Endpoints:', 'bandfront-player'); ?></h5>
+                    <ul style="margin-bottom: 20px;">
+                        <li>
+                            <strong>🎵 Stream Audio</strong><br>
+                            <code>GET /stream/{product_id}/{file_id}</code><br>
+                            <small><?php esc_html_e('Streams audio files with range support. Requires valid nonce.', 'bandfront-player'); ?></small>
+                        </li>
+                        <li style="margin-top: 10px;">
+                            <strong>📊 Track Playback</strong><br>
+                            <code>POST /track</code><br>
+                            <small><?php esc_html_e('Records playback events (play, pause, ended). Accepts JSON payload with event details.', 'bandfront-player'); ?></small>
+                        </li>
                     </ul>
+                    
+                    <h4><?php esc_html_e('AJAX Endpoints', 'bandfront-player'); ?></h4>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                        <p style="margin: 0 0 10px 0;"><strong><?php esc_html_e('WooCommerce AJAX:', 'bandfront-player'); ?></strong> <code><?php echo esc_url(home_url('/?wc-ajax=')); ?></code></p>
+                        <p style="margin: 0;"><strong><?php esc_html_e('Admin AJAX:', 'bandfront-player'); ?></strong> <code><?php echo esc_url(admin_url('admin-ajax.php')); ?></code></p>
+                    </div>
+                    
+                    <h5><?php esc_html_e('Player Control Actions:', 'bandfront-player'); ?></h5>
+                    <ul style="margin-bottom: 20px;">
+                        <li><code>bfp_track_play</code> - <?php esc_html_e('Track play event', 'bandfront-player'); ?></li>
+                        <li><code>bfp_track_pause</code> - <?php esc_html_e('Track pause event', 'bandfront-player'); ?></li>
+                        <li><code>bfp_track_ended</code> - <?php esc_html_e('Track ended event', 'bandfront-player'); ?></li>
+                        <li><code>bfp_next_track</code> - <?php esc_html_e('Load next track in playlist', 'bandfront-player'); ?></li>
+                        <li><code>bfp_previous_track</code> - <?php esc_html_e('Load previous track in playlist', 'bandfront-player'); ?></li>
+                    </ul>
+                    
+                    <h5><?php esc_html_e('WooCommerce Integration:', 'bandfront-player'); ?></h5>
+                    <ul>
+                        <li><code>get_refreshed_fragments</code> - <?php esc_html_e('Updates cart fragments (used for dynamic cart updates)', 'bandfront-player'); ?></li>
+                    </ul>
+                    
+                    <div style="background: #e8f4f8; padding: 15px; border-radius: 4px; margin-top: 20px;">
+                        <p style="margin: 0;"><strong>💡 <?php esc_html_e('Debug Tip:', 'bandfront-player'); ?></strong> <?php esc_html_e('Enable debug mode and check the Network tab in browser DevTools to see API calls in action.', 'bandfront-player'); ?></p>
+                    </div>
                 </div>
             </td>
         </tr>
