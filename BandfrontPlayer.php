@@ -30,20 +30,20 @@ define('BFP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 require_once __DIR__ . '/vendor/autoload.php';
 
 // Include activation and deactivation handlers
-require_once __DIR__ . '/activation.php';
-require_once __DIR__ . '/deactivation.php';
+require_once __DIR__ . '/BfpActivation.php';
+require_once __DIR__ . '/BfpDeactivation.php';
 
 use Bandfront\Core\Bootstrap;
 
 /**
  * Plugin activation
  */
-register_activation_hook(__FILE__, 'bandfront_player_activate');
+register_activation_hook(__FILE__, 'BfpActivation');
 
 /**
  * Plugin deactivation
  */
-register_deactivation_hook(__FILE__, 'bandfront_player_deactivate');
+register_deactivation_hook(__FILE__, 'BfpDeactivation');
 
 /**
  * Plugin uninstall

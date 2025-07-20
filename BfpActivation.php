@@ -15,7 +15,7 @@ use Bandfront\Db\Installer;
 /**
  * Handle plugin activation
  */
-function bandfront_player_activate() {
+function BfpActivation() {
     // Run database installation/updates
     Installer::install();
     
