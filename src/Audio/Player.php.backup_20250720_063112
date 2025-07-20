@@ -30,7 +30,6 @@ class Player {
     private bool $enqueuedResources = false;
     private bool $insertedPlayer = false;
     private bool $insertPlayer = true;
-    private array $renderedProducts = [];
     private bool $insertMainPlayer = true;
     private bool $insertAllPlayers = true;
     
@@ -208,15 +207,6 @@ class Player {
         if (!$this->getInsertPlayer() || !$this->getInsertAllPlayers() || is_admin()) {
             return;
         }
-        
-        // Get product ID
-        $productId = is_object($product) ? $product->get_id() : (int)$product;
-        
-        // Prevent double rendering for the same product
-        if (in_array($productId, $this->renderedProducts)) {
-            return;
-        }
-        $this->renderedProducts[] = $productId;
 
         if (!is_object($product)) {
             $product = wc_get_product();

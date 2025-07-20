@@ -149,7 +149,7 @@ class Hooks {
             // Add purchasers display hook
             $purchasersDisplay = $this->bootstrap->getComponent('purchasers_display');
             if ($purchasersDisplay) {
-                add_action('woocommerce_single_product_summary', [$purchasersDisplay, 'displayPurchasers'], 25);
+                add_action('woocommerce_before_single_product_summary', [$purchasersDisplay, 'displayPurchasers'], 35);
             }
         }
     }

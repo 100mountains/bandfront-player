@@ -27,7 +27,7 @@ class WsRenderer {
      */
     public function renderControls(array $file, array $settings, int $productId, $index): string {
         Debug::log('WsRenderer: Rendering WaveSurfer controls', [
-        $index = (int)$index;
+        $index = (int)$index,
             'file' => $file['name'] ?? 'unknown',
             'productId' => $productId,
             'index' => $index
