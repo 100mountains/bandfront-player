@@ -135,7 +135,14 @@ Debug::log('Processing request', ['data' => $data]);</pre>
                         <li>🖥️ <?php esc_html_e('PHP Version:', 'bandfront-player'); ?> <code><?php echo PHP_VERSION; ?></code></li>
                         <li>🌐 <?php esc_html_e('WordPress Version:', 'bandfront-player'); ?> <code><?php echo get_bloginfo('version'); ?></code></li>
                         <li>🛒 <?php esc_html_e('WooCommerce:', 'bandfront-player'); ?> <code><?php echo class_exists('WooCommerce') ? WC()->version : __('Not Active', 'bandfront-player'); ?></code></li>
-                        <li>🎵 <?php esc_html_e('Plugin Version:', 'bandfront-player'); ?> <code>5.0.181</code></li>
+                        <li>🎵 <?php esc_html_e('Plugin Version:', 'bandfront-player'); ?> <code><?php 
+                            // Get plugin version the WordPress way
+                            if (!function_exists('get_plugin_data')) {
+                                require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+                            }
+                            $plugin_data = get_plugin_data(BFP_PLUGIN_PATH);
+                            echo esc_html($plugin_data['Version'] ?? '0.1');
+                        ?></code></li>
                     </ul>
                     
                     <h4><?php esc_html_e('Server Configuration', 'bandfront-player'); ?></h4>

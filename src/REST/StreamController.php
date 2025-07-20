@@ -152,7 +152,29 @@ class StreamController {
                 exit;
             }
             
-            // For non-protected files, redirect is fine
+            // For non-protected files, validate URL first
+            Debug::log('Checking non-protected file URL', ['url' => $fileUrl]);
+            
+            // Validate the URL
+            if (!filter_var($fileUrl, FILTER_VALIDATE_URL)) {
+                Debug::log('Invalid file URL format', ['url' => $fileUrl]);
+                return new \WP_REST_Response(['error' => 'Invalid file URL format'], 500);
+            }
+            
+            // Check if it's a local file that should exist
+            $upload_dir = wp_upload_dir();
+            if (strpos($fileUrl, $upload_dir['baseurl']) === 0) {
+                // It's a local file, check if it exists
+                $local_file = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $fileUrl);
+                if (!file_exists($local_file)) {
+                    Debug::log('Local file not found', [
+                        'url' => $fileUrl,
+                        'local_path' => $local_file
+                    ]);
+                    return new \WP_REST_Response(['error' => 'File not found on server'], 404);
+                }
+            }
+            
             Debug::log('Redirecting to non-protected file', ['url' => $fileUrl]);
             wp_redirect($fileUrl);
             exit;
