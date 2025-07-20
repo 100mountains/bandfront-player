@@ -188,13 +188,7 @@ $playerControls = $config->getPlayerControls();
                         <label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="all" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'all' ); ?> /> <?php esc_html_e( 'Full controls (progress bar, volume, etc.)', 'bandfront-player' ); ?></label><br />
                     </td>
                 </tr>
-                <tr>
-                    <th scope="row"><label for="_bfp_on_cover">🛍️ <?php esc_html_e( 'Show players on shop pages', 'bandfront-player' ); ?></label></th>
-                    <td>
-                        <input aria-label="<?php esc_attr_e( 'Show players on shop/archive pages', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_on_cover" name="_bfp_on_cover" <?php checked( $settings['_bfp_on_cover'] ); ?> />
-                        <p class="description"><?php esc_html_e( 'Enable to display compact players on category and shop pages', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
+               
             </table>
         </div>
         

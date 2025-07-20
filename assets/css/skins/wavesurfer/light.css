@@ -1,0 +1,28 @@
+/* Light skin for WaveSurfer player */
+.light .bfp-player-wrapper {
+    background: #fafafa;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.light .bfp-player-title {
+    color: #333;
+    background: #e0e0e0;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.light #waveform {
+    background: #f5f5f5;
+    border-radius: 5px;
+}
+
+.light .wavesurfer-region {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.light .wavesurfer-handle {
+    background: #333;
+}

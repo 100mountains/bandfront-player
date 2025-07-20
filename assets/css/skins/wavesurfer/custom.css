@@ -1,0 +1,12 @@
+/* Custom skin for WaveSurfer player - users can override these */
+.custom .bfp-player-wrapper {
+    /* Add your custom styles here */
+}
+
+.custom .bfp-player-title {
+    /* Add your custom title styles here */
+}
+
+.custom #waveform {
+    /* Add your custom waveform styles here */
+}

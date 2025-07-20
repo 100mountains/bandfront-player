@@ -1,0 +1,27 @@
+/* Dark skin for WaveSurfer player */
+.dark .bfp-player-wrapper {
+    background: #1a1a1a;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.dark .bfp-player-title {
+    color: #fff;
+    background: #333;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.dark #waveform {
+    background: #222;
+    border-radius: 5px;
+}
+
+.dark .wavesurfer-region {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dark .wavesurfer-handle {
+    background: #fff;
+}

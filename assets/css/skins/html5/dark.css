@@ -1,0 +1,29 @@
+/* Dark skin for HTML5 audio player */
+.dark audio {
+    background: #222;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.dark audio::-webkit-media-controls-panel {
+    background: #222;
+}
+
+.dark audio::-webkit-media-controls-play-button,
+.dark audio::-webkit-media-controls-timeline,
+.dark audio::-webkit-media-controls-volume-slider {
+    filter: invert(1);
+}
+
+.dark .bfp-player-title {
+    color: #fff;
+    background: #333;
+    padding: 8px 12px;
+    border-radius: 5px 5px 0 0;
+}
+
+.dark .bfp-player-wrapper {
+    background: #1a1a1a;
+    border-radius: 5px;
+    padding: 5px;
+}

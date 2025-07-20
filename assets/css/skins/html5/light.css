@@ -1,0 +1,24 @@
+/* Light skin for HTML5 audio player */
+.light audio {
+    background: #f5f5f5;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.light audio::-webkit-media-controls-panel {
+    background: #f5f5f5;
+}
+
+.light .bfp-player-title {
+    color: #333;
+    background: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 5px 5px 0 0;
+}
+
+.light .bfp-player-wrapper {
+    background: #fafafa;
+    border-radius: 5px;
+    padding: 5px;
+    border: 1px solid #ddd;
+}

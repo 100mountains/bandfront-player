@@ -66,7 +66,7 @@ class Player {
         // Build player HTML with title
         $playerHtml = '<div class="bfp-player-wrapper ' . esc_attr($playerStyle) . '">';
         $playerHtml .= '<audio id="' . esc_attr($playerId) . '" ';
-        $playerHtml .= 'class="bfp-player ' . esc_attr($playerStyle) . '" ';
+        $playerHtml .= 'class="bfp-player" ';
         $playerHtml .= 'data-product="' . esc_attr($productId) . '" ';
         $playerHtml .= 'data-file-index="' . esc_attr($id) . '" ';
         $playerHtml .= 'preload="' . esc_attr($preload) . '" ';
@@ -418,29 +418,21 @@ class Player {
             wp_enqueue_style('wp-mediaelement');
             wp_enqueue_script('wp-mediaelement');
             
+            $selectedSkin = $this->config->getState('_bfp_player_layout');
+            
+            // Validate skin selection
+            if (!in_array($selectedSkin, ['dark', 'light', 'custom'])) {
+                $selectedSkin = 'dark';
+            }
+            
+            // Enqueue selected skin CSS file
+            wp_enqueue_style(
+                'bfp-skin-' . $selectedSkin,
+                plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/skins/' . $selectedSkin . '.css',
+                ['wp-mediaelement'],
+                BFP_VERSION
+            );
         }
-
-        // Load skin CSS for all engines
-        $selectedSkin = $this->config->getState('_bfp_player_layout');
-        
-        // Validate skin selection
-        if (!in_array($selectedSkin, ['dark', 'light', 'custom'])) {
-            $selectedSkin = 'dark';
-        }
-        
-        // Map audio engine values to folder names
-        $engineFolder = $audioEngine;
-        if ($audioEngine === 'mediaelement' || !$audioEngine) {
-            $engineFolder = 'mediaelement';
-        }
-        
-        // Enqueue selected skin CSS file for the specific engine
-        wp_enqueue_style(
-            'bfp-skin-' . $selectedSkin,
-            plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/skins/' . $engineFolder . '/' . $selectedSkin . '.css',
-            [],
-            BFP_VERSION
-        );
         
         // Enqueue main engine script
         wp_enqueue_script(
