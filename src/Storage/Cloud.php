@@ -174,10 +174,10 @@ class Cloud {
      * @return string Download URL
      */
     private function getS3DownloadUrl(string $url): string {
-        $s3Settings = $this->config->getState('_bfp_cloud_s3', []);
+        $cloudStorage = $this->config->getState('_bfp_cloud_storage', []);
         
-        // If S3 is not configured, return original URL
-        if (empty($s3Settings['enabled']) || empty($s3Settings['access_key'])) {
+        // If S3 is not active, return original URL
+        if ($cloudStorage['active_provider'] !== 's3' || empty($cloudStorage['s3']['access_key'])) {
             return $url;
         }
         
@@ -193,10 +193,10 @@ class Cloud {
      * @return string Download URL
      */
     private function getAzureDownloadUrl(string $url): string {
-        $azureSettings = $this->config->getState('_bfp_cloud_azure', []);
+        $cloudStorage = $this->config->getState('_bfp_cloud_storage', []);
         
-        // If Azure is not configured, return original URL
-        if (empty($azureSettings['enabled']) || empty($azureSettings['account_key'])) {
+        // If Azure is not active, return original URL
+        if ($cloudStorage['active_provider'] !== 'azure' || empty($cloudStorage['azure']['account_key'])) {
             return $url;
         }
         
@@ -267,9 +267,9 @@ class Cloud {
      * @return string|false URL or false
      */
     private function uploadToDropbox(string $localPath, string $remotePath): string|false {
-        $dropboxSettings = $this->config->getState('_bfp_cloud_dropbox', []);
+        $cloudStorage = $this->config->getState('_bfp_cloud_storage', []);
         
-        if (empty($dropboxSettings['enabled']) || empty($dropboxSettings['access_token'])) {
+        if ($cloudStorage['active_provider'] !== 'dropbox' || empty($cloudStorage['dropbox']['access_token'])) {
             Debug::log('Cloud: Dropbox not configured'); // DEBUG-REMOVE
             return false;
         }
@@ -287,9 +287,9 @@ class Cloud {
      * @return string|false URL or false
      */
     private function uploadToS3(string $localPath, string $remotePath): string|false {
-        $s3Settings = $this->config->getState('_bfp_cloud_s3', []);
+        $cloudStorage = $this->config->getState('_bfp_cloud_storage', []);
         
-        if (empty($s3Settings['enabled']) || empty($s3Settings['access_key'])) {
+        if ($cloudStorage['active_provider'] !== 's3' || empty($cloudStorage['s3']['access_key'])) {
             Debug::log('Cloud: S3 not configured'); // DEBUG-REMOVE
             return false;
         }
@@ -307,9 +307,9 @@ class Cloud {
      * @return string|false URL or false
      */
     private function uploadToAzure(string $localPath, string $remotePath): string|false {
-        $azureSettings = $this->config->getState('_bfp_cloud_azure', []);
+        $cloudStorage = $this->config->getState('_bfp_cloud_storage', []);
         
-        if (empty($azureSettings['enabled']) || empty($azureSettings['account_key'])) {
+        if ($cloudStorage['active_provider'] !== 'azure' || empty($cloudStorage['azure']['account_key'])) {
             Debug::log('Cloud: Azure not configured'); // DEBUG-REMOVE
             return false;
         }
@@ -325,32 +325,13 @@ class Cloud {
      * @return array List of enabled providers
      */
     public function getEnabledProviders(): array {
-        $providers = [];
+        $cloudStorage = $this->config->getState('_bfp_cloud_storage', []);
+        $activeProvider = $cloudStorage['active_provider'] ?? 'none';
         
-        // Google Drive (legacy addon)
-        $driveSettings = get_option('_bfp_cloud_drive_addon', []);
-        if (!empty($driveSettings['_bfp_drive'])) {
-            $providers[] = 'google-drive';
+        if ($activeProvider === 'none') {
+            return [];
         }
         
-        // Dropbox
-        $dropboxSettings = $this->config->getState('_bfp_cloud_dropbox', []);
-        if (!empty($dropboxSettings['enabled'])) {
-            $providers[] = 'dropbox';
-        }
-        
-        // S3
-        $s3Settings = $this->config->getState('_bfp_cloud_s3', []);
-        if (!empty($s3Settings['enabled'])) {
-            $providers[] = 's3';
-        }
-        
-        // Azure
-        $azureSettings = $this->config->getState('_bfp_cloud_azure', []);
-        if (!empty($azureSettings['enabled'])) {
-            $providers[] = 'azure';
-        }
-        
-        return $providers;
+        return [$activeProvider];
     }
 }

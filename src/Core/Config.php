@@ -62,10 +62,6 @@ class Config {
        '_bfp_analytics_property' => '',
        '_bfp_analytics_api_secret' => '',
        '_bfp_enable_visualizations' => 0,
-       '_bfp_modules_enabled' => [
-           'audio-engine' => true,
-           'cloud-engine' => true,
-       ],
        '_bfp_dev_mode' => 0,
        '_bfp_debug' => [
            'enabled' => false,
@@ -86,26 +82,32 @@ class Config {
            ]
        ],
        'enable_db_monitoring' => false,
-       '_bfp_cloud_active_tab' => 'google-drive',
-       '_bfp_cloud_dropbox' => [
-           'enabled' => false,
-           'access_token' => '',
-           'folder_path' => '/bandfront-demos',
-       ],
-       '_bfp_cloud_s3' => [
-           'enabled' => false,
-           'access_key' => '',
-           'secret_key' => '',
-           'bucket' => '',
-           'region' => 'us-east-1',
-           'path_prefix' => 'bandfront-demos/',
-       ],
-       '_bfp_cloud_azure' => [
-           'enabled' => false,
-           'account_name' => '',
-           'account_key' => '',
-           'container' => '',
-           'path_prefix' => 'bandfront-demos/',
+       '_bfp_plugin_version' => BFP_VERSION,
+       '_bfp_cloud_storage' => [
+           'active_provider' => 'none',  // none, dropbox, s3, azure, google-drive
+           'dropbox' => [
+               'access_token' => '',
+               'folder_path' => '/bandfront-demos',
+           ],
+           's3' => [
+               'access_key' => '',
+               'secret_key' => '',
+               'bucket' => '',
+               'region' => 'us-east-1',
+               'path_prefix' => 'bandfront-demos/',
+           ],
+           'azure' => [
+               'account_name' => '',
+               'account_key' => '',
+               'container' => '',
+               'path_prefix' => 'bandfront-demos/',
+           ],
+           'google-drive' => [
+               'client_id' => '',
+               'client_secret' => '',
+               'refresh_token' => '',
+               'folder_id' => '',
+           ],
        ],
    ];
 
@@ -184,26 +186,32 @@ class Config {
                    'woocommerce' => false,
                ]
            ],
-           '_bfp_cloud_active_tab' => 'google-drive',
-           '_bfp_cloud_dropbox' => [
-               'enabled' => false,
-               'access_token' => '',
-               'folder_path' => '/bandfront-demos',
-           ],
-           '_bfp_cloud_s3' => [
-               'enabled' => false,
-               'access_key' => '',
-               'secret_key' => '',
-               'bucket' => '',
-               'region' => 'us-east-1',
-               'path_prefix' => 'bandfront-demos/',
-           ],
-           '_bfp_cloud_azure' => [
-               'enabled' => false,
-               'account_name' => '',
-               'account_key' => '',
-               'container' => '',
-               'path_prefix' => 'bandfront-demos/',
+           '_bfp_plugin_version' => BFP_VERSION,
+           '_bfp_cloud_storage' => [
+               'active_provider' => 'none',  // none, dropbox, s3, azure, google-drive
+               'dropbox' => [
+                   'access_token' => '',
+                   'folder_path' => '/bandfront-demos',
+               ],
+               's3' => [
+                   'access_key' => '',
+                   'secret_key' => '',
+                   'bucket' => '',
+                   'region' => 'us-east-1',
+                   'path_prefix' => 'bandfront-demos/',
+               ],
+               'azure' => [
+                   'account_name' => '',
+                   'account_key' => '',
+                   'container' => '',
+                   'path_prefix' => 'bandfront-demos/',
+               ],
+               'google-drive' => [
+                   'client_id' => '',
+                   'client_secret' => '',
+                   'refresh_token' => '',
+                   'folder_id' => '',
+               ],
            ],
            'enable_db_monitoring' => false,
        ];
@@ -533,30 +541,6 @@ class Config {
     */
    public function getPlayerControls(): array {
        return $this->playerControls;
-   }
-   
-   /**
-    * Check if a module is enabled
-    */
-   public function isModuleEnabled(string $moduleName): bool {
-       $modulesEnabled = $this->getState('_bfp_modules_enabled');
-       return isset($modulesEnabled[$moduleName]) ? $modulesEnabled[$moduleName] : false;
-   }
-   
-   /**
-    * Enable or disable a module
-    */
-   public function setModuleState(string $moduleName, bool $enabled): void {
-       $modulesEnabled = $this->getState('_bfp_modules_enabled');
-       $modulesEnabled[$moduleName] = $enabled;
-       $this->updateState('_bfp_modules_enabled', $modulesEnabled);
-   }
-   
-   /**
-    * Get all available modules and their states
-    */
-   public function getAllModules(): array {
-       return $this->getState('_bfp_modules_enabled');
    }
    
    /**
