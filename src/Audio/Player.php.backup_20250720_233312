@@ -287,10 +287,6 @@ class Player {
                 $nonce = wp_create_nonce('bfp_ajax_nonce');
                 
                 // Output player with proper data attributes for AJAX tracking
-                if (!$this->compactMode) {
-                    // Show title only if not in compact mode
-                    print '<div class="bfp-track-title">' . $title . '</div>';
-                }
                 print '<div class="bfp-player-container ' . esc_attr($mergeGroupedClass) . ' product-' . esc_attr($file['product']) . '" ';
                 print 'data-product="' . esc_attr($id) . '" ';
                 print 'data-file-index="' . esc_attr($index) . '" ';
@@ -307,18 +303,7 @@ class Player {
                 $settings['player_controls'] = $playerControls;
                 $settings['single_player'] = $settings['_bfp_unified_player'] ?? 0;
                 
-                if ($this->compactMode) {
-                    error_log("[BFP] includeAllPlayers in compact mode for product: " . $id);
-                    // In compact mode, just render the first file without table
-                    $firstFile = reset($preparedFiles);
-                    if (!empty($firstFile['audio_tag'])) {
-                        print '<div class="bfp-player-container bfp-compact">';
-                        print $firstFile['audio_tag'];
-                        print '</div>';
-                    }
-                } else {
-                    print $this->renderer->renderPlayerTable($preparedFiles, $id, $settings);
-                } // phpcs:ignore WordPress.Security.EscapeOutput
+                print $this->renderer->renderPlayerTable($preparedFiles, $id, $settings); // phpcs:ignore WordPress.Security.EscapeOutput
             }
             
             // Check purchase status via Bootstrap
@@ -579,22 +564,9 @@ class Player {
     /**
      * Render compact player
      */
-        public function renderCompact(int $productId): string {
-        error_log("[BFP] renderCompact called for product: " . $productId);
+    public function renderCompact(int $productId): string {
         ob_start();
-        
-        // Temporarily set a compact mode flag
-        $this->compactMode = true;
-        
-        // Get the product object
-        $product = wc_get_product($productId);
-        if ($product) {
-            $this->includeAllPlayers($product);
-        }
-        
-        // Reset compact mode
-        $this->compactMode = false;
-        
+        $this->includeMainPlayer($productId, false);
         return ob_get_clean();
     }
     
