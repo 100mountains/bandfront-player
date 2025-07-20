@@ -164,20 +164,37 @@ class Installer {
         // Check if analytics integration is set to 'ua' and update to 'internal'
         if (isset($global_settings['_bfp_analytics_integration']) && $global_settings['_bfp_analytics_integration'] === 'ua') {
             $global_settings['_bfp_analytics_integration'] = 'internal';
+
+            // Get old property and api_secret values
+            $old_property = $global_settings['_bfp_analytics_property'] ?? '';
+            $old_api_secret = $global_settings['_bfp_analytics_api_secret'] ?? '';
             
-            // Add the endpoints structure if not present
-            if (!isset($global_settings['_bfp_analytics_endpoints'])) {
-                $global_settings['_bfp_analytics_endpoints'] = [
-                    'internal' => [
-                        'track_play' => '/wp-json/bandfront-analytics/v1/track/play',
-                        'track_download' => '/wp-json/bandfront-analytics/v1/track/download',
+            // Set up the new analytics config structure
+            $global_settings['_bfp_analytics_config'] = [
+                'internal' => [
+                    'endpoints' => [
+                        'events' => '/wp-json/bandfront-analytics/v1/events',
+                        'metrics' => '/wp-json/bandfront-analytics/v1/metrics',
                     ],
-                    'google' => [
-                        'ua' => 'http://www.google-analytics.com/collect',
-                        'ga4' => 'https://www.google-analytics.com/mp/collect',
+                    'api_key' => '',
+                ],
+                'google' => [
+                    'ua' => [
+                        'endpoint' => 'http://www.google-analytics.com/collect',
+                        'property_id' => $old_property,  // Migrate old UA property
                     ],
-                ];
-            }
+                    'ga4' => [
+                        'endpoint' => 'https://www.google-analytics.com/mp/collect',
+                        'measurement_id' => '',  // G-XXXXXXXXXX format
+                        'api_secret' => $old_api_secret,  // Migrate old api_secret
+                    ],
+                ],
+            ];
+            
+            // Remove old keys as they're now in the config structure
+            unset($global_settings['_bfp_analytics_property']);
+            unset($global_settings['_bfp_analytics_api_secret']);
+            unset($global_settings['_bfp_analytics_endpoints']);
             
             update_option('bfp_global_settings', $global_settings);
             error_log('Analytics settings migrated from ua to internal');

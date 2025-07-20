@@ -59,16 +59,24 @@ class Config {
        '_bfp_ffmpeg_watermark' => '',
        '_bfp_onload' => false,
        '_bfp_analytics_integration' => 'internal',
-       '_bfp_analytics_property' => '',
-       '_bfp_analytics_api_secret' => '',
-       '_bfp_analytics_endpoints' => [
+       '_bfp_analytics_config' => [
            'internal' => [
-               'track_play' => '/wp-json/bandfront-analytics/v1/track/play',
-               'track_download' => '/wp-json/bandfront-analytics/v1/track/download',
+               'endpoints' => [
+                   'events' => '/wp-json/bandfront-analytics/v1/events',
+                   'metrics' => '/wp-json/bandfront-analytics/v1/metrics',
+               ],
+               'api_key' => '',
            ],
            'google' => [
-               'ua' => 'http://www.google-analytics.com/collect',
-               'ga4' => 'https://www.google-analytics.com/mp/collect',
+               'ua' => [
+                   'endpoint' => 'http://www.google-analytics.com/collect',
+                   'property_id' => '',  // UA-XXXXX-X format
+               ],
+               'ga4' => [
+                   'endpoint' => 'https://www.google-analytics.com/mp/collect',
+                   'measurement_id' => '',  // G-XXXXXXXXXX format
+                   'api_secret' => '',
+               ],
            ],
        ],
        '_bfp_enable_visualizations' => 0,
@@ -169,16 +177,24 @@ class Config {
            '_bfp_onload' => 0,
            '_bfp_disable_302' => 0,
            '_bfp_analytics_integration' => 'internal',
-           '_bfp_analytics_property' => '',
-           '_bfp_analytics_api_secret' => '',
-           '_bfp_analytics_endpoints' => [
+           '_bfp_analytics_config' => [
                'internal' => [
-                   'track_play' => '/wp-json/bandfront-analytics/v1/track/play',
-                   'track_download' => '/wp-json/bandfront-analytics/v1/track/download',
+                   'endpoints' => [
+                       'events' => '/wp-json/bandfront-analytics/v1/events',
+                       'metrics' => '/wp-json/bandfront-analytics/v1/metrics',
+                   ],
+                   'api_key' => '',
                ],
                'google' => [
-                   'ua' => 'http://www.google-analytics.com/collect',
-                   'ga4' => 'https://www.google-analytics.com/mp/collect',
+                   'ua' => [
+                       'endpoint' => 'http://www.google-analytics.com/collect',
+                       'property_id' => '',  // UA-XXXXX-X format
+                   ],
+                   'ga4' => [
+                       'endpoint' => 'https://www.google-analytics.com/mp/collect',
+                       'measurement_id' => '',  // G-XXXXXXXXXX format
+                       'api_secret' => '',
+                   ],
                ],
            ],
            '_bfp_apply_to_all_players' => 0,

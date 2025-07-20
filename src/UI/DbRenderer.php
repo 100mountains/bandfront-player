@@ -490,9 +490,7 @@ class DbRenderer {
                 $grouped['Audio Processing'][] = $item;
             } elseif (in_array($key, [
                 '_bfp_analytics_integration',
-                '_bfp_analytics_property',
-                '_bfp_analytics_api_secret',
-                '_bfp_analytics_endpoints',
+                '_bfp_analytics_config',
                 '_bfp_apply_to_all_players'
             ])) {
                 $grouped['Analytics'][] = $item;

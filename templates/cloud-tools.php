@@ -31,7 +31,14 @@ $cloud_azure = $cloud_storage['azure'] ?? [];
 $cloud_google = $cloud_storage['google-drive'] ?? [];
 
 // Map active provider to tab name for UI
-$cloud_active_tab = $active_provider === 'none' ? 'google-drive' : $active_provider;
+$tab_mapping = [
+    'none' => 'google-drive',
+    'google-drive' => 'google-drive',
+    'dropbox' => 'dropbox',
+    's3' => 'aws-s3',
+    'azure' => 'azure'
+];
+$cloud_active_tab = $tab_mapping[$active_provider] ?? 'google-drive';
 
 // Cloud Storage Settings from legacy options
 $bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
