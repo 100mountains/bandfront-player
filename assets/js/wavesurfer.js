@@ -249,3 +249,54 @@
     }
     
 })(jQuery);
+
+    // Convert placeholders to WaveSurfer players
+    jQuery(document).ready(function($) {
+        $('.bfp-wavesurfer-placeholder').each(function() {
+            var $placeholder = $(this);
+            var audioUrl = $placeholder.data('audio-url');
+            var productId = $placeholder.data('product-id');
+            var fileIndex = $placeholder.data('file-index');
+            var fileName = $placeholder.data('file-name');
+            var volume = $placeholder.data('volume') || 1;
+            
+            // Create player container
+            var playerId = 'ws-player-' + productId + '-' + fileIndex;
+            var playerHtml = `
+                <div class="bfp-ws-player-container ${bfp_global_settings.player_skin || 'dark'}">
+                    <audio id="${playerId}" style="display:none;">
+                        <source src="${audioUrl}" type="audio/mpeg" />
+                    </audio>
+                    <div id="waveform-${playerId}" class="bfp-waveform"></div>
+                    <div class="bfp-ws-controls">
+                        <div class="bfp-ws-controls-inner">
+                            <button class="bfp-ws-play-pause">
+                                <span class="bfp-ws-play-icon">▶</span>
+                                <span class="bfp-ws-pause-icon" style="display:none;">⏸</span>
+                            </button>
+                            <div class="bfp-ws-time">
+                                <span class="bfp-ws-current-time">0:00</span> / 
+                                <span class="bfp-ws-total-time">0:00</span>
+                            </div>
+                            <div class="bfp-ws-title">${fileName}</div>
+                            <div class="bfp-ws-volume-container">
+                                <span class="bfp-ws-volume-icon">🔊</span>
+                                <input type="range" class="bfp-ws-volume-slider" min="0" max="100" value="${volume * 100}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Replace placeholder with player
+            $placeholder.replaceWith(playerHtml);
+            
+            // Initialize WaveSurfer for this player
+            if (typeof initWaveSurferPlayer === 'function') {
+                var container = $('#' + playerId).parent()[0];
+                initWaveSurferPlayer(container, audioUrl, {volume: volume});
+            }
+        });
+    });
+    
+})(jQuery);
