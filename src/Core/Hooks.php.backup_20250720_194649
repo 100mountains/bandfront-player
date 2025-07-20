@@ -208,6 +208,11 @@ class Hooks {
             remove_action('woocommerce_account_downloads_endpoint', 'woocommerce_account_downloads', 10);
             add_action('woocommerce_account_downloads_endpoint', [$woocommerce, 'displayFormatDownloads'], 10);
         }, 20);
+        
+        // Account Menu hooks - just for menu reordering, no endpoints
+        if ($accountMenu = $this->bootstrap->getComponent('account_menu')) {
+            $accountMenu->registerHooks();
+        }
     }
     
     /**
@@ -286,12 +291,8 @@ class Hooks {
      * Maybe add player to shop page
      */
     public function maybeAddShopPlayer(): void {
-        error_log('[BFP] maybeAddShopPlayer called');
         // Don't continue if not in a shop context
-        // Check if we're in a shop context (including when shop is the front page)
-        $isShopPage = is_shop() || (is_front_page() && get_option('woocommerce_shop_page_id') == get_option('page_on_front'));
-        
-        if (!$isShopPage && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
+        if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
             return;
         }
         
@@ -311,11 +312,8 @@ class Hooks {
         ]); // DEBUG-REMOVE
         
         // Only show on shop pages if both player is enabled and on_cover is true
-        if ($player && $playerEnabled) {
-            error_log("[BFP] About to render compact player for product: " . get_the_ID());
-            $output = $player->renderCompact(get_the_ID());
-            error_log("[BFP] renderCompact output length: " . strlen($output));
-            echo $output;
+        if ($player && $playerEnabled && $onCover) {
+            echo $player->renderCompact(get_the_ID());
         }
     }
     

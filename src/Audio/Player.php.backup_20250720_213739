@@ -566,7 +566,7 @@ class Player {
      */
     public function renderCompact(int $productId): string {
         ob_start();
-        $this->includeAllPlayers($productId);
+        $this->includeMainPlayer($productId, false);
         return ob_get_clean();
     }
     

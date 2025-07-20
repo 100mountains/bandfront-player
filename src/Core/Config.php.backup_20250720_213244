@@ -602,7 +602,7 @@ class Config {
     * @return bool
     */
    public function smartPlayContext(int $productId): bool {
-        return true;
+        return (bool)$this->getState("_bfp_player_on_cover", false, $productId);
    }
    
    /**

@@ -203,7 +203,9 @@ class FileManager {
        }
 
        $audioFiles = [];
+       Debug::log('getProductFilesInternal: about to check files', ['count' => count($files), 'first_key' => array_key_first($files)]);
        foreach ($files as $index => $file) {
+           Debug::log('getProductFilesInternal: checking file', ['index' => $index, 'file' => substr($file['file'] ?? '', -50)]);
            if (!empty($file['file']) && false !== ($mediaType = $this->isAudio($file['file']))) {
                $file['media_type'] = $mediaType;
 
