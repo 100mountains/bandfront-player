@@ -117,21 +117,6 @@ $global_audio_engine = $config->getState('_bfp_audio_engine');
 					</td>
 				</tr>
 				<tr>
-					<td>🔊 <?php esc_html_e( 'Volume (0.0 to 1.0)', 'bandfront-player' ); ?></td>
-					<td>
-						<input aria-label="<?php esc_attr_e( 'Player volume', 'bandfront-player' ); ?>" type="number" name="_bfp_player_volume" min="0" max="1" step="0.01" value="<?php echo esc_attr( $volume ); ?>" />
-						<br><em class="bfp-em-text"><?php esc_html_e( 'Default is 1.0 (maximum volume)', 'bandfront-player' ); ?></em>
-					</td>
-				</tr>
-				<tr>
-					<td>🎛️ <?php esc_html_e( 'Audio Engine', 'bandfront-player' ); ?></td>
-					<td>
-						<label><input type="radio" name="_bfp_audio_engine" value="global" <?php checked( $audio_engine, 'global' ); ?>> <?php esc_html_e( 'Use Global Setting', 'bandfront-player' ); ?></label><br>
-						<label><input type="radio" name="_bfp_audio_engine" value="mediaelement" <?php checked( $audio_engine, 'mediaelement' ); ?>> <?php esc_html_e( 'MediaElement.js', 'bandfront-player' ); ?></label><br>
-						<label><input type="radio" name="_bfp_audio_engine" value="wavesurfer" <?php checked( $audio_engine, 'wavesurfer' ); ?>> <?php esc_html_e( 'WaveSurfer.js', 'bandfront-player' ); ?></label>
-					</td>
-				</tr>
-				<tr>
 					<td colspan="2">
 						<table class="widefat bfp-settings-table">
 							<tr><td colspan="2"><h2>🔒 <?php esc_html_e( 'File Truncation', 'bandfront-player' ); ?></h2></td></tr>

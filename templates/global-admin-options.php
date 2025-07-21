@@ -167,10 +167,23 @@ $playerControls = $config->getPlayerControls();
                             <option value="light" <?php selected( $settings['_bfp_player_layout'], 'light' ); ?>>☀️ <?php esc_html_e('Light', 'bandfront-player'); ?></option>
                             <option value="custom" <?php selected( $settings['_bfp_player_layout'], 'custom' ); ?>>🎨 <?php esc_html_e('Custom', 'bandfront-player'); ?></option>
                         </select>
+                                           </td>
+                </tr>
+                <tr>
+                    <th scope="row">🔘 <?php esc_html_e( 'Button appearance', 'bandfront-player' ); ?></th>
+                    <td>
+                        <select name="_bfp_button_theme" id="_bfp_button_theme">
+                            <option value="dark" <?php selected( $settings['_bfp_button_theme'], 'dark' ); ?>>🌙 <?php esc_html_e('Dark', 'bandfront-player'); ?></option>
+                            <option value="light" <?php selected( $settings['_bfp_button_theme'], 'light' ); ?>>☀️ <?php esc_html_e('Light', 'bandfront-player'); ?></option>
+                            <option value="custom" <?php selected( $settings['_bfp_button_theme'], 'custom' ); ?>>🎨 <?php esc_html_e('Custom', 'bandfront-player'); ?></option>
+                        </select>
+                        <p class="description"><?php esc_html_e( 'Choose the appearance theme for player control buttons', 'bandfront-player' ); ?></p>
                         <br><br>
                         <label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_unified_player" type="checkbox" <?php checked( $settings['_bfp_unified_player'] ); ?> />
                         <span class="bfp-single-player-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
+
                     </td>
+                    
                 </tr>
                 <tr>
                     <th scope="row"><label for="_bfp_play_all">▶️ <?php esc_html_e( 'Auto-play next track', 'bandfront-player' ); ?></label></th>

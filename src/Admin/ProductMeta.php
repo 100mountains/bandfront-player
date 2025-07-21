@@ -110,7 +110,6 @@ class ProductMeta {
             '_bfp_unified_player' => isset($data['_bfp_unified_player']) ? 1 : 0,
             '_bfp_play_all' => isset($data['_bfp_play_all']) ? 1 : 0,
             '_bfp_loop' => isset($data['_bfp_loop']) ? 1 : 0,
-            '_bfp_player_volume' => $this->parseVolume($data),
             '_bfp_play_demos' => isset($data['_bfp_play_demos']) ? 1 : 0,
             '_bfp_demo_duration_percent' => $this->parseFilePercent($data),
         ];
@@ -122,24 +121,11 @@ class ProductMeta {
         
         Debug::log('ProductMeta.php: Updated product meta for player options', ['postId' => $postId]); // DEBUG-REMOVE
 
-        // Handle product-specific audio engine override
-        $this->saveAudioEngineOverride($postId, $data);
-
         // Save demo files
         Debug::log('ProductMeta.php: Saving demo files for product', ['postId' => $postId]); // DEBUG-REMOVE
         $this->saveDemoFiles($postId, $data);
         $this->config->clearProductAttrsCache($postId);
         Debug::log('ProductMeta.php: Exiting saveProductOptions()', ['postId' => $postId]); // DEBUG-REMOVE
-    }
-    
-    /**
-     * Parse volume setting
-     */
-    private function parseVolume(array $data): float {
-        if (isset($data['_bfp_player_volume']) && is_numeric($data['_bfp_player_volume'])) {
-            return floatval($data['_bfp_player_volume']);
-        }
-        return 1.0;
     }
     
     /**
@@ -151,25 +137,6 @@ class ProductMeta {
             return min(max($percent, 0), 100);
         }
         return 0;
-    }
-    
-    /**
-     * Save audio engine override
-     */
-    private function saveAudioEngineOverride(int $postId, array $data): void {
-        if (isset($data['_bfp_audio_engine'])) {
-            $productAudioEngine = sanitize_text_field(wp_unslash($data['_bfp_audio_engine']));
-            
-            if ($productAudioEngine === 'global' || empty($productAudioEngine)) {
-                // Delete the meta so it falls back to global
-                Debug::log('ProductMeta.php: Removing product-specific audio engine override', ['postId' => $postId]); // DEBUG-REMOVE
-                delete_post_meta($postId, '_bfp_audio_engine');
-            } elseif (in_array($productAudioEngine, ['mediaelement', 'wavesurfer', 'html5'])) {
-                // Save valid override
-                Debug::log('ProductMeta.php: Saving product-specific audio engine override', ['postId' => $postId, 'audioEngine' => $productAudioEngine]); // DEBUG-REMOVE
-                update_post_meta($postId, '_bfp_audio_engine', $productAudioEngine);
-            }
-        }
     }
     
     /**

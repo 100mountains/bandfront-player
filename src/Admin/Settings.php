@@ -153,6 +153,7 @@ class Settings {
             '_bfp_enable_player' => isset($data['_bfp_enable_player']) ? 1 : 0,
             '_bfp_players_in_cart' => isset($data['_bfp_players_in_cart']) ? true : false,
             '_bfp_player_layout' => $this->parsePlayerLayout($data),
+            '_bfp_button_theme' => $this->parseButtonTheme($data),
             '_bfp_unified_player' => isset($data['_bfp_unified_player']) ? 1 : 0,
             '_bfp_play_demos' => isset($data['_bfp_play_demos']) ? 1 : 0,
             '_bfp_player_controls' => $this->parsePlayerControls($data),
@@ -229,6 +230,20 @@ class Settings {
         }
         
         return $defaultLayout;
+    }
+    
+    /**
+     * Parse button theme
+     */
+    private function parseButtonTheme(array $data): string {
+        $buttonThemes = ['dark', 'light', 'custom']; // Same options as player layout
+        $defaultTheme = $this->config->getState('_bfp_button_theme');
+        
+        if (isset($data['_bfp_button_theme']) && in_array($data['_bfp_button_theme'], $buttonThemes)) {
+            return sanitize_text_field(wp_unslash($data['_bfp_button_theme']));
+        }
+        
+        return $defaultTheme;
     }
     
     /**

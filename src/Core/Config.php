@@ -446,6 +446,7 @@ class Config {
            'enable_player' => ['key' => '_bfp_enable_player', 'type' => 'bool'],
            'players_in_cart' => ['key' => '_bfp_players_in_cart', 'type' => 'bool'],
            'player_style' => ['key' => '_bfp_player_layout', 'type' => 'string'],
+           'button_theme' => ['key' => '_bfp_button_theme', 'type' => 'string'],
            'volume' => ['key' => '_bfp_player_volume', 'type' => 'float'],
            'player_controls' => ['key' => '_bfp_player_controls', 'type' => 'string'],
            'single_player' => ['key' => '_bfp_unified_player', 'type' => 'bool'],
