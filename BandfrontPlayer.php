@@ -3,7 +3,7 @@
  * Plugin Name: Bandfront Player
  * Plugin URI: https://bandfront.app
  * Description: Professional audio player for WooCommerce digital music stores
- * Version: 2.0.0
+ * Version: 0.0.1
  * Author: Bandfront
  * Author URI: https://bandfront.app
  * License: GPL v2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Constants
-define('BFP_VERSION', '2.0.0');
+define('BFP_VERSION', '0.0.1');
 define('BFP_PLUGIN_PATH', __FILE__);
 define('BFP_PLUGIN_BASE_NAME', plugin_basename(__FILE__));
 define('BFP_PLUGIN_URL', plugin_dir_url(__FILE__));

@@ -38,12 +38,12 @@ class Settings {
      */
     public function registerMenu(): void {
         $result = add_menu_page(
-            'Bandfront Player',
-            'Bandfront Player',
+            'B∀ΠDFЯΘΠT',
+            'B∀ΠDFЯΘΠT',
             'manage_options',
             'bandfront-player-settings',
             [$this, 'renderPage'],
-            'dashicons-format-audio',
+            'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><text x="10" y="15" text-anchor="middle" font-size="16" fill="#8e44ad">𒆙</text></svg>'),
             30
         );
         

@@ -40,7 +40,6 @@ function bfp_audio_engine_settings($current_settings = []) {
     ?>
     <tr>
         <td colspan="2">
-            <h3>🎵 <?php esc_html_e('Audio Engine Settings', 'bandfront-player'); ?></h3>
             <p class="description">
                 <?php esc_html_e('Choose between MediaElement.js (traditional player), WaveSurfer.js (modern waveform visualization), or HTML 5 (native browser audio).', 'bandfront-player'); ?>
             </p>

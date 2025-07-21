@@ -39,8 +39,7 @@ $ffmpeg_system_path = defined( 'PHP_OS' ) && strtolower( PHP_OS ) == 'linux' && 
 $playerLayouts = $config->getPlayerLayouts();
 $playerControls = $config->getPlayerControls();
 ?>
-<h1><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Bandfront Player - Global Settings', 'bandfront-player' ); ?></h1>
-<p class="bfp-tagline">a player for the storefront theme</p>
+<h1><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'BΔΠD⇋FRØΠT ⇄ PLAYΞR ⫷Gl⨶bal Settings⫸ ꧂ 🛸', 'bandfront-player' ); ?></h1>
 <form method="post" enctype="multipart/form-data">
 <input type="hidden" name="action" value="bfp_save_settings" />
 <input type="hidden" name="bfp_nonce" value="<?php echo esc_attr( wp_create_nonce( 'bfp_updating_plugin_settings' ) ); ?>" />
