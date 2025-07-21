@@ -325,7 +325,7 @@ class Hooks {
                 'bfp-cover-style',
                 plugins_url('assets/css/' . $cssFile, dirname(dirname(__FILE__))),
                 array(),
-                BANDFRONT_PLAYER_VERSION
+                BFP_VERSION
             );
             // Render play button overlay when onCover is true
             error_log("[BFP] Rendering play button overlay for product: " . get_the_ID());
