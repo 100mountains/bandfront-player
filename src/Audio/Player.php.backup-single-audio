@@ -309,31 +309,19 @@ class Player {
                 
                 if ($this->compactMode) {
                     error_log("[BFP] includeAllPlayers in compact mode for product: " . $id);
-                    // In compact mode, render single player with track data
-                    $firstFile = reset($preparedFiles);
-                    if (!empty($firstFile['audio_tag'])) {
-                        // Prepare track list as JSON
-                        $trackList = [];
-                        foreach ($files as $index => $file) {
-                            if (!empty($file['file'])) {
-                                $audioUrl = $this->audio->generateAudioUrl($id, $index, $file);
-                                
-                                if ($audioUrl) {
-                                    $trackList[] = [
-                                        'url' => $audioUrl,
-                                        'title' => $file['name'] ?? 'Track ' . (intval($index) + 1),
-                                        'index' => $index
-                                    ];
-                                }
-                            }
+                    // In compact mode, render all files but keep them simple
+                    print '<div class="bfp-compact-players" data-product-id="' . esc_attr($id) . '">';
+                    $trackIndex = 0;
+                    foreach ($preparedFiles as $file) {
+                        if (!empty($file['audio_tag'])) {
+                            $isFirst = ($trackIndex === 0) ? ' bfp-first-track' : '';
+                            print '<div class="bfp-player-container bfp-compact' . $isFirst . '" data-track-index="' . $trackIndex . '">';
+                            print $file['audio_tag'];
+                            print '</div>';
+                            $trackIndex++;
                         }
-                        
-                        $tracksJson = esc_attr(json_encode($trackList));
-                        print '<div class="bfp-player-container bfp-compact" data-product-id="' . esc_attr($id) . '" data-tracks=\'' . $tracksJson . '\' data-current-track="0">';
-                        print $firstFile['audio_tag'];
-                        print '</div>';
                     }
-
+                    print '</div>';
                 } else {
                     print $this->renderer->renderPlayerTable($preparedFiles, $id, $settings);
                 } // phpcs:ignore WordPress.Security.EscapeOutput
