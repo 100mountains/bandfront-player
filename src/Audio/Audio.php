@@ -58,13 +58,13 @@ class Audio {
                 // Try to get direct URL to pre-generated file
                 $preGeneratedUrl = $this->getPreGeneratedFileUrl($productId, $fileData['file']);
                 if ($preGeneratedUrl) {
-                    Debug::log('Audio: using pre-generated URL for HTML5', $preGeneratedUrl); // DEBUG-REMOVE
+                    Debug::log('Audio: using pre-generated URL for HTML5', ["url" => $preGeneratedUrl]); // DEBUG-REMOVE
                     return $preGeneratedUrl;
                 }
                 
                 // If no pre-generated file, return original URL for HTML5
                 // Trust WooCommerce URLs - they should be valid
-                Debug::log('Audio: using original URL for HTML5', $fileData['file']); // DEBUG-REMOVE
+                Debug::log('Audio: using original URL for HTML5', ["url" => $fileData["file"]]); // DEBUG-REMOVE
                 return $fileData['file'];
             }
         }
@@ -72,7 +72,7 @@ class Audio {
         // Direct play sources bypass streaming
         if (!empty($fileData['play_src']) || 
             (!empty($fileData['file']) && $this->fileManager->isPlaylist($fileData['file']))) {
-            Debug::log('Audio: direct play source', $fileData['file']); // DEBUG-REMOVE
+            Debug::log('Audio: direct play source', ["file" => $fileData["file"]]); // DEBUG-REMOVE
             return $fileData['file'];
         }
         

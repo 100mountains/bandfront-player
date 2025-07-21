@@ -318,7 +318,7 @@ class Hooks {
         // Handle different rendering based on onCover setting
         if ($player && $playerEnabled && $onCover) {
             // Enqueue the appropriate cover CSS based on player style
-            $playerStyle = $config->getState('_bfp_player_layout', 'dark');
+            $playerStyle = $config->getState('_bfp_button_theme', 'custom');
             $cssFile = 'skins/cover/' . $playerStyle . '.css';
             
             wp_enqueue_style(
