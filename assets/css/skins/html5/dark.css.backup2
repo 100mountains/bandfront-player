@@ -8,7 +8,6 @@
 
 .dark audio::-webkit-media-controls-panel {
     background: #222;
-    border-radius: 5px;
 }
 
 /* Make play button larger to match custom theme */
@@ -17,13 +16,8 @@
     filter: invert(1);
 }
 
-/* Only invert specific controls, not the entire panel */
 .dark audio::-webkit-media-controls-timeline,
-.dark audio::-webkit-media-controls-volume-slider,
-.dark audio::-webkit-media-controls-current-time-display,
-.dark audio::-webkit-media-controls-time-remaining-display,
-.dark audio::-webkit-media-controls-mute-button,
-.dark audio::-webkit-media-controls-volume-control-container {
+.dark audio::-webkit-media-controls-volume-slider {
     filter: invert(1);
 }
 

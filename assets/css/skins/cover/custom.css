@@ -1,13 +1,13 @@
-/* Custom rainbow skin for HTML5 audio player */
+/* Custom darker purple-blue-orange rainbow skin for HTML5 audio player */
 .custom audio {
-    background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #4e89ae, #a77dc2);
+    background: linear-gradient(45deg, #663399, #4a5568, #e67e22, #2c3e50, #8e44ad, #d35400);
     border-radius: 10px;
     width: 100%;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .custom audio::-webkit-media-controls-panel {
-    background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #4e89ae, #a77dc2);
+    background: linear-gradient(45deg, #663399, #4a5568, #e67e22, #2c3e50, #8e44ad, #d35400);
 }
 
 .custom audio::-webkit-media-controls-play-button,
@@ -18,7 +18,7 @@
 
 .custom .bfp-player-title {
     color: #fff;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #8e44ad 0%, #e67e22 100%);
     padding: 10px 15px;
     border-radius: 10px 10px 0 0;
     font-weight: bold;
@@ -26,7 +26,7 @@
 }
 
 .custom .bfp-player-wrapper {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #9b59b6 0%, #e67e22 100%);
     border-radius: 10px;
     padding: 8px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
@@ -73,7 +73,7 @@
 
 
 
-/* Play button on cover functionality */
+/* Play button on cover functionality - Custom darker purple-blue-orange rainbow theme */
 .product {
     position: relative;
 }
@@ -89,42 +89,66 @@
 
 .bfp-play-on-cover {
     position: absolute;
-    top: 50%;
+    top: calc(50% - 17px);
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.7);
+    background: linear-gradient(45deg, #663399, #4a5568, #e67e22, #2c3e50, #8e44ad, #d35400);
     color: white;
-    border: none;
+    border: 2px solid rgba(255, 255, 255, 0.8);
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    font-size: 24px;
     cursor: pointer;
     pointer-events: auto;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    font-size: 0;
     z-index: 10;
+    animation: rainbow-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes rainbow-pulse {
+    0% {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        filter: brightness(1);
+    }
+    100% {
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+        filter: brightness(1.2);
+    }
 }
 
 .bfp-play-on-cover:hover {
-    background: rgba(0, 0, 0, 0.85);
+    background: linear-gradient(45deg, #7d4dcc, #5a6b7d, #f39c42, #34495e, #a569bd, #e67e22);
+    border-color: rgba(255, 255, 255, 1);
     transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
+}
+
+.bfp-play-on-cover.playing {
+    background: linear-gradient(45deg, #8e44ad, #34495e, #d35400);
+    animation: none;
+}
+
+.bfp-play-on-cover.playing:hover {
+    background: linear-gradient(45deg, #a569bd, #4a5568, #e67e22);
 }
 
 .bfp-play-on-cover.playing::before {
     content: '❚❚';
     font-size: 20px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .bfp-play-on-cover:not(.playing)::before {
     content: '▶';
-}
-
-/* Remove default content */
-.bfp-play-on-cover {
-    font-size: 0;
+    font-size: 24px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Hide the hidden player container */
@@ -139,14 +163,14 @@
     display: block;
 }
 
-/* Track navigation buttons */
+/* Track navigation buttons - Custom darker purple-blue-orange rainbow theme */
 .bfp-prev-track,
 .bfp-next-track {
     position: absolute;
-    bottom: 10px;
-    background: rgba(0, 0, 0, 0.7);
+    bottom: 25px;
+    background: linear-gradient(45deg, #663399, #4a5568, #e67e22, #2c3e50, #8e44ad, #d35400);
     color: white;
-    border: none;
+    border: 2px solid rgba(255, 255, 255, 0.8);
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -157,7 +181,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     z-index: 10;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .bfp-prev-track {
@@ -170,8 +196,10 @@
 
 .bfp-prev-track:hover,
 .bfp-next-track:hover {
-    background: rgba(0, 0, 0, 0.9);
+    background: linear-gradient(45deg, #7d4dcc, #5a6b7d, #f39c42, #34495e, #a569bd, #e67e22);
+    border-color: rgba(255, 255, 255, 1);
     transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
 }
 
 /* Compact player track management */

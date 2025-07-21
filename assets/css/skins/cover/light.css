@@ -41,7 +41,7 @@
 
 .bfp-play-on-cover {
     position: absolute;
-    top: 50%;
+    top: calc(50% - 17px);
     left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(255, 255, 255, 0.9);
@@ -106,7 +106,7 @@
 .bfp-prev-track,
 .bfp-next-track {
     position: absolute;
-    bottom: 10px;
+    bottom: 30px;
     background: rgba(255, 255, 255, 0.9);
     color: #333;
     border: 2px solid #ccc;
