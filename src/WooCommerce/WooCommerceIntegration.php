@@ -55,7 +55,6 @@ class WooCommerceIntegration {
         
         $productId = $product->get_id();
         $enablePlayer = $this->config->getState('_bfp_enable_player', false, $productId);
-        $forceMainPlayer = $this->config->getState('_bfp_force_main_player_in_title');
         $insertedPlayer = $this->player->getInsertedPlayer();
         
         // Allow plugins to override player insertion

@@ -30,10 +30,8 @@ class Player {
     private bool $enqueuedResources = false;
     private bool $insertedPlayer = false;
     private bool $insertPlayer = true;
-    private array $renderedProducts = [];
     private bool $insertMainPlayer = true;
     private bool $insertAllPlayers = true;
-    private bool $compactMode = false;
     
     /**
      * Constructor - accepts only needed dependencies
@@ -95,15 +93,12 @@ class Player {
      */
     public function includeMainPlayer($product = '', bool $echo = true): string {
         $output = '';
-        error_log("[BFP] includeMainPlayer called with product: " . (is_numeric($product) ? $product : (is_object($product) ? get_class($product) : gettype($product))) . ", echo: " . ($echo ? "true" : "false"));
 
         if (is_admin()) {
-            error_log("[BFP] includeMainPlayer: Returning empty - is_admin() is true");
             return $output;
         }
 
         if (!$this->getInsertPlayer() || !$this->getInsertMainPlayer()) {
-            error_log("[BFP] includeMainPlayer: Returning empty - getInsertPlayer: " . ($this->getInsertPlayer() ? "true" : "false") . ", getInsertMainPlayer: " . ($this->getInsertMainPlayer() ? "true" : "false"));
             return $output;
         }
         
@@ -115,12 +110,11 @@ class Player {
         }
 
         if (empty($product)) {
-            error_log("[BFP] includeMainPlayer: Returning empty - product is empty");
             return '';
         }
 
         // Use getState for single value retrieval
-        $onCover = $this->config->getState('_bfp_player_on_cover');
+        $onCover = $this->config->getState('_bfp_on_cover');
         if ($onCover && (is_shop() || is_product_category() || is_product_tag())) {
             // Don't render the regular player on shop pages when on_cover is enabled
             return '';
@@ -213,15 +207,6 @@ class Player {
         if (!$this->getInsertPlayer() || !$this->getInsertAllPlayers() || is_admin()) {
             return;
         }
-        
-        // Get product ID
-        $productId = is_object($product) ? $product->get_id() : (int)$product;
-        
-        // Prevent double rendering for the same product
-        if (in_array($productId, $this->renderedProducts)) {
-            return;
-        }
-        $this->renderedProducts[] = $productId;
 
         if (!is_object($product)) {
             $product = wc_get_product();
@@ -279,7 +264,7 @@ class Player {
                 $audioTag = '<audio id="bfp-audio-' . $id . '" class="bfp-player" src="' . esc_url($audioUrl) . '" ';
                 $audioTag .= 'data-product="' . esc_attr($id) . '" ';
                 $audioTag .= 'data-file-index="' . esc_attr($index) . '" ';
-                $audioTag .= '></audio>';
+                $audioTag .= 'controls="controls"></audio>';
                 
                 $title = esc_html(apply_filters('bfp_file_name', $file['name'], $id, $index));
                 $mergeGroupedClass = ($settings['_bfp_group_cart_control']) ? 'group_cart_control_products' : '';
@@ -288,10 +273,6 @@ class Player {
                 $nonce = wp_create_nonce('bfp_ajax_nonce');
                 
                 // Output player with proper data attributes for AJAX tracking
-                if (!$this->compactMode) {
-                    // Show title only if not in compact mode
-                    print '<div class="bfp-track-title">' . $title . '</div>';
-                }
                 print '<div class="bfp-player-container ' . esc_attr($mergeGroupedClass) . ' product-' . esc_attr($file['product']) . '" ';
                 print 'data-product="' . esc_attr($id) . '" ';
                 print 'data-file-index="' . esc_attr($index) . '" ';
@@ -308,36 +289,7 @@ class Player {
                 $settings['player_controls'] = $playerControls;
                 $settings['single_player'] = $settings['_bfp_unified_player'] ?? 0;
                 
-                if ($this->compactMode) {
-                    error_log("[BFP] includeAllPlayers in compact mode for product: " . $id);
-                    // In compact mode, render single player with track data
-                    $firstFile = reset($preparedFiles);
-                    if (!empty($firstFile['audio_tag'])) {
-                        // Prepare track list as JSON
-                        $trackList = [];
-                        foreach ($files as $index => $file) {
-                            if (!empty($file['file'])) {
-                                $audioUrl = $this->audio->generateAudioUrl($id, $index, $file);
-                                
-                                if ($audioUrl) {
-                                    $trackList[] = [
-                                        'url' => $audioUrl,
-                                        'title' => $file['name'] ?? 'Track ' . (intval($index) + 1),
-                                        'index' => $index
-                                    ];
-                                }
-                            }
-                        }
-                        
-                        $tracksJson = esc_attr(json_encode($trackList));
-                        print '<div class="bfp-player-container bfp-compact" data-product-id="' . esc_attr($id) . '" data-tracks=\'' . $tracksJson . '\' data-current-track="0">';
-                        print $firstFile['audio_tag'];
-                        print '</div>';
-                    }
-
-                } else {
-                    print $this->renderer->renderPlayerTable($preparedFiles, $id, $settings);
-                } // phpcs:ignore WordPress.Security.EscapeOutput
+                print $this->renderer->renderPlayerTable($preparedFiles, $id, $settings); // phpcs:ignore WordPress.Security.EscapeOutput
             }
             
             // Check purchase status via Bootstrap
@@ -377,7 +329,7 @@ class Player {
                     [
                         'product_id'      => $productId,
                         'player_style'    => $settings['_bfp_player_layout'],
-                        'player_controls' => ($settings['player_controls'] ?? 'all') != 'all' ? 'track' : '',
+                        'player_controls' => ($settings['player_controls'] != 'all') ? 'track' : '',
                         'media_type'      => $file['media_type'],
                         'duration'        => $duration,
                         'preload'         => $settings['_bfp_preload'],
@@ -504,7 +456,7 @@ class Player {
             '_bfp_allow_concurrent_audio',
             '_bfp_ios_controls',
             '_bfp_fade_out',
-            '_bfp_player_on_cover',
+            '_bfp_on_cover',
             '_bfp_enable_visualizations',
             '_bfp_player_layout'
         ];
@@ -517,7 +469,7 @@ class Player {
             'bfp_allow_concurrent_audio' => $settings['_bfp_allow_concurrent_audio'],
             'ios_controls' => $settings['_bfp_ios_controls'],
             'fade_out' => $settings['_bfp_fade_out'],
-            'on_cover' => $settings['_bfp_player_on_cover'],
+            'on_cover' => $settings['_bfp_on_cover'],
             'visualizations' => $settings['_bfp_enable_visualizations'],
             'player_skin' => $settings['_bfp_player_layout']
         ];
@@ -598,22 +550,9 @@ class Player {
     /**
      * Render compact player
      */
-        public function renderCompact(int $productId): string {
-        error_log("[BFP] renderCompact called for product: " . $productId);
+    public function renderCompact(int $productId): string {
         ob_start();
-        
-        // Temporarily set a compact mode flag
-        $this->compactMode = true;
-        
-        // Get the product object
-        $product = wc_get_product($productId);
-        if ($product) {
-            $this->includeAllPlayers($product);
-        }
-        
-        // Reset compact mode
-        $this->compactMode = false;
-        
+        $this->includeMainPlayer($productId, false);
         return ob_get_clean();
     }
     

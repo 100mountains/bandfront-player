@@ -20,7 +20,7 @@ error_log("[BFP] Installer.php file loaded");
  */
 class Installer {
     
-    private static string $version = '2.3.2';
+    private static string $version = '2.3.4';
     private static string $version_option = 'bfp_db_version';
     
     /**
@@ -58,7 +58,7 @@ class Installer {
                 update_option('bfp_global_settings', $global_settings);
             }
             
-            if (version_compare($installed_version, '2.3.2', '<')) {
+            if (version_compare($installed_version, '2.3.3', '<')) {
                 // Add new product buttons and button theme settings
                 $global_settings = get_option('bfp_global_settings', []);
                 if (!isset($global_settings['_bfp_product_buttons'])) {
@@ -70,10 +70,12 @@ class Installer {
                 update_option('bfp_global_settings', $global_settings);
             }
             
-            self::createTables();
-            self::updateVersion();
-            
-            // Ensure global settings exist with Config defaults
+            if (version_compare($installed_version, '2.3.4', '<')) {
+                // Remove deprecated _bfp_force_main_player_in_title setting
+                $global_settings = get_option('bfp_global_settings', []);
+                unset($global_settings['_bfp_force_main_player_in_title']);
+                update_option('bfp_global_settings', $global_settings);
+            }
             $config = new \Bandfront\Core\Config();
             $global_settings = get_option('bfp_global_settings', []);
             if (empty($global_settings)) {
@@ -226,7 +228,7 @@ class Installer {
             update_option('bfp_global_settings', $global_settings);
             }
             
-            if (version_compare($installed_version, '2.3.2', '<')) {
+            if (version_compare($installed_version, '2.3.3', '<')) {
                 // Add new product buttons and button theme settings
                 $global_settings = get_option('bfp_global_settings', []);
                 if (!isset($global_settings['_bfp_product_buttons'])) {

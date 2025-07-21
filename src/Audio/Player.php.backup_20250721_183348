@@ -33,7 +33,6 @@ class Player {
     private array $renderedProducts = [];
     private bool $insertMainPlayer = true;
     private bool $insertAllPlayers = true;
-    private bool $compactMode = false;
     
     /**
      * Constructor - accepts only needed dependencies

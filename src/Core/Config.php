@@ -49,7 +49,6 @@ class Config {
        '_bfp_player_on_cover' => 1,
        '_bfp_show_purchasers' => 1,
        '_bfp_max_purchasers_display' => 10,
-       '_bfp_force_main_player_in_title' => 1,
        '_bfp_players_in_cart' => false,
        '_bfp_allow_concurrent_audio' => 0,
        '_bfp_require_login' => 0,
@@ -181,7 +180,6 @@ class Config {
        '_bfp_max_purchasers_display' => 10,
            '_bfp_demo_message' => '',
            '_bfp_default_extension' => 0,
-           '_bfp_force_main_player_in_title' => 0,
            '_bfp_ios_controls' => 0,
            '_bfp_onload' => 0,
            '_bfp_disable_302' => 0,
@@ -439,7 +437,6 @@ class Config {
            'ffmpeg_watermark' => ['key' => '_bfp_ffmpeg_watermark', 'type' => 'string'],
            
            // Troubleshooting settings
-           'force_main_player_in_title' => ['key' => '_bfp_force_main_player_in_title', 'type' => 'int'],
            'troubleshoot_onload' => ['key' => '_bfp_onload', 'type' => 'bool'],
            
            // Player settings

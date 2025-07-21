@@ -33,7 +33,6 @@ class Player {
     private array $renderedProducts = [];
     private bool $insertMainPlayer = true;
     private bool $insertAllPlayers = true;
-    private bool $compactMode = false;
     
     /**
      * Constructor - accepts only needed dependencies
@@ -377,7 +376,7 @@ class Player {
                     [
                         'product_id'      => $productId,
                         'player_style'    => $settings['_bfp_player_layout'],
-                        'player_controls' => ($settings['player_controls'] ?? 'all') != 'all' ? 'track' : '',
+                        'player_controls' => ($settings['player_controls'] != 'all') ? 'track' : '',
                         'media_type'      => $file['media_type'],
                         'duration'        => $duration,
                         'preload'         => $settings['_bfp_preload'],

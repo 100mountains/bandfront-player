@@ -33,7 +33,6 @@ class Player {
     private array $renderedProducts = [];
     private bool $insertMainPlayer = true;
     private bool $insertAllPlayers = true;
-    private bool $compactMode = false;
     
     /**
      * Constructor - accepts only needed dependencies
@@ -298,6 +297,12 @@ class Player {
                 print 'data-nonce="' . esc_attr($nonce) . '" ';
                 print ($settings['_bfp_loop'] ? 'data-loop="1" ' : '') . '>';
                 print $audioTag . '</div>';
+                
+                // Add rewind and fast-forward buttons for button mode
+                if ($settings['_bfp_player_on_cover'] ?? false) {
+                    print '<div class="bfp-rewind-button" data-action="rewind">⏪</div>';
+                    print '<div class="bfp-ffwd-button" data-action="ffwd">⏩</div>';
+                }
                 print '<div style="clear:both;"></div>';
                 
             } elseif ($counter > 1) {
@@ -377,7 +382,7 @@ class Player {
                     [
                         'product_id'      => $productId,
                         'player_style'    => $settings['_bfp_player_layout'],
-                        'player_controls' => ($settings['player_controls'] ?? 'all') != 'all' ? 'track' : '',
+                        'player_controls' => ($settings['player_controls'] != 'all') ? 'track' : '',
                         'media_type'      => $file['media_type'],
                         'duration'        => $duration,
                         'preload'         => $settings['_bfp_preload'],

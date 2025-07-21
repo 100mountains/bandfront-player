@@ -178,8 +178,7 @@ $playerControls = $config->getPlayerControls();
                         </select>
                         <p class="description"><?php esc_html_e( 'Choose the appearance theme for player control buttons', 'bandfront-player' ); ?></p>
                         <br><br>
-                        <label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_unified_player" type="checkbox" <?php checked( $settings['_bfp_unified_player'] ); ?> />
-                        <span class="bfp-single-player-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
+                        <label><input aria-label="<?php esc_attr_e( 'Show fast-forward and rewind buttons', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_show_navigation_buttons" <?php checked( $settings['_bfp_show_navigation_buttons'] ?? true ); ?> /> ⏮️⏭️ <?php esc_html_e( 'Show fast-forward and rewind buttons', 'bandfront-player' ); ?></label><br>                        <label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_unified_player" type="checkbox" <?php checked( $settings['_bfp_unified_player'] ); ?> />                        <span class="bfp-single-player-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
 
                     </td>
                     
@@ -299,14 +298,6 @@ $playerControls = $config->getPlayerControls();
             <h3>🔧 <?php esc_html_e('Troubleshooting', 'bandfront-player'); ?></h3>
             <table class="form-table">
                 <tr>
-                    <th scope="row">🧱 <?php esc_html_e( 'Gutenberg blocks hiding your players?', 'bandfront-player' ); ?></th>
-                    <td>
-                        <label>
-                        <input aria-label="<?php esc_attr_e( 'For the WooCommerce Gutenberg Blocks, include the main player in the products titles', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_force_main_player_in_title" <?php checked( $settings['_bfp_force_main_player_in_title'] ); ?>/>
-                        <?php esc_html_e( 'Force players to appear in product titles', 'bandfront-player' ); ?>
-                        </label>
-                    </td>
-                </tr>
                 <tr>
                     <th scope="row">🗑️ <?php esc_html_e( 'Demo files corrupted or outdated?', 'bandfront-player' ); ?></th>
                     <td>
