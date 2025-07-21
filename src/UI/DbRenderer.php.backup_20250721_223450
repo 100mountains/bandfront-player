@@ -395,8 +395,10 @@ class DbRenderer {
             'Plugin Assets' => $plugin_dir . 'assets/',
             'Upload Directory' => $upload_dir['basedir'] . '/',
             'Upload URL' => $upload_dir['baseurl'] . '/',
-            'BFP Files' => $upload_dir['basedir'] . '/bfp/',
-            'BFP Demos' => $upload_dir['basedir'] . '/bfp/demos/',
+            'BFP Files' => $upload_dir['basedir'] . '/bandfront-player-files/',
+            'BFP Demos' => $upload_dir['basedir'] . '/bandfront-player-files/demos/',
+            'BFP Previews' => $upload_dir['basedir'] . '/bandfront-player-files/previews/',
+            'BFP Temp' => $upload_dir['basedir'] . '/bandfront-player-files/temp/',
             'WP Content' => WP_CONTENT_DIR . '/',
             'WP Plugins' => WP_PLUGIN_DIR . '/',
         ];
@@ -786,7 +788,7 @@ class DbRenderer {
      */
     private function getFileTypeStats(): array {
         $upload_dir = wp_upload_dir();
-        $bfp_dir = $upload_dir['basedir'] . '/bfp/';
+        $bfp_dir = $upload_dir['basedir'] . '/bandfront-player-files/';
         
         if (!is_dir($bfp_dir)) {
             return [];

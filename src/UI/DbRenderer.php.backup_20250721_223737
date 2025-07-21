@@ -397,6 +397,8 @@ class DbRenderer {
             'Upload URL' => $upload_dir['baseurl'] . '/',
             'BFP Files' => $upload_dir['basedir'] . '/bfp/',
             'BFP Demos' => $upload_dir['basedir'] . '/bfp/demos/',
+            'BFP Previews' => $upload_dir['basedir'] . '/bfp/previews/',
+            'BFP Temp' => $upload_dir['basedir'] . '/bfp/temp/',
             'WP Content' => WP_CONTENT_DIR . '/',
             'WP Plugins' => WP_PLUGIN_DIR . '/',
         ];

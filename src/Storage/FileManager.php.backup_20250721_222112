@@ -36,7 +36,8 @@ class FileManager {
            [
                'filesDirectoryPath' => $this->filesDirectoryPath ?? null,
                'filesDirectoryUrl' => $this->filesDirectoryUrl ?? null,
-               'baseExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath)
+               'baseExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath),
+               'purchasedExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath . 'purchased/')
            ]
        );
    }
@@ -68,10 +69,15 @@ class FileManager {
            }
        }
 
+       if (!file_exists($this->filesDirectoryPath . 'purchased/')) {
+           Debug::log('Creating purchased dir', []); // DEBUG-REMOVE
+           @mkdir($this->filesDirectoryPath . 'purchased/', 0755);
+       }
        Debug::log('Directories checked/created', [
            'filesDirectoryPath' => $this->filesDirectoryPath ?? null,
            'filesDirectoryUrl' => $this->filesDirectoryUrl ?? null,
-           'baseExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath)
+           'baseExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath),
+           'purchasedExists' => isset($this->filesDirectoryPath) && file_exists($this->filesDirectoryPath . 'purchased/')
        ]); // DEBUG-REMOVE
    }
    
@@ -117,6 +123,19 @@ class FileManager {
    public function getFilesDirectoryUrl(): string {
        Debug::log('Returned filesDirectoryUrl', ['url' => $this->filesDirectoryUrl]); // DEBUG-REMOVE
        return $this->filesDirectoryUrl;
+   }
+   
+   /**
+    * Delete purchased files based on reset interval
+    */
+   public function deletePurchasedFiles(): void {
+       Debug::log('Entering deletePurchasedFiles()', []);
+       // Use getState for single value retrieval
+       if ($this->config->getState('_bfp_reset_purchased_interval', 'daily') == 'daily') {
+           $this->clearDir($this->filesDirectoryPath . 'purchased/');
+           $this->createDirectories();
+       }
+       Debug::log('Purchased files deleted if interval matched', []);
    }
    
    /**
@@ -747,216 +766,216 @@ class FileManager {
            if ($rangeType === 'bytes') {
                list($start, $end) = explode('-', $rangeValue, 2);
                $start = intval($start);
-$end = empty($end) ? ($filesize - 1) : intval($end);
-              $length = $end - $start + 1;
-              
-              header("HTTP/1.1 206 Partial Content");
-              header("Content-Range: bytes $start-$end/$filesize");
-              header("Content-Length: $length");
-              
-              $fp = fopen($filePath, 'rb');
-              fseek($fp, $start);
-              
-              $bufferSize = 8192;
-              $bytesToRead = $length;
-              
-              while (!feof($fp) && $bytesToRead > 0) {
-                  $buffer = fread($fp, min($bufferSize, $bytesToRead));
-                  echo $buffer;
-                  flush();
-                  $bytesToRead -= strlen($buffer);
-              }
-              
-              fclose($fp);
-          }
-      } else {
-          // No range request - send whole file
-          header("Content-Length: $filesize");
-          readfile($filePath);
-      }
-      
-      Debug::log('File streamed', ['filePath' => $filePath, 'options' => $options]); // DEBUG-REMOVE
-      exit;
-  }
-  
-  /**
-   * Create demo file from source
-   * 
-   * @param string $sourceUrl Source file URL
-   * @param string $destPath Destination path
-   * @return bool Success status
-   */
-  public function createDemoFile(string $sourceUrl, string $destPath): bool {
-      Debug::log('Entering createDemoFile()', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]); // DEBUG-REMOVE
-      // Process cloud URLs
-      $sourceUrl = $this->processCloudUrl($sourceUrl);
-      
-      // Check if source is local
-      $localPath = $this->isLocal($sourceUrl);
-      
-      if ($localPath && file_exists($localPath)) {
-          // Copy local file
-          $result = copy($localPath, $destPath);
-          Debug::log('createDemoFile: local copy', ['result' => $result]); // DEBUG-REMOVE
-          return $result;
-      }
-      
-      // Download remote file
-      $response = wp_remote_get($sourceUrl, [
-          'timeout' => 300,
-          'stream' => true,
-          'filename' => $destPath
-      ]);
-      
-      if (is_wp_error($response)) {
-          Debug::log('createDemoFile: download error', ['error' => $response->get_error_message()]); // DEBUG-REMOVE
-          return false;
-      }
-      
-      $result = file_exists($destPath) && filesize($destPath) > 0;        
-      Debug::log('createDemoFile: download result', ['result' => $result]); // DEBUG-REMOVE
-      Debug::log('Demo file created', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]); // DEBUG-REMOVE
-      return $result;
-  }
-  
-  /**
-   * Check if demo file is valid
-   * 
-   * @param string $filePath Path to the demo file
-   * @return bool True if valid, false otherwise
-   */
-  public function isValidDemo(string $filePath): bool {
-      Debug::log('isValidDemo()', ['filePath' => $filePath]); // DEBUG-REMOVE
-      if (!file_exists($filePath) || filesize($filePath) == 0) {
-          Debug::log('isValidDemo: file missing or empty', []); // DEBUG-REMOVE
-          return false;
-      }
-      if (function_exists('finfo_open')) {
-          $finfo = finfo_open(FILEINFO_MIME);
-          $isText = substr(finfo_file($finfo, $filePath), 0, 4) === 'text';
-          Debug::log('isValidDemo: finfo', ['isText' => $isText]); // DEBUG-REMOVE
-          return !$isText;
-      }
-      Debug::log('isValidDemo: fallback true', []); // DEBUG-REMOVE
-      return true;
-  }
-  
-  /**
-   * Check if URL is a cloud storage URL
-   * 
-   * @param string $url URL to check
-   * @return bool
-   */
-  private function isCloudUrl(string $url): bool {
-      Debug::log('isCloudUrl()', ['url' => $url]); // DEBUG-REMOVE
-      $cloudDomains = [
-          'drive.google.com',
-          'dropbox.com',
-          'dl.dropboxusercontent.com',
-          's3.amazonaws.com',
-          'blob.core.windows.net'
-      ];
-      
-      foreach ($cloudDomains as $domain) {
-          if (strpos($url, $domain) !== false) {
-              return true;
-          }
-      }
-      
-      return false;
-  }
-  
-  /**
-   * Check if file has audio MIME type
-   * 
-   * @param string $filePath File path
-   * @return bool
-   */
-  private function hasAudioMimeType(string $filePath): bool {
-      if (!function_exists('finfo_open')) {
-          return false;
-      }
-      
-      $finfo = finfo_open(FILEINFO_MIME_TYPE);
-      $mimeType = finfo_file($finfo, $filePath);
-      finfo_close($finfo);
-      
-      Debug::log('Audio MIME type checked', ['filePath' => $filePath]); // DEBUG-REMOVE
-      return strpos($mimeType, 'audio/') === 0;
-  }
-  
-  /**
-   * Check if file has video MIME type
-   * 
-   * @param string $filePath File path
-   * @return bool
-   */
-  private function hasVideoMimeType(string $filePath): bool {
-      if (!function_exists('finfo_open')) {
-          return false;
-      }
-      
-      $finfo = finfo_open(FILEINFO_MIME_TYPE);
-      $mimeType = finfo_file($finfo, $filePath);
-      finfo_close($finfo);
-      
-      Debug::log('Video MIME type checked', ['filePath' => $filePath]); // DEBUG-REMOVE
-      return strpos($mimeType, 'video/') === 0;
-  }
-  
-  /**
-   * Check if file has image MIME type
-   * 
-   * @param string $filePath File path
-   * @return bool
-   */
-  private function hasImageMimeType(string $filePath): bool {
-      if (!function_exists('finfo_open')) {
-          return false;
-      }
-      
-      $finfo = finfo_open(FILEINFO_MIME_TYPE);
-      $mimeType = finfo_file($finfo, $filePath);
-      finfo_close($finfo);
-      
-      Debug::log('Image MIME type checked', ['filePath' => $filePath]); // DEBUG-REMOVE
-      return strpos($mimeType, 'image/') === 0;
-  }
-  
-  /**
-   * Handle OAuth file upload for Google Drive
-   * 
-   * @param array $fileData $_FILES data
-   * @return bool Success status
-   */
-  public function handleOAuthFileUpload(array $fileData): bool {
-      if ($fileData['error'] !== UPLOAD_ERR_OK) {
-          return false;
-      }
-      
-      $uploadDir = wp_upload_dir();
-      $targetDir = $uploadDir['basedir'] . '/bfp-private';
-      
-      if (!file_exists($targetDir)) {
-          wp_mkdir_p($targetDir);
-          
-          // Protect directory
-          file_put_contents($targetDir . '/.htaccess', 'deny from all');
-      }
-      
-      $targetPath = $targetDir . '/google-oauth.json';
-      
-      if (move_uploaded_file($fileData['tmp_name'], $targetPath)) {
-          // Store in options
-          $driveSettings = get_option('_bfp_cloud_drive_addon', []);
-          $driveSettings['_bfp_drive'] = 1;
-          $driveSettings['_bfp_drive_key'] = $targetPath;
-          update_option('_bfp_cloud_drive_addon', $driveSettings);
-          
-          Debug::log('OAuth file uploaded', ['targetPath' => $targetPath]); // DEBUG-REMOVE
-          return true;
-      }
-      
-      return false;
-  }
+               $end = empty($end) ? ($filesize - 1) : intval($end);
+               $length = $end - $start + 1;
+               
+               header("HTTP/1.1 206 Partial Content");
+               header("Content-Range: bytes $start-$end/$filesize");
+               header("Content-Length: $length");
+               
+               $fp = fopen($filePath, 'rb');
+               fseek($fp, $start);
+               
+               $bufferSize = 8192;
+               $bytesToRead = $length;
+               
+               while (!feof($fp) && $bytesToRead > 0) {
+                   $buffer = fread($fp, min($bufferSize, $bytesToRead));
+                   echo $buffer;
+                   flush();
+                   $bytesToRead -= strlen($buffer);
+               }
+               
+               fclose($fp);
+           }
+       } else {
+           // No range request - send whole file
+           header("Content-Length: $filesize");
+           readfile($filePath);
+       }
+       
+       Debug::log('File streamed', ['filePath' => $filePath, 'options' => $options]); // DEBUG-REMOVE
+       exit;
+   }
+   
+   /**
+    * Create demo file from source
+    * 
+    * @param string $sourceUrl Source file URL
+    * @param string $destPath Destination path
+    * @return bool Success status
+    */
+   public function createDemoFile(string $sourceUrl, string $destPath): bool {
+       Debug::log('Entering createDemoFile()', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]); // DEBUG-REMOVE
+       // Process cloud URLs
+       $sourceUrl = $this->processCloudUrl($sourceUrl);
+       
+       // Check if source is local
+       $localPath = $this->isLocal($sourceUrl);
+       
+       if ($localPath && file_exists($localPath)) {
+           // Copy local file
+           $result = copy($localPath, $destPath);
+           Debug::log('createDemoFile: local copy', ['result' => $result]); // DEBUG-REMOVE
+           return $result;
+       }
+       
+       // Download remote file
+       $response = wp_remote_get($sourceUrl, [
+           'timeout' => 300,
+           'stream' => true,
+           'filename' => $destPath
+       ]);
+       
+       if (is_wp_error($response)) {
+           Debug::log('createDemoFile: download error', ['error' => $response->get_error_message()]); // DEBUG-REMOVE
+           return false;
+       }
+       
+       $result = file_exists($destPath) && filesize($destPath) > 0;        
+       Debug::log('createDemoFile: download result', ['result' => $result]); // DEBUG-REMOVE
+       Debug::log('Demo file created', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]); // DEBUG-REMOVE
+       return $result;
+   }
+   
+   /**
+    * Check if demo file is valid
+    * 
+    * @param string $filePath Path to the demo file
+    * @return bool True if valid, false otherwise
+    */
+   public function isValidDemo(string $filePath): bool {
+       Debug::log('isValidDemo()', ['filePath' => $filePath]); // DEBUG-REMOVE
+       if (!file_exists($filePath) || filesize($filePath) == 0) {
+           Debug::log('isValidDemo: file missing or empty', []); // DEBUG-REMOVE
+           return false;
+       }
+       if (function_exists('finfo_open')) {
+           $finfo = finfo_open(FILEINFO_MIME);
+           $isText = substr(finfo_file($finfo, $filePath), 0, 4) === 'text';
+           Debug::log('isValidDemo: finfo', ['isText' => $isText]); // DEBUG-REMOVE
+           return !$isText;
+       }
+       Debug::log('isValidDemo: fallback true', []); // DEBUG-REMOVE
+       return true;
+   }
+   
+   /**
+    * Check if URL is a cloud storage URL
+    * 
+    * @param string $url URL to check
+    * @return bool
+    */
+   private function isCloudUrl(string $url): bool {
+       Debug::log('isCloudUrl()', ['url' => $url]); // DEBUG-REMOVE
+       $cloudDomains = [
+           'drive.google.com',
+           'dropbox.com',
+           'dl.dropboxusercontent.com',
+           's3.amazonaws.com',
+           'blob.core.windows.net'
+       ];
+       
+       foreach ($cloudDomains as $domain) {
+           if (strpos($url, $domain) !== false) {
+               return true;
+           }
+       }
+       
+       return false;
+   }
+   
+   /**
+    * Check if file has audio MIME type
+    * 
+    * @param string $filePath File path
+    * @return bool
+    */
+   private function hasAudioMimeType(string $filePath): bool {
+       if (!function_exists('finfo_open')) {
+           return false;
+       }
+       
+       $finfo = finfo_open(FILEINFO_MIME_TYPE);
+       $mimeType = finfo_file($finfo, $filePath);
+       finfo_close($finfo);
+       
+       Debug::log('Audio MIME type checked', ['filePath' => $filePath]); // DEBUG-REMOVE
+       return strpos($mimeType, 'audio/') === 0;
+   }
+   
+   /**
+    * Check if file has video MIME type
+    * 
+    * @param string $filePath File path
+    * @return bool
+    */
+   private function hasVideoMimeType(string $filePath): bool {
+       if (!function_exists('finfo_open')) {
+           return false;
+       }
+       
+       $finfo = finfo_open(FILEINFO_MIME_TYPE);
+       $mimeType = finfo_file($finfo, $filePath);
+       finfo_close($finfo);
+       
+       Debug::log('Video MIME type checked', ['filePath' => $filePath]); // DEBUG-REMOVE
+       return strpos($mimeType, 'video/') === 0;
+   }
+   
+   /**
+    * Check if file has image MIME type
+    * 
+    * @param string $filePath File path
+    * @return bool
+    */
+   private function hasImageMimeType(string $filePath): bool {
+       if (!function_exists('finfo_open')) {
+           return false;
+       }
+       
+       $finfo = finfo_open(FILEINFO_MIME_TYPE);
+       $mimeType = finfo_file($finfo, $filePath);
+       finfo_close($finfo);
+       
+       Debug::log('Image MIME type checked', ['filePath' => $filePath]); // DEBUG-REMOVE
+       return strpos($mimeType, 'image/') === 0;
+   }
+   
+   /**
+    * Handle OAuth file upload for Google Drive
+    * 
+    * @param array $fileData $_FILES data
+    * @return bool Success status
+    */
+   public function handleOAuthFileUpload(array $fileData): bool {
+       if ($fileData['error'] !== UPLOAD_ERR_OK) {
+           return false;
+       }
+       
+       $uploadDir = wp_upload_dir();
+       $targetDir = $uploadDir['basedir'] . '/bfp-private';
+       
+       if (!file_exists($targetDir)) {
+           wp_mkdir_p($targetDir);
+           
+           // Protect directory
+           file_put_contents($targetDir . '/.htaccess', 'deny from all');
+       }
+       
+       $targetPath = $targetDir . '/google-oauth.json';
+       
+       if (move_uploaded_file($fileData['tmp_name'], $targetPath)) {
+           // Store in options
+           $driveSettings = get_option('_bfp_cloud_drive_addon', []);
+           $driveSettings['_bfp_drive'] = 1;
+           $driveSettings['_bfp_drive_key'] = $targetPath;
+           update_option('_bfp_cloud_drive_addon', $driveSettings);
+           
+           Debug::log('OAuth file uploaded', ['targetPath' => $targetPath]); // DEBUG-REMOVE
+           return true;
+       }
+       
+       return false;
+   }
 }
