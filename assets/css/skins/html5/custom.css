@@ -3,12 +3,17 @@
     background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #4e89ae, #a77dc2);
     border-radius: 10px;
     width: 100%;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-style: none;
     padding-bottom: 5px;
 }
 
+/*div.bfp-player-wrapper.custom*/
+
 .custom audio::-webkit-media-controls-panel {
     background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #4e89ae, #a77dc2);
+border-style: none;
+box-shadow: none;
+
 }
 
 /* Make play button larger */
