@@ -1,3 +1,4 @@
+
 /**
  * Bandfront Player Engine
  * Handles audio player functionality on the frontend
@@ -407,15 +408,54 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     var $player = $(this);
                     $player.attr("playernumber", bfp_player_counter);
                     
-                    // Ensure native controls are shown
-                    $player[0].controls = true;
-                    $player[0].style.width = '100%';
+                    // FIXED: Check if controls should be shown based on player type
+                    var playerControls = $player.attr("data-controls") || "";
+                    var showControls = true;
+                    
+                    // If it's a "track" control or explicitly set to hide controls
+                    if (playerControls === 'track' || playerControls === 'button' || playerControls === 'none') {
+                        showControls = false;
+                    }
+                    
+                    // Set controls attribute based on requirements
+                    $player[0].controls = showControls;
+                    
+                    // Apply CSS to hide specific control elements if needed
+                    if (showControls) {
+                        $player[0].style.width = '100%';
+                        
+                        // Add CSS class to enable custom styling
+                        $player.addClass('bfp-html5-player');
+                    } else {
+                        // For track/button controls, hide the player and create custom button
+                        $player[0].controls = false;
+                        $player.hide();
+                        
+                        var $button = $('<button class="bfp-play-button" style="background: none; border: none; font-size: 20px; cursor: pointer;">▶</button>');
+                        $player.after($button);
+                        
+                        $button.on('click', function() {
+                            if ($player[0].paused) {
+                                $player[0].play();
+                                $button.html('❚❚');
+                            } else {
+                                $player[0].pause();
+                                $button.html('▶');
+                            }
+                        });
+                        
+                        $player.on('play', function() {
+                            $button.html('❚❚');
+                        }).on('pause ended', function() {
+                            $button.html('▶');
+                        });
+                    }
                     
                     // Store reference to native audio element
                     bfp_players[bfp_player_counter] = $player[0];
                     
                     // Set initial volume
-                    var initialVolume = $player.attr("volume");
+                    var initialVolume = $player.attr("volume") || $player.attr("data-volume");
                     if (initialVolume) {
                         $player[0].volume = parseFloat(initialVolume);
                     }
@@ -470,6 +510,12 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     // Handle ended event
                     $player.on('ended', function() {
                         this.currentTime = 0;
+                        
+                        // Reset button text if it exists
+                        var $button = $player.siblings('.bfp-play-button');
+                        if ($button.length) {
+                            $button.html('▶');
+                        }
                         
                         // Play next if enabled
                         if (playAll * 1) {
@@ -649,7 +695,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                         }
                         
                         // Set initial volume - FIXED compatibility
-                        var initialVolume = $node.attr("volume");
+                        var initialVolume = $node.attr("volume") || $node.attr("data-volume");
                         if (initialVolume) {
                             var vol = parseFloat(initialVolume);
                             if (typeof mediaElement.setVolume === 'function') {
@@ -658,7 +704,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                                 mediaElement.volume = vol;
                             }
                             if (vol == 0) {
-                                if (typeof mediaElement.setMuted === 'function') {
+if (typeof mediaElement.setMuted === 'function') {
                                     mediaElement.setMuted(true);
                                 } else {
                                     mediaElement.muted = true;
@@ -685,6 +731,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                                         if (typeof mediaElement.bkVolume === 'undefined') {
                                             mediaElement.bkVolume = parseFloat(
                                                 $(mediaElement).find("audio,video").attr("volume") || 
+                                                $(mediaElement).find("audio,video").attr("data-volume") ||
                                                 mediaElement.volume || 1
                                             );
                                         }
@@ -812,7 +859,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                 if (useHTML5) {
                     // Simple HTML5 button player
                     $player[0].controls = false;
-                    var $button = $('<button class="bfp-play-button">▶</button>');
+                    var $button = $('<button class="bfp-play-button" style="background: none; border: none; font-size: 20px; cursor: pointer;">▶</button>');
                     $player.after($button);
                     $player.hide();
                     
@@ -828,6 +875,29 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     
                     $player.on('play', function() {
                         $button.html('❚❚');
+                        
+                        // Track play events
+                        var productId = $player.attr("data-product");
+                        if (productId) {
+                            var trackUrl = window.location.protocol + "//" + 
+                                window.location.host + "/" +
+                                window.location.pathname.replace(/^\//g, '').replace(/\/$/g, '') +
+                                "?bfp-action=play&bfp-product=" + productId;
+                            $.get(trackUrl);
+                        }
+                        
+                        // Pause other players if needed
+                        if (pauseOthers) {
+                            for (var i = 0; i < bfp_players.length; i++) {
+                                if (i != parseInt($player.attr("playernumber")) && bfp_players[i]) {
+                                    if (bfp_players[i].pause) {
+                                        bfp_players[i].pause();
+                                    } else if (bfp_players[i].domNode && bfp_players[i].domNode.pause) {
+                                        bfp_players[i].domNode.pause();
+                                    }
+                                }
+                            }
+                        }
                     }).on('pause ended', function() {
                         $button.html('▶');
                     });
@@ -835,226 +905,278 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                     bfp_players[bfp_player_counter] = $player;
                 } else if (useWaveSurfer) {
                     // Simple play button for WaveSurfer
-                    var $button = $('<button class="bfp-play-button">▶</button>');
+                    var $button = $('<button class="bfp-play-button" style="background: none; border: none; font-size: 20px; cursor: pointer;">▶</button>');
                     $player.after($button);
                     $player.hide();
                     
                     $button.on('click', function() {
                         // Find corresponding full player
                         var playerNum = parseInt($player.attr("playernumber"));
-                       var correspondingPlayer = null;
-                       
-                       // Look for the main player with same product ID
-                       var productId = $player.attr("data-product");
-                       for (var i = 0; i < bfp_players.length; i++) {
-                           if (bfp_players[i] && bfp_players[i].container) {
-                               var $container = $(bfp_players[i].container);
-                               if ($container.find('[data-product="' + productId + '"]').length) {
-                                   correspondingPlayer = bfp_players[i];
-                                   break;
-                               }
-                           }
-                       }
-                       
-                       if (correspondingPlayer) {
-                           if (correspondingPlayer.isPlaying && correspondingPlayer.isPlaying()) {
-                               correspondingPlayer.pause();
-                               $button.html('▶');
-                           } else {
-                               correspondingPlayer.play();
-                               $button.html('❚❚');
-                           }
-                       }
-                   });
-                   
-                   bfp_players[bfp_player_counter] = $button;
+                        var correspondingPlayer = null;
+                        
+                        // Look for the main player with same product ID
+                        var productId = $player.attr("data-product");
+                        for (var i = 0; i < bfp_players.length; i++) {
+                            if (bfp_players[i] && bfp_players[i].container) {
+                                var $container = $(bfp_players[i].container);
+                                if ($container.find('[data-product="' + productId + '"]').length) {
+                                    correspondingPlayer = bfp_players[i];
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (correspondingPlayer) {
+                            if (correspondingPlayer.isPlaying && correspondingPlayer.isPlaying()) {
+                                correspondingPlayer.pause();
+                                $button.html('▶');
+                            } else {
+                                correspondingPlayer.play();
+                                $button.html('❚❚');
+                            }
+                        }
+                    });
+                    
+                    bfp_players[bfp_player_counter] = $button;
                 } else {
-                   // MediaElement.js track controls
-                   mejsOptions.features = ["playpause"];
-                   
-                   try {
-                       bfp_players[bfp_player_counter] = new MediaElementPlayer($player[0], mejsOptions);
-                   } catch (error) {
-                       console.error('MediaElement.js track player creation failed:', error);
-                       bfp_players[bfp_player_counter] = $player;
-                   }
-               }
-               
-               bfp_player_counter++;
-               
-               // Position over image
-               _setOverImage($player);
-               $(window).on("resize", function() {
-                   _setOverImage($player);
-               });
-           });
-           
-           // Handle grouped products - try different selectors
-           if (!$(groupedSelector).length) {
-               groupedSelector = ".product-type-grouped [data-product_id]";
-           }
-           if (!$(groupedSelector).length) {
-               groupedSelector = ".woocommerce-grouped-product-list [data-product_id]";
-           }
-           if (!$(groupedSelector).length) {
-               groupedSelector = '.woocommerce-grouped-product-list [id*="product-"]';
-           }
-           
-           // Process grouped products
-           $(groupedSelector).each(function() {
-               try {
-                   var $element = $(this);
-                   var productId = ($element.data("product_id") || 
-                                   $element.attr("name") || 
-                                   $element.attr("id")).replace(/[^\d]/g, "");
-                   var $playerTitle = $(".bfp-player-list.group_cart_control_products .product-" + 
-                                      productId + ":first .bfp-player-title");
-                   var $table = $("<table></table>");
-                   
-                   if ($playerTitle.length && !$playerTitle.closest(".bfp-first-in-product").length) {
-                       $playerTitle.closest("tr").addClass("bfp-first-in-product");
-                       
-                       if ($playerTitle.closest("form").length == 0) {
-                           $playerTitle.closest(".bfp-player-list").prependTo($element.closest("form"));
-                       }
-                       
-                       $table.append($element.closest("tr").prepend("<td>" + $playerTitle.html() + "</td>"));
-                       $playerTitle.html("").append($table);
-                   }
-               } catch (error) {}
-           });
-           
-           // Handle click on player titles in single player mode
-           $(document).on("click", "[data-player-id]", function() {
-               var $element = $(this);
-               var $singlePlayer = $element.closest(".bfp-single-player");
-               
-               if ($singlePlayer.length) {
-                   $(".bfp-player-title").removeClass("bfp-playing");
-                   var playerId = $element.attr("data-player-id");
-                   $element.addClass("bfp-playing");
-                   _hideShowPlayersAndPositioning($singlePlayer.find('.bfp-player-container[data-player-id="' + playerId + '"]'));
-               }
-           });
-       }
-   };
+                    // MediaElement.js track controls
+                    mejsOptions.features = ["playpause"];
+                    
+                    try {
+                        bfp_players[bfp_player_counter] = new MediaElementPlayer($player[0], mejsOptions);
+                    } catch (error) {
+                        console.error('MediaElement.js track player creation failed:', error);
+                        bfp_players[bfp_player_counter] = $player;
+                    }
+                }
+                
+                bfp_player_counter++;
+                
+                // Position over image
+                _setOverImage($player);
+                $(window).on("resize", function() {
+                    _setOverImage($player);
+                });
+            });
+            
+            // Handle grouped products - try different selectors
+            if (!$(groupedSelector).length) {
+                groupedSelector = ".product-type-grouped [data-product_id]";
+            }
+            if (!$(groupedSelector).length) {
+                groupedSelector = ".woocommerce-grouped-product-list [data-product_id]";
+            }
+            if (!$(groupedSelector).length) {
+                groupedSelector = '.woocommerce-grouped-product-list [id*="product-"]';
+            }
+            
+            // Process grouped products
+            $(groupedSelector).each(function() {
+                try {
+                    var $element = $(this);
+                    var productId = ($element.data("product_id") || 
+                                    $element.attr("name") || 
+                                    $element.attr("id")).replace(/[^\d]/g, "");
+                    var $playerTitle = $(".bfp-player-list.group_cart_control_products .product-" + 
+                                       productId + ":first .bfp-player-title");
+                    var $table = $("<table></table>");
+                    
+                    if ($playerTitle.length && !$playerTitle.closest(".bfp-first-in-product").length) {
+                        $playerTitle.closest("tr").addClass("bfp-first-in-product");
+                        
+                        if ($playerTitle.closest("form").length == 0) {
+                            $playerTitle.closest(".bfp-player-list").prependTo($element.closest("form"));
+                        }
+                        
+                        $table.append($element.closest("tr").prepend("<td>" + $playerTitle.html() + "</td>"));
+                        $playerTitle.html("").append($table);
+                    }
+                } catch (error) {}
+            });
+            
+            // Handle click on player titles in single player mode
+            $(document).on("click", "[data-player-id]", function() {
+                var $element = $(this);
+                var $singlePlayer = $element.closest(".bfp-single-player");
+                
+                if ($singlePlayer.length) {
+                    $(".bfp-player-title").removeClass("bfp-playing");
+                    var playerId = $element.attr("data-player-id");
+                    $element.addClass("bfp-playing");
+                    _hideShowPlayersAndPositioning($singlePlayer.find('.bfp-player-container[data-player-id="' + playerId + '"]'));
+                }
+            });
+        }
+    };
 
-   /**
-    * Force re-initialization of players
-    */
-   window.bfp_force_init = function() {
-       delete window.generated_the_bfp;
-       generate_the_bfp(true);
-   };
+    /**
+     * Force re-initialization of players
+     */
+    window.bfp_force_init = function() {
+        delete window.generated_the_bfp;
+        generate_the_bfp(true);
+    };
 
-   // Initialize on document ready
-   jQuery(generate_the_bfp);
-   
-   // Initialize on window load and handle iOS
-   jQuery(window).on("load", function() {
-       generate_the_bfp(true);
-       
-       var $ = jQuery;
-       var userAgent = window.navigator.userAgent;
-       
-       // Handle lazy loading
-       $("[data-lazyloading]").each(function() {
-           var $element = $(this);
-           $element.attr("preload", $element.data("lazyloading"));
-       });
-       
-       // iOS specific handling
-       if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
-           var shouldPlayAll = (typeof bfp_global_settings !== 'undefined') ? 
-               bfp_global_settings.play_all : 1;
-               
-           if (shouldPlayAll) {
-               $(".bfp-player .mejs-play button").one("click", function() {
-                   if (typeof bfp_preprocessed_players === 'undefined') {
-                       bfp_preprocessed_players = true;
-                       var $button = $(this);
-                       
-                       // Pre-process all audio elements
-                       $(".bfp-player audio").each(function() {
-                           this.play();
-                           this.pause();
-                       });
-                       
-                       // Re-trigger the click after preprocessing
-                       setTimeout(function() {
-                           $button.trigger("click");
-                       }, 500);
-                   }
-               });
-           }
-       }
-   }).on("popstate", function() {
-       // Re-initialize if there are unprocessed players
-       if (jQuery("audio[data-product]:not([playernumber])").length) {
-           bfp_force_init();
-       }
-   });
-   
-   // Re-initialize on various AJAX events from other plugins
-   jQuery(document).on(
-       "scroll wpfAjaxSuccess woof_ajax_done yith-wcan-ajax-filtered " +
-       "wpf_ajax_success berocket_ajax_products_loaded " + 
-       "berocket_ajax_products_infinite_loaded lazyload.wcpt", 
-       bfp_force_init
-   );
-   
-   // Play button on cover functionality
-   jQuery(document).ready(function($) {
-       // Use localized settings if available
-       if (typeof bfp_global_settings !== 'undefined') {
-           var audioEngine = bfp_global_settings.audio_engine;
-           var playSim = bfp_global_settings.bfp_allow_concurrent_audio;
-           var onCover = bfp_global_settings.on_cover;
-           
-           // Play button on cover functionality
-           if (onCover == '1') {
-               $(document).on('click', '.bfp-play-on-cover', function(e) {
-                   e.preventDefault();
-                   e.stopPropagation();
-                   
-                   var $button = $(this);
-                   var productId = $button.data('product-id');
-                   var $container = $button.siblings('.bfp-hidden-player-container');
-                   var $audio = $container.find('audio').first();
-                   
-                   if ($audio.length) {
-                       // Pause all other audio elements
-                       $('audio').each(function() {
-                           if (this !== $audio[0]) {
-                               this.pause();
-                           }
-                       });
-                       
-                       // Toggle play/pause
-                       if ($audio[0].paused) {
-                           $audio[0].play();
-                           $button.addClass('playing');
-                       } else {
-                           $audio[0].pause();
-                           $button.removeClass('playing');
-                       }
-                       
-                       // Update button state based on audio events
-                       $audio.on('play', function() {
-                           $button.addClass('playing');
-                       }).on('pause ended', function() {
-                           $button.removeClass('playing');
-                       });
-                   }
-               });
-           }
-       }
-   });
+    // Initialize on document ready
+    jQuery(generate_the_bfp);
+    
+    // Initialize on window load and handle iOS
+    jQuery(window).on("load", function() {
+        generate_the_bfp(true);
+        
+        var $ = jQuery;
+        var userAgent = window.navigator.userAgent;
+        
+        // Handle lazy loading
+        $("[data-lazyloading]").each(function() {
+            var $element = $(this);
+            $element.attr("preload", $element.data("lazyloading"));
+        });
+        
+        // iOS specific handling
+        if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
+            var shouldPlayAll = (typeof bfp_global_settings !== 'undefined') ? 
+                bfp_global_settings.play_all : 1;
+                
+            if (shouldPlayAll) {
+                $(".bfp-player .mejs-play button").one("click", function() {
+                    if (typeof bfp_preprocessed_players === 'undefined') {
+                        bfp_preprocessed_players = true;
+                        var $button = $(this);
+                        
+                        // Pre-process all audio elements
+                        $(".bfp-player audio").each(function() {
+                            this.play();
+                            this.pause();
+                        });
+                        
+                        // Re-trigger the click after preprocessing
+                        setTimeout(function() {
+                            $button.trigger("click");
+                        }, 500);
+                    }
+                });
+            }
+        }
+    }).on("popstate", function() {
+        // Re-initialize if there are unprocessed players
+        if (jQuery("audio[data-product]:not([playernumber])").length) {
+            bfp_force_init();
+        }
+    });
+    
+    // Re-initialize on various AJAX events from other plugins
+    jQuery(document).on(
+        "scroll wpfAjaxSuccess woof_ajax_done yith-wcan-ajax-filtered " +
+        "wpf_ajax_success berocket_ajax_products_loaded " + 
+        "berocket_ajax_products_infinite_loaded lazyload.wcpt", 
+        bfp_force_init
+    );
+    
+    // Play button on cover functionality
+    jQuery(document).ready(function($) {
+        // Use localized settings if available
+        if (typeof bfp_global_settings !== 'undefined') {
+            var audioEngine = bfp_global_settings.audio_engine;
+            var playSim = bfp_global_settings.bfp_allow_concurrent_audio;
+            var onCover = bfp_global_settings.on_cover;
+            
+            // Play button on cover functionality
+            if (onCover == '1') {
+                $(document).on('click', '.bfp-play-on-cover', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    var $button = $(this);
+                    var productId = $button.data('product-id');
+                    var $container = $button.siblings('.bfp-hidden-player-container');
+                    var $audio = $container.find('audio').first();
+                    
+                    if ($audio.length) {
+                        // Pause all other audio elements
+                        $('audio').each(function() {
+                            if (this !== $audio[0]) {
+                                this.pause();
+                            }
+                        });
+                        
+                        // Toggle play/pause
+                        if ($audio[0].paused) {
+                            $audio[0].play();
+                            $button.addClass('playing');
+                        } else {
+                            $audio[0].pause();
+                            $button.removeClass('playing');
+                        }
+                        
+                        // Update button state based on audio events
+                        $audio.on('play', function() {
+                            $button.addClass('playing');
+                        }).on('pause ended', function() {
+                            $button.removeClass('playing');
+                        });
+                    }
+                });
+            }
+        }
+    });
 })();
+
 // Prevent right-click context menu on audio elements
 jQuery(document).ready(function($) {
     $(document).on('contextmenu', 'audio', function(e) {
         e.preventDefault();
         return false;
     });
+    
+    // Add CSS to hide specific HTML5 audio control elements
+    var hideControlsCSS = `
+        /* Hide three dots menu and download button */
+        audio::-webkit-media-controls-overflow-button {
+            display: none !important;
+        }
+        
+        audio::-webkit-media-controls-download-button {
+            display: none !important;
+        }
+        
+        audio::-webkit-media-controls-overflow-enclosure {
+            display: none !important;
+        }
+        
+        /* Style the HTML5 players with controls */
+        audio.bfp-html5-player {
+            width: 100%;
+            height: 40px;
+            outline: none;
+        }
+        
+        /* Custom button styling */
+        .bfp-play-button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .bfp-play-button:hover {
+            background: #555;
+        }
+        
+        .bfp-play-button:active {
+            background: #222;
+        }
+    `;
+    
+    // Inject CSS
+    if (!document.getElementById('bfp-control-styles')) {
+        var style = document.createElement('style');
+        style.id = 'bfp-control-styles';
+        style.textContent = hideControlsCSS;
+        document.head.appendChild(style);
+    }
 });

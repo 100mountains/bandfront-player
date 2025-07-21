@@ -70,3 +70,64 @@
     filter: brightness(1.1);
     transition: filter 0.3s ease;
 }
+
+
+/* Play button on cover functionality */
+.product {
+    position: relative;
+}
+
+.bfp-cover-player-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999999;
+}
+
+.bfp-play-on-cover {
+    position: relative;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bfp-play-on-cover:hover {
+    background: rgba(0, 0, 0, 0.85);
+    transform: scale(1.1);
+}
+
+.bfp-play-on-cover.playing::before {
+    content: '❚❚';
+    font-size: 20px;
+}
+
+.bfp-play-on-cover:not(.playing)::before {
+    content: '▶';
+}
+
+/* Remove default content */
+.bfp-play-on-cover {
+    font-size: 0;
+}
+
+/* Hide the hidden player container */
+.bfp-hidden-player-container {
+    display: none !important;
+}
+
+/* Ensure WooCommerce product images are relatively positioned */
+.woocommerce ul.products li.product .woocommerce-LoopProduct-link,
+.woocommerce ul.products li.product > a:first-child {
+    position: relative;
+    display: block;
+}

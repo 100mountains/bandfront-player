@@ -278,7 +278,7 @@ class Player {
                 $audioTag = '<audio id="bfp-audio-' . $id . '" class="bfp-player" src="' . esc_url($audioUrl) . '" ';
                 $audioTag .= 'data-product="' . esc_attr($id) . '" ';
                 $audioTag .= 'data-file-index="' . esc_attr($index) . '" ';
-                $audioTag .= 'controls="controls"></audio>';
+                $audioTag .= '></audio>';
                 
                 $title = esc_html(apply_filters('bfp_file_name', $file['name'], $id, $index));
                 $mergeGroupedClass = ($settings['_bfp_group_cart_control']) ? 'group_cart_control_products' : '';

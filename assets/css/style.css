@@ -220,3 +220,30 @@
 .bfp-player.custom .mejs-playpause-button button:hover {
     box-shadow: inset 0px 2px 8px 0px rgba(99,214,252,1);
 }
+/* Hide download button and playback rate controls in HTML5 audio */
+audio::-webkit-media-controls-download-button {
+    display: none !important;
+}
+
+audio::-webkit-media-controls-playback-rate-button {
+    display: none !important;
+}
+
+audio::-webkit-media-controls-enclosure {
+    overflow: hidden;
+}
+
+/* Firefox */
+audio::-moz-media-controls-download-button {
+    display: none !important;
+}
+
+/* Prevent right-click context menu on audio elements */
+audio {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

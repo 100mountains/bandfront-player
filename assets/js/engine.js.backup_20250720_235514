@@ -1051,10 +1051,3 @@ function initWaveSurferPlayer(container, audioUrl, options) {
        }
    });
 })();
-// Prevent right-click context menu on audio elements
-jQuery(document).ready(function($) {
-    $(document).on('contextmenu', 'audio', function(e) {
-        e.preventDefault();
-        return false;
-    });
-});

@@ -27,3 +27,73 @@
     border-radius: 5px;
     padding: 5px;
 }
+
+
+/* Play button on cover functionality - Dark theme */
+.product {
+    position: relative;
+}
+
+.bfp-cover-player-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999999;
+}
+
+.bfp-play-on-cover {
+    position: relative;
+    background: rgba(40, 40, 40, 0.9);
+    color: #fff;
+    border: 2px solid #666;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+}
+
+.bfp-play-on-cover:hover {
+    background: rgba(60, 60, 60, 0.95);
+    border-color: #999;
+    transform: scale(1.1);
+}
+
+.bfp-play-on-cover.playing {
+    background: rgba(180, 0, 0, 0.9);
+    border-color: #ff4444;
+}
+
+.bfp-play-on-cover.playing:hover {
+    background: rgba(200, 0, 0, 0.95);
+    border-color: #ff6666;
+}
+
+.bfp-play-on-cover.playing::before {
+    content: '❚❚';
+    font-size: 20px;
+    color: white;
+}
+
+.bfp-play-on-cover:not(.playing)::before {
+    content: '▶';
+    font-size: 24px;
+    color: white;
+}
+
+/* Hide the hidden player container */
+.bfp-hidden-player-container {
+    display: none !important;
+}
+
+/* Ensure WooCommerce product images are relatively positioned */
+.woocommerce ul.products li.product .woocommerce-LoopProduct-link,
+.woocommerce ul.products li.product > a:first-child {
+    position: relative;
+    display: block;
+}

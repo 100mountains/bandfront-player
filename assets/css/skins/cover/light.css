@@ -22,3 +22,75 @@
     padding: 5px;
     border: 1px solid #ddd;
 }
+
+
+/* Play button on cover functionality - Light theme */
+.product {
+    position: relative;
+}
+
+.bfp-cover-player-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999999;
+}
+
+.bfp-play-on-cover {
+    position: relative;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 2px solid #ccc;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 0;
+}
+
+.bfp-play-on-cover:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: #999;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.bfp-play-on-cover.playing {
+    background: rgba(220, 50, 50, 0.9);
+    color: white;
+    border-color: #cc0000;
+}
+
+.bfp-play-on-cover.playing:hover {
+    background: rgba(240, 50, 50, 0.95);
+    border-color: #ff0000;
+}
+
+.bfp-play-on-cover.playing::before {
+    content: '❚❚';
+    font-size: 20px;
+    color: white;
+}
+
+.bfp-play-on-cover:not(.playing)::before {
+    content: '▶';
+    font-size: 24px;
+}
+
+/* Hide the hidden player container */
+.bfp-hidden-player-container {
+    display: none !important;
+}
+
+/* Ensure WooCommerce product images are relatively positioned */
+.woocommerce ul.products li.product .woocommerce-LoopProduct-link,
+.woocommerce ul.products li.product > a:first-child {
+    position: relative;
+    display: block;
+}

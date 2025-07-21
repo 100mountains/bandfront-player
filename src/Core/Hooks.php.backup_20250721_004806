@@ -64,7 +64,7 @@ class Hooks {
         
         // Product page hooks
         add_action('woocommerce_single_product_summary', [$this, 'maybeAddPlayer'], 25);
-        add_action('woocommerce_before_shop_loop_item_title', [$this, 'maybeAddShopPlayer'], 15);
+        add_action('woocommerce_after_shop_loop_item', [$this, 'maybeAddShopPlayer'], 15);
         
         // Analytics initialization
         if ($analytics = $this->bootstrap->getComponent('analytics')) {
@@ -315,44 +315,9 @@ class Hooks {
             'onCover' => $onCover
         ]); // DEBUG-REMOVE
         
-        // Handle different rendering based on onCover setting
-        if ($player && $playerEnabled && $onCover) {
-            // Enqueue the appropriate cover CSS based on player style
-            $playerStyle = $config->getState('_bfp_player_style', 'dark');
-            $cssFile = 'skins/cover/' . $playerStyle . '.css';
-            
-            wp_enqueue_style(
-                'bfp-cover-style',
-                plugins_url('assets/css/' . $cssFile, dirname(dirname(__FILE__))),
-                array(),
-                BANDFRONT_PLAYER_VERSION
-            );
-            // Render play button overlay when onCover is true
-            error_log("[BFP] Rendering play button overlay for product: " . get_the_ID());
-            
-            // Get product and check if it has files
-            $product = wc_get_product(get_the_ID());
-            if (!$product) {
-                return;
-            }
-            
-            $fileManager = $this->bootstrap->getComponent('file_manager');
-            $files = $fileManager->getProductFilesInternal([
-                'product' => $product,
-                'first'   => true,
-            ]);
-            
-            if (!empty($files)) {
-                // Render hidden player and play button overlay
-                $hiddenPlayer = $player->renderCompact(get_the_ID());
-                echo '<div class="bfp-cover-player-wrapper" data-product-id="' . esc_attr(get_the_ID()) . '">';
-                echo '<button class="bfp-play-on-cover" data-product-id="' . esc_attr(get_the_ID()) . '">▶</button>';
-                echo '<div class="bfp-hidden-player-container" style="display: none;">' . $hiddenPlayer . '</div>';
-                echo '</div>';
-            }
-        } elseif ($player && $playerEnabled && !$onCover) {
-            // Render regular compact player when onCover is false
-            error_log("[BFP] Rendering regular compact player for product: " . get_the_ID());
+        // Only show on shop pages if both player is enabled and on_cover is true
+        if ($player && $playerEnabled) {
+            error_log("[BFP] About to render compact player for product: " . get_the_ID());
             $output = $player->renderCompact(get_the_ID());
             error_log("[BFP] renderCompact output length: " . strlen($output));
             echo $output;
