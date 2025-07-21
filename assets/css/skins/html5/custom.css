@@ -3,57 +3,108 @@
     background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #4e89ae, #a77dc2);
     border-radius: 12px;
     width: 100%;
-    height: 60px; /* Increased height for better centering */
+    height: 54px; /* Standard height for better control alignment */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-    outline: none; /* Remove the white ring */
-    border: none;
+    outline: none !important;
+    border: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
 }
 
-/* Remove focus outline */
-.custom audio:focus {
-    outline: none;
+/* Aggressively remove all focus states and outlines */
+.custom audio:focus,
+.custom audio:focus-visible,
+.custom audio:focus-within,
+.custom audio:active {
+    outline: none !important;
+    outline-width: 0 !important;
+    outline-style: none !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+    border: none !important;
 }
 
-/* Style the webkit media controls */
+/* Remove any webkit-specific focus rings */
+.custom audio::-webkit-media-controls-enclosure {
+    outline: none !important;
+    border: none !important;
+}
+
+.custom audio::-webkit-media-controls {
+    outline: none !important;
+    border: none !important;
+}
+
+/* Style the webkit media controls panel */
 .custom audio::-webkit-media-controls-panel {
     background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #4e89ae, #a77dc2);
-    height: 60px;
+    height: 54px;
+    outline: none !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-/* Make play button larger and centered */
+/* Make play button larger and perfectly centered */
 .custom audio::-webkit-media-controls-play-button {
-    transform: scale(1.8); /* Make play button much bigger */
+    transform: scale(2) !important; /* Even bigger */
     filter: brightness(1.2) contrast(1.2) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    margin: 0 !important;
+    position: relative !important;
+    top: 0 !important; /* Reset any offset */
 }
 
-/* Center all controls vertically */
-.custom audio::-webkit-media-controls-timeline-container,
-.custom audio::-webkit-media-controls-time-remaining-display,
-.custom audio::-webkit-media-controls-current-time-display {
-    display: flex;
-    align-items: center;
-}
-
-/* Hide the overflow menu (three dots) */
-.custom audio::-webkit-media-controls-overflow-menu-button {
+/* Hide the overflow menu (three dots) completely */
+.custom audio::-webkit-media-controls-overflow-menu-button,
+.custom audio::-webkit-media-controls-overflow-button,
+.custom audio::-webkit-media-controls-mute-button,
+.custom audio::-webkit-media-controls-toggle-closed-captions-button,
+.custom audio::-internal-media-controls-overflow-button {
     display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
-/* Also hide for other browsers */
-.custom audio::-webkit-media-controls-toggle-closed-captions-button {
-    display: none !important;
+/* Ensure timeline is centered */
+.custom audio::-webkit-media-controls-timeline-container {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Style timeline */
 .custom audio::-webkit-media-controls-timeline {
     filter: brightness(1.2) contrast(1.2);
-    height: 6px;
+    height: 6px !important;
     border-radius: 3px;
+    margin: 0 !important;
 }
 
-/* Style volume slider */
+/* Center time displays */
+.custom audio::-webkit-media-controls-current-time-display,
+.custom audio::-webkit-media-controls-time-remaining-display {
+    line-height: 54px !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 5px !important;
+}
+
+/* Volume slider centering */
+.custom audio::-webkit-media-controls-volume-slider-container {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+}
+
 .custom audio::-webkit-media-controls-volume-slider {
     filter: brightness(1.2) contrast(1.2);
+    margin: 0 !important;
 }
 
 /* Player title styling */
@@ -75,6 +126,12 @@
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
+}
+
+/* Remove any wrapper focus states */
+.custom .bfp-player-wrapper:focus-within {
+    outline: none !important;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Shimmer effect */
@@ -116,21 +173,22 @@
     transition: filter 0.3s ease;
 }
 
-/* Firefox specific styles */
-.custom audio::-moz-focus-inner {
-    border: 0;
+/* Global override for any focus outline in custom skin */
+.custom * {
+    outline: none !important;
 }
 
-/* Additional cross-browser fixes */
-.custom audio {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
+.custom *:focus,
+.custom *:focus-visible,
+.custom *:focus-within {
+    outline: none !important;
+    outline-width: 0 !important;
 }
 
-/* If you need to override JavaScript styles, use !important */
-.custom audio::-webkit-media-controls-panel {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+/* Global audio player focus fix */
+audio:focus,
+audio:focus-visible,
+audio:focus-within {
+    outline: none !important;
+    outline-offset: 0 !important;
 }

@@ -1019,7 +1019,7 @@ function initWaveSurferPlayer(container, audioUrl, options) {
                    
                    var $button = $(this);
                    var productId = $button.data('product-id');
-                   var $container = $button.siblings('.bfp-hidden-player-container');
+                   var $container = $button.find('.bfp-hidden-player-container');
                    var $audio = $container.find('audio').first();
                    
                    if ($audio.length) {
@@ -1060,34 +1060,59 @@ jQuery(document).ready(function($) {
 });
 
 
+
     // Track navigation functionality for cover buttons
     jQuery(document).ready(function($) {
+        // Helper function to switch tracks
+        function switchTrack($container, direction) {
+            var $playerContainer = $container.find('.bfp-player-container.bfp-compact');
+            var $audio = $playerContainer.find('audio').first();
+            
+            if (!$audio.length || !$playerContainer.attr('data-tracks')) {
+                return;
+            }
+            
+            var tracks = JSON.parse($playerContainer.attr('data-tracks'));
+            var currentTrack = parseInt($playerContainer.attr('data-current-track')) || 0;
+            var newTrack = currentTrack;
+            
+            if (direction === 'next') {
+                newTrack = (currentTrack + 1) % tracks.length;
+            } else if (direction === 'prev') {
+                newTrack = (currentTrack - 1 + tracks.length) % tracks.length;
+            }
+            
+            if (newTrack !== currentTrack && tracks[newTrack]) {
+                // Pause current playback
+                var wasPlaying = !$audio[0].paused;
+                $audio[0].pause();
+                
+                // Update source
+                $audio.attr('src', tracks[newTrack].url);
+                $audio[0].load();
+                
+                // Update current track index
+                $playerContainer.attr('data-current-track', newTrack);
+                
+                // Resume playback if it was playing
+                if (wasPlaying) {
+                    $audio[0].play();
+                }
+                
+                // Update any track display (future enhancement)
+                console.log('Switched to track: ' + tracks[newTrack].title);
+            }
+        }
+        
         // Next track button
         $(document).on('click', '.bfp-next-track', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
             var $button = $(this);
-            var productId = $button.data('product-id');
+            var $container = $button.closest('.bfp-cover-player-wrapper').find('.bfp-hidden-player-container');
             
-            // Find the current player number for this product
-            var $audio = $button.closest('.bfp-cover-player-wrapper').find('.bfp-hidden-player-container audio').first();
-            if ($audio.length) {
-                var currentPlayerNumber = parseInt($audio.attr('playernumber'));
-                if (!isNaN(currentPlayerNumber)) {
-                    // Use the existing _playNext function
-                    if (typeof _playNext === 'function') {
-                        _playNext(currentPlayerNumber, false);
-                    } else {
-                        // Fallback: try to find and trigger the next player
-                        var nextPlayerNumber = currentPlayerNumber + 1;
-                        var $nextAudio = $('[playernumber="' + nextPlayerNumber + '"]');
-                        if ($nextAudio.length) {
-                            $nextAudio[0].play();
-                        }
-                    }
-                }
-            }
+            switchTrack($container, 'next');
             
             // Visual feedback
             $button.css('transform', 'scale(0.9)');
@@ -1102,31 +1127,50 @@ jQuery(document).ready(function($) {
             e.stopPropagation();
             
             var $button = $(this);
-            var productId = $button.data('product-id');
+            var $container = $button.closest('.bfp-cover-player-wrapper').find('.bfp-hidden-player-container');
             
-            // Find the current player number for this product
-            var $audio = $button.closest('.bfp-cover-player-wrapper').find('.bfp-hidden-player-container audio').first();
-            if ($audio.length) {
-                var currentPlayerNumber = parseInt($audio.attr('playernumber'));
-                if (!isNaN(currentPlayerNumber)) {
-                    // Use the existing _playPrev function
-                    if (typeof _playPrev === 'function') {
-                        _playPrev(currentPlayerNumber, false);
-                    } else {
-                        // Fallback: try to find and trigger the previous player
-                        var prevPlayerNumber = currentPlayerNumber - 1;
-                        var $prevAudio = $('[playernumber="' + prevPlayerNumber + '"]');
-                        if ($prevAudio.length && prevPlayerNumber >= 0) {
-                            $prevAudio[0].play();
-                        }
-                    }
-                }
-            }
+            switchTrack($container, 'prev');
             
             // Visual feedback
             $button.css('transform', 'scale(0.9)');
             setTimeout(function() {
                 $button.css('transform', '');
             }, 150);
+        });
+        
+        // Update play button to work with current track
+        $(document).on('click', '.bfp-play-on-cover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var $button = $(this);
+            var productId = $button.data('product-id');
+            var $container = $button.find('.bfp-hidden-player-container');
+            var $audio = $container.find('audio').first();
+            
+            if ($audio.length) {
+                // Pause all other audio elements
+                $('audio').not($audio[0]).each(function() {
+                    this.pause();
+                    // Update other play buttons
+                    $('.bfp-play-on-cover').not($button).removeClass('playing');
+                });
+                
+                // Toggle play/pause
+                if ($audio[0].paused) {
+                    $audio[0].play();
+                    $button.addClass('playing');
+                } else {
+                    $audio[0].pause();
+                    $button.removeClass('playing');
+                }
+                
+                // Update button state based on audio events
+                $audio.off('play pause ended').on('play', function() {
+                    $button.addClass('playing');
+                }).on('pause ended', function() {
+                    $button.removeClass('playing');
+                });
+            }
         });
     });
