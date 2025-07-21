@@ -346,7 +346,9 @@ class Hooks {
                 // Render hidden player and play button overlay
                 $hiddenPlayer = $player->renderCompact(get_the_ID());
                 echo '<div class="bfp-cover-player-wrapper" data-product-id="' . esc_attr(get_the_ID()) . '">';
-                echo '<button class="bfp-play-on-cover" data-product-id="' . esc_attr(get_the_ID()) . '">▶</button>';
+                echo '<button class="bfp-play-on-cover" data-product-id="' . esc_attr(get_the_ID()) . '" title="Play/Pause">▶</button>';
+                echo '<button class="bfp-prev-track" data-product-id="' . esc_attr(get_the_ID()) . '" title="Previous Track">⏮</button>';
+                echo '<button class="bfp-next-track" data-product-id="' . esc_attr(get_the_ID()) . '" title="Next Track">⏭</button>';
                 echo '<div class="bfp-hidden-player-container" style="display: none;">' . $hiddenPlayer . '</div>';
                 echo '</div>';
             }

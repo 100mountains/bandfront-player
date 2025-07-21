@@ -1058,3 +1058,75 @@ jQuery(document).ready(function($) {
         return false;
     });
 });
+
+
+    // Track navigation functionality for cover buttons
+    jQuery(document).ready(function($) {
+        // Next track button
+        $(document).on('click', '.bfp-next-track', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var $button = $(this);
+            var productId = $button.data('product-id');
+            
+            // Find the current player number for this product
+            var $audio = $button.closest('.bfp-cover-player-wrapper').find('.bfp-hidden-player-container audio').first();
+            if ($audio.length) {
+                var currentPlayerNumber = parseInt($audio.attr('playernumber'));
+                if (!isNaN(currentPlayerNumber)) {
+                    // Use the existing _playNext function
+                    if (typeof _playNext === 'function') {
+                        _playNext(currentPlayerNumber, false);
+                    } else {
+                        // Fallback: try to find and trigger the next player
+                        var nextPlayerNumber = currentPlayerNumber + 1;
+                        var $nextAudio = $('[playernumber="' + nextPlayerNumber + '"]');
+                        if ($nextAudio.length) {
+                            $nextAudio[0].play();
+                        }
+                    }
+                }
+            }
+            
+            // Visual feedback
+            $button.css('transform', 'scale(0.9)');
+            setTimeout(function() {
+                $button.css('transform', '');
+            }, 150);
+        });
+        
+        // Previous track button  
+        $(document).on('click', '.bfp-prev-track', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var $button = $(this);
+            var productId = $button.data('product-id');
+            
+            // Find the current player number for this product
+            var $audio = $button.closest('.bfp-cover-player-wrapper').find('.bfp-hidden-player-container audio').first();
+            if ($audio.length) {
+                var currentPlayerNumber = parseInt($audio.attr('playernumber'));
+                if (!isNaN(currentPlayerNumber)) {
+                    // Use the existing _playPrev function
+                    if (typeof _playPrev === 'function') {
+                        _playPrev(currentPlayerNumber, false);
+                    } else {
+                        // Fallback: try to find and trigger the previous player
+                        var prevPlayerNumber = currentPlayerNumber - 1;
+                        var $prevAudio = $('[playernumber="' + prevPlayerNumber + '"]');
+                        if ($prevAudio.length && prevPlayerNumber >= 0) {
+                            $prevAudio[0].play();
+                        }
+                    }
+                }
+            }
+            
+            // Visual feedback
+            $button.css('transform', 'scale(0.9)');
+            setTimeout(function() {
+                $button.css('transform', '');
+            }, 150);
+        });
+    });

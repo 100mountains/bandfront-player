@@ -309,13 +309,19 @@ class Player {
                 
                 if ($this->compactMode) {
                     error_log("[BFP] includeAllPlayers in compact mode for product: " . $id);
-                    // In compact mode, just render the first file without table
-                    $firstFile = reset($preparedFiles);
-                    if (!empty($firstFile['audio_tag'])) {
-                        print '<div class="bfp-player-container bfp-compact">';
-                        print $firstFile['audio_tag'];
-                        print '</div>';
+                    // In compact mode, render all files but keep them simple
+                    print '<div class="bfp-compact-players" data-product-id="' . esc_attr($id) . '">';
+                    $trackIndex = 0;
+                    foreach ($preparedFiles as $file) {
+                        if (!empty($file['audio_tag'])) {
+                            $isFirst = ($trackIndex === 0) ? ' bfp-first-track' : '';
+                            print '<div class="bfp-player-container bfp-compact' . $isFirst . '" data-track-index="' . $trackIndex . '">';
+                            print $file['audio_tag'];
+                            print '</div>';
+                            $trackIndex++;
+                        }
                     }
+                    print '</div>';
                 } else {
                     print $this->renderer->renderPlayerTable($preparedFiles, $id, $settings);
                 } // phpcs:ignore WordPress.Security.EscapeOutput

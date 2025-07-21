@@ -1,39 +1,83 @@
 /* Custom rainbow skin for HTML5 audio player */
 .custom audio {
     background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #4e89ae, #a77dc2);
-    border-radius: 10px;
+    border-radius: 12px;
     width: 100%;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    height: 60px; /* Increased height for better centering */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    outline: none; /* Remove the white ring */
+    border: none;
 }
 
+/* Remove focus outline */
+.custom audio:focus {
+    outline: none;
+}
+
+/* Style the webkit media controls */
 .custom audio::-webkit-media-controls-panel {
     background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #4e89ae, #a77dc2);
+    height: 60px;
 }
 
-.custom audio::-webkit-media-controls-play-button,
-.custom audio::-webkit-media-controls-timeline,
+/* Make play button larger and centered */
+.custom audio::-webkit-media-controls-play-button {
+    transform: scale(1.8); /* Make play button much bigger */
+    filter: brightness(1.2) contrast(1.2) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Center all controls vertically */
+.custom audio::-webkit-media-controls-timeline-container,
+.custom audio::-webkit-media-controls-time-remaining-display,
+.custom audio::-webkit-media-controls-current-time-display {
+    display: flex;
+    align-items: center;
+}
+
+/* Hide the overflow menu (three dots) */
+.custom audio::-webkit-media-controls-overflow-menu-button {
+    display: none !important;
+}
+
+/* Also hide for other browsers */
+.custom audio::-webkit-media-controls-toggle-closed-captions-button {
+    display: none !important;
+}
+
+/* Style timeline */
+.custom audio::-webkit-media-controls-timeline {
+    filter: brightness(1.2) contrast(1.2);
+    height: 6px;
+    border-radius: 3px;
+}
+
+/* Style volume slider */
 .custom audio::-webkit-media-controls-volume-slider {
     filter: brightness(1.2) contrast(1.2);
 }
 
+/* Player title styling */
 .custom .bfp-player-title {
     color: #fff;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 10px 15px;
-    border-radius: 10px 10px 0 0;
+    padding: 12px 18px;
+    border-radius: 12px 12px 0 0;
     font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+    text-align: center;
 }
 
+/* Player wrapper */
 .custom .bfp-player-wrapper {
     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    border-radius: 10px;
-    padding: 8px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
 }
 
+/* Shimmer effect */
 .custom .bfp-player-wrapper::before {
     content: "";
     position: absolute;
@@ -44,7 +88,7 @@
     background: linear-gradient(
         45deg,
         transparent,
-        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.15),
         transparent
     );
     animation: shimmer 3s linear infinite;
@@ -60,13 +104,33 @@
     }
 }
 
-/* Add some fun hover effects */
+/* Hover effects */
 .custom .bfp-player-wrapper:hover {
     transform: scale(1.02);
     transition: transform 0.3s ease;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 .custom audio:hover {
     filter: brightness(1.1);
     transition: filter 0.3s ease;
+}
+
+/* Firefox specific styles */
+.custom audio::-moz-focus-inner {
+    border: 0;
+}
+
+/* Additional cross-browser fixes */
+.custom audio {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* If you need to override JavaScript styles, use !important */
+.custom audio::-webkit-media-controls-panel {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
