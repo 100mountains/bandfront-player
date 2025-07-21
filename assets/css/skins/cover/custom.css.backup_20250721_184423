@@ -167,13 +167,13 @@
 .bfp-prev-track,
 .bfp-next-track {
     position: absolute;
-    /* bottom: 25px; */ /* Set individually for each button */
+    bottom: 25px;
     background: linear-gradient(45deg, #663399, #4a5568, #e67e22, #2c3e50, #8e44ad, #d35400);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.8);
     width: 40px;
     height: 40px;
-    border-radius: 0 !important;
+    border-radius: 50%;
     font-size: 18px;
     cursor: pointer;
     pointer-events: auto;
@@ -187,13 +187,11 @@
 }
 
 .bfp-prev-track {
-    left: 5px;
-    bottom: 45px;
+    left: 10px;
 }
 
 .bfp-next-track {
-    right: 5px;
-    bottom: 45px;
+    right: 10px;
 }
 
 .bfp-prev-track:hover,
@@ -202,7 +200,6 @@
     border-color: rgba(255, 255, 255, 1);
     transform: scale(1.1);
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
-    border-radius: 0 !important;
 }
 
 /* Compact player track management */

@@ -347,12 +347,8 @@ class Hooks {
                 $hiddenPlayer = $player->renderCompact(get_the_ID());
                 echo '<div class="bfp-cover-player-wrapper" data-product-id="' . esc_attr(get_the_ID()) . '">';
                 echo '<button class="bfp-play-on-cover" data-product-id="' . esc_attr(get_the_ID()) . '" title="Play/Pause">▶</button>';
-                // Show navigation buttons only if enabled in global settings
-                $globalSettings = get_option('bfp_global_settings', []);
-                if (!empty($globalSettings['_bfp_show_navigation_buttons'])) {
-                    echo '<button class="bfp-prev-track" data-product-id="' . esc_attr(get_the_ID()) . '" title="Previous Track">⏮</button>';
-                    echo '<button class="bfp-next-track" data-product-id="' . esc_attr(get_the_ID()) . '" title="Next Track">⏭</button>';
-                }
+                echo '<button class="bfp-prev-track" data-product-id="' . esc_attr(get_the_ID()) . '" title="Previous Track">⏮</button>';
+                echo '<button class="bfp-next-track" data-product-id="' . esc_attr(get_the_ID()) . '" title="Next Track">⏭</button>';
                 echo '<div class="bfp-hidden-player-container" style="display: none;">' . $hiddenPlayer . '</div>';
                 echo '</div>';
             }

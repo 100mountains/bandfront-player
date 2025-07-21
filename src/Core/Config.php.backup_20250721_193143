@@ -459,7 +459,6 @@ class Config {
            
            // Purchaser settings
            'show_purchasers' => ['key' => '_bfp_show_purchasers', 'type' => 'int'],
-           'show_navigation_buttons' => ['key' => '_bfp_show_navigation_buttons', 'type' => 'int'],
            'max_purchasers_display' => ['key' => '_bfp_max_purchasers_display', 'type' => 'int'],
            
            // Analytics settings

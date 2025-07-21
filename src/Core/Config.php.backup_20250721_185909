@@ -47,7 +47,6 @@ class Config {
        '_bfp_button_theme' => 'custom',
        '_bfp_player_controls' => 'default',
        '_bfp_player_on_cover' => 1,
-       '_bfp_show_navigation_buttons' => 1,
        '_bfp_show_purchasers' => 1,
        '_bfp_max_purchasers_display' => 10,
        '_bfp_players_in_cart' => false,
@@ -177,7 +176,6 @@ class Config {
            '_bfp_play_all' => 0,
            '_bfp_loop' => 0,
            '_bfp_player_on_cover' => 1,
-       '_bfp_show_navigation_buttons' => 1,
        '_bfp_show_purchasers' => 1,
        '_bfp_max_purchasers_display' => 10,
            '_bfp_demo_message' => '',
@@ -459,7 +457,6 @@ class Config {
            
            // Purchaser settings
            'show_purchasers' => ['key' => '_bfp_show_purchasers', 'type' => 'int'],
-           'show_navigation_buttons' => ['key' => '_bfp_show_navigation_buttons', 'type' => 'int'],
            'max_purchasers_display' => ['key' => '_bfp_max_purchasers_display', 'type' => 'int'],
            
            // Analytics settings

@@ -167,7 +167,7 @@
 .bfp-prev-track,
 .bfp-next-track {
     position: absolute;
-    /* bottom: 25px; */ /* Set individually for each button */
+    bottom: 25px;
     background: linear-gradient(45deg, #663399, #4a5568, #e67e22, #2c3e50, #8e44ad, #d35400);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.8);
@@ -187,13 +187,11 @@
 }
 
 .bfp-prev-track {
-    left: 5px;
-    bottom: 45px;
+    left: 10px;
 }
 
 .bfp-next-track {
-    right: 5px;
-    bottom: 45px;
+    right: 10px;
 }
 
 .bfp-prev-track:hover,
