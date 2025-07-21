@@ -27,7 +27,6 @@ class Config {
 
    private array $overridableSettings = [
        '_bfp_enable_player' => false,
-       '_bfp_product_buttons' => 'on',
        '_bfp_audio_engine' => 'html5',
        '_bfp_unified_player' => 0,
        '_bfp_group_cart_control' => 0,
@@ -43,8 +42,6 @@ class Config {
 
    private array $globalOnlySettings = [
        '_bfp_player_layout' => 'dark',
-           '_bfp_button_theme' => 'custom',
-       '_bfp_button_theme' => 'custom',
        '_bfp_player_controls' => 'default',
        '_bfp_player_on_cover' => 1,
        '_bfp_show_purchasers' => 1,
@@ -163,11 +160,8 @@ class Config {
            '_bfp_ffmpeg_path' => '',
            '_bfp_ffmpeg_watermark' => '',
            '_bfp_enable_player' => 1,
-           '_bfp_product_buttons' => 'on',
            '_bfp_players_in_cart' => 0,
            '_bfp_player_layout' => 'dark',
-           '_bfp_button_theme' => 'custom',
-       '_bfp_button_theme' => 'custom',
            '_bfp_player_volume' => 1,
            '_bfp_unified_player' => 1,
            '_bfp_play_demos' => 0,

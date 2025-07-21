@@ -20,7 +20,7 @@ error_log("[BFP] Installer.php file loaded");
  */
 class Installer {
     
-    private static string $version = '2.3.2';
+    private static string $version = '2.3.1';
     private static string $version_option = 'bfp_db_version';
     
     /**
@@ -54,18 +54,6 @@ class Installer {
                 }
                 if (!isset($global_settings['_bfp_max_purchasers_display'])) {
                     $global_settings['_bfp_max_purchasers_display'] = 10;
-                }
-                update_option('bfp_global_settings', $global_settings);
-            }
-            
-            if (version_compare($installed_version, '2.3.2', '<')) {
-                // Add new product buttons and button theme settings
-                $global_settings = get_option('bfp_global_settings', []);
-                if (!isset($global_settings['_bfp_product_buttons'])) {
-                    $global_settings['_bfp_product_buttons'] = 'on';
-                }
-                if (!isset($global_settings['_bfp_button_theme'])) {
-                    $global_settings['_bfp_button_theme'] = 'custom';
                 }
                 update_option('bfp_global_settings', $global_settings);
             }
@@ -224,18 +212,6 @@ class Installer {
             unset($global_settings['_bfp_analytics_endpoints']);
             
             update_option('bfp_global_settings', $global_settings);
-            }
-            
-            if (version_compare($installed_version, '2.3.2', '<')) {
-                // Add new product buttons and button theme settings
-                $global_settings = get_option('bfp_global_settings', []);
-                if (!isset($global_settings['_bfp_product_buttons'])) {
-                    $global_settings['_bfp_product_buttons'] = 'on';
-                }
-                if (!isset($global_settings['_bfp_button_theme'])) {
-                    $global_settings['_bfp_button_theme'] = 'custom';
-                }
-                update_option('bfp_global_settings', $global_settings);
             error_log('Analytics settings migrated from ua to internal');
         }
     }

@@ -7,10 +7,12 @@
  * @var Bandfront\Storage\FileManager $fileManager FileManager instance
  * @var Bandfront\UI\Renderer $renderer Renderer instance
  */
+
 // Prevent direct access
 if (!defined('ABSPATH')) {
     exit;
 }
+
 // include resources
 wp_enqueue_style( 'bfp-admin-style', BFP_PLUGIN_URL . 'assets/css/style-admin.css', array(), '5.0.181' );
 wp_enqueue_style( 'bfp-admin-notices', BFP_PLUGIN_URL . 'assets/css/admin-notices.css', array(), '5.0.181' );
@@ -24,6 +26,7 @@ $bfp_js = array(
 	'Select Item'       => __( 'Select Item', 'bandfront-player' ),
 );
 wp_localize_script( 'bfp-admin-js', 'bfp', $bfp_js );
+
 // Add AJAX localization
 wp_localize_script( 'bfp-admin-js', 'bfp_ajax', array(
     'ajax_url' => admin_url('admin-ajax.php'),
@@ -31,19 +34,25 @@ wp_localize_script( 'bfp-admin-js', 'bfp_ajax', array(
     'error_text' => __('An unexpected error occurred. Please try again.', 'bandfront-player'),
     'dismiss_text' => __('Dismiss this notice', 'bandfront-player'),
 ));
+
 // Get all settings using the injected config instance
 $settings = $config->getAdminFormSettings();
+
 // Handle special cases
 $ffmpeg_system_path = defined( 'PHP_OS' ) && strtolower( PHP_OS ) == 'linux' && function_exists( 'shell_exec' ) ? @shell_exec( 'which ffmpeg' ) : '';
+
 // Get available layouts and controls
 $playerLayouts = $config->getPlayerLayouts();
 $playerControls = $config->getPlayerControls();
+
 ?>
 <h1><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'Bandfront Player - Global Settings', 'bandfront-player' ); ?></h1>
 <p class="bfp-tagline">a player for the storefront theme</p>
+
 <form method="post" enctype="multipart/form-data">
 <input type="hidden" name="action" value="bfp_save_settings" />
 <input type="hidden" name="bfp_nonce" value="<?php echo esc_attr( wp_create_nonce( 'bfp_updating_plugin_settings' ) ); ?>" />
+
 <div class="bfp-admin-wrapper">
     <!-- Tab Navigation -->
     <h2 class="nav-tab-wrapper bfp-nav-tab-wrapper">
@@ -162,12 +171,9 @@ $playerControls = $config->getPlayerControls();
                 <tr>
                     <th scope="row">🎨 <?php esc_html_e( 'Player appearance', 'bandfront-player' ); ?></th>
                     <td>
-                        <select name="_bfp_player_layout" id="_bfp_player_layout">
-                            <option value="dark" <?php selected( $settings['_bfp_player_layout'], 'dark' ); ?>>🌙 <?php esc_html_e('Dark', 'bandfront-player'); ?></option>
-                            <option value="light" <?php selected( $settings['_bfp_player_layout'], 'light' ); ?>>☀️ <?php esc_html_e('Light', 'bandfront-player'); ?></option>
-                            <option value="custom" <?php selected( $settings['_bfp_player_layout'], 'custom' ); ?>>🎨 <?php esc_html_e('Custom', 'bandfront-player'); ?></option>
-                        </select>
-                        <br><br>
+                        <label><input type="radio" name="_bfp_player_layout" value="dark" <?php checked( $settings['_bfp_player_layout'], 'dark' ); ?>> 🌙 <?php esc_html_e('Dark', 'bandfront-player'); ?></label><br>
+                        <label><input type="radio" name="_bfp_player_layout" value="light" <?php checked( $settings['_bfp_player_layout'], 'light' ); ?>> ☀️ <?php esc_html_e('Light', 'bandfront-player'); ?></label><br>
+                        <label><input type="radio" name="_bfp_player_layout" value="custom" <?php checked( $settings['_bfp_player_layout'], 'custom' ); ?>> 🎨 <?php esc_html_e('Custom', 'bandfront-player'); ?></label><br><br>
                         <label><input aria-label="<?php esc_attr_e( 'Show a single player instead of one player per audio file.', 'bandfront-player' ); ?>" name="_bfp_unified_player" type="checkbox" <?php checked( $settings['_bfp_unified_player'] ); ?> />
                         <span class="bfp-single-player-label">🎭 <?php esc_html_e( 'Single player mode (one player for all tracks)', 'bandfront-player' ); ?></span></label>
                     </td>
@@ -326,10 +332,12 @@ $playerControls = $config->getPlayerControls();
         
     </div>
 </div>
+
 <p class="submit">
     <input type="submit" value="<?php esc_attr_e( 'Save settings', 'bandfront-player' ); ?>" class="button-primary" />
 </p>
 </form>
+
 <script type="text/javascript">
 jQuery(document).ready(function($) {
     // Tab functionality
