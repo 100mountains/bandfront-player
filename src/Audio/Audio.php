@@ -224,14 +224,32 @@ class Audio {
         
         // For demos, we need to use DemoCreator to create/stream truncated file
         if ($securPlayer && $filePercent < 100) {
-            $demoFile = $this->demoCreator->getDemoFile($url, $filePercent);
+            Debug::log('🎵 GENERATING DEMO URL', [
+                'original_url' => $url,
+                'product_id' => $productId,
+                'demo_percent' => $filePercent
+            ]);
+            
+            $demoFile = $this->demoCreator->getDemoFile($url, $filePercent, $productId);
             if ($demoFile && file_exists($demoFile)) {
+                Debug::log('🎯 SERVING DEMO FILE', [
+                    'demo_file_path' => $demoFile,
+                    'file_size' => filesize($demoFile),
+                    'original_url' => $url
+                ]);
                 $this->fileManager->streamFile($demoFile);
                 exit;
+            } else {
+                Debug::log('❌ DEMO FILE FAILED', [
+                    'demo_file_path' => $demoFile,
+                    'file_exists' => file_exists($demoFile ?: ''),
+                    'original_url' => $url
+                ]);
             }
         }
         
         // For full files, just redirect
+        Debug::log('🔗 REDIRECTING TO ORIGINAL FILE', ['url' => $url]);
         wp_redirect($url);
         exit;
     }

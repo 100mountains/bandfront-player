@@ -132,7 +132,7 @@ class Streamer {
         }
         
         // Fall back to demo generation for non-purchased users
-        $fileName = $this->demoCreator->generateDemoFileName($originalUrl);
+        $fileName = $this->demoCreator->generateDemoFileName($originalUrl, $productId);
         $basePath = $this->fileManager->getFilesDirectoryPath();
         $oFileName = 'o_' . $fileName;
         

@@ -83,7 +83,7 @@ class DemoCreator {
             }
             
             $originalPath = $fileData['file'];
-            $demoPath = $this->getDemoFile($originalPath, $demoPercent);
+            $demoPath = $this->getDemoFile($originalPath, $demoPercent, $productId);
             
             if ($demoPath && $demoPath !== $originalPath) {
                 $demoCount++;
@@ -104,6 +104,25 @@ class DemoCreator {
      */
     public function deleteTruncatedFiles(int $productId): void {
         Debug::log('Entering deleteTruncatedFiles()', ['productId' => $productId]);
+        
+        $filesDirectoryPath = $this->fileManager->getFilesDirectoryPath();
+        $productDemoDir = $filesDirectoryPath . "products/{$productId}/";
+        
+        // Delete the entire product demo directory if it exists
+        if (file_exists($productDemoDir) && is_dir($productDemoDir)) {
+            $files = glob($productDemoDir . '*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    Debug::log('deleteTruncatedFiles: deleting file', ['fileName' => basename($file)]);
+                    @unlink($file);
+                }
+            }
+            // Remove the directory if it's empty
+            @rmdir($productDemoDir);
+            Debug::log('deleteTruncatedFiles: deleted product directory', ['dir' => $productDemoDir]);
+        }
+        
+        // Also clean up old-style demo files for backwards compatibility
         $filesArr = get_post_meta($productId, '_downloadable_files', true);
         $ownFilesArr = get_post_meta($productId, '_bfp_demos_list', true);
         if (!is_array($filesArr)) {
@@ -114,14 +133,15 @@ class DemoCreator {
         }
 
         if (!empty($filesArr) && is_array($filesArr)) {
-            $filesDirectoryPath = $this->fileManager->getFilesDirectoryPath();
             foreach ($filesArr as $file) {
                 if (is_array($file) && !empty($file['file'])) {
+                    // Old-style MD5 filename cleanup
                     $ext = pathinfo($file['file'], PATHINFO_EXTENSION);
                     $fileName = md5($file['file']) . ((!empty($ext)) ? '.' . $ext : '');
-                    if (file_exists($filesDirectoryPath . $fileName)) {
-                        Debug::log('deleteTruncatedFiles: deleting file', ['fileName' => $fileName]);
-                        @unlink($filesDirectoryPath . $fileName);
+                    $oldStylePath = $filesDirectoryPath . 'demo_30_' . $fileName;
+                    if (file_exists($oldStylePath)) {
+                        Debug::log('deleteTruncatedFiles: deleting old-style file', ['fileName' => $fileName]);
+                        @unlink($oldStylePath);
                     }
                     do_action('bfp_delete_file', $productId, $file['file']);
                 }
@@ -134,10 +154,12 @@ class DemoCreator {
      * Generate demo file name from URL
      * 
      * @param string $url Source URL
-     * @return string Generated filename
+     * @param int $productId Product ID for organization
+     * @return string Generated filename with path
      */
-    public function generateDemoFileName(string $url): string {
-        Debug::log('generateDemoFileName()', ['url' => $url]);
+    public function generateDemoFileName(string $url, int $productId = 0): string {
+        Debug::log('generateDemoFileName()', ['url' => $url, 'productId' => $productId]);
+        
         $ext = pathinfo($url, PATHINFO_EXTENSION);
         $ext = strtolower($ext);
         
@@ -151,8 +173,30 @@ class DemoCreator {
             $ext = 'mp3';
         }
         
-        $filename = md5($url) . '.' . $ext;
-        Debug::log('Demo filename generated', ['filename' => $filename]);
+        // Get the base filename from URL (much more readable than MD5)
+        $basename = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_FILENAME);
+        if (empty($basename)) {
+            $basename = md5($url); // Fallback to MD5 if we can't get a name
+        }
+        
+        // Clean the basename for filesystem safety
+        $basename = preg_replace('/[^a-zA-Z0-9\-_]/', '_', $basename);
+        $basename = substr($basename, 0, 50); // Limit length
+        
+        // If we have a product ID, organize by product
+        if ($productId > 0) {
+            $filename = "products/{$productId}/{$basename}_demo.{$ext}";
+        } else {
+            $filename = "{$basename}_demo.{$ext}";
+        }
+        
+        Debug::log('🎯 DEMO FILENAME GENERATED', [
+            'original_url' => $url,
+            'product_id' => $productId,
+            'basename' => $basename,
+            'extension' => $ext,
+            'generated_filename' => $filename
+        ]);
         return $filename;
     }
     
@@ -215,30 +259,47 @@ class DemoCreator {
      * 
      * @param string $originalPath Original file path
      * @param int $percent Percentage for demo
+     * @param int $productId Product ID for organization
      * @return string Demo file path
      */
-    public function getDemoFile(string $originalPath, int $percent): string {
-        Debug::log('Entering getDemoFile()', ['originalPath' => $originalPath, 'percent' => $percent]);
-        $demoFileName = 'demo_' . $percent . '_' . $this->generateDemoFileName($originalPath);
+    public function getDemoFile(string $originalPath, int $percent, int $productId = 0): string {
+        Debug::log('Entering getDemoFile()', ['originalPath' => $originalPath, 'percent' => $percent, 'productId' => $productId]);
+        
+        $demoFileName = $this->generateDemoFileName($originalPath, $productId);
         $filesDirectoryPath = $this->fileManager->getFilesDirectoryPath();
         $demoPath = $filesDirectoryPath . $demoFileName;
         
+        Debug::log('📁 DEMO FILE PATH GENERATED', [
+            'demo_file_name' => $demoFileName,
+            'full_demo_path' => $demoPath,
+            'original_path' => $originalPath
+        ]);
+        
+        // Create product directory if it doesn't exist
+        $demoDir = dirname($demoPath);
+        if (!file_exists($demoDir)) {
+            wp_mkdir_p($demoDir);
+            Debug::log('Created demo directory', ['dir' => $demoDir]);
+        }
+        
         // Check if demo already exists
         if (file_exists($demoPath)) {
-            Debug::log('getDemoFile: exists', ['demoPath' => $demoPath]);
+            Debug::log('✅ DEMO FILE EXISTS - REUSING', ['demoPath' => $demoPath]);
             return $demoPath;
         }
         
         // Create demo file
+        Debug::log('🔨 CREATING NEW DEMO FILE', ['originalPath' => $originalPath, 'demoPath' => $demoPath]);
         if ($this->createDemoFile($originalPath, $demoPath)) {
             // Truncate to percentage
+            Debug::log('✂️ TRUNCATING DEMO FILE', ['demoPath' => $demoPath, 'percent' => $percent]);
             $this->truncateFile($demoPath, $percent);
-            Debug::log('Demo file created or fetched', ['demoPath' => $demoPath, 'originalPath' => $originalPath, 'percent' => $percent]);
+            Debug::log('✅ DEMO FILE SUCCESSFULLY CREATED', ['demoPath' => $demoPath, 'originalPath' => $originalPath, 'percent' => $percent]);
             return $demoPath;
         }
         
         // Return original if demo creation failed
-        Debug::log('getDemoFile: failed, returning original', ['originalPath' => $originalPath]);
+        Debug::log('❌ DEMO CREATION FAILED - RETURNING ORIGINAL', ['originalPath' => $originalPath]);
         return $originalPath;
     }
     
@@ -250,7 +311,8 @@ class DemoCreator {
      * @return bool Success status
      */
     public function createDemoFile(string $sourceUrl, string $destPath): bool {
-        Debug::log('Entering createDemoFile()', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]);
+        Debug::log('🔨 STARTING DEMO FILE CREATION', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]);
+        
         // Process cloud URLs
         $sourceUrl = $this->fileManager->processCloudUrl($sourceUrl);
         
@@ -259,12 +321,14 @@ class DemoCreator {
         
         if ($localPath && file_exists($localPath)) {
             // Copy local file
+            Debug::log('📁 COPYING LOCAL FILE FOR DEMO', ['localPath' => $localPath, 'destPath' => $destPath]);
             $result = copy($localPath, $destPath);
-            Debug::log('createDemoFile: local copy', ['result' => $result]);
+            Debug::log($result ? '✅ LOCAL DEMO COPY SUCCESS' : '❌ LOCAL DEMO COPY FAILED', ['result' => $result]);
             return $result;
         }
         
         // Download remote file
+        Debug::log('🌐 DOWNLOADING REMOTE FILE FOR DEMO', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]);
         $response = wp_remote_get($sourceUrl, [
             'timeout' => 300,
             'stream' => true,
@@ -272,13 +336,15 @@ class DemoCreator {
         ]);
         
         if (is_wp_error($response)) {
-            Debug::log('createDemoFile: download error', ['error' => $response->get_error_message()]);
+            Debug::log('❌ DEMO DOWNLOAD ERROR', ['error' => $response->get_error_message()]);
             return false;
         }
         
-        $result = file_exists($destPath) && filesize($destPath) > 0;        
-        Debug::log('createDemoFile: download result', ['result' => $result]);
-        Debug::log('Demo file created', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]);
+        $result = file_exists($destPath) && filesize($destPath) > 0;
+        Debug::log($result ? '✅ DEMO DOWNLOAD SUCCESS' : '❌ DEMO DOWNLOAD FAILED', [
+            'result' => $result,
+            'file_size' => file_exists($destPath) ? filesize($destPath) : 0
+        ]);
         return $result;
     }
     
