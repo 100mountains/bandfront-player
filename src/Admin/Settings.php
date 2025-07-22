@@ -449,7 +449,7 @@ class Settings {
     
     if ($demosEnabled) {
         $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
-        $demoCreator = $bootstrap->getComponent('demoCreator');
+        $demoCreator = $bootstrap->getComponent('demo_creator');
         
         if ($demoCreator) {
             $demoCount = $demoCreator->createDemosForAllProducts();

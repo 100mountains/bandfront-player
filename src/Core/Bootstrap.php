@@ -9,6 +9,7 @@ use Bandfront\Audio\Player;
 use Bandfront\Audio\Analytics;
 use Bandfront\Audio\Preview;
 use Bandfront\Audio\PlaybackController;
+use Bandfront\Audio\DemoCreator;
 use Bandfront\Admin\Admin;
 use Bandfront\WooCommerce\WooCommerceIntegration;
 use Bandfront\WooCommerce\ProductProcessor;
@@ -124,10 +125,17 @@ class Bootstrap {
      * Initialize audio components
      */
     private function initializeAudio(): void {
+        // Demo Creator - initialize first as it's needed by other components
+        $this->components['demo_creator'] = new DemoCreator(
+            $this->components['config'],
+            $this->components['file_manager']
+        );
+        
         // Core audio functionality
         $this->components['audio'] = new Audio(
             $this->components['config'],
-            $this->components['file_manager']
+            $this->components['file_manager'],
+            $this->components['demo_creator']
         );
         
         // Player management - now includes FileManager
@@ -153,9 +161,6 @@ class Bootstrap {
             $this->components['config'],
             $this->components['analytics']
         );
-
-        // Demo Creator 
-       // $this->components['demoCreator'] = new Audio\DemoCreator($config, $fileManager);
     }
     
     /**

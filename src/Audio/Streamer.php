@@ -23,13 +23,15 @@ class Streamer {
     
     private Config $config;
     private FileManager $fileManager;
+    private DemoCreator $demoCreator;
     
     /**
      * Constructor
      */
-    public function __construct(Config $config, FileManager $fileManager) {
+    public function __construct(Config $config, FileManager $fileManager, DemoCreator $demoCreator) {
         $this->config = $config;
         $this->fileManager = $fileManager;
+        $this->demoCreator = $demoCreator;
     }
     
     /**
@@ -75,7 +77,7 @@ class Streamer {
         }
 
         // Create demo file
-        if (!$this->fileManager->createDemoFile($urlFixed, $fileInfo['filePath'])) {
+        if (!$this->demoCreator->createDemoFile($urlFixed, $fileInfo['filePath'])) {
             Debug::log('Streamer: Failed to create demo file', $fileInfo['filePath']); // DEBUG-REMOVE
             $this->sendError(__('Failed to generate demo file', 'bandfront-player'));
             return;
@@ -130,7 +132,7 @@ class Streamer {
         }
         
         // Fall back to demo generation for non-purchased users
-        $fileName = $this->fileManager->generateDemoFileName($originalUrl);
+        $fileName = $this->demoCreator->generateDemoFileName($originalUrl);
         $basePath = $this->fileManager->getFilesDirectoryPath();
         $oFileName = 'o_' . $fileName;
         

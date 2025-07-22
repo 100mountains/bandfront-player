@@ -28,9 +28,10 @@ class Processor {
     /**
      * Constructor
      */
-    public function __construct(Config $config, FileManager $fileManager) {
+    public function __construct(Config $config, FileManager $fileManager, DemoCreator $demoCreator) {
         $this->config = $config;
         $this->fileManager = $fileManager;
+        $this->demoCreator = $demoCreator;
     }
     
     /**
@@ -147,7 +148,7 @@ class Processor {
             Debug::log('Processor: PHP processing error', $e->getMessage()); // DEBUG-REMOVE
             error_log('BFP MP3 processing error: ' . $e->getMessage());
             // Final fallback - simple truncate
-            $this->fileManager->truncateFile($inputPath, $filePercent);
+            $this->demoCreator->truncateFile($inputPath, $filePercent);
             return false;
         }
     }
