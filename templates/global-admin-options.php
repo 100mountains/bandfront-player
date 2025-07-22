@@ -191,13 +191,6 @@ $playerControls = $config->getPlayerControls();
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="_bfp_fade_out">🎚️ <?php esc_html_e( 'Smooth fade out', 'bandfront-player' ); ?></label></th>
-                    <td>
-                        <input aria-label="<?php esc_attr_e( 'Apply fade out to playing audio when possible', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_fade_out" name="_bfp_fade_out" <?php checked( $settings['_bfp_fade_out'] ); ?> />
-                        <p class="description"><?php esc_html_e( 'Gradually fade out audio when switching tracks', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
-                <tr>
                     <th scope="row">🎛️ <?php esc_html_e( 'Player controls', 'bandfront-player' ); ?></th>
                     <td>
                         <label><input aria-label="<?php esc_attr_e( 'Player controls', 'bandfront-player' ); ?>" type="radio" value="button" name="_bfp_player_controls" <?php checked( $settings['_bfp_player_controls'], 'button' ); ?> /> <?php esc_html_e( 'Play/pause button only', 'bandfront-player' ); ?></label><br />
@@ -220,27 +213,67 @@ $playerControls = $config->getPlayerControls();
         
         <!-- Demos Tab (formerly Security) -->
         <div id="demos-panel" class="bfp-tab-panel" style="display:none;">
-            <h3>🔒 <?php esc_html_e('Create Demo Files', 'bandfront-player'); ?></h3>
+            <h3>🔒 <?php esc_html_e('Demo Configuration', 'bandfront-player'); ?></h3>
             <table class="form-table">
                 <tr>
-                    <th scope="row"><label for="_bfp_play_demos">🛡️ <?php esc_html_e( 'Enable demo files', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_demos_enabled">🛡️ <?php esc_html_e( 'Enable demo files', 'bandfront-player' ); ?></label></th>
                     <td>
-                        <input aria-label="<?php esc_attr_e( 'Protect the file', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_play_demos" name="_bfp_play_demos" <?php checked( $settings['_bfp_play_demos'] ); ?> />
+                        <input aria-label="<?php esc_attr_e( 'Enable demo protection', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_demos_enabled" name="_bfp_demos[enabled]" <?php checked( $settings['_bfp_demos']['enabled'] ?? false ); ?> />
                         <p class="description"><?php esc_html_e( 'Create truncated demo versions to prevent unauthorized downloading of full tracks', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="_bfp_demo_duration_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_demos_duration_percent">📊 <?php esc_html_e( 'Demo length (% of original)', 'bandfront-player' ); ?></label></th>
                     <td>
-                        <input aria-label="<?php esc_attr_e( 'Percent of audio used for protected playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_demo_duration_percent" name="_bfp_demo_duration_percent" min="0" max="100" value="<?php echo esc_attr( $settings['_bfp_demo_duration_percent'] ); ?>" /> %
+                        <input aria-label="<?php esc_attr_e( 'Percent of audio used for demo playbacks', 'bandfront-player' ); ?>" type="number" id="_bfp_demos_duration_percent" name="_bfp_demos[duration_percent]" min="1" max="100" value="<?php echo esc_attr( $settings['_bfp_demos']['duration_percent'] ?? 50 ); ?>" /> %
                         <p class="description"><?php esc_html_e( 'How much of the original track to include in demos (e.g., 30% = first 30 seconds of a 100-second track)', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="_bfp_demo_message">💬 <?php esc_html_e( 'Demo notice text', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_demos_demo_start_time">⏰ <?php esc_html_e( 'Demo start position (%)', 'bandfront-player' ); ?></label></th>
                     <td>
-                        <textarea aria-label="<?php esc_attr_e( 'Explaining that demos are partial versions of the original files', 'bandfront-player' ); ?>" id="_bfp_demo_message" name="_bfp_demo_message" class="large-text" rows="4"><?php echo esc_textarea( $settings['_bfp_demo_message'] ); ?></textarea>
+                        <input aria-label="<?php esc_attr_e( 'Where in the track to start the demo', 'bandfront-player' ); ?>" type="range" id="_bfp_demos_demo_start_time" name="_bfp_demos[demo_start_time]" min="0" max="50" value="<?php echo esc_attr( $settings['_bfp_demos']['demo_start_time'] ?? 0 ); ?>" class="demo-start-slider" />
+                        <span class="demo-start-value"><?php echo esc_html( $settings['_bfp_demos']['demo_start_time'] ?? 0 ); ?>%</span>
+                        <p class="description"><?php esc_html_e( 'Where in the track to begin the demo (0% = beginning, 25% = quarter way through)', 'bandfront-player' ); ?></p>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const slider = document.getElementById('_bfp_demos_demo_start_time');
+                            const valueDisplay = document.querySelector('.demo-start-value');
+                            if (slider && valueDisplay) {
+                                slider.addEventListener('input', function() {
+                                    valueDisplay.textContent = this.value + '%';
+                                });
+                            }
+                        });
+                        </script>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_demos_demo_fade">🎚️ <?php esc_html_e( 'Demo fade out (seconds)', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Fade out duration for demos', 'bandfront-player' ); ?>" type="number" id="_bfp_demos_demo_fade" name="_bfp_demos[demo_fade]" min="0" max="10" step="0.5" value="<?php echo esc_attr( $settings['_bfp_demos']['demo_fade'] ?? 0 ); ?>" /> <?php esc_html_e( 'seconds', 'bandfront-player' ); ?>
+                        <p class="description"><?php esc_html_e( 'Gradually fade out demos at the end (0 = no fade, 3 = 3 second fade)', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_demos_message">💬 <?php esc_html_e( 'Demo notice text', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <textarea aria-label="<?php esc_attr_e( 'Explaining that demos are partial versions of the original files', 'bandfront-player' ); ?>" id="_bfp_demos_message" name="_bfp_demos[message]" class="large-text" rows="4"><?php echo esc_textarea( $settings['_bfp_demos']['message'] ?? '' ); ?></textarea>
                         <p class="description"><?php esc_html_e( 'Text shown next to players to explain these are preview versions', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_demos_use_custom">🎛️ <?php esc_html_e( 'Use custom demo files', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Use manually uploaded demo files instead of auto-generated ones', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_demos_use_custom" name="_bfp_demos[use_custom]" <?php checked( $settings['_bfp_demos']['use_custom'] ?? false ); ?> />
+                        <p class="description"><?php esc_html_e( 'Use manually created demo files instead of automatically truncated versions', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_demos_direct_links">🔗 <?php esc_html_e( 'Direct demo links', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Allow direct links to demo files', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_demos_direct_links" name="_bfp_demos[direct_links]" <?php checked( $settings['_bfp_demos']['direct_links'] ?? false ); ?> />
+                        <p class="description"><?php esc_html_e( 'Allow demo files to be accessed via direct URLs', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
             </table>

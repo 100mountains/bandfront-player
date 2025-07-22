@@ -98,7 +98,7 @@ class Settings {
         $oldSettings = $this->config->getStates([
             '_bfp_audio_engine',
             '_bfp_enable_player',
-            '_bfp_play_demos',
+            '_bfp_demos',
             '_bfp_ffmpeg'
         ]);
         
@@ -146,11 +146,27 @@ class Settings {
         $settings = [
             '_bfp_require_login' => isset($data['_bfp_require_login']) ? 1 : 0,
             '_bfp_purchased' => isset($data['_bfp_purchased']) ? 1 : 0,
-            '_bfp_fade_out' => isset($data['_bfp_fade_out']) ? 1 : 0,
             '_bfp_purchased_times_text' => sanitize_text_field(isset($data['_bfp_purchased_times_text']) ? wp_unslash($data['_bfp_purchased_times_text']) : ''),
             '_bfp_dev_mode' => isset($data['_bfp_dev_mode']) ? 1 : 0,  // Add dev mode
             'enable_db_monitoring' => isset($data['enable_db_monitoring']) ? 1 : 0,  // Add database monitoring
             '_bfp_debug_mode' => isset($data['_bfp_debug_mode']) ? 1 : 0,  // Add debug mode
+            
+            // Consolidated demos array
+            '_bfp_demos' => [
+                'enabled' => isset($data['_bfp_demos']['enabled']) ? true : false,
+                'duration_percent' => isset($data['_bfp_demos']['duration_percent']) ? 
+                    max(1, min(100, (int) $data['_bfp_demos']['duration_percent'])) : 50,
+                'demo_fade' => isset($data['_bfp_demos']['demo_fade']) ? 
+                    max(0, min(10, (float) $data['_bfp_demos']['demo_fade'])) : 0,
+                'demo_start_time' => isset($data['_bfp_demos']['demo_start_time']) ? 
+                    max(0, min(50, (int) $data['_bfp_demos']['demo_start_time'])) : 0,
+                'message' => isset($data['_bfp_demos']['message']) ? 
+                    sanitize_textarea_field(wp_unslash($data['_bfp_demos']['message'])) : '',
+                'use_custom' => isset($data['_bfp_demos']['use_custom']) ? true : false,
+                'direct_links' => isset($data['_bfp_demos']['direct_links']) ? true : false,
+                'demos_list' => [] // This would be populated elsewhere for custom demos
+            ],
+            
             '_bfp_ffmpeg' => isset($data['_bfp_ffmpeg']) ? 1 : 0,
             '_bfp_ffmpeg_path' => isset($data['_bfp_ffmpeg_path']) ? sanitize_text_field(wp_unslash($data['_bfp_ffmpeg_path'])) : '',
             '_bfp_ffmpeg_watermark' => isset($data['_bfp_ffmpeg_watermark']) ? sanitize_text_field(wp_unslash($data['_bfp_ffmpeg_watermark'])) : '',
@@ -159,9 +175,7 @@ class Settings {
             '_bfp_player_layout' => $this->parsePlayerLayout($data),
             '_bfp_button_theme' => $this->parseButtonTheme($data),
             '_bfp_unified_player' => isset($data['_bfp_unified_player']) ? 1 : 0,
-            '_bfp_play_demos' => isset($data['_bfp_play_demos']) ? 1 : 0,
             '_bfp_player_controls' => $this->parsePlayerControls($data),
-            '_bfp_demo_duration_percent' => $this->parseFilePercent($data),
             '_bfp_group_cart_control' => isset($data['_bfp_group_cart_control']) ? 1 : 0,
             '_bfp_play_all' => isset($data['_bfp_play_all']) ? 1 : 0,
             '_bfp_loop' => isset($data['_bfp_loop']) ? 1 : 0,
@@ -169,7 +183,6 @@ class Settings {
             '_bfp_show_purchasers' => isset($data['_bfp_show_purchasers']) ? 1 : 0,
             '_bfp_show_navigation_buttons' => isset($data['_bfp_show_navigation_buttons']) ? 1 : 0,
             '_bfp_max_purchasers_display' => isset($data['_bfp_max_purchasers_display']) ? intval($data['_bfp_max_purchasers_display']) : 10,
-            '_bfp_demo_message' => isset($data['_bfp_demo_message']) ? wp_kses_post(wp_unslash($data['_bfp_demo_message'])) : '',
             '_bfp_audio_engine' => $this->parseAudioEngine($data),
             '_bfp_enable_visualizations' => $this->parseVisualizations($data),
             '_bfp_apply_to_all_players' => isset($data['_bfp_apply_to_all_players']) ? 1 : 0,
@@ -264,18 +277,6 @@ class Settings {
         
         return $defaultControls;
     }
-    
-    /**
-     * Parse file percent setting
-     */
-    private function parseFilePercent(array $data): int {
-        if (isset($data['_bfp_demo_duration_percent']) && is_numeric($data['_bfp_demo_duration_percent'])) {
-            $percent = intval($data['_bfp_demo_duration_percent']);
-            return min(max($percent, 0), 100);
-        }
-        return 0;
-    }
-    
     
     /**
      * Parse audio engine setting
@@ -409,8 +410,7 @@ class Settings {
             update_post_meta($productId, '_bfp_unified_player', $globalSettings['_bfp_unified_player']);
             update_post_meta($productId, '_bfp_play_all', $globalSettings['_bfp_play_all']);
             update_post_meta($productId, '_bfp_loop', $globalSettings['_bfp_loop']);
-            update_post_meta($productId, '_bfp_play_demos', $globalSettings['_bfp_play_demos']);
-            update_post_meta($productId, '_bfp_demo_duration_percent', $globalSettings['_bfp_demo_duration_percent']);
+            update_post_meta($productId, '_bfp_demos', $globalSettings['_bfp_demos']);
 
             $this->config->clearProductAttrsCache($productId);
         }
@@ -449,16 +449,17 @@ class Settings {
     }
 
     public function onDemoSettingsSaved(): void {
-    $demosEnabled = $this->config->getState('_bfp_play_demos', false);
-    
-    if ($demosEnabled) {
-        $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
-        $demoCreator = $bootstrap->getComponent('demo_creator');
+        $demosConfig = $this->config->getState('_bfp_demos', ['enabled' => false]);
+        $demosEnabled = $demosConfig['enabled'] ?? false;
         
-        if ($demoCreator) {
-            $demoCount = $demoCreator->createDemosForAllProducts();
-            Debug::log('Settings: Demo creation triggered', ['demos_created' => $demoCount]);
+        if ($demosEnabled) {
+            $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
+            $demoCreator = $bootstrap->getComponent('demo_creator');
+            
+            if ($demoCreator) {
+                $demoCount = $demoCreator->createDemosForAllProducts();
+                Debug::log('Settings: Demo creation triggered', ['demos_created' => $demoCount]);
+            }
         }
     }
-}
 }
