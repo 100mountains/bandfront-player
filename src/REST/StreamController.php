@@ -182,16 +182,4 @@ class StreamController {
         Debug::log('Permission granted');
         return true;
     }
-    
-    /**
-     * Check if user has purchased the product
-     */
-    private function userHasPurchased(int $productId): bool {
-        if (!is_user_logged_in()) {
-            return false;
-        }
-        
-        $currentUser = wp_get_current_user();
-        return wc_customer_bought_product($currentUser->user_email, $currentUser->ID, $productId);
-    }
 }

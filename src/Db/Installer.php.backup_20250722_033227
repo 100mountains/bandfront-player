@@ -20,7 +20,7 @@ error_log("[BFP] Installer.php file loaded");
  */
 class Installer {
     
-    private static string $version = '2.3.6';
+    private static string $version = '2.3.5';
     private static string $version_option = 'bfp_db_version';
     
     /**
@@ -78,17 +78,6 @@ class Installer {
             }
             
             if (version_compare($installed_version, '2.3.5', '<')) {
-
-            // Remove deprecated reset purchased interval setting
-            $globalSettings = get_option('bfp_global_settings', []);
-            if (isset($globalSettings['_bfp_reset_purchased_interval'])) {
-                unset($globalSettings['_bfp_reset_purchased_interval']);
-                update_option('bfp_global_settings', $globalSettings);
-                error_log('BFP: Removed deprecated _bfp_reset_purchased_interval setting');
-            }
-        }
-
-        if (version_compare($installed_version, '2.3.6', '<')) {
                 // Add navigation buttons setting (prev/next track buttons)
                 $global_settings = get_option('bfp_global_settings', []);
                 if (!isset($global_settings['_bfp_show_navigation_buttons'])) {

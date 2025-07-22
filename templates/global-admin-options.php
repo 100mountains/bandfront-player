@@ -92,12 +92,7 @@ $playerControls = $config->getPlayerControls();
                     <th scope="row">🛒 <?php esc_html_e( 'Full tracks for buyers', 'bandfront-player' ); ?></th>
                     <td>
                         <label><input aria-label="<?php esc_attr_e( 'For buyers, play the purchased audio files instead of the truncated files for demo', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_purchased" <?php checked( $settings['_bfp_purchased'] ); ?> />
-                        <?php esc_html_e( 'Let buyers hear full tracks instead of demos', 'bandfront-player' ); ?></label><br>
-                        <label class="bfp-settings-label"><?php esc_html_e( 'Reset access', 'bandfront-player' ); ?>
-                        <select aria-label="<?php esc_attr_e( 'Reset files interval', 'bandfront-player' ); ?>" name="_bfp_reset_purchased_interval">
-                            <option value="daily" <?php selected( $settings['_bfp_reset_purchased_interval'], 'daily' ); ?>><?php esc_html_e( 'daily', 'bandfront-player' ); ?></option>
-                            <option value="never" <?php selected( $settings['_bfp_reset_purchased_interval'], 'never' ); ?>><?php esc_html_e( 'never', 'bandfront-player' ); ?></option>
-                        </select></label>
+                        <?php esc_html_e( 'Let buyers hear full tracks instead of demos', 'bandfront-player' ); ?></label>
                     </td>
                 </tr>
                 <tr>

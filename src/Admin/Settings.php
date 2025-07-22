@@ -146,7 +146,6 @@ class Settings {
         $settings = [
             '_bfp_require_login' => isset($data['_bfp_require_login']) ? 1 : 0,
             '_bfp_purchased' => isset($data['_bfp_purchased']) ? 1 : 0,
-            '_bfp_reset_purchased_interval' => (isset($data['_bfp_reset_purchased_interval']) && 'never' == $data['_bfp_reset_purchased_interval']) ? 'never' : 'daily',
             '_bfp_fade_out' => isset($data['_bfp_fade_out']) ? 1 : 0,
             '_bfp_purchased_times_text' => sanitize_text_field(isset($data['_bfp_purchased_times_text']) ? wp_unslash($data['_bfp_purchased_times_text']) : ''),
             '_bfp_dev_mode' => isset($data['_bfp_dev_mode']) ? 1 : 0,  // Add dev mode

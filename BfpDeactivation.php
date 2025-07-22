@@ -21,7 +21,7 @@ function BfpDeactivation() {
     if ($bootstrap) {
         // Clean up purchased files
         if ($fileManager = $bootstrap->getComponent('file_manager')) {
-            $fileManager->deletePurchasedFiles();
+//            $fileManager->deletePurchasedFiles();
         }
         
         // Run component deactivation routines
