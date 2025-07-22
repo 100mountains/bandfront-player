@@ -91,6 +91,9 @@ class Config {
        '_bfp_enable_visualizations' => 0,
        '_bfp_dev_mode' => 0,
        '_bfp_sndloop_mode' => 0,
+       '_bfp_sndloop_discovery' => 0,
+       '_bfp_sndloop_send_products' => 0,
+       '_bfp_sndloop_send_merch' => 0,
        '_bfp_debug' => [
            'enabled' => false,
            'domains' => [
@@ -225,6 +228,9 @@ class Config {
            '_bfp_enable_visualizations' => 0,
            '_bfp_dev_mode' => 0,
            '_bfp_sndloop_mode' => 0,
+           '_bfp_sndloop_discovery' => 0,
+           '_bfp_sndloop_send_products' => 0,
+           '_bfp_sndloop_send_merch' => 0,
            '_bfp_debug' => [
                'enabled' => false,
                'domains' => [
@@ -482,6 +488,9 @@ class Config {
            'apply_to_all_players' => ['key' => '_bfp_apply_to_all_players', 'type' => 'int'],
            'dev_mode' => ['key' => '_bfp_dev_mode', 'type' => 'int'],
            'sndloop_mode' => ['key' => '_bfp_sndloop_mode', 'type' => 'int'],
+           'sndloop_discovery' => ['key' => '_bfp_sndloop_discovery', 'type' => 'int'],
+           'sndloop_send_products' => ['key' => '_bfp_sndloop_send_products', 'type' => 'int'],
+           'sndloop_send_merch' => ['key' => '_bfp_sndloop_send_merch', 'type' => 'int'],
            
            // Audio engine settings
            'audio_engine' => ['key' => '_bfp_audio_engine', 'type' => 'string'],

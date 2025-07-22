@@ -152,6 +152,10 @@ class Settings {
             '_bfp_purchased_times_text' => sanitize_text_field(isset($data['_bfp_purchased_times_text']) ? wp_unslash($data['_bfp_purchased_times_text']) : ''),
             '_bfp_dev_mode' => isset($data['_bfp_dev_mode']) ? 1 : 0,  // Add dev mode
             '_bfp_sndloop_mode' => isset($data['_bfp_sndloop_mode']) ? 1 : 0,  // Add sndloop mode
+            '_bfp_sndloop_discovery' => isset($data['_bfp_sndloop_discovery']) ? 1 : 0,  // SNDLOOP discovery
+            '_bfp_sndloop_send_products' => isset($data['_bfp_sndloop_send_products']) ? 1 : 0,  // SNDLOOP send products
+            '_bfp_sndloop_send_merch' => isset($data['_bfp_sndloop_send_merch']) ? 1 : 0,  // SNDLOOP send merch
+            '_bfp_onload' => isset($data['_bfp_onload']) ? 1 : 0,  // Onload troubleshooting
             'enable_db_monitoring' => isset($data['enable_db_monitoring']) ? 1 : 0,  // Add database monitoring
             '_bfp_debug_mode' => isset($data['_bfp_debug_mode']) ? 1 : 0,  // Add debug mode
             

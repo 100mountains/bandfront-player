@@ -71,7 +71,7 @@ $playerControls = $config->getPlayerControls();
         <?php endif; ?>
         <?php if ($settings['_bfp_sndloop_mode']) : ?>
         <a href="#sndloop" class="nav-tab" data-tab="sndloop-panel">
-            <?php esc_html_e('Sndloop', 'bandfront-player'); ?>
+            <?php esc_html_e('SNDLOOP', 'bandfront-player'); ?>
         </a>
         <?php endif; ?>
     </h2>
@@ -112,10 +112,10 @@ $playerControls = $config->getPlayerControls();
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="_bfp_sndloop_mode">🔄 <?php esc_html_e( 'Sndloop Mode', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_sndloop_mode">🎵 <?php esc_html_e( 'SNDLOOP', 'bandfront-player' ); ?></label></th>
                     <td>
-                        <input aria-label="<?php esc_attr_e( 'Enable sndloop troubleshooting mode', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_sndloop_mode" name="_bfp_sndloop_mode" <?php checked( $settings['_bfp_sndloop_mode'] ); ?> />
-                        <p class="description"><?php esc_html_e( 'Enable advanced troubleshooting and sndloop tools tab', 'bandfront-player' ); ?></p>
+                        <input aria-label="<?php esc_attr_e( 'Enable SNDLOOP network integration', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_sndloop_mode" name="_bfp_sndloop_mode" <?php checked( $settings['_bfp_sndloop_mode'] ); ?> />
+                        <p class="description"><?php esc_html_e( 'Enable SNDLOOP decentralized music discovery network integration', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 <!-- Purchasers Display Settings -->
@@ -429,9 +429,9 @@ jQuery(document).ready(function($) {
         if ($(this).closest('form').find('input[name="action"]').val() === 'bfp_save_settings') {
             // Show a notice that page will reload after save
             if (this.checked) {
-                $(this).closest('td').append('<p class="bfp-sndloop-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Sndloop tab will appear after saving settings.', 'bandfront-player'); ?></p>');
+                $(this).closest('td').append('<p class="bfp-sndloop-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('SNDLOOP tab will appear after saving settings.', 'bandfront-player'); ?></p>');
             } else {
-                $(this).closest('td').append('<p class="bfp-sndloop-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Sndloop tab will be hidden after saving settings.', 'bandfront-player'); ?></p>');
+                $(this).closest('td').append('<p class="bfp-sndloop-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('SNDLOOP tab will be hidden after saving settings.', 'bandfront-player'); ?></p>');
             }
         }
     });
