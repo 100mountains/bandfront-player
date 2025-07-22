@@ -47,20 +47,13 @@ class WooCommerce {
 
     /**
      * Check if user has purchased a specific product
+     * Uses WordPress/WooCommerce built-in purchase verification
      */
     public function woocommerceUserProduct(int $productId): string|false {
         $this->mainPlugin->setPurchasedProductFlag(false);
         
-        // Use getState instead of legacy method
-        $purchasedEnabled = $this->mainPlugin->getConfig()->getState('_bfp_purchased', false);
-        
-        if (
-            !is_user_logged_in() ||
-            (
-                !$purchasedEnabled &&
-                empty($this->mainPlugin->getForcePurchasedFlag())
-            )
-        ) {
+        // Always use WooCommerce's built-in purchase verification
+        if (!is_user_logged_in() && empty($this->mainPlugin->getForcePurchasedFlag())) {
             return false;
         }
 

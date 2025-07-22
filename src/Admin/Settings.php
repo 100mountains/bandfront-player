@@ -148,7 +148,6 @@ class Settings {
         // Extract all settings from form data
         $settings = [
             '_bfp_require_login' => isset($data['_bfp_require_login']) ? 1 : 0,
-            '_bfp_purchased' => isset($data['_bfp_purchased']) ? 1 : 0,
             '_bfp_purchased_times_text' => sanitize_text_field(isset($data['_bfp_purchased_times_text']) ? wp_unslash($data['_bfp_purchased_times_text']) : ''),
             '_bfp_dev_mode' => isset($data['_bfp_dev_mode']) ? 1 : 0,  // Add dev mode
             '_bfp_sndloop_mode' => isset($data['_bfp_sndloop_mode']) ? 1 : 0,  // Add sndloop mode
@@ -314,10 +313,23 @@ class Settings {
      * Parse cloud storage settings
      */
     private function parseCloudSettings(array $data): array {
+        // Determine which provider is active (mutual exclusivity)
+        $active_provider = 'none';
+        if (isset($data['_bfp_cloud_google_drive_enabled'])) {
+            $active_provider = 'google-drive';
+        } elseif (isset($data['_bfp_cloud_dropbox_enabled'])) {
+            $active_provider = 'dropbox';
+        } elseif (isset($data['_bfp_cloud_s3_enabled'])) {
+            $active_provider = 's3';
+        } elseif (isset($data['_bfp_cloud_azure_enabled'])) {
+            $active_provider = 'azure';
+        }
+        
         return [
             '_bfp_cloud_active_tab' => isset($data['_bfp_cloud_active_tab']) ? 
-                                       sanitize_text_field(wp_unslash($data['_bfp_cloud_active_tab'])) : 'google-drive',
+                                       sanitize_text_field(wp_unslash($data['_bfp_cloud_active_tab'])) : $active_provider,
             '_bfp_cloud_storage' => [
+                'active_provider' => $active_provider,
                 'google_drive' => [
                     'enabled' => isset($data['_bfp_cloud_google_drive_enabled']) ? true : false,
                     'api_key' => isset($data['_bfp_drive_api_key']) ? 

@@ -125,9 +125,51 @@ function bfp_admin()
 	
 	// Cloud Storage Provider Mutual Exclusivity
 	$(document).on('change', '.bfp-cloud-provider-checkbox', function(){
-		if ($(this).is(':checked')) {
+		var $this = $(this);
+		var isChecked = $this.is(':checked');
+		
+		if (isChecked) {
 			// Uncheck all other cloud providers
 			$('.bfp-cloud-provider-checkbox').not(this).prop('checked', false);
+			
+			// Switch to the appropriate tab
+			var providerId = $this.attr('id');
+			var tabMapping = {
+				'_bfp_cloud_google_drive_enabled': 'google-drive',
+				'_bfp_cloud_dropbox_enabled': 'dropbox',
+				'_bfp_cloud_s3_enabled': 'aws-s3',
+				'_bfp_cloud_azure_enabled': 'azure'
+			};
+			
+			var targetTab = tabMapping[providerId];
+			if (targetTab) {
+				// Click the corresponding tab
+				$('.bfp-cloud-tab-btn[data-tab="' + targetTab + '"]').click();
+			}
+		}
+	});
+	
+	// Initialize cloud storage tab on page load
+	$(document).ready(function() {
+		// Check which cloud provider is enabled and switch to that tab
+		var enabledProvider = null;
+		$('.bfp-cloud-provider-checkbox:checked').each(function() {
+			enabledProvider = $(this).attr('id');
+		});
+		
+		if (enabledProvider) {
+			var tabMapping = {
+				'_bfp_cloud_google_drive_enabled': 'google-drive',
+				'_bfp_cloud_dropbox_enabled': 'dropbox',
+				'_bfp_cloud_s3_enabled': 'aws-s3',
+				'_bfp_cloud_azure_enabled': 'azure'
+			};
+			
+			var targetTab = tabMapping[enabledProvider];
+			if (targetTab) {
+				// Click the corresponding tab
+				$('.bfp-cloud-tab-btn[data-tab="' + targetTab + '"]').click();
+			}
 		}
 	});
 	

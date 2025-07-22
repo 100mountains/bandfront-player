@@ -411,3 +411,6 @@ class PlaylistWidget extends \WP_Widget {
 
 // Register widget hook
 add_action('widgets_init', [PlaylistWidget::class, 'register']);
+add_action('widgets_init', function() {
+    register_widget('Bandfront\\Widgets\\SidebarProfileWidget');
+});

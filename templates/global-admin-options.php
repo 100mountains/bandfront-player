@@ -12,25 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 // include resources
-wp_enqueue_style( 'bfp-admin-style', BFP_PLUGIN_URL . 'assets/css/style-admin.css', array(), '5.0.181' );
-wp_enqueue_style( 'bfp-admin-notices', BFP_PLUGIN_URL . 'assets/css/admin-notices.css', array(), '5.0.181' );
 wp_enqueue_media();
-wp_enqueue_script( 'bfp-admin-js', BFP_PLUGIN_URL . 'assets/js/admin.js', array('jquery'), '5.0.181' );
-$bfp_js = array(
-	'File Name'         => __( 'File Name', 'bandfront-player' ),
-	'Choose file'       => __( 'Choose file', 'bandfront-player' ),
-	'Delete'            => __( 'Delete', 'bandfront-player' ),
-	'Select audio file' => __( 'Select audio file', 'bandfront-player' ),
-	'Select Item'       => __( 'Select Item', 'bandfront-player' ),
-);
-wp_localize_script( 'bfp-admin-js', 'bfp', $bfp_js );
-// Add AJAX localization
-wp_localize_script( 'bfp-admin-js', 'bfp_ajax', array(
-    'ajax_url' => admin_url('admin-ajax.php'),
-    'saving_text' => __('Saving settings...', 'bandfront-player'),
-    'error_text' => __('An unexpected error occurred. Please try again.', 'bandfront-player'),
-    'dismiss_text' => __('Dismiss this notice', 'bandfront-player'),
-));
 // Get all settings using the injected config instance
 $settings = $config->getAdminFormSettings();
 // Handle special cases
@@ -91,17 +73,25 @@ $playerControls = $config->getPlayerControls();
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row">🛒 <?php esc_html_e( 'Full tracks for buyers', 'bandfront-player' ); ?></th>
-                    <td>
-                        <label><input aria-label="<?php esc_attr_e( 'For buyers, play the purchased audio files instead of the truncated files for demo', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_purchased" <?php checked( $settings['_bfp_purchased'] ); ?> />
-                        <?php esc_html_e( 'Let buyers hear full tracks instead of demos', 'bandfront-player' ); ?></label>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="_bfp_purchased_times_text">📊 <?php esc_html_e( 'Purchase count text', 'bandfront-player' ); ?></label></th>
+                    <th scope="row"><label for="_bfp_purchased_times_text">� <?php esc_html_e( 'Purchase count text', 'bandfront-player' ); ?></label></th>
                     <td>
                         <input aria-label="<?php esc_attr_e( 'Purchased times text', 'bandfront-player' ); ?>" type="text" id="_bfp_purchased_times_text" name="_bfp_purchased_times_text" value="<?php echo esc_attr( $settings['_bfp_purchased_times_text'] ); ?>" class="regular-text" />
                         <p class="description"><?php esc_html_e( 'Text shown in playlists when displaying purchase counts (use %d for the number)', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <!-- Purchasers Display Settings -->
+                <tr>
+                    <th scope="row"><label for="_bfp_show_purchasers">👥 <?php esc_html_e( 'Show Product Purchasers', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Show product purchasers', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_show_purchasers" name="_bfp_show_purchasers" <?php checked( $settings['_bfp_show_purchasers'] ); ?> />
+                        <p class="description"><?php esc_html_e( 'Display avatars of users who purchased the product on product pages', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_max_purchasers_display">� <?php esc_html_e( 'Maximum Purchasers to Display', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Maximum purchasers to display', 'bandfront-player' ); ?>" type="number" id="_bfp_max_purchasers_display" name="_bfp_max_purchasers_display" value="<?php echo esc_attr( $settings['_bfp_max_purchasers_display'] ); ?>" min="1" max="50" step="1" class="small-text" />
+                        <p class="description"><?php esc_html_e( 'Maximum number of purchaser avatars to show', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 <tr>
@@ -116,21 +106,6 @@ $playerControls = $config->getPlayerControls();
                     <td>
                         <input aria-label="<?php esc_attr_e( 'Enable SNDLOOP network integration', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_sndloop_mode" name="_bfp_sndloop_mode" <?php checked( $settings['_bfp_sndloop_mode'] ); ?> />
                         <p class="description"><?php esc_html_e( 'Enable SNDLOOP decentralized music discovery network integration', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
-                <!-- Purchasers Display Settings -->
-                <tr>
-                    <th scope="row"><label for="_bfp_show_purchasers">👥 <?php esc_html_e( 'Show Product Purchasers', 'bandfront-player' ); ?></label></th>
-                    <td>
-                        <input aria-label="<?php esc_attr_e( 'Show product purchasers', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_show_purchasers" name="_bfp_show_purchasers" <?php checked( $settings['_bfp_show_purchasers'] ); ?> />
-                        <p class="description"><?php esc_html_e( 'Display avatars of users who purchased the product on product pages', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="_bfp_max_purchasers_display">🔢 <?php esc_html_e( 'Maximum Purchasers to Display', 'bandfront-player' ); ?></label></th>
-                    <td>
-                        <input aria-label="<?php esc_attr_e( 'Maximum purchasers to display', 'bandfront-player' ); ?>" type="number" id="_bfp_max_purchasers_display" name="_bfp_max_purchasers_display" value="<?php echo esc_attr( $settings['_bfp_max_purchasers_display'] ); ?>" min="1" max="50" step="1" class="small-text" />
-                        <p class="description"><?php esc_html_e( 'Maximum number of purchaser avatars to show', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 

@@ -22,23 +22,25 @@ if (!defined('ABSPATH')) {
 
 // Get unified cloud storage settings
 $cloud_storage = $config->getState('_bfp_cloud_storage', []);
+$cloud_active_tab = $config->getState('_bfp_cloud_active_tab', 'google-drive');
 
 // Extract settings
 $active_provider = $cloud_storage['active_provider'] ?? 'none';
 $cloud_dropbox = $cloud_storage['dropbox'] ?? [];
 $cloud_s3 = $cloud_storage['s3'] ?? [];
 $cloud_azure = $cloud_storage['azure'] ?? [];
-$cloud_google = $cloud_storage['google-drive'] ?? [];
+$cloud_google = $cloud_storage['google_drive'] ?? [];
 
-// Map active provider to tab name for UI
-$tab_mapping = [
-    'none' => 'google-drive',
-    'google-drive' => 'google-drive',
-    'dropbox' => 'dropbox',
-    's3' => 'aws-s3',
-    'azure' => 'azure'
-];
-$cloud_active_tab = $tab_mapping[$active_provider] ?? 'google-drive';
+// Map active provider to tab name for UI - if a provider is enabled, show that tab
+if ($active_provider !== 'none') {
+    $tab_mapping = [
+        'google-drive' => 'google-drive',
+        'dropbox' => 'dropbox',
+        's3' => 'aws-s3',
+        'azure' => 'azure'
+    ];
+    $cloud_active_tab = $tab_mapping[$active_provider] ?? 'google-drive';
+}
 
 // Legacy options for backward compatibility
 $bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());

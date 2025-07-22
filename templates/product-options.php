@@ -11,18 +11,7 @@ if (!defined('ABSPATH')) {
  */
 
 // include resources
-wp_enqueue_style( 'bfp-admin-style', BFP_PLUGIN_URL . 'css/style-admin.css', array(), '0.1' );
-wp_enqueue_style( 'bfp-admin-notices', BFP_PLUGIN_URL . 'css/admin-notices.css', array(), '0.1' );
 wp_enqueue_media();
-wp_enqueue_script( 'bfp-admin-js', BFP_PLUGIN_URL . 'js/admin.js', array(), '0.1' );
-$bfp_js = array(
-	'File Name'         => __( 'File Name', 'bandfront-player' ),
-	'Choose file'       => __( 'Choose file', 'bandfront-player' ),
-	'Delete'            => __( 'Delete', 'bandfront-player' ),
-	'Select audio file' => __( 'Select audio file', 'bandfront-player' ),
-	'Select Item'       => __( 'Select Item', 'bandfront-player' ),
-);
-wp_localize_script( 'bfp-admin-js', 'bfp', $bfp_js );
 
 if (
 	isset( $_REQUEST['post'] ) &&

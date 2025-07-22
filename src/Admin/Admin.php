@@ -90,11 +90,45 @@ class Admin {
         // Load view templates that may enqueue assets
         $this->loadViewTemplates();
         
-        // Enqueue admin styles for our settings page
+        // Enqueue admin styles and scripts for our admin pages
         $screen = get_current_screen();
-        if ($screen && $screen->id === 'toplevel_page_bandfront-player-settings') {
+        $should_enqueue = false;
+        
+        if ($screen) {
+            // Main settings page
+            if ($screen->id === 'toplevel_page_bandfront-player-settings') {
+                $should_enqueue = true;
+            }
+            // Product edit pages (WooCommerce products)
+            elseif ($screen->id === 'product' || $screen->post_type === 'product') {
+                $should_enqueue = true;
+            }
+        }
+        
+        if ($should_enqueue) {
             wp_enqueue_style('bfp-admin', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/style-admin.css', [], BFP_VERSION);
             wp_enqueue_style('bfp-admin-notices', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/admin-notices.css', [], BFP_VERSION);
+            
+            // Enqueue admin JavaScript with localization
+            wp_enqueue_script('bfp-admin', plugin_dir_url(dirname(dirname(__FILE__))) . 'js/admin.js', ['jquery'], BFP_VERSION, true);
+            
+            // Add JavaScript localization
+            $bfp_js = array(
+                'File Name'         => __( 'File Name', 'bandfront-player' ),
+                'Choose file'       => __( 'Choose file', 'bandfront-player' ),
+                'Delete'            => __( 'Delete', 'bandfront-player' ),
+                'Select audio file' => __( 'Select audio file', 'bandfront-player' ),
+                'Select Item'       => __( 'Select Item', 'bandfront-player' ),
+            );
+            wp_localize_script( 'bfp-admin', 'bfp', $bfp_js );
+            
+            // Add AJAX localization
+            wp_localize_script( 'bfp-admin', 'bfp_ajax', array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'saving_text' => __('Saving settings...', 'bandfront-player'),
+                'error_text' => __('An unexpected error occurred. Please try again.', 'bandfront-player'),
+                'dismiss_text' => __('Dismiss this notice', 'bandfront-player'),
+            ));
         }
         
         Debug::log('Admin.php: Exiting enqueueAdminAssets()', []); // DEBUG-REMOVE

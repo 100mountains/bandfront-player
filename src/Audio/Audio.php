@@ -58,13 +58,10 @@ class Audio {
         $demosConfig = $this->config->getState('_bfp_demos', [], $productId);
         $demosEnabled = $demosConfig['enabled'] ?? false;
         
-        // Check if purchased users should get full tracks
-        $fullTracksForBuyers = $this->config->getState('_bfp_purchased', false, $productId);
-        
         // Determine if user should get full tracks:
-        // 1. If demos are disabled, everyone gets full tracks
-        // 2. If demos are enabled but user purchased AND full_tracks_for_buyers is enabled
-        $shouldGetFullTracks = !$demosEnabled || ($purchased && $fullTracksForBuyers);
+        // If demos are disabled, everyone gets full tracks
+        // If demos are enabled, everyone gets demos (purchased users also get demos)
+        $shouldGetFullTracks = !$demosEnabled;
         
         if ($shouldGetFullTracks && !empty($fileData['file'])) {
             // For HTML5 engine with full track access, prefer direct URLs
@@ -238,10 +235,10 @@ class Audio {
         $demosConfig = $this->config->getState('_bfp_demos', [], $productId);
         $demosEnabled = $demosConfig['enabled'] ?? false;
         $purchased = $this->checkPurchaseStatus($productId);
-        $fullTracksForBuyers = $this->config->getState('_bfp_purchased', false, $productId);
         
-        // User gets full file if: demos disabled OR (purchased AND full_tracks_for_buyers enabled)
-        $shouldGetFullFile = !$demosEnabled || ($purchased && $fullTracksForBuyers);
+        // User gets full file if demos are disabled
+        // Purchase authentication should be handled by WooCommerce's download permissions
+        $shouldGetFullFile = !$demosEnabled;
         
         if (!$shouldGetFullFile && $demosEnabled && $filePercent < 100) {
             // Serve demo file

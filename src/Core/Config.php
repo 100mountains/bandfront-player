@@ -61,7 +61,6 @@ class Config {
        '_bfp_players_in_cart' => false,
        '_bfp_allow_concurrent_audio' => 0,
        '_bfp_require_login' => 0,
-       '_bfp_purchased' => 0,
        '_bfp_purchased_times_text' => '- purchased %d time(s)',
        '_bfp_ffmpeg' => 0,
        '_bfp_ffmpeg_path' => '',
@@ -164,7 +163,6 @@ class Config {
        // Default values for settings
        $this->defaults = [
            '_bfp_require_login' => 0,
-           '_bfp_purchased' => 0,
            '_bfp_purchased_times_text' => 'Purchased %d time(s)',
            '_bfp_ffmpeg' => 0,
            '_bfp_ffmpeg_path' => '',
@@ -483,7 +481,6 @@ class Config {
            
            // General settings
            'registered_only' => ['key' => '_bfp_require_login', 'type' => 'int'],
-           'purchased' => ['key' => '_bfp_purchased', 'type' => 'int'],
            'purchased_times_text' => ['key' => '_bfp_purchased_times_text', 'type' => 'string'],
            'apply_to_all_players' => ['key' => '_bfp_apply_to_all_players', 'type' => 'int'],
            'dev_mode' => ['key' => '_bfp_dev_mode', 'type' => 'int'],

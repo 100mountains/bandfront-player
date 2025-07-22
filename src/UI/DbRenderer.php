@@ -472,7 +472,6 @@ class DbRenderer {
                 '_bfp_direct_demo_links',
                 '_bfp_demos_list',
                 '_bfp_require_login',
-                '_bfp_purchased',
                 '_bfp_reset_purchased_interval',
                 '_bfp_purchased_times_text'
             ])) {
