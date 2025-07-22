@@ -218,7 +218,8 @@ class Renderer {
         $output .= '</div>';
         
         // Add message if configured
-        $message = $this->config->getState('_bfp_demo_message', '');
+        $demosConfig = $this->config->getState('_bfp_demos', []);
+        $message = $demosConfig['message'] ?? '';
         if (!empty($message) && empty($atts['hide_message'])) {
             $output .= '<div class="bfp-message">' . wp_kses_post(__($message, 'bandfront-player')) . '</div>';
         }

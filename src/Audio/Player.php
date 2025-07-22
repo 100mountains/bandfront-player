@@ -348,7 +348,8 @@ class Player {
                 $purchased = $woocommerce->isUserProduct($id);
             }
             
-            $message = $this->config->getState('_bfp_demo_message');
+            $demosConfig = $this->config->getState('_bfp_demos', []);
+            $message = $demosConfig['message'] ?? '';
             if (!empty($message) && false === $purchased) {
                 print '<div class="bfp-message">' . wp_kses_post(__($message, 'bandfront-player')) . '</div>'; // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             }

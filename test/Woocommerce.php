@@ -413,7 +413,8 @@ class WooCommerce {
         $output .= '</div>';
         
         // Use getState for message retrieval
-        $message = $this->mainPlugin->getConfig()->getState('_bfp_demo_message', '');
+        $demosConfig = $this->mainPlugin->getConfig()->getState('_bfp_demos', []);
+        $message = $demosConfig['message'] ?? '';
         if (!empty($message) && empty($atts['hide_message'])) {
             $output .= '<div class="bfp-message">' . wp_kses_post(__($message, 'bandfront-player')) . '</div>';
         }
