@@ -113,7 +113,7 @@ class Audio {
         
         if (file_exists($local_path)) {
             // Delegate to processor
-            $processor = new Processor($this->config, $this->fileManager);
+            $processor = new Processor($this->config, $this->fileManager, $this->demoCreator);
             $duration = $processor->getAudioDuration($local_path);
         }
         

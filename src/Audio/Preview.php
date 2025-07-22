@@ -23,6 +23,7 @@ class Preview {
     private Config $config;
     private Audio $audio;
     private FileManager $fileManager;
+    private DemoCreator $demoCreator;
     
     /**
      * Constructor

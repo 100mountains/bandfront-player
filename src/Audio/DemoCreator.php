@@ -171,7 +171,7 @@ class DemoCreator {
         }
         
         $filesize = filesize($filePath);
-        $newSize = floor($filesize * ($percent / 100));
+        $newSize = (int) floor($filesize * ($percent / 100));
         
         // Create truncated copy
         $tempFile = $filePath . '.tmp';
@@ -182,7 +182,8 @@ class DemoCreator {
             
             $written = 0;
             while (!feof($source) && $written < $newSize) {
-                $chunk = fread($source, min(8192, $newSize - $written));
+                $chunkSize = min(8192, $newSize - $written);
+                $chunk = fread($source, (int)$chunkSize);
                 fwrite($dest, $chunk);
                 $written += strlen($chunk);
             }

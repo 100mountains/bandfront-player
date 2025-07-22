@@ -123,7 +123,12 @@ class Settings {
         Debug::log('Settings.php: Updating global settings option', ['globalSettings' => $globalSettings]); // DEBUG-REMOVE
         update_option('bfp_global_settings', $globalSettings);
         $this->config->updateGlobalAttrs($globalSettings);
-        do_action('bfp_save_setting');
+        
+        // Handle demo creation directly (internal component communication)
+        $this->onDemoSettingsSaved();
+        
+        // Fire hook for external plugins/themes (external API)
+        do_action('bfp_save_setting', $globalSettings, $this->config);
 
         // Purge Cache
         Debug::log('Settings.php: Clearing all plugin caches', []); // DEBUG-REMOVE

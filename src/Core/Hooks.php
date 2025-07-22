@@ -102,8 +102,6 @@ class Hooks {
         
         // AJAX handlers - these need to be registered globally
         add_action('wp_ajax_bfp_save_settings', [$admin, 'ajaxSaveSettings']);
-        // Demo creation hook
-        add_action('bfp_save_setting', [$this->bootstrap->getComponent('settings'), 'onDemoSettingsSaved']);
         Debug::log('Hooks.php: Admin hooks registered successfully'); // DEBUG-REMOVE
     }
     
