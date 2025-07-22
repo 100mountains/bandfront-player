@@ -54,8 +54,11 @@ class Audio {
         // Check audio engine setting
         $audioEngine = $this->config->getState('_bfp_audio_engine', 'html5', $productId);
         
-        if ($purchased && !empty($fileData['file'])) {
-            // For HTML5 engine with purchased products, prefer direct URLs
+        // Check if demos are enabled
+        $demosEnabled = $this->config->getState('_bfp_play_demos', false, $productId);
+        
+        if ($purchased && !empty($fileData['file']) && !$demosEnabled) {
+            // For HTML5 engine with purchased products and demos disabled, prefer direct URLs
             if ($audioEngine === 'html5') {
                 // Try to get direct URL to pre-generated file
                 $preGeneratedUrl = $this->getPreGeneratedFileUrl($productId, $fileData['file']);

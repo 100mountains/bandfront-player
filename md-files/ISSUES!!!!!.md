@@ -3,7 +3,7 @@ audio engine js split
 my downloads - processing code
 show purchashers
 wavefront stuff 
-
+rebuild html player for skip next and back - remove controls
 
 
 

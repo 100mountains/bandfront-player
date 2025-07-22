@@ -7,19 +7,19 @@ The BandFront Player Cloud Storage system automatically uploads demo files to Go
 ## How It Works
 
 ### 1. **Automatic Demo Upload**
-- When a product has audio files and "Protect audio files" is enabled
+- When a product has audio files and "demo files" is enabled
 - BandFront creates demo versions (e.g., 30% of original length)
 - Instead of storing demos locally, they're automatically uploaded to your Google Drive
 - Original full files remain on your server for purchased customers
 
 ### 2. **Cloud Streaming**
-- When visitors play demo tracks, they stream directly from Google Drive
+- When visitors play demo tracks, they stream directly from Google Drive or other service
 - No bandwidth usage on your server for demo playback
 - Faster loading times (Google's CDN vs your server)
 - Reduced server storage requirements
 
 ### 3. **Metadata Management**
-- Cloud file URLs and metadata stored in WordPress post meta (`_bfp_drive_files`)
+- Cloud file URLs and metadata stored in database key 
 - Automatic cleanup when products are deleted
 - File versioning support for updated demos
 
