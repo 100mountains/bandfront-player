@@ -54,8 +54,9 @@ class Audio {
         // Check audio engine setting
         $audioEngine = $this->config->getState('_bfp_audio_engine', 'html5', $productId);
         
-        // Check if demos are enabled
-        $demosEnabled = $this->config->getState('_bfp_play_demos', false, $productId);
+        // Check if demos are enabled using simple structure
+        $demosConfig = $this->config->getState('_bfp_demos', [], $productId);
+        $demosEnabled = $demosConfig['enabled'] ?? false;
         
         // Check if purchased users should get full tracks
         $fullTracksForBuyers = $this->config->getState('_bfp_purchased', false, $productId);
@@ -233,8 +234,9 @@ class Audio {
             exit;
         }
         
-        // Determine if user should get demo or full file
-        $demosEnabled = $this->config->getState('_bfp_play_demos', false, $productId);
+        // Determine if user should get demo or full file using simple structure
+        $demosConfig = $this->config->getState('_bfp_demos', [], $productId);
+        $demosEnabled = $demosConfig['enabled'] ?? false;
         $purchased = $this->checkPurchaseStatus($productId);
         $fullTracksForBuyers = $this->config->getState('_bfp_purchased', false, $productId);
         

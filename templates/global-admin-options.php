@@ -230,6 +230,24 @@ $playerControls = $config->getPlayerControls();
                     </td>
                 </tr>
                 <tr>
+                    <th scope="row"><label for="_bfp_demos_demo_filetype">🎵 <?php esc_html_e( 'Demo file format', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <select aria-label="<?php esc_attr_e( 'Output format for demo files', 'bandfront-player' ); ?>" id="_bfp_demos_demo_filetype" name="_bfp_demos[demo_filetype]">
+                            <option value="mp3" <?php selected( $settings['_bfp_demos']['demo_filetype'] ?? 'mp3', 'mp3' ); ?>>MP3 (Universal compatibility)</option>
+                            <option value="wav" <?php selected( $settings['_bfp_demos']['demo_filetype'] ?? 'mp3', 'wav' ); ?>>WAV (Requires FFmpeg)</option>
+                            <option value="ogg" <?php selected( $settings['_bfp_demos']['demo_filetype'] ?? 'mp3', 'ogg' ); ?>>OGG (Requires FFmpeg)</option>
+                            <option value="m4a" <?php selected( $settings['_bfp_demos']['demo_filetype'] ?? 'mp3', 'm4a' ); ?>>M4A (Requires FFmpeg)</option>
+                            <option value="flac" <?php selected( $settings['_bfp_demos']['demo_filetype'] ?? 'mp3', 'flac' ); ?>>FLAC (Requires FFmpeg)</option>
+                        </select>
+                        <p class="description">
+                            <?php esc_html_e( 'Output format for generated demo files. Non-MP3 formats require FFmpeg to be installed and configured.', 'bandfront-player' ); ?>
+                            <?php if (!$settings['_bfp_ffmpeg']): ?>
+                                <br><strong style="color: #d63384;"><?php esc_html_e( 'FFmpeg is currently disabled - only MP3 format is available.', 'bandfront-player' ); ?></strong>
+                            <?php endif; ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
                     <th scope="row"><label for="_bfp_demos_demo_start_time">⏰ <?php esc_html_e( 'Demo start position (%)', 'bandfront-player' ); ?></label></th>
                     <td>
                         <input aria-label="<?php esc_attr_e( 'Where in the track to start the demo', 'bandfront-player' ); ?>" type="range" id="_bfp_demos_demo_start_time" name="_bfp_demos[demo_start_time]" min="0" max="50" value="<?php echo esc_attr( $settings['_bfp_demos']['demo_start_time'] ?? 0 ); ?>" class="demo-start-slider" />

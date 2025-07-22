@@ -386,10 +386,10 @@ class DbRenderer {
     private function getDirectoryInfo(): array {
         // Use WordPress best practices for directory paths
         $upload_dir = wp_upload_dir();
-        
-        // Get plugin directory using WordPress functions
-        $plugin_dir = plugin_dir_path(dirname(dirname(__DIR__)));
-        
+
+        // Use the correct plugin directory constant
+        $plugin_dir = defined('BFP_PLUGIN_DIR') ? BFP_PLUGIN_DIR : plugin_dir_path(dirname(dirname(__DIR__)));
+
         $directories = [
             'Plugin Root' => $plugin_dir,
             'Plugin Assets' => $plugin_dir . 'assets/',

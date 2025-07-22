@@ -103,7 +103,9 @@ class Settings {
         ]);
         
         // Parse form data
+        Debug::log('Settings.php: Raw form data', ['REQUEST' => $_REQUEST]); // DEBUG-REMOVE
         $globalSettings = $this->parseFormData($_REQUEST);
+        Debug::log('Settings.php: Parsed global settings', ['globalSettings' => $globalSettings]); // DEBUG-REMOVE
         
         // Handle special actions
         if ($globalSettings['_bfp_apply_to_all_players'] || isset($_REQUEST['_bfp_delete_demos'])) {
@@ -120,8 +122,9 @@ class Settings {
         }
 
         // Save settings
-        Debug::log('Settings.php: Updating global settings option', ['globalSettings' => $globalSettings]); // DEBUG-REMOVE
-        update_option('bfp_global_settings', $globalSettings);
+        Debug::log('Settings.php: About to save to database', ['globalSettings' => $globalSettings]); // DEBUG-REMOVE
+        $saveResult = update_option('bfp_global_settings', $globalSettings);
+        Debug::log('Settings.php: Database save result', ['result' => $saveResult]); // DEBUG-REMOVE
         $this->config->updateGlobalAttrs($globalSettings);
         
         // Handle demo creation directly (internal component communication)
@@ -151,20 +154,20 @@ class Settings {
             'enable_db_monitoring' => isset($data['enable_db_monitoring']) ? 1 : 0,  // Add database monitoring
             '_bfp_debug_mode' => isset($data['_bfp_debug_mode']) ? 1 : 0,  // Add debug mode
             
-            // Consolidated demos array
+            // Simple flat demos array - much cleaner!
             '_bfp_demos' => [
                 'enabled' => isset($data['_bfp_demos']['enabled']) ? true : false,
                 'duration_percent' => isset($data['_bfp_demos']['duration_percent']) ? 
                     max(1, min(100, (int) $data['_bfp_demos']['duration_percent'])) : 50,
                 'demo_fade' => isset($data['_bfp_demos']['demo_fade']) ? 
                     max(0, min(10, (float) $data['_bfp_demos']['demo_fade'])) : 0,
+                'demo_filetype' => isset($data['_bfp_demos']['demo_filetype']) && 
+                    in_array($data['_bfp_demos']['demo_filetype'], ['mp3', 'wav', 'ogg', 'mp4', 'm4a', 'flac']) ? 
+                    $data['_bfp_demos']['demo_filetype'] : 'mp3',
                 'demo_start_time' => isset($data['_bfp_demos']['demo_start_time']) ? 
                     max(0, min(50, (int) $data['_bfp_demos']['demo_start_time'])) : 0,
                 'message' => isset($data['_bfp_demos']['message']) ? 
                     sanitize_textarea_field(wp_unslash($data['_bfp_demos']['message'])) : '',
-                'use_custom' => false, // Global setting is always false - products override this
-                'direct_links' => false, // Global setting is always false - products override this
-                'demos_list' => [] // This would be populated at product level only
             ],
             
             '_bfp_ffmpeg' => isset($data['_bfp_ffmpeg']) ? 1 : 0,
@@ -410,7 +413,20 @@ class Settings {
             update_post_meta($productId, '_bfp_unified_player', $globalSettings['_bfp_unified_player']);
             update_post_meta($productId, '_bfp_play_all', $globalSettings['_bfp_play_all']);
             update_post_meta($productId, '_bfp_loop', $globalSettings['_bfp_loop']);
-            update_post_meta($productId, '_bfp_demos', $globalSettings['_bfp_demos']);
+            
+            // For demos, only update global settings while preserving product-specific ones
+            $existingDemos = get_post_meta($productId, '_bfp_demos', true) ?: [];
+            if (!is_array($existingDemos)) {
+                $existingDemos = [];
+            }
+            
+            // Preserve existing product settings, only update global section
+            $updatedDemos = $existingDemos;
+            if (isset($globalSettings['_bfp_demos']['global'])) {
+                $updatedDemos['global'] = $globalSettings['_bfp_demos']['global'];
+            }
+            
+            update_post_meta($productId, '_bfp_demos', $updatedDemos);
 
             $this->config->clearProductAttrsCache($productId);
         }

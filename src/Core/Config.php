@@ -28,16 +28,19 @@ class Config {
    private array $overridableSettings = [
        '_bfp_enable_player' => false,
        '_bfp_product_buttons' => 'on',
- '_bfp_demos' => [
- 'enabled' => false, 
- 'duration_percent' => 50, 
- 'demo_fade' => 0, 
- 'demo_start_time' => 0, 
- 'message' => '', 
- 'use_custom' => false, 
- 'direct_links' => false, 
- 'demos_list' => [] 
- ],
+       '_bfp_demos' => [
+           'enabled' => false,
+           'duration_percent' => 50,
+           'demo_fade' => 0,
+           'demo_filetype' => 'mp3', // mp3, wav, ogg, mp4, m4a, flac (requires FFmpeg for non-mp3)
+           'demo_start_time' => 0,
+           'message' => '',
+       ],
+       '_bfp_product_demos' => [
+           'use_custom' => false,
+           'skip_processing' => false, // if true, use demo files as-is (no fade, truncate, or conversion)
+           'demos_list' => []
+       ],
        '_bfp_audio_engine' => 'html5',
        '_bfp_unified_player' => 0,
        '_bfp_group_cart_control' => 0,
@@ -164,16 +167,19 @@ class Config {
            '_bfp_ffmpeg_watermark' => '',
            '_bfp_enable_player' => 1,
            '_bfp_product_buttons' => 'on',
- '_bfp_demos' => [
- 'enabled' => false, 
- 'duration_percent' => 50, 
- 'demo_fade' => 0, 
- 'demo_start_time' => 0, 
- 'message' => '', 
- 'use_custom' => false, 
- 'direct_links' => false, 
- 'demos_list' => [] 
- ],
+           '_bfp_demos' => [
+               'enabled' => false,
+               'duration_percent' => 50,
+               'demo_fade' => 0,
+               'demo_filetype' => 'mp3', // mp3, wav, ogg, mp4, m4a, flac (requires FFmpeg for non-mp3)
+               'demo_start_time' => 0,
+               'message' => '',
+           ],
+           '_bfp_product_demos' => [
+               'use_custom' => false,
+               'skip_processing' => false, // if true, use demo files as-is (no fade, truncate, or conversion)
+               'demos_list' => []
+           ],
            '_bfp_players_in_cart' => 0,
            '_bfp_player_layout' => 'dark',
            '_bfp_button_theme' => 'custom',
@@ -433,7 +439,6 @@ class Config {
     */
    public function getAdminFormSettings(): array {
        // Define all settings with their defaults
-       // Clear cache to ensure fresh data\n       $this->globalAttrs = [];
        $settingsConfig = [
            // FFmpeg settings
            'ffmpeg' => ['key' => '_bfp_ffmpeg', 'type' => 'bool'],
@@ -478,6 +483,9 @@ class Config {
            // Audio engine settings
            'audio_engine' => ['key' => '_bfp_audio_engine', 'type' => 'string'],
            'enable_visualizations' => ['key' => '_bfp_enable_visualizations', 'type' => 'int'],
+           
+           // Demo settings
+           'demos' => ['key' => '_bfp_demos', 'type' => 'array'],
        ];
        
        // Get all keys
@@ -507,6 +515,9 @@ class Config {
                    break;
                case 'trim_int':
                    $value = intval(trim($value));
+                   break;
+               case 'array':
+                   // Keep arrays as-is, no casting needed
                    break;
                case 'string':
                default:

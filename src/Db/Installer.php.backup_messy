@@ -20,7 +20,7 @@ error_log("[BFP] Installer.php file loaded");
  */
 class Installer {
     
-    private static string $version = '2.3.5';
+    private static string $version = '2.3.7';
     private static string $version_option = 'bfp_db_version';
     
     /**
@@ -56,6 +56,34 @@ class Installer {
                     $global_settings['_bfp_max_purchasers_display'] = 10;
                 }
                 update_option('bfp_global_settings', $global_settings);
+
+            if (version_compare($installed_version, '2.3.7', '<')) {
+                $global_settings = get_option('bfp_global_settings', []);
+
+                $demos = [
+                    'enabled' => isset($global_settings['_bfp_play_demos']) ? $global_settings['_bfp_play_demos'] : false,
+                    'duration_percent' => isset($global_settings['_bfp_demo_duration_percent']) ? $global_settings['_bfp_demo_duration_percent'] : 50,
+                    'demo_fade' => isset($global_settings['_bfp_fade_out']) ? $global_settings['_bfp_fade_out'] : 0,
+                    'demo_start_time' => 0,
+                    'message' => isset($global_settings['_bfp_demo_message']) ? $global_settings['_bfp_demo_message'] : '',
+                    'use_custom' => isset($global_settings['_bfp_use_custom_demos']) ? $global_settings['_bfp_use_custom_demos'] : false,
+                    'direct_links' => isset($global_settings['_bfp_direct_demo_links']) ? $global_settings['_bfp_direct_demo_links'] : false,
+                    'demos_list' => isset($global_settings['_bfp_demos_list']) ? $global_settings['_bfp_demos_list'] : []
+                ];
+
+                unset($global_settings['_bfp_play_demos'], 
+                      $global_settings['_bfp_demo_duration_percent'], 
+                      $global_settings['_bfp_fade_out'], 
+                      $global_settings['_bfp_demo_message'], 
+                      $global_settings['_bfp_use_custom_demos'], 
+                      $global_settings['_bfp_direct_demo_links'], 
+                      $global_settings['_bfp_demos_list']);
+
+                $global_settings['_bfp_demos'] = $demos;
+
+                update_option('bfp_global_settings', $global_settings);
+                error_log('BFP: Migrated demo settings to _bfp_demos array');
+            }
             }
             
             if (version_compare($installed_version, '2.3.3', '<')) {
@@ -68,6 +96,34 @@ class Installer {
                     $global_settings['_bfp_button_theme'] = 'custom';
                 }
                 update_option('bfp_global_settings', $global_settings);
+
+            if (version_compare($installed_version, '2.3.7', '<')) {
+                $global_settings = get_option('bfp_global_settings', []);
+
+                $demos = [
+                    'enabled' => isset($global_settings['_bfp_play_demos']) ? $global_settings['_bfp_play_demos'] : false,
+                    'duration_percent' => isset($global_settings['_bfp_demo_duration_percent']) ? $global_settings['_bfp_demo_duration_percent'] : 50,
+                    'demo_fade' => isset($global_settings['_bfp_fade_out']) ? $global_settings['_bfp_fade_out'] : 0,
+                    'demo_start_time' => 0,
+                    'message' => isset($global_settings['_bfp_demo_message']) ? $global_settings['_bfp_demo_message'] : '',
+                    'use_custom' => isset($global_settings['_bfp_use_custom_demos']) ? $global_settings['_bfp_use_custom_demos'] : false,
+                    'direct_links' => isset($global_settings['_bfp_direct_demo_links']) ? $global_settings['_bfp_direct_demo_links'] : false,
+                    'demos_list' => isset($global_settings['_bfp_demos_list']) ? $global_settings['_bfp_demos_list'] : []
+                ];
+
+                unset($global_settings['_bfp_play_demos'], 
+                      $global_settings['_bfp_demo_duration_percent'], 
+                      $global_settings['_bfp_fade_out'], 
+                      $global_settings['_bfp_demo_message'], 
+                      $global_settings['_bfp_use_custom_demos'], 
+                      $global_settings['_bfp_direct_demo_links'], 
+                      $global_settings['_bfp_demos_list']);
+
+                $global_settings['_bfp_demos'] = $demos;
+
+                update_option('bfp_global_settings', $global_settings);
+                error_log('BFP: Migrated demo settings to _bfp_demos array');
+            }
             }
             
             if (version_compare($installed_version, '2.3.4', '<')) {
@@ -75,20 +131,90 @@ class Installer {
                 $global_settings = get_option('bfp_global_settings', []);
                 unset($global_settings['_bfp_force_main_player_in_title']);
                 update_option('bfp_global_settings', $global_settings);
+
+            if (version_compare($installed_version, '2.3.7', '<')) {
+                $global_settings = get_option('bfp_global_settings', []);
+
+                $demos = [
+                    'enabled' => isset($global_settings['_bfp_play_demos']) ? $global_settings['_bfp_play_demos'] : false,
+                    'duration_percent' => isset($global_settings['_bfp_demo_duration_percent']) ? $global_settings['_bfp_demo_duration_percent'] : 50,
+                    'demo_fade' => isset($global_settings['_bfp_fade_out']) ? $global_settings['_bfp_fade_out'] : 0,
+                    'demo_start_time' => 0,
+                    'message' => isset($global_settings['_bfp_demo_message']) ? $global_settings['_bfp_demo_message'] : '',
+                    'use_custom' => isset($global_settings['_bfp_use_custom_demos']) ? $global_settings['_bfp_use_custom_demos'] : false,
+                    'direct_links' => isset($global_settings['_bfp_direct_demo_links']) ? $global_settings['_bfp_direct_demo_links'] : false,
+                    'demos_list' => isset($global_settings['_bfp_demos_list']) ? $global_settings['_bfp_demos_list'] : []
+                ];
+
+                unset($global_settings['_bfp_play_demos'], 
+                      $global_settings['_bfp_demo_duration_percent'], 
+                      $global_settings['_bfp_fade_out'], 
+                      $global_settings['_bfp_demo_message'], 
+                      $global_settings['_bfp_use_custom_demos'], 
+                      $global_settings['_bfp_direct_demo_links'], 
+                      $global_settings['_bfp_demos_list']);
+
+                $global_settings['_bfp_demos'] = $demos;
+
+                update_option('bfp_global_settings', $global_settings);
+                error_log('BFP: Migrated demo settings to _bfp_demos array');
+            }
             }
             
             if (version_compare($installed_version, '2.3.5', '<')) {
+
+            // Remove deprecated reset purchased interval setting
+            $globalSettings = get_option('bfp_global_settings', []);
+            if (isset($globalSettings['_bfp_reset_purchased_interval'])) {
+                unset($globalSettings['_bfp_reset_purchased_interval']);
+                update_option('bfp_global_settings', $globalSettings);
+                error_log('BFP: Removed deprecated _bfp_reset_purchased_interval setting');
+            }
+        }
+
+        if (version_compare($installed_version, '2.3.6', '<')) {
                 // Add navigation buttons setting (prev/next track buttons)
                 $global_settings = get_option('bfp_global_settings', []);
                 if (!isset($global_settings['_bfp_show_navigation_buttons'])) {
                     $global_settings['_bfp_show_navigation_buttons'] = 1; // Default enabled
                 }
                 update_option('bfp_global_settings', $global_settings);
+
+            if (version_compare($installed_version, '2.3.7', '<')) {
+                $global_settings = get_option('bfp_global_settings', []);
+
+                $demos = [
+                    'enabled' => isset($global_settings['_bfp_play_demos']) ? $global_settings['_bfp_play_demos'] : false,
+                    'duration_percent' => isset($global_settings['_bfp_demo_duration_percent']) ? $global_settings['_bfp_demo_duration_percent'] : 50,
+                    'demo_fade' => isset($global_settings['_bfp_fade_out']) ? $global_settings['_bfp_fade_out'] : 0,
+                    'demo_start_time' => 0,
+                    'message' => isset($global_settings['_bfp_demo_message']) ? $global_settings['_bfp_demo_message'] : '',
+                    'use_custom' => isset($global_settings['_bfp_use_custom_demos']) ? $global_settings['_bfp_use_custom_demos'] : false,
+                    'direct_links' => isset($global_settings['_bfp_direct_demo_links']) ? $global_settings['_bfp_direct_demo_links'] : false,
+                    'demos_list' => isset($global_settings['_bfp_demos_list']) ? $global_settings['_bfp_demos_list'] : []
+                ];
+
+                unset($global_settings['_bfp_play_demos'], 
+                      $global_settings['_bfp_demo_duration_percent'], 
+                      $global_settings['_bfp_fade_out'], 
+                      $global_settings['_bfp_demo_message'], 
+                      $global_settings['_bfp_use_custom_demos'], 
+                      $global_settings['_bfp_direct_demo_links'], 
+                      $global_settings['_bfp_demos_list']);
+
+                $global_settings['_bfp_demos'] = $demos;
+
+                update_option('bfp_global_settings', $global_settings);
+                error_log('BFP: Migrated demo settings to _bfp_demos array');
+            }
             }
             $config = new \Bandfront\Core\Config();
             $global_settings = get_option('bfp_global_settings', []);
             if (empty($global_settings)) {
                 // Config class will handle defaults
+
+            self::createTables();
+            self::updateVersion();
                 update_option('bfp_global_settings', []);
             }
         } else {
@@ -235,6 +361,34 @@ class Installer {
             unset($global_settings['_bfp_analytics_endpoints']);
             
             update_option('bfp_global_settings', $global_settings);
+
+            if (version_compare($installed_version, '2.3.7', '<')) {
+                $global_settings = get_option('bfp_global_settings', []);
+
+                $demos = [
+                    'enabled' => isset($global_settings['_bfp_play_demos']) ? $global_settings['_bfp_play_demos'] : false,
+                    'duration_percent' => isset($global_settings['_bfp_demo_duration_percent']) ? $global_settings['_bfp_demo_duration_percent'] : 50,
+                    'demo_fade' => isset($global_settings['_bfp_fade_out']) ? $global_settings['_bfp_fade_out'] : 0,
+                    'demo_start_time' => 0,
+                    'message' => isset($global_settings['_bfp_demo_message']) ? $global_settings['_bfp_demo_message'] : '',
+                    'use_custom' => isset($global_settings['_bfp_use_custom_demos']) ? $global_settings['_bfp_use_custom_demos'] : false,
+                    'direct_links' => isset($global_settings['_bfp_direct_demo_links']) ? $global_settings['_bfp_direct_demo_links'] : false,
+                    'demos_list' => isset($global_settings['_bfp_demos_list']) ? $global_settings['_bfp_demos_list'] : []
+                ];
+
+                unset($global_settings['_bfp_play_demos'], 
+                      $global_settings['_bfp_demo_duration_percent'], 
+                      $global_settings['_bfp_fade_out'], 
+                      $global_settings['_bfp_demo_message'], 
+                      $global_settings['_bfp_use_custom_demos'], 
+                      $global_settings['_bfp_direct_demo_links'], 
+                      $global_settings['_bfp_demos_list']);
+
+                $global_settings['_bfp_demos'] = $demos;
+
+                update_option('bfp_global_settings', $global_settings);
+                error_log('BFP: Migrated demo settings to _bfp_demos array');
+            }
             }
             
             if (version_compare($installed_version, '2.3.3', '<')) {
@@ -247,6 +401,34 @@ class Installer {
                     $global_settings['_bfp_button_theme'] = 'custom';
                 }
                 update_option('bfp_global_settings', $global_settings);
+
+            if (version_compare($installed_version, '2.3.7', '<')) {
+                $global_settings = get_option('bfp_global_settings', []);
+
+                $demos = [
+                    'enabled' => isset($global_settings['_bfp_play_demos']) ? $global_settings['_bfp_play_demos'] : false,
+                    'duration_percent' => isset($global_settings['_bfp_demo_duration_percent']) ? $global_settings['_bfp_demo_duration_percent'] : 50,
+                    'demo_fade' => isset($global_settings['_bfp_fade_out']) ? $global_settings['_bfp_fade_out'] : 0,
+                    'demo_start_time' => 0,
+                    'message' => isset($global_settings['_bfp_demo_message']) ? $global_settings['_bfp_demo_message'] : '',
+                    'use_custom' => isset($global_settings['_bfp_use_custom_demos']) ? $global_settings['_bfp_use_custom_demos'] : false,
+                    'direct_links' => isset($global_settings['_bfp_direct_demo_links']) ? $global_settings['_bfp_direct_demo_links'] : false,
+                    'demos_list' => isset($global_settings['_bfp_demos_list']) ? $global_settings['_bfp_demos_list'] : []
+                ];
+
+                unset($global_settings['_bfp_play_demos'], 
+                      $global_settings['_bfp_demo_duration_percent'], 
+                      $global_settings['_bfp_fade_out'], 
+                      $global_settings['_bfp_demo_message'], 
+                      $global_settings['_bfp_use_custom_demos'], 
+                      $global_settings['_bfp_direct_demo_links'], 
+                      $global_settings['_bfp_demos_list']);
+
+                $global_settings['_bfp_demos'] = $demos;
+
+                update_option('bfp_global_settings', $global_settings);
+                error_log('BFP: Migrated demo settings to _bfp_demos array');
+            }
             error_log('Analytics settings migrated from ua to internal');
         }
     }

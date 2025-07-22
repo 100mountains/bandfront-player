@@ -39,7 +39,7 @@ if (!defined('ABSPATH')) {
  */
 class Debug {
     private static ?Config $config = null;
-    private static ?string $currentDomain = null;
+    private static array $domainStack = [];
     private static int $maxDepth = 3;
     private static int $maxStringLength = 500;
     private static ?string $logFile = null;
@@ -52,10 +52,17 @@ class Debug {
     }
 
     /**
-     * Set the current debug domain for this file/class
+     * Set the current debug domain for this file/class (push onto stack)
      */
     public static function domain(string $domain): void {
-        self::$currentDomain = strtolower($domain);
+        array_push(self::$domainStack, strtolower($domain));
+    }
+
+    /**
+     * Pop the last debug domain off the stack (optional, for advanced use)
+     */
+    public static function popDomain(): void {
+        array_pop(self::$domainStack);
     }
 
     /**
@@ -65,14 +72,11 @@ class Debug {
      * @param string|null $domain Optional domain override
      */
     public static function log(string $message, array $context = [], ?string $domain = null): void {
-        // Use provided domain, fall back to current domain
-        $domain = $domain ? strtolower($domain) : self::$currentDomain;
-        
-        // If no domain set, don't log
+        // Use provided domain, else use the top of the stack
+        $domain = $domain ? strtolower($domain) : (end(self::$domainStack) ?: null);
         if (!$domain || !self::$config) {
             return;
         }
-        
         // Check if core override is enabled (affects all core-* domains)
         if (strpos($domain, 'core-') === 0 && self::$config->isDebugEnabled('core')) {
             // Core override is enabled, proceed with logging
@@ -80,22 +84,14 @@ class Debug {
             // Domain not enabled
             return;
         }
-
-        // Format the log entry
         $timestamp = date('Y-m-d H:i:s');
         $domainPrefix = strtoupper($domain);
         $logEntry = "[BFP:{$domainPrefix}] [{$timestamp}] {$message}";
-
-        // Add context if provided
         if (!empty($context)) {
             $contextStr = self::formatContext($context);
             $logEntry .= " | Context: {$contextStr}";
         }
-
-        // Write to error log
         error_log($logEntry);
-        
-        // Also write to debug.log file if configured
         $logFile = self::getLogFile();
         if ($logFile) {
             $logEntry .= PHP_EOL;

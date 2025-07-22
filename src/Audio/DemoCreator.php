@@ -33,15 +33,16 @@ class DemoCreator {
     public function createDemosForAllProducts(): int {
         Debug::log('DemoCreator: Starting demo creation for all products', []);
         
-        // Check if demos are enabled
-        $demosEnabled = $this->config->getState('_bfp_play_demos', false);
+        // Check if demos are enabled using simple structure
+        $demosConfig = $this->config->getState('_bfp_demos');
+        $demosEnabled = $demosConfig['enabled'] ?? false;
         if (!$demosEnabled) {
             Debug::log('DemoCreator: Demos disabled, skipping creation', []);
             return 0;
         }
         
-        // Get demo settings
-        $demoPercent = (int) $this->config->getState('_bfp_demo_duration_percent', 30);
+        // Get demo settings from simple structure
+        $demoPercent = $demosConfig['duration_percent'] ?? 30;
         Debug::log('DemoCreator: Demo percentage', ['percent' => $demoPercent]);
         
         // Get all downloadable products
