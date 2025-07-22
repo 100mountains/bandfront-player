@@ -208,8 +208,7 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
             
             <!-- AWS S3 Tab -->
             <div class="bfp-cloud-tab-panel <?php echo $cloud_active_tab === 'aws-s3' ? 'bfp-cloud-tab-panel-active' : ''; ?>" data-panel="aws-s3">
-                <div class="bfp-cloud-placeholder">
-                    <table class="form-table">
+                <table class="form-table">
                         <tr>
                             <th scope="row"><label for="_bfp_s3_enabled"><?php esc_html_e('Enable AWS S3 Storage', 'bandfront-player'); ?></label></th>
                             <td>
@@ -262,24 +261,24 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
                             </td>
                         </tr>
                     </table>
-                    <h3>🛡️ <?php esc_html_e( 'Amazon S3 Storage', 'bandfront-player' ); ?></h3>
-                    <p><?php esc_html_e( 'Enterprise-grade cloud storage with AWS S3. Perfect for high-traffic websites requiring maximum reliability and global CDN distribution.', 'bandfront-player' ); ?></p>
-                    <div class="bfp-cloud-features">
-                        <h4><?php esc_html_e( 'Planned Features:', 'bandfront-player' ); ?></h4>
-                        <ul>
-                            <li>🌍 <?php esc_html_e( 'Global CDN with CloudFront integration', 'bandfront-player' ); ?></li>
-                            <li>⚡ <?php esc_html_e( 'Lightning-fast file delivery', 'bandfront-player' ); ?></li>
-                            <li>💰 <?php esc_html_e( 'Cost-effective storage pricing', 'bandfront-player' ); ?></li>
-                            <li>🔐 <?php esc_html_e( 'Enterprise security and encryption', 'bandfront-player' ); ?></li>
-                        </ul>
+                    <div class="bfp-cloud-placeholder">
+                        <h3>🛡️ <?php esc_html_e( 'Amazon S3 Storage', 'bandfront-player' ); ?></h3>
+                        <p><?php esc_html_e( 'Enterprise-grade cloud storage with AWS S3. Perfect for high-traffic websites requiring maximum reliability and global CDN distribution.', 'bandfront-player' ); ?></p>
+                        <div class="bfp-cloud-features">
+                            <h4><?php esc_html_e( 'Planned Features:', 'bandfront-player' ); ?></h4>
+                            <ul>
+                                <li>🌍 <?php esc_html_e( 'Global CDN with CloudFront integration', 'bandfront-player' ); ?></li>
+                                <li>⚡ <?php esc_html_e( 'Lightning-fast file delivery', 'bandfront-player' ); ?></li>
+                                <li>💰 <?php esc_html_e( 'Cost-effective storage pricing', 'bandfront-player' ); ?></li>
+                                <li>🔐 <?php esc_html_e( 'Enterprise security and encryption', 'bandfront-player' ); ?></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
             </div>
             
             <!-- Azure Tab -->
             <div class="bfp-cloud-tab-panel <?php echo $cloud_active_tab === 'azure' ? 'bfp-cloud-tab-panel-active' : ''; ?>" data-panel="azure">
-                <div class="bfp-cloud-placeholder">
-                    <table class="form-table">
+                <table class="form-table">
                         <tr>
                             <th scope="row"><label for="_bfp_azure_enabled"><?php esc_html_e('Enable Azure Storage', 'bandfront-player'); ?></label></th>
                             <td>
@@ -320,18 +319,19 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
                             </td>
                         </tr>
                     </table>
-                    <h3>☁️ <?php esc_html_e( 'Microsoft Azure Blob Storage', 'bandfront-player' ); ?></h3>
-                    <p><?php esc_html_e( 'Microsoft Azure Blob Storage integration for seamless file management and global distribution with enterprise-level security.', 'bandfront-player' ); ?></p>
-                    <div class="bfp-cloud-features">
-                        <h4><?php esc_html_e( 'Planned Features:', 'bandfront-player' ); ?></h4>
-                        <ul>
-                            <li>🏢 <?php esc_html_e( 'Enterprise Active Directory integration', 'bandfront-player' ); ?></li>
-                            <li>🌐 <?php esc_html_e( 'Global edge locations', 'bandfront-player' ); ?></li>
-                            <li>📈 <?php esc_html_e( 'Advanced analytics and monitoring', 'bandfront-player' ); ?></li>
-                            <li>🔒 <?php esc_html_e( 'Compliance-ready security features', 'bandfront-player' ); ?></li>
-                        </ul>
+                    <div class="bfp-cloud-placeholder">
+                        <h3>☁️ <?php esc_html_e( 'Microsoft Azure Blob Storage', 'bandfront-player' ); ?></h3>
+                        <p><?php esc_html_e( 'Microsoft Azure Blob Storage integration for seamless file management and global distribution with enterprise-level security.', 'bandfront-player' ); ?></p>
+                        <div class="bfp-cloud-features">
+                            <h4><?php esc_html_e( 'Planned Features:', 'bandfront-player' ); ?></h4>
+                            <ul>
+                                <li>🏢 <?php esc_html_e( 'Enterprise Active Directory integration', 'bandfront-player' ); ?></li>
+                                <li>🌐 <?php esc_html_e( 'Global edge locations', 'bandfront-player' ); ?></li>
+                                <li>📈 <?php esc_html_e( 'Advanced analytics and monitoring', 'bandfront-player' ); ?></li>
+                                <li>🔒 <?php esc_html_e( 'Compliance-ready security features', 'bandfront-player' ); ?></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>

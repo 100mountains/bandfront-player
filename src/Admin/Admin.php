@@ -90,45 +90,11 @@ class Admin {
         // Load view templates that may enqueue assets
         $this->loadViewTemplates();
         
-        // Enqueue admin styles and scripts for our admin pages
+        // Enqueue admin styles for our settings page
         $screen = get_current_screen();
-        $should_enqueue = false;
-        
-        if ($screen) {
-            // Main settings page
-            if ($screen->id === 'toplevel_page_bandfront-player-settings') {
-                $should_enqueue = true;
-            }
-            // Product edit pages (WooCommerce products)
-            elseif ($screen->id === 'product' || $screen->post_type === 'product') {
-                $should_enqueue = true;
-            }
-        }
-        
-        if ($should_enqueue) {
+        if ($screen && $screen->id === 'toplevel_page_bandfront-player-settings') {
             wp_enqueue_style('bfp-admin', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/style-admin.css', [], BFP_VERSION);
             wp_enqueue_style('bfp-admin-notices', plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/admin-notices.css', [], BFP_VERSION);
-            
-            // Enqueue admin JavaScript with localization
-            wp_enqueue_script('bfp-admin', plugin_dir_url(dirname(dirname(__FILE__))) . 'js/admin.js', ['jquery'], BFP_VERSION, true);
-            
-            // Add JavaScript localization
-            $bfp_js = array(
-                'File Name'         => __( 'File Name', 'bandfront-player' ),
-                'Choose file'       => __( 'Choose file', 'bandfront-player' ),
-                'Delete'            => __( 'Delete', 'bandfront-player' ),
-                'Select audio file' => __( 'Select audio file', 'bandfront-player' ),
-                'Select Item'       => __( 'Select Item', 'bandfront-player' ),
-            );
-            wp_localize_script( 'bfp-admin', 'bfp', $bfp_js );
-            
-            // Add AJAX localization
-            wp_localize_script( 'bfp-admin', 'bfp_ajax', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'saving_text' => __('Saving settings...', 'bandfront-player'),
-                'error_text' => __('An unexpected error occurred. Please try again.', 'bandfront-player'),
-                'dismiss_text' => __('Dismiss this notice', 'bandfront-player'),
-            ));
         }
         
         Debug::log('Admin.php: Exiting enqueueAdminAssets()', []); // DEBUG-REMOVE
@@ -232,6 +198,76 @@ class Admin {
             Debug::log('Admin.php: AJAX settings save error', ['messages' => $messages]); // DEBUG-REMOVE
             wp_send_json_error([
                 'message' => isset($messages['message']) ? $messages['message'] : __('An error occurred while saving settings.', 'bandfront-player')
+            ]);
+        }
+    }
+    
+    /**
+     * AJAX handler for deleting all demo files
+     */
+    public function ajaxDeleteAllDemos(): void {
+        Debug::log('Admin.php:ajaxDeleteAllDemos() called', []); // DEBUG-REMOVE
+        
+        // Verify nonce
+        if (!isset($_POST['nonce']) || 
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'bfp_updating_plugin_settings')) {
+            Debug::log('Admin.php: Demo cleanup AJAX security check failed', []); // DEBUG-REMOVE
+            wp_send_json_error([
+                'message' => __('Security check failed. Please refresh the page and try again.', 'bandfront-player')
+            ]);
+        }
+        
+        // Check user capabilities
+        if (!current_user_can('manage_options')) {
+            Debug::log('Admin.php: Demo cleanup AJAX permission check failed', []); // DEBUG-REMOVE
+            wp_send_json_error([
+                'message' => __('You do not have permission to perform this action.', 'bandfront-player')
+            ]);
+        }
+        
+        // Get DemoCreator component from bootstrap
+        $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
+        $demoCreator = $bootstrap->getComponent('demo_creator');
+        
+        if (!$demoCreator) {
+            Debug::log('Admin.php: DemoCreator component not available', []); // DEBUG-REMOVE
+            wp_send_json_error([
+                'message' => __('Demo cleanup functionality is not available.', 'bandfront-player')
+            ]);
+        }
+        
+        // Execute cleanup
+        try {
+            Debug::log('Admin.php: Executing demo cleanup', []); // DEBUG-REMOVE
+            $result = $demoCreator->deleteAllDemoFiles();
+            
+            if ($result['success']) {
+                $message = sprintf(
+                    __('Demo cleanup completed. Deleted %d files (%s).', 'bandfront-player'),
+                    $result['deleted_count'],
+                    size_format($result['deleted_size'])
+                );
+                
+                $details = [];
+                if (!empty($result['errors'])) {
+                    $details[] = sprintf(__('%d errors occurred during cleanup', 'bandfront-player'), count($result['errors']));
+                }
+                
+                Debug::log('Admin.php: Demo cleanup success', ['result' => $result]); // DEBUG-REMOVE
+                wp_send_json_success([
+                    'message' => $message,
+                    'details' => $details
+                ]);
+            } else {
+                Debug::log('Admin.php: Demo cleanup failed', ['result' => $result]); // DEBUG-REMOVE
+                wp_send_json_error([
+                    'message' => __('Demo cleanup failed. Please check server logs for details.', 'bandfront-player')
+                ]);
+            }
+        } catch (Exception $e) {
+            Debug::log('Admin.php: Demo cleanup exception', ['error' => $e->getMessage()]); // DEBUG-REMOVE
+            wp_send_json_error([
+                'message' => __('An error occurred during demo cleanup: ', 'bandfront-player') . $e->getMessage()
             ]);
         }
     }

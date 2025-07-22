@@ -104,10 +104,10 @@ class DemoCreator {
     }
     
     /**
-     * Delete truncated demo files for a product
+     * Delete demo files for a product
      */
-    public function deleteTruncatedFiles(int $productId): void {
-        Debug::log('Entering deleteTruncatedFiles()', ['productId' => $productId]);
+    public function deleteDemoFiles(int $productId): void {
+        Debug::log('Entering deleteDemoFiles()', ['productId' => $productId]);
         
         $filesDirectoryPath = $this->fileManager->getFilesDirectoryPath();
         $productDemoDir = $filesDirectoryPath . "demos/{$productId}/";
@@ -117,16 +117,88 @@ class DemoCreator {
             $files = glob($productDemoDir . '*');
             foreach ($files as $file) {
                 if (is_file($file)) {
-                    Debug::log('deleteTruncatedFiles: deleting file', ['fileName' => basename($file)]);
+                    Debug::log('deleteDemoFiles: deleting file', ['fileName' => basename($file)]);
                     @unlink($file);
                 }
             }
             // Remove the directory if it's empty
             @rmdir($productDemoDir);
-            Debug::log('deleteTruncatedFiles: deleted demo directory', ['dir' => $productDemoDir]);
+            Debug::log('deleteDemoFiles: deleted demo directory', ['dir' => $productDemoDir]);
         }
         
         Debug::log('Demo files deleted for product', ['productId' => $productId]);
+    }
+    
+    /**
+     * Delete all demo files for all products
+     * 
+     * @return array Results with count of deleted files and any errors
+     */
+    public function deleteAllDemoFiles(): array {
+        Debug::log('Entering deleteAllDemoFiles()', []);
+        
+        $filesDirectoryPath = $this->fileManager->getFilesDirectoryPath();
+        $demosDirectory = $filesDirectoryPath . 'demos/';
+        
+        $results = [
+            'deleted_files' => 0,
+            'deleted_directories' => 0,
+            'errors' => []
+        ];
+        
+        // Check if demos directory exists
+        if (!file_exists($demosDirectory) || !is_dir($demosDirectory)) {
+            Debug::log('deleteAllDemoFiles: demos directory does not exist', ['dir' => $demosDirectory]);
+            return $results;
+        }
+        
+        // Get all product directories in demos folder
+        $productDirs = glob($demosDirectory . '*', GLOB_ONLYDIR);
+        
+        foreach ($productDirs as $productDir) {
+            $productId = basename($productDir);
+            Debug::log('deleteAllDemoFiles: processing product directory', ['productId' => $productId, 'dir' => $productDir]);
+            
+            try {
+                // Delete all files in the product directory
+                $files = glob($productDir . '/*');
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        if (@unlink($file)) {
+                            $results['deleted_files']++;
+                            Debug::log('deleteAllDemoFiles: deleted file', ['file' => basename($file)]);
+                        } else {
+                            $results['errors'][] = "Failed to delete file: " . basename($file);
+                        }
+                    }
+                }
+                
+                // Remove the product directory
+                if (@rmdir($productDir)) {
+                    $results['deleted_directories']++;
+                    Debug::log('deleteAllDemoFiles: deleted directory', ['dir' => $productDir]);
+                } else {
+                    $results['errors'][] = "Failed to delete directory: " . $productId;
+                }
+                
+            } catch (\Exception $e) {
+                $results['errors'][] = "Error processing product {$productId}: " . $e->getMessage();
+                Debug::log('deleteAllDemoFiles: error processing product', [
+                    'productId' => $productId,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+        
+        // Try to remove the main demos directory if it's empty
+        if (empty(glob($demosDirectory . '*'))) {
+            if (@rmdir($demosDirectory)) {
+                Debug::log('deleteAllDemoFiles: removed empty demos directory', ['dir' => $demosDirectory]);
+            }
+        }
+        
+        Debug::log('deleteAllDemoFiles: completed', $results);
+        return $results;
     }
     
     /**

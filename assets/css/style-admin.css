@@ -700,3 +700,62 @@ body.admin-bar .bfp-ajax-notices-container {
     float: none;
     margin: 0 5px 0 0;
 }
+
+/* Tab System Improvements */
+.bfp-nav-tab-wrapper {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.bfp-nav-tab-wrapper .nav-tab {
+    cursor: pointer;
+    text-decoration: none;
+    user-select: none;
+}
+
+.bfp-nav-tab-wrapper .nav-tab:focus {
+    box-shadow: none;
+    outline: 1px dotted #666;
+}
+
+.bfp-tab-panel {
+    animation: fadeIn 0.2s ease-in;
+    display: none;
+}
+
+.bfp-tab-panel.active {
+    display: block !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Form structure improvements */
+.bfp-admin-wrapper {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.bfp-admin-wrapper .submit {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+/* Demo slider styling */
+.demo-start-slider {
+    width: 200px;
+    vertical-align: middle;
+}
+
+.demo-start-value {
+    display: inline-block;
+    width: 50px;
+    font-weight: bold;
+    margin-left: 10px;
+}

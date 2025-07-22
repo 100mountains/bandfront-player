@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo Slider Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { max-width: 600px; margin: 0 auto; }
+        .form-table { width: 100%; border-collapse: collapse; }
+        .form-table td, .form-table th { padding: 10px; border: 1px solid #ddd; }
+        .demo-start-slider { width: 200px; }
+        .demo-start-value { margin-left: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Demo Slider Test</h1>
+        <table class="form-table">
+            <tr>
+                <th scope="row"><label for="_bfp_demos_demo_start_time">⏰ Demo start position (%)</label></th>
+                <td>
+                    <input aria-label="Where in the track to start the demo" type="range" id="_bfp_demos_demo_start_time" name="_bfp_demos[demo_start_time]" min="0" max="50" value="12" class="demo-start-slider" />
+                    <span class="demo-start-value">12%</span>
+                    <p class="description">Where in the track to begin the demo (0% = beginning, 25% = quarter way through)</p>
+                </td>
+            </tr>
+        </table>
+        
+        <div id="debug-log" style="margin-top: 20px; padding: 10px; background: #f0f0f0; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+    // Custom console.log that also displays in the page
+    function debugLog(message) {
+        console.log(message);
+        $('#debug-log').append('<div>' + message + '</div>');
+        $('#debug-log').scrollTop($('#debug-log')[0].scrollHeight);
+    }
+    
+    $(document).ready(function() {
+        debugLog('Document ready - starting slider test');
+        
+        // Demo Start Time Slider - exact copy from admin.js
+        $(document).on('input change', '.demo-start-slider', function(){
+            var value = $(this).val();
+            var valueDisplay = $(this).siblings('.demo-start-value');
+            debugLog('Demo slider changed: ' + value + ' Display element found: ' + (valueDisplay.length > 0));
+            if (valueDisplay.length) {
+                valueDisplay.text(value + '%');
+            }
+        });
+        
+        // Also add direct event listener for better compatibility
+        $(document).on('mouseup touchend', '.demo-start-slider', function(){
+            var value = $(this).val();
+            var valueDisplay = $(this).siblings('.demo-start-value');
+            if (valueDisplay.length) {
+                valueDisplay.text(value + '%');
+            }
+        });
+        
+        // Initialize demo start slider value display function
+        function initializeDemoSliders() {
+            debugLog('Initializing demo sliders...');
+            $('.demo-start-slider').each(function() {
+                var $slider = $(this);
+                var value = $slider.val();
+                var valueDisplay = $slider.siblings('.demo-start-value');
+                debugLog('Found slider with value: ' + value + ' Display element: ' + (valueDisplay.length > 0));
+                if (valueDisplay.length) {
+                    valueDisplay.text(value + '%');
+                }
+                
+                // Also bind a direct event for immediate feedback
+                $slider.on('input', function() {
+                    var newValue = $(this).val();
+                    var display = $(this).siblings('.demo-start-value');
+                    if (display.length) {
+                        display.text(newValue + '%');
+                    }
+                    debugLog('Direct event: ' + newValue + '%');
+                });
+            });
+        }
+        
+        // Initialize sliders immediately
+        setTimeout(initializeDemoSliders, 100);
+        
+        debugLog('Test setup complete');
+    });
+    </script>
+</body>
+</html>

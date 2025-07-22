@@ -102,6 +102,7 @@ class Hooks {
         
         // AJAX handlers - these need to be registered globally
         add_action('wp_ajax_bfp_save_settings', [$admin, 'ajaxSaveSettings']);
+        add_action('wp_ajax_bfp_delete_all_demos', [$admin, 'ajaxDeleteAllDemos']);
         Debug::log('Hooks.php: Admin hooks registered successfully'); // DEBUG-REMOVE
     }
     

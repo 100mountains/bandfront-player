@@ -132,6 +132,78 @@ function bfp_admin()
 		$('.bfp-add').trigger('click');
 	}
 	
+	// Demo Start Time Slider - simple and direct with debugging
+	$(document).on('input', '.demo-start-slider', function(){
+		var value = $(this).val();
+		var valueDisplay = $(this).siblings('.demo-start-value');
+		console.log('Slider input event triggered:', {
+			value: value,
+			displayElement: valueDisplay.length,
+			displayText: valueDisplay.text()
+		});
+		if (valueDisplay.length) {
+			valueDisplay.text(value + '%');
+			console.log('Updated display to:', value + '%');
+		}
+	});
+
+	// Tab functionality - moved here to avoid conflicts
+	$('.bfp-nav-tab-wrapper .nav-tab').on('click', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		
+		var $this = $(this);
+		var target = $this.data('tab');
+		
+		// Store current scroll position
+		var currentScroll = $(window).scrollTop();
+		
+		// Update active tab
+		$('.bfp-nav-tab-wrapper .nav-tab').removeClass('nav-tab-active');
+		$this.addClass('nav-tab-active');
+		
+		// Show corresponding panel with animation
+		$('.bfp-tab-panel').removeClass('active').hide();
+		$('#' + target).addClass('active').fadeIn(200);
+		
+		// Update URL hash without jumping
+		if (window.history && window.history.pushState) {
+			window.history.pushState(null, null, '#' + target.replace('-panel', ''));
+		} else {
+			// Older browsers - prevent jump by restoring scroll
+			window.location.hash = target.replace('-panel', '');
+			$(window).scrollTop(currentScroll);
+		}
+		
+		// Ensure we stay at the current position
+		$(window).scrollTop(currentScroll);
+		
+		return false;
+	});
+	
+	// Check for hash on load
+	if (window.location.hash) {
+		var hash = window.location.hash.substring(1);
+		
+		// Handle legacy security hash
+		if (hash === 'security') {
+			hash = 'demos';
+			// Update the URL to the new hash
+			if (window.history && window.history.replaceState) {
+				window.history.replaceState(null, null, '#demos');
+			}
+		}
+		
+		// Find and click the appropriate tab
+		var $targetTab = $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + hash + '-panel"]');
+		if ($targetTab.length) {
+			// Delay to ensure page is loaded
+			setTimeout(function() {
+				$targetTab.click();
+			}, 100);
+		}
+	}
+	
 	// Product page specific initialization
 	if ($('body').hasClass('post-type-product')) {
 		// Handle format regeneration button
@@ -491,64 +563,6 @@ jQuery(document).ready(function($) {
     // Example:
     // var audioEngine = bfp_admin_settings.audio_engine; // From localized data
     
-    // Tab functionality with improved navigation
-    $('.bfp-nav-tab-wrapper .nav-tab').on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        var $this = $(this);
-        var target = $this.data('tab');
-        
-        // Store current scroll position
-        var currentScroll = $(window).scrollTop();
-        
-        // Update active tab
-        $('.bfp-nav-tab-wrapper .nav-tab').removeClass('nav-tab-active');
-        $this.addClass('nav-tab-active');
-        
-        // Show corresponding panel with animation
-        $('.bfp-tab-panel').removeClass('active').hide();
-        $('#' + target).addClass('active').fadeIn(200);
-        
-        // Update URL hash without jumping
-        if (window.history && window.history.pushState) {
-            // Modern browsers
-            window.history.pushState(null, null, '#' + target.replace('-panel', ''));
-        } else {
-            // Older browsers - prevent jump by restoring scroll
-            window.location.hash = target.replace('-panel', '');
-            $(window).scrollTop(currentScroll);
-        }
-        
-        // Ensure we stay at the current position
-        $(window).scrollTop(currentScroll);
-        
-        return false;
-    });
-    
-    // Check for hash on load
-    if (window.location.hash) {
-        var hash = window.location.hash.substring(1);
-        
-        // Handle legacy security hash
-        if (hash === 'security') {
-            hash = 'demos';
-            // Update the URL to the new hash
-            if (window.history && window.history.replaceState) {
-                window.history.replaceState(null, null, '#demos');
-            }
-        }
-        
-        // Find and click the appropriate tab
-        var $targetTab = $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + hash + '-panel"]');
-        if ($targetTab.length) {
-            // Delay to ensure page is loaded
-            setTimeout(function() {
-                $targetTab.click();
-            }, 100);
-        }
-    }
-    
     // Cloud storage sub-tabs (keep existing functionality)
     $('.bfp-cloud-tab-nav a').on('click', function(e) {
         e.preventDefault();
@@ -574,5 +588,65 @@ jQuery(document).ready(function($) {
             // Disable all other cloud provider checkboxes
             $('.bfp-cloud-provider-toggle').not(this).prop('checked', false);
         }
+    });
+    
+    // Demo cleanup functionality
+    $(document).on('click', '#bfp_delete_all_demos', function(e) {
+        e.preventDefault();
+        
+        var $button = $(this);
+        
+        // Confirm deletion
+        if (!confirm('Are you sure you want to delete ALL demo files? This action cannot be undone.')) {
+            return;
+        }
+        
+        // Clear any existing messages
+        if (window.BFP_AJAX && window.BFP_AJAX.clearQueue) {
+            window.BFP_AJAX.clearQueue();
+        }
+        
+        $button.prop('disabled', true).text('Deleting...');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'bfp_delete_all_demos',
+                nonce: $('#bfp_nonce').val() || $('input[name="_wpnonce"]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    var message = response.data.message;
+                    if (response.data.details && response.data.details.length > 0) {
+                        message += ' Details: ' + response.data.details.join(', ');
+                    }
+                    
+                    if (window.BFP_AJAX) {
+                        window.BFP_AJAX.showNotice('success', message);
+                    } else {
+                        alert(message);
+                    }
+                } else {
+                    var errorMessage = response.data.message || 'Demo deletion failed';
+                    if (window.BFP_AJAX) {
+                        window.BFP_AJAX.showNotice('error', errorMessage);
+                    } else {
+                        alert('Error: ' + errorMessage);
+                    }
+                }
+            },
+            error: function() {
+                var errorMessage = 'An error occurred during demo deletion';
+                if (window.BFP_AJAX) {
+                    window.BFP_AJAX.showNotice('error', errorMessage);
+                } else {
+                    alert('Error: ' + errorMessage);
+                }
+            },
+            complete: function() {
+                $button.prop('disabled', false).text('Delete All Demo Files');
+            }
+        });
     });
 });

@@ -12,7 +12,25 @@ if (!defined('ABSPATH')) {
     exit;
 }
 // include resources
+wp_enqueue_style( 'bfp-admin-style', BFP_PLUGIN_URL . 'assets/css/style-admin.css', array(), '5.0.181' );
+wp_enqueue_style( 'bfp-admin-notices', BFP_PLUGIN_URL . 'assets/css/admin-notices.css', array(), '5.0.181' );
 wp_enqueue_media();
+wp_enqueue_script( 'bfp-admin-js', BFP_PLUGIN_URL . 'assets/js/admin.js', array('jquery'), '5.0.181' );
+$bfp_js = array(
+	'File Name'         => __( 'File Name', 'bandfront-player' ),
+	'Choose file'       => __( 'Choose file', 'bandfront-player' ),
+	'Delete'            => __( 'Delete', 'bandfront-player' ),
+	'Select audio file' => __( 'Select audio file', 'bandfront-player' ),
+	'Select Item'       => __( 'Select Item', 'bandfront-player' ),
+);
+wp_localize_script( 'bfp-admin-js', 'bfp', $bfp_js );
+// Add AJAX localization
+wp_localize_script( 'bfp-admin-js', 'bfp_ajax', array(
+    'ajax_url' => admin_url('admin-ajax.php'),
+    'saving_text' => __('Saving settings...', 'bandfront-player'),
+    'error_text' => __('An unexpected error occurred. Please try again.', 'bandfront-player'),
+    'dismiss_text' => __('Dismiss this notice', 'bandfront-player'),
+));
 // Get all settings using the injected config instance
 $settings = $config->getAdminFormSettings();
 // Handle special cases
@@ -22,9 +40,12 @@ $playerLayouts = $config->getPlayerLayouts();
 $playerControls = $config->getPlayerControls();
 ?>
 <h1><?php echo "\xF0\x9F\x8C\x88"; ?> <?php esc_html_e( 'BΔΠD⇋FRØΠT ⇄ PLAYΞR ⫷Gl⨶bal Settings⫸ ꧂ 🛸', 'bandfront-player' ); ?></h1>
-<form method="post" enctype="multipart/form-data">
+
+<form method="post" enctype="multipart/form-data" id="bfp-settings-form">
 <input type="hidden" name="action" value="bfp_save_settings" />
 <input type="hidden" name="bfp_nonce" value="<?php echo esc_attr( wp_create_nonce( 'bfp_updating_plugin_settings' ) ); ?>" />
+<input type="hidden" id="bfp_nonce" value="<?php echo esc_attr( wp_create_nonce( 'bfp_updating_plugin_settings' ) ); ?>" />
+
 <div class="bfp-admin-wrapper">
     <!-- Tab Navigation -->
     <h2 class="nav-tab-wrapper bfp-nav-tab-wrapper">
@@ -60,7 +81,6 @@ $playerControls = $config->getPlayerControls();
     
     <!-- Tab Content -->
     <div class="bfp-tab-content">
-        
         <!-- General Tab -->
         <div id="general-panel" class="bfp-tab-panel active">
             <h3>⚙️ <?php esc_html_e('General Settings', 'bandfront-player'); ?></h3>
@@ -73,25 +93,17 @@ $playerControls = $config->getPlayerControls();
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="_bfp_purchased_times_text">� <?php esc_html_e( 'Purchase count text', 'bandfront-player' ); ?></label></th>
+                    <th scope="row">🛒 <?php esc_html_e( 'Full tracks for buyers', 'bandfront-player' ); ?></th>
+                    <td>
+                        <label><input aria-label="<?php esc_attr_e( 'For buyers, play the purchased audio files instead of the truncated files for demo', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_purchased" <?php checked( $settings['_bfp_purchased'] ); ?> />
+                        <?php esc_html_e( 'Let buyers hear full tracks instead of demos', 'bandfront-player' ); ?></label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_purchased_times_text">📊 <?php esc_html_e( 'Purchase count text', 'bandfront-player' ); ?></label></th>
                     <td>
                         <input aria-label="<?php esc_attr_e( 'Purchased times text', 'bandfront-player' ); ?>" type="text" id="_bfp_purchased_times_text" name="_bfp_purchased_times_text" value="<?php echo esc_attr( $settings['_bfp_purchased_times_text'] ); ?>" class="regular-text" />
                         <p class="description"><?php esc_html_e( 'Text shown in playlists when displaying purchase counts (use %d for the number)', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
-                <!-- Purchasers Display Settings -->
-                <tr>
-                    <th scope="row"><label for="_bfp_show_purchasers">👥 <?php esc_html_e( 'Show Product Purchasers', 'bandfront-player' ); ?></label></th>
-                    <td>
-                        <input aria-label="<?php esc_attr_e( 'Show product purchasers', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_show_purchasers" name="_bfp_show_purchasers" <?php checked( $settings['_bfp_show_purchasers'] ); ?> />
-                        <p class="description"><?php esc_html_e( 'Display avatars of users who purchased the product on product pages', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="_bfp_max_purchasers_display">� <?php esc_html_e( 'Maximum Purchasers to Display', 'bandfront-player' ); ?></label></th>
-                    <td>
-                        <input aria-label="<?php esc_attr_e( 'Maximum purchasers to display', 'bandfront-player' ); ?>" type="number" id="_bfp_max_purchasers_display" name="_bfp_max_purchasers_display" value="<?php echo esc_attr( $settings['_bfp_max_purchasers_display'] ); ?>" min="1" max="50" step="1" class="small-text" />
-                        <p class="description"><?php esc_html_e( 'Maximum number of purchaser avatars to show', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 <tr>
@@ -106,6 +118,21 @@ $playerControls = $config->getPlayerControls();
                     <td>
                         <input aria-label="<?php esc_attr_e( 'Enable SNDLOOP network integration', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_sndloop_mode" name="_bfp_sndloop_mode" <?php checked( $settings['_bfp_sndloop_mode'] ); ?> />
                         <p class="description"><?php esc_html_e( 'Enable SNDLOOP decentralized music discovery network integration', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <!-- Purchasers Display Settings -->
+                <tr>
+                    <th scope="row"><label for="_bfp_show_purchasers">👥 <?php esc_html_e( 'Show Product Purchasers', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Show product purchasers', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_show_purchasers" name="_bfp_show_purchasers" <?php checked( $settings['_bfp_show_purchasers'] ); ?> />
+                        <p class="description"><?php esc_html_e( 'Display avatars of users who purchased the product on product pages', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_max_purchasers_display">🔢 <?php esc_html_e( 'Maximum Purchasers to Display', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Maximum purchasers to display', 'bandfront-player' ); ?>" type="number" id="_bfp_max_purchasers_display" name="_bfp_max_purchasers_display" value="<?php echo esc_attr( $settings['_bfp_max_purchasers_display'] ); ?>" min="1" max="50" step="1" class="small-text" />
+                        <p class="description"><?php esc_html_e( 'Maximum number of purchaser avatars to show', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 
@@ -145,7 +172,7 @@ $playerControls = $config->getPlayerControls();
                             <option value="light" <?php selected( $settings['_bfp_player_layout'], 'light' ); ?>>☀️ <?php esc_html_e('Light', 'bandfront-player'); ?></option>
                             <option value="custom" <?php selected( $settings['_bfp_player_layout'], 'custom' ); ?>>🎨 <?php esc_html_e('Custom', 'bandfront-player'); ?></option>
                         </select>
-                                           </td>
+                                               </td>
                 </tr>
                 <tr>
                     <th scope="row">🔘 <?php esc_html_e( 'Button appearance', 'bandfront-player' ); ?></th>
@@ -191,7 +218,6 @@ $playerControls = $config->getPlayerControls();
                         <p class="description"><?php esc_html_e( 'When enabled, play/pause/track buttons will appear on the product image in shop archives', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
-               
             </table>
         </div>
         
@@ -237,17 +263,6 @@ $playerControls = $config->getPlayerControls();
                         <input aria-label="<?php esc_attr_e( 'Where in the track to start the demo', 'bandfront-player' ); ?>" type="range" id="_bfp_demos_demo_start_time" name="_bfp_demos[demo_start_time]" min="0" max="50" value="<?php echo esc_attr( $settings['_bfp_demos']['demo_start_time'] ?? 0 ); ?>" class="demo-start-slider" />
                         <span class="demo-start-value"><?php echo esc_html( $settings['_bfp_demos']['demo_start_time'] ?? 0 ); ?>%</span>
                         <p class="description"><?php esc_html_e( 'Where in the track to begin the demo (0% = beginning, 25% = quarter way through)', 'bandfront-player' ); ?></p>
-                        <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const slider = document.getElementById('_bfp_demos_demo_start_time');
-                            const valueDisplay = document.querySelector('.demo-start-value');
-                            if (slider && valueDisplay) {
-                                slider.addEventListener('input', function() {
-                                    valueDisplay.textContent = this.value + '%';
-                                });
-                            }
-                        });
-                        </script>
                     </td>
                 </tr>
                 <tr>
@@ -272,6 +287,15 @@ $playerControls = $config->getPlayerControls();
                         <?php esc_html_e( 'Regenerate demo files', 'bandfront-player' ); ?>
                         </label>
                         <p class="description"><?php esc_html_e( 'Check this box to delete existing demo files and regenerate them on next demo creation', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">🗂️ <?php esc_html_e( 'Demo File Management', 'bandfront-player' ); ?></th>
+                    <td>
+                        <button type="button" id="bfp_delete_all_demos" class="button button-secondary">
+                            <?php esc_html_e( 'Delete All Demo Files', 'bandfront-player' ); ?>
+                        </button>
+                        <p class="description"><?php esc_html_e( 'Permanently delete all generated demo files to free up disk space. This action cannot be undone.', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -342,73 +366,8 @@ $playerControls = $config->getPlayerControls();
         
     </div>
 </div>
+
 <p class="submit">
     <input type="submit" value="<?php esc_attr_e( 'Save settings', 'bandfront-player' ); ?>" class="button-primary" />
 </p>
 </form>
-<script type="text/javascript">
-jQuery(document).ready(function($) {
-    // Tab functionality
-    $('.bfp-nav-tab-wrapper .nav-tab').on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation(); // Prevent event bubbling
-        
-        var $this = $(this);
-        var target = $this.data('tab');
-        
-        // Update active tab
-        $('.bfp-nav-tab-wrapper .nav-tab').removeClass('nav-tab-active');
-        $this.addClass('nav-tab-active');
-        
-        // Show corresponding panel
-        $('.bfp-tab-panel').hide();
-        $('#' + target).show();
-        
-        // Update URL hash without jumping
-        if (history.pushState) {
-            history.pushState(null, null, '#' + target.replace('-panel', ''));
-        } else {
-            // Fallback for older browsers - store scroll position
-            var scrollPos = $(window).scrollTop();
-            window.location.hash = target.replace('-panel', '');
-            $(window).scrollTop(scrollPos);
-        }
-        
-        return false; // Prevent default anchor behavior
-    });
-    
-    // Check for hash on load
-    if (window.location.hash) {
-        var hash = window.location.hash.substring(1);
-        // Handle both old and new hash formats
-        if (hash === 'security') {
-            hash = 'demos'; // Redirect old security hash to demos
-        }
-        $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + hash + '-panel"]').click();
-    }
-    
-    // Handle dev mode toggle - reload page when changed
-    $('#_bfp_dev_mode').on('change', function() {
-        if ($(this).closest('form').find('input[name="action"]').val() === 'bfp_save_settings') {
-            // Show a notice that page will reload after save
-            if (this.checked) {
-                $(this).closest('td').append('<p class="bfp-dev-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Developer tabs will appear after saving settings.', 'bandfront-player'); ?></p>');
-            } else {
-                $(this).closest('td').append('<p class="bfp-dev-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Developer tabs will be hidden after saving settings.', 'bandfront-player'); ?></p>');
-            }
-        }
-    });
-    
-    // Handle sndloop mode toggle - reload page when changed
-    $('#_bfp_sndloop_mode').on('change', function() {
-        if ($(this).closest('form').find('input[name="action"]').val() === 'bfp_save_settings') {
-            // Show a notice that page will reload after save
-            if (this.checked) {
-                $(this).closest('td').append('<p class="bfp-sndloop-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('SNDLOOP tab will appear after saving settings.', 'bandfront-player'); ?></p>');
-            } else {
-                $(this).closest('td').append('<p class="bfp-sndloop-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('SNDLOOP tab will be hidden after saving settings.', 'bandfront-player'); ?></p>');
-            }
-        }
-    });
-});
-</script>

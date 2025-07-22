@@ -1,193 +1,378 @@
-function bfp_admin()
-{
-	if(typeof bfp_admin_evaluated != 'undefined') return;
-	bfp_admin_evaluated = true;
+// Declare the guard variable in the global scope
+var bfp_admin_evaluated;
 
-	var $ = jQuery;
+(function($) {
+    'use strict';
 
-    // Special Radio
-    $( document ).on(
-        'mousedown',
-        '.bfp_radio',
-        function()
-        {
-            $(this).data('status', this.checked);
+    // Tab Manager Module
+    var BFP_TabManager = {
+        init: function() {
+            this.bindEvents();
+            this.handleInitialHash();
+        },
+
+        bindEvents: function() {
+            // Use event delegation for better reliability
+            $(document).on('click', '.bfp-nav-tab-wrapper .nav-tab', this.handleTabClick.bind(this));
+            
+            // Handle browser back/forward
+            $(window).on('hashchange', this.handleHashChange.bind(this));
+        },
+
+        handleTabClick: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var $tab = $(e.currentTarget);
+            var targetPanel = $tab.data('tab');
+            
+            if (!targetPanel) {
+                console.warn('[BFP] Tab missing data-tab attribute:', $tab);
+                return;
+            }
+
+            this.switchToTab(targetPanel, $tab);
+            
+            // Update URL without jumping
+            var hash = targetPanel.replace('-panel', '');
+            this.updateHash(hash);
+            
+            return false;
+        },
+
+        switchToTab: function(targetPanel, $clickedTab) {
+            // Update tab states
+            $('.bfp-nav-tab-wrapper .nav-tab').removeClass('nav-tab-active');
+            if ($clickedTab) {
+                $clickedTab.addClass('nav-tab-active');
+            } else {
+                // Find tab by data-tab attribute
+                $('.bfp-nav-tab-wrapper .nav-tab[data-tab="' + targetPanel + '"]').addClass('nav-tab-active');
+            }
+            
+            // Hide all panels first
+            $('.bfp-tab-panel').removeClass('active').hide();
+            
+            // Show target panel
+            var $targetPanel = $('#' + targetPanel);
+            if ($targetPanel.length) {
+                $targetPanel.addClass('active').fadeIn(200);
+            } else {
+                console.warn('[BFP] Target panel not found:', targetPanel);
+            }
+        },
+
+        updateHash: function(hash) {
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, null, '#' + hash);
+            } else {
+                // Fallback for older browsers
+                var scrollPos = $(window).scrollTop();
+                window.location.hash = hash;
+                $(window).scrollTop(scrollPos);
+            }
+        },
+
+        handleInitialHash: function() {
+            var hash = window.location.hash.substring(1);
+            
+            if (!hash) return;
+            
+            // Handle legacy security hash
+            if (hash === 'security') {
+                hash = 'demos';
+                this.updateHash(hash);
+            }
+            
+            // Switch to the hashed tab
+            var targetPanel = hash + '-panel';
+            if ($('#' + targetPanel).length) {
+                this.switchToTab(targetPanel);
+            }
+        },
+
+        handleHashChange: function() {
+            this.handleInitialHash();
         }
-    );
+    };
 
-    $( document ).on(
-        'click',
-        '.bfp_radio',
-        function()
+    // Main admin functionality
+    function initBFPAdmin() {
+        if(typeof bfp_admin_evaluated != 'undefined' && bfp_admin_evaluated) return;
+        bfp_admin_evaluated = true;
+
+        var $ = jQuery;
+
+        // Special Radio
+        $( document ).on(
+            'mousedown',
+            '.bfp_radio',
+            function()
+            {
+                $(this).data('status', this.checked);
+            }
+        );
+
+        $( document ).on(
+            'click',
+            '.bfp_radio',
+            function()
+            {
+                this.checked = !$(this).data('status');
+            }
+        );
+
+        // Delete buttons
+        $( document ).on(
+            'click',
+            '.bfp-delete',
+            function(evt)
+            {
+                evt.preventDefault();
+                $(this).closest('tr').remove();
+            }
+        );
+
+        // Add button
+        $( document ).on(
+            'click',
+            '.bfp-add',
+            function(evt)
+            {
+                evt.preventDefault();
+                var row = '<tr><td><input type="text" class="bfp-file-name" placeholder="'+bfp['File Name']+'" name="_bfp_file_names[]" value="" /></td><td><input type="text" class="bfp-file-url" placeholder="http://" name="_bfp_file_urls[]" value="" /></td><td width="1%"><a href="#" class="btn btn-default button bfp-select-file">'+bfp['Choose file']+'</a></td><td width="1%"><a href="#" class="bfp-delete">'+bfp['Delete']+'</a></td></tr>';
+                $(this).closest('table').find('tbody').append(row);
+            }
+        );
+
+        //
+        $( document ).on(
+            'change',
+            '[name="_bfp_use_custom_demos"]',
+            function()
+            {
+                $('.bfp-demo-files')[ ( this.checked ) ? 'show' : 'hide' ]();
+            }
+        );
+
+        $('[name="_bfp_use_custom_demos"]').trigger('change');
+
+        // Select file button
+        $( document ).on(
+            'click',
+            '.bfp-select-file',
+            function(evt)
+            {
+                evt.preventDefault();
+                var field = $(this).closest('tr').find('.bfp-file-url'),
+                    media = wp.media(
+                                {
+                                    title: bfp['Select audio file'],
+                                    library:{ type: 'audio' },
+                                    button: { text: bfp['Select Item'] },
+                                    multiple: false
+                                }
+                            ).on(
+                                'select',
+                                (function( field ){
+                                    return function() {
+                                        var attachment = media.state().get('selection').first().toJSON(),
+                                            url = attachment.url;
+                                        field.val( url );
+                                    };
+                                })( field )
+                            ).open();
+            }
+        );
+
+        // Cover section visibility
+        function coverSection()
         {
-            this.checked = !$(this).data('status');
+            var v = $('[name="_bfp_player_controls"]:checked').val(),
+                c = $('.bfp-on-cover');
+            if(v == 'default' || v == 'button') c.show();
+            else c.hide();
         }
-    );
+        
+        $(document).on('change', '[name="_bfp_player_controls"]', function(){
+            coverSection();
+        });
+        
+        // Analytics integration
+        $(document).on('change', '[name="_bfp_analytics_integration"]', function(){
+            var v = $('[name="_bfp_analytics_integration"]:checked').val();
+            $('.bfp-analytics-g4').css('display', v == 'g' ? 'table-row' : 'none');
+            $('[name="_bfp_analytics_property"]').attr('placeholder', v == 'g' ? 'G-XXXXXXXX' : 'UA-XXXXX-Y');
+        });
+        
+        // Cloud Storage Tab Functionality
+        $(document).on('click', '.bfp-cloud-tab-btn', function(){
+            var tab = $(this).data('tab');
+            
+            // Update tab buttons
+            $('.bfp-cloud-tab-btn').removeClass('bfp-cloud-tab-active');
+            $(this).addClass('bfp-cloud-tab-active');
+            
+            // Update tab panels
+            $('.bfp-cloud-tab-panel').removeClass('bfp-cloud-tab-panel-active');
+            $('.bfp-cloud-tab-panel[data-panel="' + tab + '"]').addClass('bfp-cloud-tab-panel-active');
+            
+            // Save the active tab in hidden input
+            $('#_bfp_cloud_active_tab').val(tab);
+        });
+        
+        // Initialize
+        $('[name="_bfp_analytics_integration"]:eq(0)').change();
+        coverSection();
 
-	// Delete buttons
-	$( document ).on(
-		'click',
-		'.bfp-delete',
-		function(evt)
-		{
-			evt.preventDefault();
-			$(this).closest('tr').remove();
-		}
-	);
+        // Main code - only trigger if we have the add button
+        if ($('.bfp-add').length) {
+            $('.bfp-add').trigger('click');
+        }
+        
+        // Product page specific initialization
+        if ($('body').hasClass('post-type-product')) {
+            // Handle format regeneration button
+            $('#bfp_regenerate_formats').on('click', function(e) {
+                e.preventDefault();
+                
+                var $button = $(this);
+                var productId = $button.data('product-id');
+                
+                // Clear the message queue to prevent multiple messages
+                if (window.BFP_AJAX && window.BFP_AJAX.clearQueue) {
+                    window.BFP_AJAX.clearQueue();
+                }
+                
+                $button.prop('disabled', true).text('Regenerating...');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'bfp_regenerate_formats',
+                        product_id: productId,
+                        nonce: $('#bfp_nonce').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            if (window.BFP_AJAX) {
+                                window.BFP_AJAX.showNotice('success', response.data.message);
+                            }
+                        } else {
+                            if (window.BFP_AJAX) {
+                                window.BFP_AJAX.showNotice('error', response.data.message || 'Format regeneration failed');
+                            }
+                        }
+                    },
+                    error: function() {
+                        if (window.BFP_AJAX) {
+                            window.BFP_AJAX.showNotice('error', 'An error occurred during format regeneration');
+                        }
+                    },
+                    complete: function() {
+                        $button.prop('disabled', false).text('Regenerate Formats');
+                    }
+                });
+            });
+        }
+        
+        // Initialize tab manager
+        BFP_TabManager.init();
+        
+        // Demo Start Time Slider
+        $(document).on('input change', '.demo-start-slider', function() {
+            var value = $(this).val();
+            $(this).siblings('.demo-start-value').text(value + '%');
+        });
+        
+        // Cloud Provider Mutual Exclusivity
+        $(document).on('change', '.bfp-cloud-provider-toggle', function(){
+            var providerId = $(this).attr('id');
+            var isChecked = $(this).is(':checked');
+            
+            if (isChecked) {
+                // Disable all other cloud provider checkboxes
+                $('.bfp-cloud-provider-toggle').not(this).prop('checked', false);
+            }
+        });
+        
+        // Demo cleanup functionality
+        $(document).on('click', '#bfp_delete_all_demos', function(e) {
+            e.preventDefault();
+            
+            var $button = $(this);
+            
+            // Confirm deletion
+            if (!confirm('Are you sure you want to delete ALL demo files? This action cannot be undone.')) {
+                return;
+            }
+            
+            // Clear any existing messages
+            if (window.BFP_AJAX && window.BFP_AJAX.clearQueue) {
+                window.BFP_AJAX.clearQueue();
+            }
+            
+            $button.prop('disabled', true).text('Deleting...');
+            
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'bfp_delete_all_demos',
+                    nonce: $('#bfp_nonce').val() || $('input[name="_wpnonce"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        var message = response.data.message;
+                        if (response.data.details && response.data.details.length > 0) {
+                            message += ' Details: ' + response.data.details.join(', ');
+                        }
+                        
+                        if (window.BFP_AJAX) {
+                            window.BFP_AJAX.showNotice('success', message);
+                        } else {
+                            alert(message);
+                        }
+                    } else {
+                        var errorMessage = response.data.message || 'Demo deletion failed';
+                        if (window.BFP_AJAX) {
+                            window.BFP_AJAX.showNotice('error', errorMessage);
+                        } else {
+                            alert('Error: ' + errorMessage);
+                        }
+                    }
+                },
+                error: function() {
+                    var errorMessage = 'An error occurred during demo deletion';
+                    if (window.BFP_AJAX) {
+                        window.BFP_AJAX.showNotice('error', errorMessage);
+                    } else {
+                        alert('Error: ' + errorMessage);
+                    }
+                },
+                complete: function() {
+                    $button.prop('disabled', false).text('Delete All Demo Files');
+                }
+            });
+        });
+    }
 
-	// Add button
-	$( document ).on(
-		'click',
-		'.bfp-add',
-		function(evt)
-		{
-			evt.preventDefault();
-			var row = '<tr><td><input type="text" class="bfp-file-name" placeholder="'+bfp['File Name']+'" name="_bfp_file_names[]" value="" /></td><td><input type="text" class="bfp-file-url" placeholder="http://" name="_bfp_file_urls[]" value="" /></td><td width="1%"><a href="#" class="btn btn-default button bfp-select-file">'+bfp['Choose file']+'</a></td><td width="1%"><a href="#" class="bfp-delete">'+bfp['Delete']+'</a></td></tr>';
-			$(this).closest('table').find('tbody').append(row);
-		}
-	);
+    // Initialize on DOM ready
+    $(document).ready(function() {
+        initBFPAdmin();
+    });
 
-	//
-	$( document ).on(
-		'change',
-		'[name="_bfp_use_custom_demos"]',
-		function()
-		{
-			$('.bfp-demo-files')[ ( this.checked ) ? 'show' : 'hide' ]();
-		}
-	);
+    // Also initialize on window load for good measure
+    $(window).on('load', function() {
+        // Re-initialize if needed (checks for already initialized state)
+        if (!window.BFP_Admin_Initialized) {
+            window.BFP_Admin_Initialized = true;
+            // Don't call initBFPAdmin again - it's already guarded
+        }
+    });
 
-	$('[name="_bfp_use_custom_demos"]').trigger('change');
-
-	// Select file button
-	$( document ).on(
-		'click',
-		'.bfp-select-file',
-		function(evt)
-		{
-			evt.preventDefault();
-			var field = $(this).closest('tr').find('.bfp-file-url'),
-				media = wp.media(
-							{
-								title: bfp['Select audio file'],
-								library:{ type: 'audio' },
-								button: { text: bfp['Select Item'] },
-								multiple: false
-							}
-						).on(
-							'select',
-							(function( field ){
-								return function() {
-									var attachment = media.state().get('selection').first().toJSON(),
-										url = attachment.url;
-									field.val( url );
-								};
-							})( field )
-						).open();
-		}
-	);
-
-	// Cover section visibility
-	function coverSection()
-	{
-		var v = $('[name="_bfp_player_controls"]:checked').val(),
-			c = $('.bfp-on-cover');
-		if(v == 'default' || v == 'button') c.show();
-		else c.hide();
-	}
-	
-	$(document).on('change', '[name="_bfp_player_controls"]', function(){
-		coverSection();
-	});
-	
-	// Analytics integration
-	$(document).on('change', '[name="_bfp_analytics_integration"]', function(){
-		var v = $('[name="_bfp_analytics_integration"]:checked').val();
-		$('.bfp-analytics-g4').css('display', v == 'g' ? 'table-row' : 'none');
-		$('[name="_bfp_analytics_property"]').attr('placeholder', v == 'g' ? 'G-XXXXXXXX' : 'UA-XXXXX-Y');
-	});
-	
-	// Cloud Storage Tab Functionality
-	$(document).on('click', '.bfp-cloud-tab-btn', function(){
-		var tab = $(this).data('tab');
-		
-		// Update tab buttons
-		$('.bfp-cloud-tab-btn').removeClass('bfp-cloud-tab-active');
-		$(this).addClass('bfp-cloud-tab-active');
-		
-		// Update tab panels
-		$('.bfp-cloud-tab-panel').removeClass('bfp-cloud-tab-panel-active');
-		$('.bfp-cloud-tab-panel[data-panel="' + tab + '"]').addClass('bfp-cloud-tab-panel-active');
-		
-		// Save the active tab in hidden input
-		$('#_bfp_cloud_active_tab').val(tab);
-	});
-	
-	// Initialize
-	$('[name="_bfp_analytics_integration"]:eq(0)').change();
-	coverSection();
-
-	// Main code - only trigger if we have the add button
-	if ($('.bfp-add').length) {
-		$('.bfp-add').trigger('click');
-	}
-	
-	// Product page specific initialization
-	if ($('body').hasClass('post-type-product')) {
-		// Handle format regeneration button
-		$('#bfp_regenerate_formats').on('click', function(e) {
-			e.preventDefault();
-			
-			var $button = $(this);
-			var productId = $button.data('product-id');
-			
-			// Clear the message queue to prevent multiple messages
-			if (window.BFP_AJAX && window.BFP_AJAX.clearQueue) {
-				window.BFP_AJAX.clearQueue();
-			}
-			
-			$button.prop('disabled', true).text('Regenerating...');
-			
-			$.ajax({
-				url: ajaxurl,
-				type: 'POST',
-				data: {
-					action: 'bfp_regenerate_formats',
-					product_id: productId,
-					nonce: $('#bfp_nonce').val()
-				},
-				success: function(response) {
-					if (response.success) {
-						if (window.BFP_AJAX) {
-							window.BFP_AJAX.showNotice('success', response.data.message);
-						}
-					} else {
-						if (window.BFP_AJAX) {
-							window.BFP_AJAX.showNotice('error', response.data.message || 'Format regeneration failed');
-						}
-					}
-				},
-				error: function() {
-					if (window.BFP_AJAX) {
-						window.BFP_AJAX.showNotice('error', 'An error occurred during format regeneration');
-					}
-				},
-				complete: function() {
-					$button.prop('disabled', false).text('Regenerate Formats');
-				}
-			});
-		});
-	}
-}
-
-jQuery(bfp_admin);
-jQuery(window).on('load', bfp_admin);
-
-// Enhanced AJAX notification system
-window.BFP_AJAX = null;
-
-jQuery(function($) {
-    // AJAX Settings Save Handler
+    // Enhanced AJAX notification system
     window.BFP_AJAX = {
         container: null,
         autoDismissTimeout: 5000,
@@ -478,10 +663,13 @@ jQuery(function($) {
     };
     
     // Initialize AJAX handler
-    if (window.BFP_AJAX.isSettingsPage() || window.BFP_AJAX.isProductPage()) {
-        window.BFP_AJAX.init();
-    }
-});
+    $(function() {
+        if (window.BFP_AJAX.isSettingsPage() || window.BFP_AJAX.isProductPage()) {
+            window.BFP_AJAX.init();
+        }
+    });
+
+})(jQuery);
 
 // Ensure we're using the localized settings from state manager
 jQuery(document).ready(function($) {
