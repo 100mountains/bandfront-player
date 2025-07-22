@@ -90,6 +90,7 @@ class Config {
        ],
        '_bfp_enable_visualizations' => 0,
        '_bfp_dev_mode' => 0,
+       '_bfp_sndloop_mode' => 0,
        '_bfp_debug' => [
            'enabled' => false,
            'domains' => [
@@ -223,6 +224,7 @@ class Config {
            '_bfp_audio_engine' => 'html5',
            '_bfp_enable_visualizations' => 0,
            '_bfp_dev_mode' => 0,
+           '_bfp_sndloop_mode' => 0,
            '_bfp_debug' => [
                'enabled' => false,
                'domains' => [
@@ -479,6 +481,7 @@ class Config {
            'purchased_times_text' => ['key' => '_bfp_purchased_times_text', 'type' => 'string'],
            'apply_to_all_players' => ['key' => '_bfp_apply_to_all_players', 'type' => 'int'],
            'dev_mode' => ['key' => '_bfp_dev_mode', 'type' => 'int'],
+           'sndloop_mode' => ['key' => '_bfp_sndloop_mode', 'type' => 'int'],
            
            // Audio engine settings
            'audio_engine' => ['key' => '_bfp_audio_engine', 'type' => 'string'],

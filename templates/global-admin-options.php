@@ -61,15 +61,17 @@ $playerControls = $config->getPlayerControls();
         <a href="#cloud-storage" class="nav-tab" data-tab="cloud-storage-panel">
             <?php esc_html_e('Cloud Storage', 'bandfront-player'); ?>
         </a>
-        <a href="#troubleshooting" class="nav-tab" data-tab="troubleshooting-panel">
-            <?php esc_html_e('Troubleshooting', 'bandfront-player'); ?>
-        </a>
         <?php if ($settings['_bfp_dev_mode']) : ?>
         <a href="#database-monitor" class="nav-tab" data-tab="database-monitor-panel">
             <?php esc_html_e('Database Monitor', 'bandfront-player'); ?>
         </a>
         <a href="#dev" class="nav-tab" data-tab="dev-panel">
             <?php esc_html_e('Dev', 'bandfront-player'); ?>
+        </a>
+        <?php endif; ?>
+        <?php if ($settings['_bfp_sndloop_mode']) : ?>
+        <a href="#sndloop" class="nav-tab" data-tab="sndloop-panel">
+            <?php esc_html_e('Sndloop', 'bandfront-player'); ?>
         </a>
         <?php endif; ?>
     </h2>
@@ -107,6 +109,13 @@ $playerControls = $config->getPlayerControls();
                     <td>
                         <input aria-label="<?php esc_attr_e( 'Enable developer mode', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_dev_mode" name="_bfp_dev_mode" <?php checked( $settings['_bfp_dev_mode'] ); ?> />
                         <p class="description"><?php esc_html_e( 'Enable database monitoring and developer tools tabs', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="_bfp_sndloop_mode">🔄 <?php esc_html_e( 'Sndloop Mode', 'bandfront-player' ); ?></label></th>
+                    <td>
+                        <input aria-label="<?php esc_attr_e( 'Enable sndloop troubleshooting mode', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_sndloop_mode" name="_bfp_sndloop_mode" <?php checked( $settings['_bfp_sndloop_mode'] ); ?> />
+                        <p class="description"><?php esc_html_e( 'Enable advanced troubleshooting and sndloop tools tab', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
                 <!-- Purchasers Display Settings -->
@@ -280,6 +289,16 @@ $playerControls = $config->getPlayerControls();
                         <p class="description"><?php esc_html_e( 'Text shown next to players to explain these are preview versions', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">🗑️ <?php esc_html_e( 'Demo files corrupted or outdated?', 'bandfront-player' ); ?></th>
+                    <td>
+                        <label>
+                        <input aria-label="<?php esc_attr_e( 'Delete the demo files generated previously', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_delete_demos" />
+                        <?php esc_html_e( 'Regenerate demo files', 'bandfront-player' ); ?>
+                        </label>
+                        <p class="description"><?php esc_html_e( 'Check this box to delete existing demo files and regenerate them on next demo creation', 'bandfront-player' ); ?></p>
+                    </td>
+                </tr>
             </table>
         </div>
         
@@ -325,30 +344,6 @@ $playerControls = $config->getPlayerControls();
             </table>
         </div>
         
-        <!-- Troubleshooting Tab -->
-        <div id="troubleshooting-panel" class="bfp-tab-panel" style="display:none;">
-            <h3>🔧 <?php esc_html_e('Troubleshooting', 'bandfront-player'); ?></h3>
-            <table class="form-table">
-                <tr>
-                <tr>
-                    <th scope="row">🗑️ <?php esc_html_e( 'Demo files corrupted or outdated?', 'bandfront-player' ); ?></th>
-                    <td>
-                        <label>
-                        <input aria-label="<?php esc_attr_e( 'Delete the demo files generated previously', 'bandfront-player' ); ?>" type="checkbox" name="_bfp_delete_demos" />
-                        <?php esc_html_e( 'Regenerate demo files', 'bandfront-player' ); ?>
-                        </label>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <p class="bfp-troubleshoot-protip">💡<?php esc_html_e( 'After changing troubleshooting settings, clear your website and browser caches for best results.', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        
-       
-        
         <?php 
         // Include cloud tools template
         include_once plugin_dir_path(__FILE__) . 'cloud-tools.php';
@@ -356,6 +351,17 @@ $playerControls = $config->getPlayerControls();
         // Include dev tools template if dev mode is enabled
         if ($settings['_bfp_dev_mode']) {
             include_once plugin_dir_path(__FILE__) . 'dev-tools.php';
+        }
+        
+        // Include sndloop tools template if sndloop mode is enabled
+        if ($settings['_bfp_sndloop_mode']) {
+        ?>
+        <div id="sndloop-panel" class="bfp-tab-panel" style="display:none;">
+        <?php
+            include_once plugin_dir_path(__FILE__) . 'sndloop.php';
+        ?>
+        </div>
+        <?php
         }
         ?>
         
@@ -414,6 +420,18 @@ jQuery(document).ready(function($) {
                 $(this).closest('td').append('<p class="bfp-dev-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Developer tabs will appear after saving settings.', 'bandfront-player'); ?></p>');
             } else {
                 $(this).closest('td').append('<p class="bfp-dev-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Developer tabs will be hidden after saving settings.', 'bandfront-player'); ?></p>');
+            }
+        }
+    });
+    
+    // Handle sndloop mode toggle - reload page when changed
+    $('#_bfp_sndloop_mode').on('change', function() {
+        if ($(this).closest('form').find('input[name="action"]').val() === 'bfp_save_settings') {
+            // Show a notice that page will reload after save
+            if (this.checked) {
+                $(this).closest('td').append('<p class="bfp-sndloop-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Sndloop tab will appear after saving settings.', 'bandfront-player'); ?></p>');
+            } else {
+                $(this).closest('td').append('<p class="bfp-sndloop-mode-notice" style="color: #2271b1; margin-top: 5px;"><?php esc_html_e('Sndloop tab will be hidden after saving settings.', 'bandfront-player'); ?></p>');
             }
         }
     });

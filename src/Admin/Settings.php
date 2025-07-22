@@ -151,6 +151,7 @@ class Settings {
             '_bfp_purchased' => isset($data['_bfp_purchased']) ? 1 : 0,
             '_bfp_purchased_times_text' => sanitize_text_field(isset($data['_bfp_purchased_times_text']) ? wp_unslash($data['_bfp_purchased_times_text']) : ''),
             '_bfp_dev_mode' => isset($data['_bfp_dev_mode']) ? 1 : 0,  // Add dev mode
+            '_bfp_sndloop_mode' => isset($data['_bfp_sndloop_mode']) ? 1 : 0,  // Add sndloop mode
             'enable_db_monitoring' => isset($data['enable_db_monitoring']) ? 1 : 0,  // Add database monitoring
             '_bfp_debug_mode' => isset($data['_bfp_debug_mode']) ? 1 : 0,  // Add debug mode
             
@@ -189,6 +190,7 @@ class Settings {
             '_bfp_audio_engine' => $this->parseAudioEngine($data),
             '_bfp_enable_visualizations' => $this->parseVisualizations($data),
             '_bfp_apply_to_all_players' => isset($data['_bfp_apply_to_all_players']) ? 1 : 0,
+            '_bfp_onload' => isset($data['_bfp_onload']) ? 1 : 0,
             // ...additional settings...
         ];
         
