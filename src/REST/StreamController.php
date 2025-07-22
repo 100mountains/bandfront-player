@@ -117,78 +117,22 @@ class StreamController {
             Debug::log('File not found', ['file_id' => $fileId, 'available_keys' => array_keys($files)]);
             return new \WP_REST_Response(['error' => 'File not found'], 404);
         }
-        
-        // Check if user has purchased the product (only if demos are on)
-        $demosEnabled = $this->config->getState('_bfp_play_demos', false, $productId);
-        if ($demosEnabled && !$this->userHasPurchased($productId)) {
-            Debug::log('User has not purchased product and demos are enabled - will serve demo');
-            // Continue to serve demo version below
-        }
-        
+
         // Get the file URL
         $fileUrl = $fileData['file'] ?? '';
         if (empty($fileUrl)) {
             Debug::log('File URL is empty');
             return new \WP_REST_Response(['error' => 'Invalid file URL'], 500);
         }
-        
-        Debug::log('Streaming file', [
+
+        Debug::log('Streaming file via Audio component', [
             'url' => $fileUrl,
-            'demos_enabled' => $demosEnabled
+            'product_id' => $productId
         ]);
-        
-        // If demos are off, assume everyone is authenticated and serve the full file
-        if (!$demosEnabled) {
-            // WooCommerce files are protected, we need to serve them properly
-            Debug::log('Serving full file (demos disabled - all users authenticated)');
-            
-            // Check if it's a local file in WooCommerce uploads
-            $upload_dir = wp_upload_dir();
-            $wc_upload_dir = $upload_dir['basedir'] . '/woocommerce_uploads/';
-            
-            // Convert URL to local path
-            $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $fileUrl);
-            
-            // If it's in WooCommerce uploads, we need to serve it directly
-            if (strpos($local_path, $wc_upload_dir) === 0 && file_exists($local_path)) {
-                Debug::log('Streaming WooCommerce protected file', ['path' => $local_path]);
-                
-                // Use FileManager to stream the file with proper headers
-                $this->fileManager->streamFile($local_path);
-                exit;
-            }
-            
-            // For non-protected files, validate URL first
-            Debug::log('Checking non-protected file URL', ['url' => $fileUrl]);
-            
-            // Validate the URL
-            if (!filter_var($fileUrl, FILTER_VALIDATE_URL)) {
-                Debug::log('Invalid file URL format', ['url' => $fileUrl]);
-                return new \WP_REST_Response(['error' => 'Invalid file URL format'], 500);
-            }
-            
-            // Check if it's a local file that should exist
-            $upload_dir = wp_upload_dir();
-            if (strpos($fileUrl, $upload_dir['baseurl']) === 0) {
-                // It's a local file, check if it exists
-                $local_file = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $fileUrl);
-                if (!file_exists($local_file)) {
-                    Debug::log('Local file not found', [
-                        'url' => $fileUrl,
-                        'local_path' => $local_file
-                    ]);
-                    return new \WP_REST_Response(['error' => 'File not found on server'], 404);
-                }
-            }
-            
-            Debug::log('Redirecting to non-protected file', ['url' => $fileUrl]);
-            wp_redirect($fileUrl);
-            exit;
-        }
-        
-        // If demos are on, use Audio component for demo streaming
+
+        // Use Audio component for streaming (handles demo vs full logic internally)
         try {
-            Debug::log('🎵 About to call Audio::outputFile() for demo streaming');
+            Debug::log('🎵 About to call Audio::outputFile() for streaming');
             
             $this->audio->outputFile([
                 'url' => $fileUrl,
@@ -197,9 +141,7 @@ class StreamController {
                 'file_percent' => (int) $this->config->getState('_bfp_demo_duration_percent', 30, $productId)
             ]);
             
-            Debug::log('🎵 Audio::outputFile() completed successfully');
-            
-        } catch (\Throwable $e) {
+            Debug::log('🎵 Audio::outputFile() completed successfully');        } catch (\Throwable $e) {
             Debug::log('🚨 ERROR in Audio::outputFile()', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),

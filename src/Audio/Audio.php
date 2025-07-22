@@ -57,8 +57,16 @@ class Audio {
         // Check if demos are enabled
         $demosEnabled = $this->config->getState('_bfp_play_demos', false, $productId);
         
-        if ($purchased && !empty($fileData['file']) && !$demosEnabled) {
-            // For HTML5 engine with purchased products and demos disabled, prefer direct URLs
+        // Check if purchased users should get full tracks
+        $fullTracksForBuyers = $this->config->getState('_bfp_purchased', false, $productId);
+        
+        // Determine if user should get full tracks:
+        // 1. If demos are disabled, everyone gets full tracks
+        // 2. If demos are enabled but user purchased AND full_tracks_for_buyers is enabled
+        $shouldGetFullTracks = !$demosEnabled || ($purchased && $fullTracksForBuyers);
+        
+        if ($shouldGetFullTracks && !empty($fileData['file'])) {
+            // For HTML5 engine with full track access, prefer direct URLs
             if ($audioEngine === 'html5') {
                 // Try to get direct URL to pre-generated file
                 $preGeneratedUrl = $this->getPreGeneratedFileUrl($productId, $fileData['file']);
@@ -209,7 +217,7 @@ class Audio {
     
     /**
      * Output file for streaming
-     * Used by REST API endpoint for demo streaming
+     * Used by REST API endpoint for streaming
      */
     public function outputFile(array $args): void {
         $url = $args['url'] ?? '';
@@ -225,9 +233,17 @@ class Audio {
             exit;
         }
         
-        // For demos, we need to use DemoCreator to create/stream truncated file
-        if ($securPlayer && $filePercent < 100) {
-            Debug::log('🎵 GENERATING DEMO URL', [
+        // Determine if user should get demo or full file
+        $demosEnabled = $this->config->getState('_bfp_play_demos', false, $productId);
+        $purchased = $this->checkPurchaseStatus($productId);
+        $fullTracksForBuyers = $this->config->getState('_bfp_purchased', false, $productId);
+        
+        // User gets full file if: demos disabled OR (purchased AND full_tracks_for_buyers enabled)
+        $shouldGetFullFile = !$demosEnabled || ($purchased && $fullTracksForBuyers);
+        
+        if (!$shouldGetFullFile && $securPlayer && $filePercent < 100) {
+            // Serve demo file
+            Debug::log('🎵 GENERATING DEMO FILE', [
                 'original_url' => $url,
                 'product_id' => $productId,
                 'demo_percent' => $filePercent
@@ -251,8 +267,22 @@ class Audio {
             }
         }
         
-        // For full files, just redirect
-        Debug::log('🔗 REDIRECTING TO ORIGINAL FILE', ['url' => $url]);
+        // Serve full file (either demo disabled or user has access)
+        Debug::log('🔗 SERVING FULL FILE', [
+            'url' => $url,
+            'reason' => $shouldGetFullFile ? 'User has access' : 'Demo fallback'
+        ]);
+        
+        // Check if it's a local file we can stream directly
+        $upload_dir = wp_upload_dir();
+        $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $url);
+        
+        if (file_exists($local_path)) {
+            $this->fileManager->streamFile($local_path);
+            exit;
+        }
+        
+        // For non-local files, redirect
         wp_redirect($url);
         exit;
     }
