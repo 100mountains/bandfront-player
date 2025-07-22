@@ -212,7 +212,7 @@ class Audio {
         $url = $args['url'] ?? '';
         $productId = $args['product_id'] ?? 0;
         $securPlayer = $args['secure_player'] ?? false;
-        $filePercent = $args['file_percent'] ?? 100;
+        $filePercent = (int) ($args['file_percent'] ?? 100);
         
         Debug::log('Audio::outputFile called', $args);
         

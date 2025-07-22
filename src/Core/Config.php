@@ -317,7 +317,9 @@ class Config {
        } elseif (in_array($key, ['_bfp_enable_player', '_bfp_play_demos', '_bfp_group_cart_control',
                                 '_bfp_unified_player', '_bfp_play_all', '_bfp_loop', '_bfp_use_custom_demos',
                                 '_bfp_direct_demo_links'])) {
-           return $value === '1' || $value === 1 || $value === true;
+           // Boolean settings: both true (1, '1', true) and false (0, '0', false) are valid overrides
+           return $value === '1' || $value === 1 || $value === true || 
+                  $value === '0' || $value === 0 || $value === false;
        } elseif ($key === '_bfp_demo_duration_percent') {
            return is_numeric($value) && $value >= 0 && $value <= 100;
        } elseif ($key === '_bfp_player_volume') {

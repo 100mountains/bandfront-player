@@ -62,6 +62,12 @@ class StreamController {
      * Handle stream request
      */
     public function handleStreamRequest(\WP_REST_Request $request): \WP_REST_Response {
+        Debug::log('🎵 StreamController::handleStreamRequest() ENTRY POINT', [
+            'method' => $request->get_method(),
+            'route' => $request->get_route(),
+            'params' => $request->get_params()
+        ]);
+        
         $productId = (int) $request->get_param('product_id');
         $fileId = $request->get_param('file_id');
         
@@ -181,14 +187,34 @@ class StreamController {
         }
         
         // If demos are on, use Audio component for demo streaming
-        $this->audio->outputFile([
-            'url' => $fileUrl,
-            'product_id' => $productId,
-            'secure_player' => true,
-            'file_percent' => $this->config->getState('_bfp_demo_duration_percent', 30, $productId)
-        ]);
+        try {
+            Debug::log('🎵 About to call Audio::outputFile() for demo streaming');
+            
+            $this->audio->outputFile([
+                'url' => $fileUrl,
+                'product_id' => $productId,
+                'secure_player' => true,
+                'file_percent' => (int) $this->config->getState('_bfp_demo_duration_percent', 30, $productId)
+            ]);
+            
+            Debug::log('🎵 Audio::outputFile() completed successfully');
+            
+        } catch (\Throwable $e) {
+            Debug::log('🚨 ERROR in Audio::outputFile()', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return new \WP_REST_Response([
+                'error' => 'Demo streaming failed',
+                'details' => $e->getMessage()
+            ], 500);
+        }
         
         // This won't be reached if streaming succeeds
+        Debug::log('🚨 outputFile() did not stream - this should not happen');
         return new \WP_REST_Response(['error' => 'Streaming failed'], 500);
     }
     
