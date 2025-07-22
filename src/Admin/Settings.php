@@ -317,14 +317,42 @@ class Settings {
         return [
             '_bfp_cloud_active_tab' => isset($data['_bfp_cloud_active_tab']) ? 
                                        sanitize_text_field(wp_unslash($data['_bfp_cloud_active_tab'])) : 'google-drive',
-            '_bfp_cloud_dropbox' => [
-                'enabled' => isset($data['_bfp_cloud_dropbox_enabled']) ? true : false,
-                'access_token' => isset($data['_bfp_cloud_dropbox_token']) ? 
-                                 sanitize_text_field(wp_unslash($data['_bfp_cloud_dropbox_token'])) : '',
-                'folder_path' => isset($data['_bfp_cloud_dropbox_folder']) ? 
-                                sanitize_text_field(wp_unslash($data['_bfp_cloud_dropbox_folder'])) : '/bandfront-demos',
+            '_bfp_cloud_storage' => [
+                'google_drive' => [
+                    'enabled' => isset($data['_bfp_cloud_google_drive_enabled']) ? true : false,
+                    'api_key' => isset($data['_bfp_drive_api_key']) ? 
+                                sanitize_text_field(wp_unslash($data['_bfp_drive_api_key'])) : '',
+                    'folder_id' => isset($data['_bfp_cloud_google_drive_folder']) ? 
+                                  sanitize_text_field(wp_unslash($data['_bfp_cloud_google_drive_folder'])) : '',
+                ],
+                'dropbox' => [
+                    'enabled' => isset($data['_bfp_cloud_dropbox_enabled']) ? true : false,
+                    'access_token' => isset($data['_bfp_cloud_dropbox_token']) ? 
+                                     sanitize_text_field(wp_unslash($data['_bfp_cloud_dropbox_token'])) : '',
+                    'folder_path' => isset($data['_bfp_cloud_dropbox_folder']) ? 
+                                    sanitize_text_field(wp_unslash($data['_bfp_cloud_dropbox_folder'])) : '/bandfront-demos',
+                ],
+                's3' => [
+                    'enabled' => isset($data['_bfp_cloud_s3_enabled']) ? true : false,
+                    'access_key' => isset($data['_bfp_cloud_s3_access_key']) ? 
+                                   sanitize_text_field(wp_unslash($data['_bfp_cloud_s3_access_key'])) : '',
+                    'secret_key' => isset($data['_bfp_cloud_s3_secret_key']) ? 
+                                   sanitize_text_field(wp_unslash($data['_bfp_cloud_s3_secret_key'])) : '',
+                    'bucket' => isset($data['_bfp_cloud_s3_bucket']) ? 
+                               sanitize_text_field(wp_unslash($data['_bfp_cloud_s3_bucket'])) : '',
+                    'region' => isset($data['_bfp_cloud_s3_region']) ? 
+                               sanitize_text_field(wp_unslash($data['_bfp_cloud_s3_region'])) : 'us-east-1',
+                ],
+                'azure' => [
+                    'enabled' => isset($data['_bfp_cloud_azure_enabled']) ? true : false,
+                    'storage_account' => isset($data['_bfp_cloud_azure_storage_account']) ? 
+                                        sanitize_text_field(wp_unslash($data['_bfp_cloud_azure_storage_account'])) : '',
+                    'access_key' => isset($data['_bfp_cloud_azure_access_key']) ? 
+                                   sanitize_text_field(wp_unslash($data['_bfp_cloud_azure_access_key'])) : '',
+                    'container' => isset($data['_bfp_cloud_azure_container']) ? 
+                                  sanitize_text_field(wp_unslash($data['_bfp_cloud_azure_container'])) : 'bandfront-demos',
+                ],
             ],
-            // ...S3 and Azure settings...
         ];
     }
     

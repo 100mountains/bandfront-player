@@ -123,6 +123,14 @@ function bfp_admin()
 		$('#_bfp_cloud_active_tab').val(tab);
 	});
 	
+	// Cloud Storage Provider Mutual Exclusivity
+	$(document).on('change', '.bfp-cloud-provider-checkbox', function(){
+		if ($(this).is(':checked')) {
+			// Uncheck all other cloud providers
+			$('.bfp-cloud-provider-checkbox').not(this).prop('checked', false);
+		}
+	});
+	
 	// Initialize
 	$('[name="_bfp_analytics_integration"]:eq(0)').change();
 	coverSection();

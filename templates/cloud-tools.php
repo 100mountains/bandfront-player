@@ -40,9 +40,8 @@ $tab_mapping = [
 ];
 $cloud_active_tab = $tab_mapping[$active_provider] ?? 'google-drive';
 
-// Cloud Storage Settings from legacy options
+// Legacy options for backward compatibility
 $bfp_cloud_settings = get_option('_bfp_cloud_drive_addon', array());
-$bfp_drive = isset($bfp_cloud_settings['_bfp_drive']) ? $bfp_cloud_settings['_bfp_drive'] : false;
 $bfp_drive_key = isset($bfp_cloud_settings['_bfp_drive_key']) ? $bfp_cloud_settings['_bfp_drive_key'] : '';
 $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
 ?>
@@ -75,16 +74,16 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
             <div class="bfp-cloud-tab-panel <?php echo $cloud_active_tab === 'google-drive' ? 'bfp-cloud-tab-panel-active' : ''; ?>" data-panel="google-drive">
                 <table class="form-table">
                     <tr>
-                        <th scope="row"><label for="_bfp_drive"><?php esc_html_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?></label></th>
+                        <th scope="row"><label for="_bfp_cloud_google_drive_enabled"><?php esc_html_e( 'Enable Google Drive Storage', 'bandfront-player' ); ?></label></th>
                         <td>
-                            <input aria-label="<?php esc_attr_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?>" 
+                            <input aria-label="<?php esc_attr_e( 'Enable Google Drive Storage', 'bandfront-player' ); ?>" 
                                    type="checkbox" 
-                                   id="_bfp_drive" 
-                                   name="_bfp_cloud_storage[google_drive_enabled]" 
+                                   id="_bfp_cloud_google_drive_enabled" 
+                                   name="_bfp_cloud_google_drive_enabled" 
                                    value="1"
-                                   <?php checked( $active_provider === 'google-drive' ); ?> 
-                                   class="bfp-cloud-provider-toggle" 
-                                   data-provider="google-drive" />
+                                   <?php checked( $cloud_google['enabled'] ?? false ); ?> 
+                                   class="bfp-cloud-provider-checkbox" />
+                            <span class="description"><?php esc_html_e( 'Store demo files on Google Drive', 'bandfront-player' ); ?></span>
                         </td>
                     </tr>
                     <tr>
@@ -153,9 +152,46 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
             
             <!-- Dropbox Tab -->
             <div class="bfp-cloud-tab-panel <?php echo $cloud_active_tab === 'dropbox' ? 'bfp-cloud-tab-panel-active' : ''; ?>" data-panel="dropbox">
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="_bfp_cloud_dropbox_enabled"><?php esc_html_e( 'Enable Dropbox Storage', 'bandfront-player' ); ?></label></th>
+                        <td>
+                            <input aria-label="<?php esc_attr_e( 'Enable Dropbox Storage', 'bandfront-player' ); ?>" 
+                                   type="checkbox" 
+                                   id="_bfp_cloud_dropbox_enabled" 
+                                   name="_bfp_cloud_dropbox_enabled" 
+                                   value="1"
+                                   <?php checked( $cloud_dropbox['enabled'] ?? false ); ?> 
+                                   class="bfp-cloud-provider-checkbox" />
+                            <span class="description"><?php esc_html_e( 'Store demo files on Dropbox', 'bandfront-player' ); ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="_bfp_cloud_dropbox_token"><?php esc_html_e('Access Token', 'bandfront-player'); ?></label></th>
+                        <td>
+                            <input type="password" 
+                                   id="_bfp_cloud_dropbox_token" 
+                                   name="_bfp_cloud_dropbox_token" 
+                                   value="<?php echo esc_attr($cloud_dropbox['access_token'] ?? ''); ?>" 
+                                   class="regular-text" />
+                            <p class="description"><?php esc_html_e('Dropbox access token for API authentication', 'bandfront-player'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="_bfp_cloud_dropbox_folder"><?php esc_html_e('Folder Path', 'bandfront-player'); ?></label></th>
+                        <td>
+                            <input type="text" 
+                                   id="_bfp_cloud_dropbox_folder" 
+                                   name="_bfp_cloud_dropbox_folder" 
+                                   value="<?php echo esc_attr($cloud_dropbox['folder_path'] ?? '/bandfront-demos'); ?>" 
+                                   class="regular-text" />
+                            <p class="description"><?php esc_html_e('Dropbox folder path for demo files', 'bandfront-player'); ?></p>
+                        </td>
+                    </tr>
+                </table>
                 <div class="bfp-cloud-placeholder">
                     <h3>📦 <?php esc_html_e( 'Dropbox Integration', 'bandfront-player' ); ?></h3>
-                    <p><?php esc_html_e( 'Coming soon! Dropbox integration will allow you to store your demo files on Dropbox with automatic syncing and bandwidth optimization.', 'bandfront-player' ); ?></p>
+                    <p><?php esc_html_e( 'Coming soon! Enhanced Dropbox integration with automatic syncing and bandwidth optimization.', 'bandfront-player' ); ?></p>
                     <div class="bfp-cloud-features">
                         <h4><?php esc_html_e( 'Planned Features:', 'bandfront-player' ); ?></h4>
                         <ul>
@@ -184,41 +220,40 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
                     </div>
                     <table class="form-table">
                         <tr>
-                            <th scope="row"><?php esc_html_e('Enable S3', 'bandfront-player'); ?></th>
+                            <th scope="row"><label for="_bfp_cloud_s3_enabled"><?php esc_html_e('Enable AWS S3 Storage', 'bandfront-player'); ?></label></th>
                             <td>
-                                <label>
-                                    <input type="checkbox" 
-                                           name="_bfp_cloud_storage[s3_enabled]" 
-                                           value="1" 
-                                           <?php checked($active_provider === 's3'); ?> 
-                                           class="bfp-cloud-provider-toggle" 
-                                           data-provider="s3" />
-                                    <?php esc_html_e('Use AWS S3 for demo file storage', 'bandfront-player'); ?>
-                                </label>
+                                <input aria-label="<?php esc_attr_e( 'Enable AWS S3 Storage', 'bandfront-player' ); ?>" 
+                                       type="checkbox" 
+                                       id="_bfp_cloud_s3_enabled" 
+                                       name="_bfp_cloud_s3_enabled" 
+                                       value="1"
+                                       <?php checked($cloud_s3['enabled'] ?? false); ?> 
+                                       class="bfp-cloud-provider-checkbox" />
+                                <span class="description"><?php esc_html_e('Use AWS S3 for demo file storage', 'bandfront-player'); ?></span>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="_bfp_cloud_s3_access_key"><?php esc_html_e('Access Key ID', 'bandfront-player'); ?></label></th>
                             <td>
-                                <input type="text" id="_bfp_cloud_s3_access_key" name="_bfp_cloud_storage[s3][access_key]" value="<?php echo esc_attr($cloud_s3['access_key'] ?? ''); ?>" class="regular-text" />
+                                <input type="text" id="_bfp_cloud_s3_access_key" name="_bfp_cloud_s3_access_key" value="<?php echo esc_attr($cloud_s3['access_key'] ?? ''); ?>" class="regular-text" />
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="_bfp_cloud_s3_secret_key"><?php esc_html_e('Secret Access Key', 'bandfront-player'); ?></label></th>
                             <td>
-                                <input type="password" id="_bfp_cloud_s3_secret_key" name="_bfp_cloud_storage[s3][secret_key]" value="<?php echo esc_attr($cloud_s3['secret_key'] ?? ''); ?>" class="regular-text" />
+                                <input type="password" id="_bfp_cloud_s3_secret_key" name="_bfp_cloud_s3_secret_key" value="<?php echo esc_attr($cloud_s3['secret_key'] ?? ''); ?>" class="regular-text" />
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="_bfp_cloud_s3_bucket"><?php esc_html_e('Bucket Name', 'bandfront-player'); ?></label></th>
                             <td>
-                                <input type="text" id="_bfp_cloud_s3_bucket" name="_bfp_cloud_storage[s3][bucket]" value="<?php echo esc_attr($cloud_s3['bucket'] ?? ''); ?>" class="regular-text" />
+                                <input type="text" id="_bfp_cloud_s3_bucket" name="_bfp_cloud_s3_bucket" value="<?php echo esc_attr($cloud_s3['bucket'] ?? ''); ?>" class="regular-text" />
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="_bfp_cloud_s3_region"><?php esc_html_e('Region', 'bandfront-player'); ?></label></th>
                             <td>
-                                <select id="_bfp_cloud_s3_region" name="_bfp_cloud_storage[s3][region]">
+                                <select id="_bfp_cloud_s3_region" name="_bfp_cloud_s3_region">
                                     <option value="us-east-1" <?php selected($cloud_s3['region'] ?? 'us-east-1', 'us-east-1'); ?>>US East (N. Virginia)</option>
                                     <option value="us-west-2" <?php selected($cloud_s3['region'] ?? '', 'us-west-2'); ?>>US West (Oregon)</option>
                                     <option value="eu-west-1" <?php selected($cloud_s3['region'] ?? '', 'eu-west-1'); ?>>EU (Ireland)</option>
@@ -240,6 +275,39 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
             
             <!-- Azure Tab -->
             <div class="bfp-cloud-tab-panel <?php echo $cloud_active_tab === 'azure' ? 'bfp-cloud-tab-panel-active' : ''; ?>" data-panel="azure">
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="_bfp_cloud_azure_enabled"><?php esc_html_e('Enable Azure Storage', 'bandfront-player'); ?></label></th>
+                        <td>
+                            <input aria-label="<?php esc_attr_e( 'Enable Azure Storage', 'bandfront-player' ); ?>" 
+                                   type="checkbox" 
+                                   id="_bfp_cloud_azure_enabled" 
+                                   name="_bfp_cloud_azure_enabled" 
+                                   value="1"
+                                   <?php checked($cloud_azure['enabled'] ?? false); ?> 
+                                   class="bfp-cloud-provider-checkbox" />
+                            <span class="description"><?php esc_html_e('Use Azure Storage for demo file storage', 'bandfront-player'); ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="_bfp_cloud_azure_storage_account"><?php esc_html_e('Storage Account Name', 'bandfront-player'); ?></label></th>
+                        <td>
+                            <input type="text" id="_bfp_cloud_azure_storage_account" name="_bfp_cloud_azure_storage_account" value="<?php echo esc_attr($cloud_azure['storage_account'] ?? ''); ?>" class="regular-text" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="_bfp_cloud_azure_access_key"><?php esc_html_e('Access Key', 'bandfront-player'); ?></label></th>
+                        <td>
+                            <input type="password" id="_bfp_cloud_azure_access_key" name="_bfp_cloud_azure_access_key" value="<?php echo esc_attr($cloud_azure['access_key'] ?? ''); ?>" class="regular-text" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="_bfp_cloud_azure_container"><?php esc_html_e('Container Name', 'bandfront-player'); ?></label></th>
+                        <td>
+                            <input type="text" id="_bfp_cloud_azure_container" name="_bfp_cloud_azure_container" value="<?php echo esc_attr($cloud_azure['container'] ?? ''); ?>" class="regular-text" />
+                        </td>
+                    </tr>
+                </table>
                 <div class="bfp-cloud-placeholder">
                     <h3>☁️ <?php esc_html_e( 'Microsoft Azure Blob Storage', 'bandfront-player' ); ?></h3>
                     <p><?php esc_html_e( 'Microsoft Azure Blob Storage integration for seamless file management and global distribution with enterprise-level security.', 'bandfront-player' ); ?></p>
@@ -252,37 +320,6 @@ $bfp_drive_api_key = get_option('_bfp_drive_api_key', '');
                             <li>🔒 <?php esc_html_e( 'Compliance-ready security features', 'bandfront-player' ); ?></li>
                         </ul>
                     </div>
-                    <table class="form-table">
-                        <tr>
-                            <th scope="row"><?php esc_html_e('Enable Azure', 'bandfront-player'); ?></th>
-                            <td>
-                                <label>
-                                    <input type="checkbox" 
-                                           name="_bfp_cloud_storage[azure_enabled]" 
-                                           value="1" 
-                                           <?php checked($active_provider === 'azure'); ?> 
-                                           class="bfp-cloud-provider-toggle" 
-                                           data-provider="azure" />
-                                    <?php esc_html_e('Use Azure Storage for demo file storage', 'bandfront-player'); ?>
-                                </label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="_bfp_cloud_azure_account"><?php esc_html_e('Account Name', 'bandfront-player'); ?></label></th>
-                            <td>
-                                <input type="text" id="_bfp_cloud_azure_account" name="_bfp_cloud_storage[azure][account_name]" value="<?php echo esc_attr($cloud_azure['account_name'] ?? ''); ?>" class="regular-text" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="_bfp_cloud_azure_key"><?php esc_html_e('Account Key', 'bandfront-player'); ?></label></th>
-                            <td>
-                                <input type="password" id="_bfp_cloud_azure_key" name="_bfp_cloud_storage[azure][account_key]" value="<?php echo esc_attr($cloud_azure['account_key'] ?? ''); ?>" class="regular-text" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="_bfp_cloud_azure_container"><?php esc_html_e('Container Name', 'bandfront-player'); ?></label></th>
-                            <td>
-                                <input type="text" id="_bfp_cloud_azure_container" name="_bfp_cloud_storage[azure][container]" value="<?php echo esc_attr($cloud_azure['container'] ?? ''); ?>" class="regular-text" />
                             </td>
                         </tr>
                         <tr>
