@@ -162,9 +162,9 @@ class Settings {
                     max(0, min(50, (int) $data['_bfp_demos']['demo_start_time'])) : 0,
                 'message' => isset($data['_bfp_demos']['message']) ? 
                     sanitize_textarea_field(wp_unslash($data['_bfp_demos']['message'])) : '',
-                'use_custom' => isset($data['_bfp_demos']['use_custom']) ? true : false,
-                'direct_links' => isset($data['_bfp_demos']['direct_links']) ? true : false,
-                'demos_list' => [] // This would be populated elsewhere for custom demos
+                'use_custom' => false, // Global setting is always false - products override this
+                'direct_links' => false, // Global setting is always false - products override this
+                'demos_list' => [] // This would be populated at product level only
             ],
             
             '_bfp_ffmpeg' => isset($data['_bfp_ffmpeg']) ? 1 : 0,

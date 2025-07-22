@@ -7,9 +7,8 @@ use Bandfront\Core\Config;
 use Bandfront\Audio\Audio;
 use Bandfront\Audio\Player;
 use Bandfront\Audio\Analytics;
-use Bandfront\Audio\Preview;
-use Bandfront\Audio\PlaybackController;
 use Bandfront\Audio\DemoCreator;
+use Bandfront\Audio\PlaybackController;
 use Bandfront\Admin\Admin;
 use Bandfront\WooCommerce\WooCommerceIntegration;
 use Bandfront\WooCommerce\ProductProcessor;
@@ -149,12 +148,7 @@ class Bootstrap {
         // Analytics tracking
         $this->components['analytics'] = new Analytics($this->components['config']);
         
-        // Preview generation
-        $this->components['preview'] = new Preview(
-            $this->components['config'],
-            $this->components['audio'],
-            $this->components['file_manager']
-        );
+        // Preview generation - REMOVED: Functionality consolidated into DemoCreator
         
         // Playback controller for AJAX handling
         $this->components['playback_controller'] = new PlaybackController(

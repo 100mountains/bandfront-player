@@ -262,20 +262,6 @@ $playerControls = $config->getPlayerControls();
                         <p class="description"><?php esc_html_e( 'Text shown next to players to explain these are preview versions', 'bandfront-player' ); ?></p>
                     </td>
                 </tr>
-                <tr>
-                    <th scope="row"><label for="_bfp_demos_use_custom">🎛️ <?php esc_html_e( 'Use custom demo files', 'bandfront-player' ); ?></label></th>
-                    <td>
-                        <input aria-label="<?php esc_attr_e( 'Use manually uploaded demo files instead of auto-generated ones', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_demos_use_custom" name="_bfp_demos[use_custom]" <?php checked( $settings['_bfp_demos']['use_custom'] ?? false ); ?> />
-                        <p class="description"><?php esc_html_e( 'Use manually created demo files instead of automatically truncated versions', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row"><label for="_bfp_demos_direct_links">🔗 <?php esc_html_e( 'Direct demo links', 'bandfront-player' ); ?></label></th>
-                    <td>
-                        <input aria-label="<?php esc_attr_e( 'Allow direct links to demo files', 'bandfront-player' ); ?>" type="checkbox" id="_bfp_demos_direct_links" name="_bfp_demos[direct_links]" <?php checked( $settings['_bfp_demos']['direct_links'] ?? false ); ?> />
-                        <p class="description"><?php esc_html_e( 'Allow demo files to be accessed via direct URLs', 'bandfront-player' ); ?></p>
-                    </td>
-                </tr>
             </table>
         </div>
         

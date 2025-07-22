@@ -137,7 +137,7 @@ class StreamController {
             $this->audio->outputFile([
                 'url' => $fileUrl,
                 'product_id' => $productId,
-                'secure_player' => true,
+                'demos_enabled' => true,
                 'file_percent' => (int) $this->config->getState('_bfp_demo_duration_percent', 30, $productId)
             ]);
             

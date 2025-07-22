@@ -123,8 +123,8 @@ class Audio {
         $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $url);
         
         if (file_exists($local_path)) {
-            // Delegate to processor
-            $processor = new Processor($this->config, $this->fileManager, $this->demoCreator);
+            // Delegate to processor for metadata extraction only
+            $processor = new Processor($this->config, $this->fileManager);
             $duration = $processor->getAudioDuration($local_path);
         }
         
@@ -222,7 +222,7 @@ class Audio {
     public function outputFile(array $args): void {
         $url = $args['url'] ?? '';
         $productId = $args['product_id'] ?? 0;
-        $securPlayer = $args['secure_player'] ?? false;
+        $demosEnabled = $args['demos_enabled'] ?? false;
         $filePercent = (int) ($args['file_percent'] ?? 100);
         
         Debug::log('Audio::outputFile called', $args);
@@ -241,7 +241,7 @@ class Audio {
         // User gets full file if: demos disabled OR (purchased AND full_tracks_for_buyers enabled)
         $shouldGetFullFile = !$demosEnabled || ($purchased && $fullTracksForBuyers);
         
-        if (!$shouldGetFullFile && $securPlayer && $filePercent < 100) {
+        if (!$shouldGetFullFile && $demosEnabled && $filePercent < 100) {
             // Serve demo file
             Debug::log('🎵 GENERATING DEMO FILE', [
                 'original_url' => $url,

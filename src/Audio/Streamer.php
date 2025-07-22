@@ -206,7 +206,7 @@ class Streamer {
      * @return bool
      */
     private function shouldProcessSecure(array $args, $purchased): bool {
-        return !empty($args['secure_player']) && 
+        return !empty($args['demos_enabled']) && 
                !empty($args['file_percent']) && 
                0 !== intval($args['file_percent']) && 
                false === $purchased;

@@ -230,11 +230,8 @@ class Hooks {
      * Init callback
      */
     public function onInit(): void {
-        // Initialize preview component if not admin
+        // Initialize preview component if not admin - REMOVED: Functionality consolidated into DemoCreator
         if (!is_admin()) {
-            if ($preview = $this->bootstrap->getComponent('preview')) {
-                $preview->init();
-            }
             if ($analytics = $this->bootstrap->getComponent('analytics')) {
                 $analytics->init();
             }
