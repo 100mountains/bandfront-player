@@ -1143,8 +1143,8 @@ jQuery(document).ready(function($) {
             e.preventDefault();
             e.stopPropagation();
             
-            console.log("Play button clicked", $button);
             var $button = $(this);
+            console.log("Play button clicked", $button);
             var productId = $button.data('product-id');
             var $container = $button.siblings('.bfp-hidden-player-container');
             var $audio = $container.find('audio').first();

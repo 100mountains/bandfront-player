@@ -8,6 +8,9 @@ use Bandfront\Storage\FileManager;
 use Bandfront\Utils\Debug;
 use Bandfront\Utils\Cloud;
 
+// Set domain for Audio
+Debug::domain('audio');
+
 /**
  * Demo Creation Functionality
  * 
@@ -106,9 +109,9 @@ class DemoCreator {
         Debug::log('Entering deleteTruncatedFiles()', ['productId' => $productId]);
         
         $filesDirectoryPath = $this->fileManager->getFilesDirectoryPath();
-        $productDemoDir = $filesDirectoryPath . "products/{$productId}/";
+        $productDemoDir = $filesDirectoryPath . "demos/{$productId}/";
         
-        // Delete the entire product demo directory if it exists
+        // Delete the entire demo directory if it exists
         if (file_exists($productDemoDir) && is_dir($productDemoDir)) {
             $files = glob($productDemoDir . '*');
             foreach ($files as $file) {
@@ -119,35 +122,10 @@ class DemoCreator {
             }
             // Remove the directory if it's empty
             @rmdir($productDemoDir);
-            Debug::log('deleteTruncatedFiles: deleted product directory', ['dir' => $productDemoDir]);
+            Debug::log('deleteTruncatedFiles: deleted demo directory', ['dir' => $productDemoDir]);
         }
         
-        // Also clean up old-style demo files for backwards compatibility
-        $filesArr = get_post_meta($productId, '_downloadable_files', true);
-        $ownFilesArr = get_post_meta($productId, '_bfp_demos_list', true);
-        if (!is_array($filesArr)) {
-            $filesArr = [$filesArr];
-        }
-        if (is_array($ownFilesArr) && !empty($ownFilesArr)) {
-            $filesArr = array_merge($filesArr, $ownFilesArr);
-        }
-
-        if (!empty($filesArr) && is_array($filesArr)) {
-            foreach ($filesArr as $file) {
-                if (is_array($file) && !empty($file['file'])) {
-                    // Old-style MD5 filename cleanup
-                    $ext = pathinfo($file['file'], PATHINFO_EXTENSION);
-                    $fileName = md5($file['file']) . ((!empty($ext)) ? '.' . $ext : '');
-                    $oldStylePath = $filesDirectoryPath . 'demo_30_' . $fileName;
-                    if (file_exists($oldStylePath)) {
-                        Debug::log('deleteTruncatedFiles: deleting old-style file', ['fileName' => $fileName]);
-                        @unlink($oldStylePath);
-                    }
-                    do_action('bfp_delete_file', $productId, $file['file']);
-                }
-            }
-        }
-        Debug::log('Truncated demo files deleted for product', ['productId' => $productId]);
+        Debug::log('Demo files deleted for product', ['productId' => $productId]);
     }
     
     /**
@@ -185,7 +163,7 @@ class DemoCreator {
         
         // If we have a product ID, organize by product
         if ($productId > 0) {
-            $filename = "products/{$productId}/{$basename}_demo.{$ext}";
+            $filename = "demos/{$productId}/{$basename}_demo.{$ext}";
         } else {
             $filename = "{$basename}_demo.{$ext}";
         }
@@ -275,7 +253,7 @@ class DemoCreator {
             'original_path' => $originalPath
         ]);
         
-        // Create product directory if it doesn't exist
+        // Create demo directory if it doesn't exist
         $demoDir = dirname($demoPath);
         if (!file_exists($demoDir)) {
             wp_mkdir_p($demoDir);
