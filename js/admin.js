@@ -122,57 +122,7 @@ function bfp_admin()
 		// Save the active tab in hidden input
 		$('#_bfp_cloud_active_tab').val(tab);
 	});
-	
-	// Cloud Storage Provider Mutual Exclusivity
-	$(document).on('change', '.bfp-cloud-provider-checkbox', function(){
-		var $this = $(this);
-		var isChecked = $this.is(':checked');
-		
-		if (isChecked) {
-			// Uncheck all other cloud providers
-			$('.bfp-cloud-provider-checkbox').not(this).prop('checked', false);
-			
-			// Switch to the appropriate tab
-			var providerId = $this.attr('id');
-			var tabMapping = {
-				'_bfp_cloud_google_drive_enabled': 'google-drive',
-				'_bfp_cloud_dropbox_enabled': 'dropbox',
-				'_bfp_cloud_s3_enabled': 'aws-s3',
-				'_bfp_cloud_azure_enabled': 'azure'
-			};
-			
-			var targetTab = tabMapping[providerId];
-			if (targetTab) {
-				// Click the corresponding tab
-				$('.bfp-cloud-tab-btn[data-tab="' + targetTab + '"]').click();
-			}
-		}
-	});
-	
-	// Initialize cloud storage tab on page load
-	$(document).ready(function() {
-		// Check which cloud provider is enabled and switch to that tab
-		var enabledProvider = null;
-		$('.bfp-cloud-provider-checkbox:checked').each(function() {
-			enabledProvider = $(this).attr('id');
-		});
-		
-		if (enabledProvider) {
-			var tabMapping = {
-				'_bfp_cloud_google_drive_enabled': 'google-drive',
-				'_bfp_cloud_dropbox_enabled': 'dropbox',
-				'_bfp_cloud_s3_enabled': 'aws-s3',
-				'_bfp_cloud_azure_enabled': 'azure'
-			};
-			
-			var targetTab = tabMapping[enabledProvider];
-			if (targetTab) {
-				// Click the corresponding tab
-				$('.bfp-cloud-tab-btn[data-tab="' + targetTab + '"]').click();
-			}
-		}
-	});
-	
+
 	// Initialize
 	$('[name="_bfp_analytics_integration"]:eq(0)').change();
 	coverSection();
@@ -613,5 +563,16 @@ jQuery(document).ready(function($) {
         // Show corresponding content
         $('.bfp-cloud-tab-pane').removeClass('active');
         $('#' + target).addClass('active');
+    });
+    
+    // Cloud Provider Mutual Exclusivity
+    $(document).on('change', '.bfp-cloud-provider-toggle', function(){
+        var providerId = $(this).attr('id');
+        var isChecked = $(this).is(':checked');
+        
+        if (isChecked) {
+            // Disable all other cloud provider checkboxes
+            $('.bfp-cloud-provider-toggle').not(this).prop('checked', false);
+        }
     });
 });
