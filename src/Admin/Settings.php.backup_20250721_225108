@@ -443,18 +443,4 @@ class Settings {
             ]);
         }
     }
-
-    public function onDemoSettingsSaved(): void {
-    $demosEnabled = $this->config->getState('_bfp_play_demos', false);
-    
-    if ($demosEnabled) {
-        $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
-        $demoCreator = $bootstrap->getComponent('demoCreator');
-        
-        if ($demoCreator) {
-            $demoCount = $demoCreator->createDemosForAllProducts();
-            Debug::log('Settings: Demo creation triggered', ['demos_created' => $demoCount]);
-        }
-    }
-}
 }

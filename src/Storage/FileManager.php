@@ -134,36 +134,6 @@ class FileManager {
    }
    
    /**
-    * Delete truncated demo files for a product
-    */
-   public function deleteTruncatedFiles(int $productId): void {
-       Debug::log('Entering deleteTruncatedFiles()', ['productId' => $productId]); // DEBUG-REMOVE
-       $filesArr = get_post_meta($productId, '_downloadable_files', true);
-       $ownFilesArr = get_post_meta($productId, '_bfp_demos_list', true);
-       if (!is_array($filesArr)) {
-           $filesArr = [$filesArr];
-       }
-       if (is_array($ownFilesArr) && !empty($ownFilesArr)) {
-           $filesArr = array_merge($filesArr, $ownFilesArr);
-       }
-
-       if (!empty($filesArr) && is_array($filesArr)) {
-           foreach ($filesArr as $file) {
-               if (is_array($file) && !empty($file['file'])) {
-                   $ext = pathinfo($file['file'], PATHINFO_EXTENSION);
-                   $fileName = md5($file['file']) . ((!empty($ext)) ? '.' . $ext : '');
-                   if (file_exists($this->filesDirectoryPath . $fileName)) {
-                       Debug::log('deleteTruncatedFiles: deleting file', ['fileName' => $fileName]); // DEBUG-REMOVE
-                       @unlink($this->filesDirectoryPath . $fileName);
-                   }
-                   do_action('bfp_delete_file', $productId, $file['file']);
-               }
-           }
-       }
-       Debug::log('Truncated demo files deleted for product', ['productId' => $productId]); // DEBUG-REMOVE
-   }
-   
-   /**
     * Get product files with filtering options
     * 
     * @param array $args Arguments for file retrieval
@@ -587,85 +557,6 @@ class FileManager {
    }
    
    /**
-    * Generate demo file name from URL
-    * 
-    * @param string $url Source URL
-    * @return string Generated filename
-    */
-   public function generateDemoFileName(string $url): string {
-       Debug::log('generateDemoFileName()', ['url' => $url]); // DEBUG-REMOVE
-       $ext = pathinfo($url, PATHINFO_EXTENSION);
-       $ext = strtolower($ext);
-       
-       // Clean extension of query parameters
-       if (strpos($ext, '?') !== false) {
-           $ext = substr($ext, 0, strpos($ext, '?'));
-       }
-       
-       // Default to mp3 if no valid extension
-       if (!in_array($ext, ['mp3', 'wav', 'ogg', 'mp4', 'm4a', 'flac'])) {
-           $ext = 'mp3';
-       }
-       
-       $filename = md5($url) . '.' . $ext;
-       Debug::log('Demo filename generated', ['filename' => $filename]); // DEBUG-REMOVE
-       return $filename;
-   }
-   
-   /**
-    * Truncate file to percentage (simple implementation)
-    * 
-    * @param string $filePath File to truncate
-    * @param int $percent Percentage to keep
-    * @return bool Success status
-    */
-   public function truncateFile(string $filePath, int $percent): bool {
-       Debug::log('Entering truncateFile()', ['filePath' => $filePath, 'percent' => $percent]); // DEBUG-REMOVE
-       if (!file_exists($filePath) || !is_readable($filePath)) {
-           Debug::log('truncateFile: file not found or unreadable', []); // DEBUG-REMOVE
-           return false;
-       }
-       
-       $filesize = filesize($filePath);
-       $newSize = floor($filesize * ($percent / 100));
-       
-       // Create truncated copy
-       $tempFile = $filePath . '.tmp';
-       
-       try {
-           $source = fopen($filePath, 'rb');
-           $dest = fopen($tempFile, 'wb');
-           
-           $written = 0;
-           while (!feof($source) && $written < $newSize) {
-               $chunk = fread($source, min(8192, $newSize - $written));
-               fwrite($dest, $chunk);
-               $written += strlen($chunk);
-           }
-           
-           fclose($source);
-           fclose($dest);
-           
-           // Replace original with truncated version
-           if (file_exists($tempFile)) {
-               unlink($filePath);
-               rename($tempFile, $filePath);
-               Debug::log('File truncated', ['filePath' => $filePath, 'percent' => $percent]); // DEBUG-REMOVE
-               return true;
-           }
-       } catch (\Exception $e) {
-           Debug::log('truncateFile: exception', ['error' => $e->getMessage()]); // DEBUG-REMOVE
-           error_log('BFP truncateFile error: ' . $e->getMessage());
-           if (file_exists($tempFile)) {
-               @unlink($tempFile);
-           }
-       }
-       
-       Debug::log('truncateFile: failed', []); // DEBUG-REMOVE
-       return false;
-   }
-   
-   /**
     * Get file path for a product file
     * 
     * @param int $productId Product ID
@@ -683,37 +574,6 @@ class FileManager {
        
        Debug::log('getFilePath: not found', []); // DEBUG-REMOVE
        return null;
-   }
-   
-   /**
-    * Get or create demo file
-    * 
-    * @param string $originalPath Original file path
-    * @param int $percent Percentage for demo
-    * @return string Demo file path
-    */
-   public function getDemoFile(string $originalPath, int $percent): string {
-       Debug::log('Entering getDemoFile()', ['originalPath' => $originalPath, 'percent' => $percent]); // DEBUG-REMOVE
-       $demoFileName = 'demo_' . $percent . '_' . $this->generateDemoFileName($originalPath);
-       $demoPath = $this->filesDirectoryPath . $demoFileName;
-       
-       // Check if demo already exists
-       if (file_exists($demoPath)) {
-           Debug::log('getDemoFile: exists', ['demoPath' => $demoPath]); // DEBUG-REMOVE
-           return $demoPath;
-       }
-       
-       // Create demo file
-       if ($this->createDemoFile($originalPath, $demoPath)) {
-           // Truncate to percentage
-           $this->truncateFile($demoPath, $percent);
-           Debug::log('Demo file created or fetched', ['demoPath' => $demoPath, 'originalPath' => $originalPath, 'percent' => $percent]); // DEBUG-REMOVE
-           return $demoPath;
-       }
-       
-       // Return original if demo creation failed
-       Debug::log('getDemoFile: failed, returning original', ['originalPath' => $originalPath]); // DEBUG-REMOVE
-       return $originalPath;
    }
    
    /**
@@ -777,68 +637,6 @@ $end = empty($end) ? ($filesize - 1) : intval($end);
       
       Debug::log('File streamed', ['filePath' => $filePath, 'options' => $options]); // DEBUG-REMOVE
       exit;
-  }
-  
-  /**
-   * Create demo file from source
-   * 
-   * @param string $sourceUrl Source file URL
-   * @param string $destPath Destination path
-   * @return bool Success status
-   */
-  public function createDemoFile(string $sourceUrl, string $destPath): bool {
-      Debug::log('Entering createDemoFile()', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]); // DEBUG-REMOVE
-      // Process cloud URLs
-      $sourceUrl = $this->processCloudUrl($sourceUrl);
-      
-      // Check if source is local
-      $localPath = $this->isLocal($sourceUrl);
-      
-      if ($localPath && file_exists($localPath)) {
-          // Copy local file
-          $result = copy($localPath, $destPath);
-          Debug::log('createDemoFile: local copy', ['result' => $result]); // DEBUG-REMOVE
-          return $result;
-      }
-      
-      // Download remote file
-      $response = wp_remote_get($sourceUrl, [
-          'timeout' => 300,
-          'stream' => true,
-          'filename' => $destPath
-      ]);
-      
-      if (is_wp_error($response)) {
-          Debug::log('createDemoFile: download error', ['error' => $response->get_error_message()]); // DEBUG-REMOVE
-          return false;
-      }
-      
-      $result = file_exists($destPath) && filesize($destPath) > 0;        
-      Debug::log('createDemoFile: download result', ['result' => $result]); // DEBUG-REMOVE
-      Debug::log('Demo file created', ['sourceUrl' => $sourceUrl, 'destPath' => $destPath]); // DEBUG-REMOVE
-      return $result;
-  }
-  
-  /**
-   * Check if demo file is valid
-   * 
-   * @param string $filePath Path to the demo file
-   * @return bool True if valid, false otherwise
-   */
-  public function isValidDemo(string $filePath): bool {
-      Debug::log('isValidDemo()', ['filePath' => $filePath]); // DEBUG-REMOVE
-      if (!file_exists($filePath) || filesize($filePath) == 0) {
-          Debug::log('isValidDemo: file missing or empty', []); // DEBUG-REMOVE
-          return false;
-      }
-      if (function_exists('finfo_open')) {
-          $finfo = finfo_open(FILEINFO_MIME);
-          $isText = substr(finfo_file($finfo, $filePath), 0, 4) === 'text';
-          Debug::log('isValidDemo: finfo', ['isText' => $isText]); // DEBUG-REMOVE
-          return !$isText;
-      }
-      Debug::log('isValidDemo: fallback true', []); // DEBUG-REMOVE
-      return true;
   }
   
   /**

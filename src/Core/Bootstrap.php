@@ -153,6 +153,9 @@ class Bootstrap {
             $this->components['config'],
             $this->components['analytics']
         );
+
+        // Demo Creator 
+       // $this->components['demoCreator'] = new Audio\DemoCreator($config, $fileManager);
     }
     
     /**

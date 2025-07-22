@@ -23,6 +23,7 @@ class Processor {
     
     private Config $config;
     private FileManager $fileManager;
+    private DemoCreator $demoCreator;
     
     /**
      * Constructor

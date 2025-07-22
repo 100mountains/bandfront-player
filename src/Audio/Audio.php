@@ -22,13 +22,15 @@ class Audio {
     
     private Config $config;
     private FileManager $fileManager;
+    private DemoCreator $demoCreator;
     
     /**
      * Constructor
      */
-    public function __construct(Config $config, FileManager $fileManager) {
+    public function __construct(Config $config, FileManager $fileManager, DemoCreator $demoCreator) {
         $this->config = $config;
         $this->fileManager = $fileManager;
+        $this->demoCreator = $demoCreator;
     }
     
     /**
@@ -220,9 +222,9 @@ class Audio {
             exit;
         }
         
-        // For demos, we need to use FileManager to create/stream truncated file
+        // For demos, we need to use DemoCreator to create/stream truncated file
         if ($securPlayer && $filePercent < 100) {
-            $demoFile = $this->fileManager->getDemoFile($url, $filePercent);
+            $demoFile = $this->demoCreator->getDemoFile($url, $filePercent);
             if ($demoFile && file_exists($demoFile)) {
                 $this->fileManager->streamFile($demoFile);
                 exit;
