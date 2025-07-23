@@ -148,7 +148,6 @@ class Settings {
         // Extract all settings from form data
         $settings = [
             '_bfp_require_login' => isset($data['_bfp_require_login']) ? 1 : 0,
-            '_bfp_purchased' => isset($data['_bfp_purchased']) ? 1 : 0,
             '_bfp_purchased_times_text' => sanitize_text_field(isset($data['_bfp_purchased_times_text']) ? wp_unslash($data['_bfp_purchased_times_text']) : ''),
             '_bfp_dev_mode' => isset($data['_bfp_dev_mode']) ? 1 : 0,  // Add dev mode
             '_bfp_sndloop_mode' => isset($data['_bfp_sndloop_mode']) ? 1 : 0,  // Add sndloop mode

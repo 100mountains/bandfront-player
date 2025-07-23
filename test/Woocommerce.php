@@ -47,13 +47,15 @@ class WooCommerce {
 
     /**
      * Check if user has purchased a specific product
-     * Uses WordPress/WooCommerce built-in purchase verification
      */
     public function woocommerceUserProduct(int $productId): string|false {
         $this->mainPlugin->setPurchasedProductFlag(false);
         
-        // Always use WooCommerce's built-in purchase verification
-        if (!is_user_logged_in() && empty($this->mainPlugin->getForcePurchasedFlag())) {
+        // Now purchased users always get full tracks when demos are enabled
+        if (
+            !is_user_logged_in() ||
+            empty($this->mainPlugin->getForcePurchasedFlag())
+        ) {
             return false;
         }
 
