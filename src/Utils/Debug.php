@@ -1,30 +1,9 @@
 <?php
 declare(strict_types=1);
 
-// Set the domain for this file
-// Debug::domain('admin');
-
-// class AdminClass {
-//     public function processRequest() {
-//         Debug::log('Processing admin request', ['user' => $userId]);
-//         // This will only log if 'admin' domain is enabled
-//     }
-// }
-// // Anywhere in your code
-// Debug::admin('Admin action performed', ['action' => 'save_settings']);
-// Debug::ui('Rendering player interface', ['theme' => 'dark']);
-// Debug::filemanager('File uploaded', ['size' => $fileSize]);
-// Debug::audio('Processing audio file', ['format' => 'mp3']);
-// Debug::api('API request received', ['endpoint' => '/stream']);
-// // Pass domain as parameter
-// Debug::bootstrap('Component initialized', ['component' => 'player']);
-
-namespace Bandfront\Admin;
 namespace Bandfront\Utils;
 
-use Bandfront\Utils\Debug;
 use Bandfront\Core\Config;
-
 
 if (!defined('ABSPATH')) {
     exit;
@@ -43,19 +22,109 @@ class Debug {
     private static int $maxDepth = 3;
     private static int $maxStringLength = 500;
     private static ?string $logFile = null;
+    private static ?array $debugConfigCache = null;
+    private static array $fileDomains = []; // Track domains by file
 
     /**
      * Initialize Debug with Config instance
      */
     public static function init(Config $config): void {
         self::$config = $config;
+        self::$debugConfigCache = null; // Clear cache when config changes
     }
 
     /**
      * Set the current debug domain for this file/class
      */
     public static function domain(string $domain): void {
-        self::$currentDomain = strtolower($domain);
+        $domain = strtolower($domain);
+        
+        // Get the calling file
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+        $file = $backtrace[0]['file'] ?? 'unknown';
+        
+        // Store domain for this specific file
+        self::$fileDomains[$file] = $domain;
+        
+        // Only update current domain if it's not already set or if it's being set from the same file
+        if (self::$currentDomain === null || $file === array_search(self::$currentDomain, self::$fileDomains)) {
+            self::$currentDomain = $domain;
+        }
+        
+        // Diagnostic: log domain changes (always log this regardless of domain settings)
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[BFP:DOMAIN-CHANGE] Domain set to '{$domain}' from file: " . basename($file));
+        }
+    }
+
+    /**
+     * Get the domain for the calling context
+     */
+    private static function getContextDomain(): ?string {
+        // Get the calling file (skip 2 levels: getContextDomain and log)
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+        $file = $backtrace[2]['file'] ?? 'unknown';
+        
+        // Check if this file has a registered domain
+        if (isset(self::$fileDomains[$file])) {
+            return self::$fileDomains[$file];
+        }
+        
+        // Fall back to current domain
+        return self::$currentDomain;
+    }
+
+    /**
+     * Get debug configuration with caching
+     */
+    private static function getDebugConfig(): array {
+        if (self::$debugConfigCache !== null) {
+            return self::$debugConfigCache;
+        }
+
+        // If no config instance, try to get it from Bootstrap
+        if (!self::$config) {
+            $bootstrap = \Bandfront\Core\Bootstrap::getInstance();
+            if ($bootstrap) {
+                self::$config = $bootstrap->getComponent('config');
+            }
+        }
+
+        // Still no config? Return disabled state
+        if (!self::$config) {
+            return ['enabled' => false, 'domains' => []];
+        }
+
+        // Get and cache the debug config
+        self::$debugConfigCache = self::$config->getDebugConfig();
+        return self::$debugConfigCache;
+    }
+
+    /**
+     * Check if domain is enabled
+     */
+    private static function isDomainActive(string $domain): bool {
+        $debugConfig = self::getDebugConfig();
+        
+        // Global debug must be enabled
+        if (!$debugConfig['enabled']) {
+            return false;
+        }
+
+        // Get domains array
+        $domains = $debugConfig['domains'] ?? [];
+        
+        // Check specific domain
+        if (isset($domains[$domain])) {
+            return (bool) $domains[$domain];
+        }
+        
+        // Check core override for core-* domains
+        if (strpos($domain, 'core-') === 0 && isset($domains['core'])) {
+            return (bool) $domains['core'];
+        }
+        
+        return false;
     }
 
     /**
@@ -65,24 +134,25 @@ class Debug {
      * @param string|null $domain Optional domain override
      */
     public static function log(string $message, array $context = [], ?string $domain = null): void {
-        // Use provided domain, fall back to current domain
-        $domain = $domain ? strtolower($domain) : self::$currentDomain;
+        // Use provided domain, fall back to context domain
+        if (!$domain) {
+            $domain = self::getContextDomain();
+        } else {
+            $domain = strtolower($domain);
+        }
         
         // If no domain set, don't log
-        if (!$domain || !self::$config) {
+        if (!$domain) {
             return;
         }
         
-        // Check if core override is enabled (affects all core-* domains)
-        if (strpos($domain, 'core-') === 0 && self::$config->isDebugEnabled('core')) {
-            // Core override is enabled, proceed with logging
-        } else if (!self::$config->isDebugEnabled($domain)) {
-            // Domain not enabled
+        // Check if domain is active
+        if (!self::isDomainActive($domain)) {
             return;
         }
 
         // Format the log entry
-        $timestamp = date('H:i:s'); // Only show time Y-m-d removed
+        $timestamp = date('H:i:s');
         $domainPrefix = strtoupper($domain);
         $logEntry = "[BFP:{$domainPrefix}] [{$timestamp}] {$message}";
 
@@ -306,13 +376,14 @@ class Debug {
      * Check if debugging is enabled (for any domain)
      */
     public static function isEnabled(): bool {
-        return self::$config && self::$config->isDebugEnabled();
+        $debugConfig = self::getDebugConfig();
+        return $debugConfig['enabled'] ?? false;
     }
 
     /**
      * Check if a specific domain is enabled
      */
     public static function isDomainEnabled(string $domain): bool {
-        return self::$config && self::$config->isDebugEnabled($domain);
+        return self::isDomainActive(strtolower($domain));
     }
 }

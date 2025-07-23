@@ -632,7 +632,28 @@ class Config {
     * @return array
     */
    public function getDebugConfig(): array {
-       return $this->getState('_bfp_debug', $this->defaults['_bfp_debug']);
+       // Ensure global attrs are loaded
+       if (empty($this->globalAttrs)) {
+           $this->globalAttrs = get_option('bfp_global_settings', []);
+       }
+       
+       // Get debug config from global attrs or use default
+       $debugConfig = $this->globalAttrs['_bfp_debug'] ?? $this->defaults['_bfp_debug'];
+       
+       // Ensure it has the expected structure
+       if (!is_array($debugConfig)) {
+           $debugConfig = $this->defaults['_bfp_debug'];
+       }
+       
+       // Ensure required keys exist
+       if (!isset($debugConfig['enabled'])) {
+           $debugConfig['enabled'] = false;
+       }
+       if (!isset($debugConfig['domains']) || !is_array($debugConfig['domains'])) {
+           $debugConfig['domains'] = [];
+       }
+       
+       return $debugConfig;
    }
 
    /**
@@ -656,12 +677,17 @@ class Config {
        // Check specific domain
        $domain = strtolower($domain);
        
+       // Direct domain check
+       if (isset($debug['domains'][$domain])) {
+           return (bool) $debug['domains'][$domain];
+       }
+       
        // If 'core' is enabled, all core-* domains are enabled
        if (strpos($domain, 'core-') === 0 && !empty($debug['domains']['core'])) {
            return true;
        }
        
-       return isset($debug['domains'][$domain]) && $debug['domains'][$domain];
+       return false;
    }
 
    /**
