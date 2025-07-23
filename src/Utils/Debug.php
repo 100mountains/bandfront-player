@@ -82,7 +82,7 @@ class Debug {
         }
 
         // Format the log entry
-        $timestamp = date('Y-m-d H:i:s');
+        $timestamp = date('H:i:s'); // Only show time Y-m-d removed
         $domainPrefix = strtoupper($domain);
         $logEntry = "[BFP:{$domainPrefix}] [{$timestamp}] {$message}";
 

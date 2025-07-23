@@ -46,7 +46,7 @@ class Audio {
             'productId' => $productId, 
             'fileIndex' => $fileIndex,
             'fileData' => $fileData
-        ]); // DEBUG-REMOVE
+        ],'audio'); // DEBUG-REMOVE
         
         // Check if user owns the product
         $purchased = $this->checkPurchaseStatus($productId);
@@ -69,13 +69,13 @@ class Audio {
                 // Try to get direct URL to pre-generated file
                 $preGeneratedUrl = $this->getPreGeneratedFileUrl($productId, $fileData['file']);
                 if ($preGeneratedUrl) {
-                    Debug::log('Audio: using pre-generated URL for HTML5', ["url" => $preGeneratedUrl]); // DEBUG-REMOVE
+                    Debug::log('Audio: using pre-generated URL for HTML5', ["url" => $preGeneratedUrl], 'audio'); // DEBUG-REMOVE
                     return $preGeneratedUrl;
                 }
                 
                 // If no pre-generated file, return original URL for HTML5
                 // Trust WooCommerce URLs - they should be valid
-                Debug::log('Audio: using original URL for HTML5', ["url" => $fileData["file"]]); // DEBUG-REMOVE
+                Debug::log('Audio: using original URL for HTML5', ["url" => $fileData["file"]], 'audio'); // DEBUG-REMOVE
                 return $fileData['file'];
             }
         }
@@ -83,7 +83,7 @@ class Audio {
         // Direct play sources bypass streaming
         if (!empty($fileData['play_src']) || 
             (!empty($fileData['file']) && $this->fileManager->isPlaylist($fileData['file']))) {
-            Debug::log('Audio: direct play source', ["file" => $fileData["file"]]); // DEBUG-REMOVE
+            Debug::log('Audio: direct play source', ["file" => $fileData["file"]], 'audio'); // DEBUG-REMOVE
             return $fileData['file'];
         }
         
@@ -185,11 +185,11 @@ class Audio {
         // Check if file exists by trying to access the path
         $mp3Path = $uploadDir['basedir'] . '/woocommerce_uploads/bfp-formats/' . $productId . '/mp3/' . $cleanName . '.mp3';
         if (file_exists($mp3Path)) {
-            Debug::log('Audio: found pre-generated MP3', ['url' => $mp3Url]); // DEBUG-REMOVE
+            Debug::log('Audio: found pre-generated MP3', ['url' => $mp3Url], 'audio'); // DEBUG-REMOVE
             return $mp3Url;
         }
         
-        Debug::log('Audio: pre-generated file not found', ['tried' => $mp3Path]); // DEBUG-REMOVE
+        Debug::log('Audio: pre-generated file not found', ['tried' => $mp3Path], 'audio'); // DEBUG-REMOVE
         return null;
     }
     
@@ -223,10 +223,10 @@ class Audio {
         $demosEnabled = $args['demos_enabled'] ?? false;
         $filePercent = (int) ($args['file_percent'] ?? 100);
         
-        Debug::log('Audio::outputFile called', $args);
+        Debug::log('Audio::outputFile called', $args, 'audio');
         
         if (empty($url)) {
-            Debug::log('Audio::outputFile - empty URL');
+            Debug::log('Audio::outputFile - empty URL', [], 'audio');
             status_header(404);
             exit;
         }

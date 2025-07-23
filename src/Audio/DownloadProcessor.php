@@ -10,7 +10,6 @@ use RecursiveDirectoryIterator;
 use Bandfront\Utils\Debug;
 
 // Set domain for Audio
-Debug::domain('audio');
 
 /**
  * Audio Processing Security and Validation
