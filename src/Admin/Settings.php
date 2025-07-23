@@ -155,9 +155,7 @@ class Settings {
             '_bfp_sndloop_send_products' => isset($data['_bfp_sndloop_send_products']) ? 1 : 0,  // SNDLOOP send products
             '_bfp_sndloop_send_merch' => isset($data['_bfp_sndloop_send_merch']) ? 1 : 0,  // SNDLOOP send merch
             '_bfp_onload' => isset($data['_bfp_onload']) ? 1 : 0,  // Onload troubleshooting
-            'enable_db_monitoring' => isset($data['enable_db_monitoring']) ? 1 : 0,  // Add database monitoring
-            '_bfp_debug_mode' => isset($data['_bfp_debug_mode']) ? 1 : 0,  // Add debug mode
-            
+            'enable_db_monitoring' => isset($data['enable_db_monitoring']) ? 1 : 0,  // Add database monitoring  
             // Simple flat demos array - much cleaner!
             '_bfp_demos' => [
                 'enabled' => isset($data['_bfp_demos']['enabled']) ? true : false,
@@ -216,21 +214,7 @@ class Settings {
             }
         } else {
             // All domains disabled if none selected
-            $debugConfig['domains'] = [
-                'admin' => false,
-                'audio' => false,
-                'core' => false,
-                'core-bootstrap' => false,
-                'core-config' => false,
-                'core-hooks' => false,
-                'db' => false,
-                'api' => false,
-                'storage' => false,
-                'ui' => false,
-                'utils' => false,
-                'wordpress-elements' => false,
-                'woocommerce' => false,
-            ];
+            $debugConfig['domains'] = array_fill_keys($availableDomains, false);
         }
         
         $settings['_bfp_debug'] = $debugConfig;
